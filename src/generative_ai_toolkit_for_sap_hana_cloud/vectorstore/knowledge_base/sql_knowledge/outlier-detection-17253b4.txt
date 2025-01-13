@@ -1,0 +1,53 @@
+Outlier detection is an important step in time series analysis, as outliers can significantly impact the results of data analysis. Outliers can be caused by various factors such as data entry errors, experimental errors, sampling errors, and natural outliers. In time series, outliers can be categorized into three scenarios: point outlier, subsequence outlier, and system outlier. This algorithm focuses on detecting point outliers.
+
+The outlier detection procedure in this algorithm consists of two steps. In step 1, the residual is obtained from the original series using either an automatic method or one of five manual methods. The automatic method combines seasonal decomposition, linear regression, median filter, and super smoother to obtain the residual. The manual methods include using a median filter, seasonal decomposition residual, a combination of median filter and seasonal decomposition, LOESS, or super smoother to obtain the residual. Alternatively, the raw time series can be treated as the residual if there is no seasonality or trend. 
+
+In step 2, outliers are detected from the residual series using one of six methods: Z1 method, Z2 method, IQR method, MAD method, isolation forest method, or DBSCAN method. The first five methods calculate an outlier score for each data point and compare it to a threshold to determine if it is an outlier. The DBSCAN method clusters the normalized residual data points and considers the points in the largest cluster as normal points and the rest as outliers. 
+
+The formulas for calculating the outlier scores are provided for each method. It is noted that the IQR and MAD scores may be 0 when the series is very smooth, which means all data points with residual not equal to certain values will be considered outliers. 
+
+Additionally, it is mentioned that in step 2, the outlier result can be obtained by voting using some of the previous methods, without providing a score in the output table.
+
+For more detailed information and examples of the methods used in step 1 and step 2, refer to the provided links.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_OUTLIER_DATA_TBL;
+CREATE COLUMN TABLE PAL_OUTLIER_DATA_TBL (
+    "ID" INT,
+    "RAWDATA" DOUBLE
+);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (1, 0.917022);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (2, 1.22032449);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (3, 10.50011437);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (4, 0.80233257);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (5, 0.64675589);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (6, 10.59233859);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (7, 0.68626021);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (8, 0.84556073);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (9, 10.89676747);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (10, 5.03881673);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (11, 0.91919451);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (12, 11.1852195);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (13, 0.70445225);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (14, 1.37811744);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (15, 10.52738759);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (16, 1.17046751);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (17, 0.9173048);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (18, 11.05868983);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (19, 0.64038694);
+INSERT INTO PAL_OUTLIER_DATA_TBL VALUES (20, 0.69810149);
+
+
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('AUTO', 1,NULL,NULL);
+
+CALL "_SYS_AFL"."PAL_OUTLIER_DETECTION_FOR_TIME_SERIES"(PAL_OUTLIER_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?, ?);

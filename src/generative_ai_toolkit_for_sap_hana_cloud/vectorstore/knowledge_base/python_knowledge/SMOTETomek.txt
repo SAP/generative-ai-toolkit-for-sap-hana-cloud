@@ -1,0 +1,22 @@
+The SMOTETomek class in the hana_ml.algorithms.pal.preprocessing module is used for combining over-sampling using SMOTE and cleaning (under-sampling) using Tomek links, with various parameters to customize the process.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.preprocessing import SMOTETomek
+
+# Initialize the SMOTETomek class
+smotetomek = SMOTETomek(smote_amount=200,
+                        k_nearest_neighbours=2,
+                        random_seed=2,
+                        search_method='kd-tree',
+                        sampling_strategy='all')
+
+# Assume df is your input DataFrame
+# Perform both over-sampling using SMOTE and under-sampling by removing Tomek's links on given datasets
+res = smotetomek.fit_transform(data=df,
+                               label='TYPE',
+                               minority_class=2)
+```
+
+Please replace `df` with your actual DataFrame. The `label` parameter should be the name of the dependent variable in your DataFrame, and `minority_class` should be the minority class value in the dependent variable column.

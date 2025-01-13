@@ -1,0 +1,31 @@
+The factor_analysis function in the hana_ml.algorithms.pal.stats module is a statistical method that extracts a low number of unobserved variables, or factors, that best describe the covariance pattern of a larger set of observed variables, with various parameters to customize the analysis and returning multiple dataframes with detailed results.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.stats import factor_analysis
+from hana_ml import DataFrame
+
+# Assuming that connection_context is already defined and connected to SAP HANA
+# Create DataFrame from existing HANA table
+data = DataFrame(connection_context, 'MY_TABLE')
+
+# Define parameters
+key = 'ID'
+factor_num = 2
+col = None
+method = 'principle_component'
+rotation = 'varimax'
+score = 'regression'
+matrix = 'correlation'
+kappa = 4.0
+
+# Perform factor analysis
+result = factor_analysis(data=data, key=key, factor_num=factor_num, col=col, method=method, rotation=rotation, score=score, matrix=matrix, kappa=kappa)
+
+# Print results
+for df in result:
+    print(df.collect())
+```
+
+Please replace `'MY_TABLE'` with your actual table name in SAP HANA. Also, adjust the parameters as per your requirements. The `connection_context` is assumed to be already defined and connected to your SAP HANA instance.

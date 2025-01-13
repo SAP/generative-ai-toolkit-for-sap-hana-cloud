@@ -1,0 +1,31 @@
+The function outlier_detection_kmeans in the hana_ml.algorithms.pal.clustering module uses the K-means algorithm to detect outliers in a given dataset by finding the farthest point from the centroid, with various parameters to customize the process such as the number of clusters, distance type, proportion of outliers, and more.
+------
+Here is the executable code template for the function `outlier_detection_kmeans`:
+
+```python
+from hana_ml.algorithms.pal.clustering import outlier_detection_kmeans
+
+# Assuming that `df` is your DataFrame
+outliers, stats, centers = outlier_detection_kmeans(
+    data=df, 
+    key='ID',
+    features=None, 
+    n_clusters=None, 
+    distance_level='euclidean', 
+    contamination=0.15, 
+    sum_distance=True, 
+    init=None, 
+    max_iter=None, 
+    normalization=None, 
+    tol=None, 
+    distance_threshold=3, 
+    thread_number=None
+)
+
+# To view the results
+print(outliers.collect())
+print(stats.collect())
+print(centers.collect())
+```
+
+Please replace `df` with your actual DataFrame. You can also adjust the parameters according to your needs.

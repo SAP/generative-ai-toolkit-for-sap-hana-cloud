@@ -1,0 +1,34 @@
+The kdeplot function in the hana_ml.visualizers.eda module displays a kernel density estimate plot for a SAP HANA DataFrame, with parameters to specify the data, key, features, KDE calculation, number of points for plotting, and whether to use plotly instead of matplotlib.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary modules
+from hana_ml.visualizers.eda import kdeplot
+from hana_ml.algorithms.pal.kernel_density import KDE
+import matplotlib.pyplot as plt
+
+# Assuming 'df' is your HANA DataFrame
+
+# Single feature KDE plot using matplotlib
+f = plt.figure(figsize=(19, 10))
+ax = kdeplot(data=df, key="PASSENGER_ID", features=["AGE"])
+ax.grid()
+plt.show()
+
+# Two features KDE plot using matplotlib
+f = plt.figure(figsize=(19, 10))
+ax, surf = kdeplot(data=df, key="PASSENGER_ID", features=["AGE", "FARE"])
+ax.grid()
+plt.show()
+
+# Single feature KDE plot using plotly
+fig = kdeplot(data=df.filter("SURVIVED = 1"), key="PASSENGER_ID", features=["AGE"], enable_plotly=True, width=600, height=600)
+fig.show()
+
+# Two features KDE plot using plotly
+fig = kdeplot(data=df, key="PASSENGER_ID", features=["AGE", "FARE"], enable_plotly=True, width=600, height=600)
+fig.show()
+```
+
+Please replace 'df' with your actual HANA DataFrame and adjust the 'key' and 'features' parameters as per your data.

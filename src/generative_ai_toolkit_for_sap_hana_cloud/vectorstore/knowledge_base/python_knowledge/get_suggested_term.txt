@@ -1,0 +1,32 @@
+The get_suggested_term function in the hana_ml.text.tm module returns the top-ranked terms that match an initial substring or multiple substrings based on Term Frequency - Inverse Document Frequency (TF-IDF) result or reference data, with various parameters to customize the output such as the number of results, score threshold, language type, and thread ratio.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import required module
+from hana_ml.text import tm
+
+# Define your dataframes
+# pred_data and ref_data should be defined according to the structure mentioned in the help doc
+
+# Single-row mode
+pred_data_single = # DataFrame with 1 column, Document content
+
+# Multiple-row mode
+pred_data_multi = # DataFrame with 1st column as ID and 2nd column as Document content
+
+ref_data = # DataFrame or a tuple of DataFrame as per the structure mentioned in the help doc
+
+# Call the function
+# For single-row mode
+result_single = tm.get_suggested_term(pred_data=pred_data_single, ref_data=ref_data)
+
+# For multiple-row mode
+result_multi = tm.get_suggested_term(pred_data=pred_data_multi, ref_data=ref_data, key='ID')
+
+# Collect the results
+print(result_single.collect())
+print(result_multi.collect())
+```
+
+Please replace the `# DataFrame with ...` comments with actual DataFrame definitions. The structure of these DataFrames should be as per the help doc.

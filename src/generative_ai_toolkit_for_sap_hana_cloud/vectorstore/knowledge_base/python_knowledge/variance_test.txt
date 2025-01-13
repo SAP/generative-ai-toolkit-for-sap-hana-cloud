@@ -1,0 +1,20 @@
+The variance_test function in the hana_ml.algorithms.pal.preprocessing module identifies outliers in a numeric dataset using the mean and standard deviation, allowing users to specify parameters such as the multiplier for sigma, the ratio of total threads used, and the names of the ID and raw data columns in the dataframe.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal.preprocessing import variance_test
+
+# Assuming that 'df' is your DataFrame
+print(df.collect().tail(10))
+
+# Apply the variance test
+res, stats = variance_test(data=df, sigma_num=3.0)
+
+# Print the results
+print(res.collect().tail(10))
+print(stats.collect())
+```
+
+Please replace 'df' with your actual DataFrame. The 'sigma_num' parameter is set to 3.0 in this example, you can adjust it according to your needs.

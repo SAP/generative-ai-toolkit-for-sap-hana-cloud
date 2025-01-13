@@ -1,0 +1,15 @@
+The SMOTE class in the hana_ml.algorithms.pal.preprocessing module is used to handle imbalanced datasets by over-sampling the minority class and creating synthetic examples in the feature space, with various parameters to control the amount of over-sampling, the number of nearest neighbors, the minority class, the thread ratio, the random seed, the method, the search method, and the category weights.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.preprocessing import SMOTE
+
+# Initialize the SMOTE object
+smote = SMOTE(smote_amount=200, k_nearest_neighbours=2, search_method='kd-tree')
+
+# Assume df is your DataFrame
+# res = smote.fit_transform(data=df, label='TYPE', minority_class=2)
+```
+
+Please replace `df` with your actual DataFrame. The `label` parameter should be the name of the column in your DataFrame that you want to use as the label. The `minority_class` parameter should be the value in the label column that you want to consider as the minority class.

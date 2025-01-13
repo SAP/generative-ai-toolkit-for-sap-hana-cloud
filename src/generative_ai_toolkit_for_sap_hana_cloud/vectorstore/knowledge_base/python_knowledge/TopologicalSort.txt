@@ -1,0 +1,26 @@
+The TopologicalSort class in the hana_ml.graph.algorithms.topo_sort module calculates the topological sort of a directed graph, returning a linear ordering of vertices where each source vertex comes before its target vertex, and provides methods to check if the graph is topologically sortable and to execute the topological sort.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+# Import required modules
+import hana_ml.graph.algorithms as hga
+from hana_ml.graph.hana_graph import Graph
+
+# Define your graph
+g = Graph()  # Add your graph details
+
+# Create a TopologicalSort object
+ts = hga.TopologicalSort(graph=g)
+
+# Execute the topological sort
+ts.execute()
+
+# Print the topologically sorted vertices
+print("Vertices", ts.vertices)
+
+# Check if the graph is topologically sortable
+print("Sortable", ts.is_sortable)
+```
+
+Please replace `Graph()` with your actual graph details.

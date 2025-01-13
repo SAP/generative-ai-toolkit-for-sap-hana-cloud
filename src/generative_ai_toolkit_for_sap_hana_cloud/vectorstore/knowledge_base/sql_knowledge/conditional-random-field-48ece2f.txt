@@ -1,0 +1,46 @@
+Conditional Random Fields (CRFs) are a probabilistic framework used for labeling and segmenting structured data, such as sequences. Unlike other models, CRFs define a conditional probability distribution over label sequences given observation sequences, rather than a joint distribution over both label and observation sequences. CRFs are commonly used for tasks like named-entity recognition, where the goal is to identify and classify entities in a sentence. The likelihood of a CRF model is calculated based on the product of the conditional probabilities over all training sequences. Regularization is used to prevent overfitting by penalizing large weight vectors. The regularized log likelihood is minimized using the L-BFGS optimization algorithm. In the context of named-entity recognition, CRFs can be used to segment words that are part of an entity and classify the entity type.
+------
+
+CREATE COLUMN TABLE PAL_CRF_TRAIN_TBL("DOC_ID" INTEGER, "WORD_POSITION" INTEGER, "WORD" VARCHAR(500), "LABEL" VARCHAR(100));
+
+INSERT INTO PAL_CRF_TRAIN_TBL VALUES(1,1,'RECORD','O');
+INSERT INTO PAL_CRF_TRAIN_TBL VALUES(1,2,'#497321','O');
+INSERT INTO PAL_CRF_TRAIN_TBL VALUES(1,3,'78554939','O');
+INSERT INTO PAL_CRF_TRAIN_TBL VALUES(1,4,'|','O');
+INSERT INTO PAL_CRF_TRAIN_TBL VALUES(1,5,'LRH','O');
+INSERT INTO PAL_CRF_TRAIN_TBL VALUES(3,1,'PHYSICAL','O');
+INSERT INTO PAL_CRF_TRAIN_TBL VALUES(3,2,'EXAMINATION','O');
+
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" NVARCHAR(256),
+    "INT_VALUE" INTEGER, 
+    "DOUBLE_VALUE" DOUBLE, 
+    "STRING_VALUE" NVARCHAR (1000)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 1.0, NULL); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('ENET_LAMBDA', NULL, 0.1, NULL); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_ITERATION', 1000, NULL, NULL); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('EXIT_THRESHOLD', NULL, 1e-4, NULL); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('WORD_SHAPE', 0, NULL, NULL); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('LBFGS_M', 25, NULL, NULL); 
+
+
+DROP TABLE PAL_CRF_MODEL;
+CREATE COLUMN TABLE PAL_CRF_MODEL("ID" INTEGER, "CONTENT" NCLOB);
+
+DROP TABLE PAL_CRF_STATS;
+CREATE COLUMN TABLE PAL_CRF_STATS("NAME" VARCHAR(100), "VALUE" VARCHAR(1000));
+
+DO
+BEGIN
+	lt_data = SELECT * FROM PAL_CRF_TRAIN_TBL;
+	lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_CRF(:lt_data, :lt_param, lt_model, lt_stats, lt_opt);
+	INSERT INTO PAL_CRF_MODEL SELECT * FROM :lt_model;
+	INSERT INTO PAL_CRF_STATS SELECT * FROM :lt_stats;
+END;                     
+select * from PAL_CRF_MODEL;
+select * from PAL_CRF_STATS; 

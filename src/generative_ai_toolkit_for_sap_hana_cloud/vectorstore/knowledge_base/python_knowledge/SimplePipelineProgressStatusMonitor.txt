@@ -1,0 +1,38 @@
+The SimplePipelineProgressStatusMonitor class in the hana_ml.visualizers.automl_progress module allows monitoring of AutoML execution progress, requiring only a progress_indicator_id and can be used at any time, with parameters to specify the connection to the SAP HANA system, the time interval for fetching pipeline progress, and the running environment of the monitor.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+# Import necessary modules
+from hana_ml.dataframe import ConnectionContext
+from hana_ml.visualizers.automl_progress import SimplePipelineProgressStatusMonitor
+import uuid
+from hana_ml.algorithms.pal.automl import AutomaticClassification
+
+# Define connection parameters
+url = 'your_hana_url'
+port = 'your_hana_port'
+user = 'your_username'
+pwd = 'your_password'
+
+# Create an AutomaticClassification instance
+progress_id = "automl_{}".format(uuid.uuid1())
+auto_c = AutomaticClassification(generations=2,
+                                 population_size=5,
+                                 offspring_size=5,
+                                 progress_indicator_id=progress_id)
+auto_c.enable_workload_class("MY_WORKLOAD")
+
+# Create a connection context
+connection_context = ConnectionContext(url, port, user, pwd)
+
+# Invoke a SimplePipelineProgressStatusMonitor
+progress_status_monitor = SimplePipelineProgressStatusMonitor(connection_context=connection_context)
+progress_status_monitor.start(progress_indicator_id=progress_id, highlight_metric='F1_SCORE_1')
+
+# Persist progress log and fit model
+auto_c.persist_progress_log()
+auto_c.fit(data=df_train)
+```
+
+Please replace `'your_hana_url'`, `'your_hana_port'`, `'your_username'`, and `'your_password'` with your actual SAP HANA connection details. Also, `df_train` should be replaced with your actual training data.

@@ -1,0 +1,34 @@
+The GARCH class in the hana_ml.algorithms.pal.tsa.garch module is a statistical model used to analyze the variance of error terms in time series data, typically used in financial data analysis, and it assumes the variance of error term is heteroskedastic and subjects to an autoregressive moving average pattern.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.garch import GARCH
+from hana_ml import dataframe as df
+
+# Create a connection to HANA
+connection_context = df.ConnectionContext(address='HANA_SERVER_ADDRESS',
+                                          port='HANA_SERVER_PORT',
+                                          user='HANA_USER',
+                                          password='HANA_PASSWORD')
+
+# Create a dataframe for the input data
+data = df.DataFrame(connection_context, 'SELECT * FROM MY_TABLE')
+
+# Initialize the GARCH model
+gh = GARCH(p=1, q=1)
+
+# Fit the GARCH model
+gh.fit(data=data, key='TIME', endog='VAR2')
+
+# Print the fitted GARCH model
+print(gh.model_.collect())
+
+# Predict future volatility of the given time-series data
+pred_res, _ = gh.predict(horizon=5)
+
+# Print the predicted results
+print(pred_res.collect())
+```
+
+Please replace `'HANA_SERVER_ADDRESS'`, `'HANA_SERVER_PORT'`, `'HANA_USER'`, `'HANA_PASSWORD'`, and `'SELECT * FROM MY_TABLE'` with your actual HANA server address, port, user, password, and SQL query to select data from your table.

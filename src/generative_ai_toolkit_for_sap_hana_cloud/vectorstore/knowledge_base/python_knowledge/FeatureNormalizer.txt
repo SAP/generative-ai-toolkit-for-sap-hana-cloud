@@ -1,0 +1,31 @@
+The FeatureNormalizer class in the hana_ml.algorithms.pal.preprocessing module is used to normalize a DataFrame using methods such as min-max, z-score, and decimal scaling normalization, which helps in improving the reliability of data mining algorithms like neural networks, nearest neighbor classification, and clustering.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.preprocessing import FeatureNormalizer
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+df1 = DataFrame(connection_context, 'SELECT * FROM YOUR_TABLE')
+
+# Create a FeatureNormalizer instance
+fn = FeatureNormalizer(method="min-max", new_max=1.0, new_min=0.0)
+
+# Perform fit() on given DataFrame
+fn.fit(data=df1, key='ID')
+
+# Print the result
+print(fn.result_.collect())
+
+# Assuming that df2 is the DataFrame for transforming
+df2 = DataFrame(connection_context, 'SELECT * FROM YOUR_OTHER_TABLE')
+
+# Perform transform() on given DataFrame
+result = fn.transform(data=df2, key='ID')
+
+# Print the result
+print(result.collect())
+```
+
+Please replace `'SELECT * FROM YOUR_TABLE'` and `'SELECT * FROM YOUR_OTHER_TABLE'` with your actual SQL queries or table names. Also, you need to establish a connection to your HANA system and replace `connection_context` with your actual connection.

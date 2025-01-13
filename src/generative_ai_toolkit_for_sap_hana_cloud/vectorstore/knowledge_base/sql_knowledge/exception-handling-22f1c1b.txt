@@ -1,0 +1,45 @@
+The content discusses exception handling in SAP HANA using PAL procedures and SQLScript procedures. It explains that exceptions thrown by a PAL procedure can be caught by the exception handler in a SQLScript procedure with AFL error code 423. An example is provided where an ARIMA function is called within a SQLScript procedure, and the exception handler in the procedure catches any errors thrown by the function. The code snippet provided demonstrates the creation of tables, types, and procedures, as well as the execution of the procedure with exception handling. The expected result is shown in an image.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_ARIMAX_DATA_TBL;
+CREATE COLUMN TABLE PAL_ARIMAX_DATA_TBL (
+    "TIMESTAMP" INTEGER,
+    "Y" DOUBLE,
+    "X1" DOUBLE
+);
+
+DROP TYPE PAL_PARAMETER_T;
+CREATE TYPE PAL_PARAMETER_T AS TABLE (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL LIKE PAL_PARAMETER_T;
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('P', 1,null,null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('Q', 1,null,null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('D', 0,null,null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('METHOD', 1,null,null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('STATIONARY', 1,null,null);
+
+DROP TABLE PAL_ARIMAX_MODEL_TBL;
+CREATE COLUMN TABLE PAL_ARIMAX_MODEL_TBL (
+    "KEY" VARCHAR (100),
+    "VALUE" VARCHAR (5000)
+);
+
+DROP PROCEDURE "DM_PAL".PAL_ARIIMAX_NON_EXCEPTION_PROC;
+CREATE PROCEDURE PAL_ARIIMAX_NON_EXCEPTION_PROC(IN training_data PAL_ARIMAX_DATA_TBL, IN para_args PAL_PARAMETER_T, OUT result_model PAL_ARIMAX_MODEL_TBL)
+LANGUAGE SQLSCRIPT AS
+BEGIN
+    -- used to catch exceptions
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT ::SQL_ERROR_CODE, ::SQL_ERROR_MESSAGE FROM DUMMY;
+    CALL "_SYS_AFL"."PAL_ARIMA"(:training_data, :para_args, result_model, result_fit);
+END;
+
+CALL PAL_ARIIMAX_NON_EXCEPTION_PROC(PAL_ARIMAX_DATA_TBL, #PAL_PARAMETER_TBL, ?);
+

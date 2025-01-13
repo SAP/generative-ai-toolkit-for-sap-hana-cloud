@@ -1,0 +1,30 @@
+The fast_dtw function in the hana_ml.algorithms.pal.tsa.fast_dtw module calculates the distance or similarity between two time series using Dynamic Time Warping (DTW), which can stretch or compress the time series to optimize the match, with parameters to control the accuracy, run time, thread usage, distance computation method, and whether to output alignment information.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.algorithms.pal.tsa import fast_dtw
+
+# Set parameters
+radius = 5
+thread_ratio = None  # Optional
+distance_method = None  # Optional
+minkowski_power = None  # Optional
+save_alignment = None  # Optional
+
+# Call the function
+result, align, stats = fast_dtw(data=df, radius=radius, thread_ratio=thread_ratio, 
+                                distance_method=distance_method, minkowski_power=minkowski_power, 
+                                save_alignment=save_alignment)
+
+# Print the results
+print("Result:")
+print(result)
+print("\nAlignment:")
+print(align)
+print("\nStatistics:")
+print(stats)
+```
+
+Please replace the 'df' with your actual DataFrame and adjust the parameters as needed.

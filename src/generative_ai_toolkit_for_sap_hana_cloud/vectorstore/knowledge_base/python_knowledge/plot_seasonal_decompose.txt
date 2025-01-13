@@ -1,0 +1,38 @@
+The function plot_seasonal_decompose in the hana_ml.visualizers.eda module is used to plot the seasonal decomposition of a time series data column from a HANA DataFrame, with various optional parameters to control the decomposition type, autocorrelation coefficient criterion, thread usage, endpoint extrapolation, moving average width, and plotting library.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.visualizers.eda import plot_seasonal_decompose
+
+# Assuming you have a DataFrame 'df' and a time series column 'ts'
+# Optional parameters are set to their default values
+
+# Using matplotlib
+axes = plot_seasonal_decompose(data=df, 
+                               col='ts', 
+                               key=None, 
+                               alpha=0.2, 
+                               thread_ratio=-1, 
+                               decompose_type='auto', 
+                               extrapolation=False, 
+                               smooth_width=0, 
+                               axes=None, 
+                               enable_plotly=False, 
+                               fig=None)
+
+# Using plotly
+fig = plot_seasonal_decompose(data=df, 
+                              col='ts', 
+                              key=None, 
+                              alpha=0.2, 
+                              thread_ratio=-1, 
+                              decompose_type='auto', 
+                              extrapolation=False, 
+                              smooth_width=0, 
+                              axes=None, 
+                              enable_plotly=True, 
+                              fig=None)
+```
+
+Please replace `'ts'` with the actual name of your time series data column. If you have an ID column, replace `None` in `key=None` with the name of your ID column. Adjust the optional parameters as needed.

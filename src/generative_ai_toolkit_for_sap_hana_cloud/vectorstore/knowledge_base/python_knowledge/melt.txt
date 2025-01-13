@@ -1,0 +1,32 @@
+The melt function in the hana_ml.dataframe module unpivots a SAP HANA DataFrame from wide format to long format, optionally keeping certain identifier variables set, and allows customization of the 'variable' and 'value' column names.
+------
+Here is a Python code template for the `melt` function in the `hana_ml.dataframe` module:
+
+```python
+from hana_ml import dataframe
+
+# Assuming 'connection_context' is a valid hana_ml ConnectionContext
+df = dataframe.DataFrame(connection_context, 'SELECT * FROM YOUR_TABLE')
+
+# Specify the columns to use as identifier variables
+id_vars = ['YOUR_ID_COLUMN']
+
+# Specify the columns to unpivot
+value_vars = ['YOUR_VALUE_COLUMN1', 'YOUR_VALUE_COLUMN2']
+
+# Specify the name to use for the 'variable' column
+var_name = 'YOUR_VARIABLE_NAME'
+
+# Specify the name to use for the 'value' column
+value_name = 'YOUR_VALUE_NAME'
+
+# Unpivot the DataFrame
+unpivoted_df = dataframe.melt(df, id_vars=id_vars, value_vars=value_vars, var_name=var_name, value_name=value_name)
+
+# Collect the result
+result = unpivoted_df.collect()
+
+print(result)
+```
+
+Please replace `'YOUR_TABLE'`, `'YOUR_ID_COLUMN'`, `'YOUR_VALUE_COLUMN1'`, `'YOUR_VALUE_COLUMN2'`, `'YOUR_VARIABLE_NAME'`, and `'YOUR_VALUE_NAME'` with your actual table name, column names, and desired variable and value names. Also, ensure that `connection_context` is a valid `hana_ml` `ConnectionContext`.

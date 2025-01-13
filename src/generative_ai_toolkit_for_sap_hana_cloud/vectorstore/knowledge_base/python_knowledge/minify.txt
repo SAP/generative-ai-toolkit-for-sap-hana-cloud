@@ -1,0 +1,44 @@
+The minify function in the htmlmin.main module minifies HTML by removing comments, empty spaces, boolean attributes, optional attribute quotes, and decoding character references, while allowing users to specify areas of HTML that should not be minified, and returns a minified HTML string.
+------
+Here is a Python code template for the `minify` function from the `htmlmin.main` module:
+
+```python
+from htmlmin.main import minify
+
+# Define the HTML input
+html_input = """
+<!-- FOO --> <!--! BAR -->
+"""
+
+# Define the parameters
+remove_comments = False
+remove_empty_space = False
+remove_all_empty_space = False
+reduce_empty_attributes = True
+reduce_boolean_attributes = False
+remove_optional_attribute_quotes = True
+convert_charrefs = True
+keep_pre = False
+pre_tags = ('pre', 'textarea')
+pre_attr = 'pre'
+
+# Call the minify function
+minified_html = minify(
+    html_input,
+    remove_comments=remove_comments,
+    remove_empty_space=remove_empty_space,
+    remove_all_empty_space=remove_all_empty_space,
+    reduce_empty_attributes=reduce_empty_attributes,
+    reduce_boolean_attributes=reduce_boolean_attributes,
+    remove_optional_attribute_quotes=remove_optional_attribute_quotes,
+    convert_charrefs=convert_charrefs,
+    keep_pre=keep_pre,
+    pre_tags=pre_tags,
+    pre_attr=pre_attr
+)
+
+# Print the minified HTML
+print(minified_html)
+```
+
+You can replace the `html_input` and parameters with your own values. The `minify` function will return a string containing the minified HTML.

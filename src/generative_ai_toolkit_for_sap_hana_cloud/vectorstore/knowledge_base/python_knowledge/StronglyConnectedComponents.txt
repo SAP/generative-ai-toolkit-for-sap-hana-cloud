@@ -1,0 +1,29 @@
+The StronglyConnectedComponents class in the hana_ml.graph.algorithms module identifies the strongly connected components of a graph, where each vertex is reachable from every other one, and provides methods to execute the calculation and return the components, their count, and the vertices.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary modules
+import hana_ml.graph.algorithms as hga
+from hana_ml.graph.hana_graph import Graph
+
+# Assuming that 'g' is a Graph object
+g = Graph()  # Replace this with actual graph initialization
+
+# Create a StronglyConnectedComponents object
+scc = hga.StronglyConnectedComponents(graph=g)
+
+# Execute the algorithm
+scc.execute()
+
+# Print the vertices
+print("Vertices", scc.vertices)
+
+# Print the components
+print("Components", scc.components)
+
+# Print the number of components
+print("Number of Components", scc.components_count)
+```
+
+Please replace `Graph()` with the actual initialization of your graph. The `execute` method runs the Strongly Connected Components algorithm on the graph. The `vertices`, `components`, and `components_count` properties provide the results of the algorithm.

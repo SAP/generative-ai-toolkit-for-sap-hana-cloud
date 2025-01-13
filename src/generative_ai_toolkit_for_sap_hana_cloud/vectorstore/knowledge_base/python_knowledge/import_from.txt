@@ -1,0 +1,25 @@
+The function import_from in the hana_ml.dataframe module imports data into the SAP HANA system from a specified location, with options to replace existing data and adjust the number of threads used for import.
+------
+Here is a Python code template for the `import_from` function from the `hana_ml.dataframe` module:
+
+```python
+from hana_ml import dataframe
+
+def import_data(connection_context, directory, replace=False, threads=1):
+    """
+    Imports data into the SAP HANA system.
+
+    Parameters:
+    connection_context (ConnectionContext): A connection to the SAP HANA database instance.
+    directory (str): Specifies the location where the import source is found. Specify <archive_file_name> if the import data is in an archive file. The archive file must have the file extension .tar.gz or .tgz.
+    replace (bool, optional): Defines the behavior if the import data already exists in the database. When specified, if a table defined in the import data currently exists in the database, then it is dropped and recreated before the data is imported. If the REPLACE option is not specified, then an error is thrown if an existing database table is defined in the import data. Defaults to False.
+    threads (int, optional): The number of threads used for import. Defaults to 1.
+    """
+    
+    dataframe.import_from(connection_context, directory, replace, threads)
+
+# Example usage:
+# import_data(connection_context, "/path/to/data.tar.gz", replace=True, threads=4)
+```
+
+Please replace `connection_context` with your actual connection context and `/path/to/data.tar.gz` with the actual path to your data file.

@@ -1,0 +1,52 @@
+Self-organizing feature maps (SOMs) are a popular neural network method used for cluster analysis. They aim to represent high-dimensional data in a low-dimensional space while preserving distance and proximity relationships. SOMs are useful for visualizing high-dimensional data and can be seen as a constrained version of k-means clustering. The learning process involves initializing weighted vectors, selecting the best matching unit for each point, and updating the weighted vectors. Batch SOM is a variant that updates the weighted vectors at the end of each learning epoch. SOMs have various applications such as visualization, web document clustering, and speech recognition.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_SOM_DATA_TBL;
+CREATE COLUMN TABLE PAL_SOM_DATA_TBL(
+	"TRANS_ID" INTEGER,
+	"V000" DOUBLE,
+	"V001" DOUBLE
+); 
+INSERT INTO PAL_SOM_DATA_TBL VALUES (0 , 0.1, 0.2);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (1 , 0.22, 0.25);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (2 , 0.3, 0.4);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (3 , 0.4, 0.5);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (4 , 0.5, 1.0);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (5 , 1.1, 15.1);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (6 , 2.2, 11.2);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (7 , 1.3, 15.3);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (8 , 1.4, 15.4);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (9 , 3.5, 15.9);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (10, 13.1, 1.1);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (11, 16.2, 1.5);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (12, 16.3, 1.3);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (13, 12.4, 2.4);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (14, 16.9, 1.9);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (15, 49.0, 40.1);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (16, 50.1, 50.2);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (17, 50.2, 48.3);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (18, 55.3, 50.4);
+INSERT INTO PAL_SOM_DATA_TBL VALUES (19, 50.4, 56.5);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL(
+	"PARAM_NAME" NVARCHAR(256), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" NVARCHAR(1000)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('MAX_ITERATION', 4000, null, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('HEIGHT_OF_MAP', 4, null, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('WIDTH_OF_MAP', 4, null, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('NORMALIZATION', 0, null, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('RANDOM_SEED', 1, null, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('SHAPE_OF_GRID', 2, null, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('KERNEL_FUNCTION', 1, null, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('LEARNING_RATE', 1, null, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('CONVERGENCE_CRITERION', null, 1.0e-6, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('BATCH_SOM', 0, null, null);
+
+CALL _SYS_AFL.PAL_SOM(PAL_SOM_DATA_TBL, "#PAL_PARAMETER_TBL", ?, ?, ?, ?, ?);
+

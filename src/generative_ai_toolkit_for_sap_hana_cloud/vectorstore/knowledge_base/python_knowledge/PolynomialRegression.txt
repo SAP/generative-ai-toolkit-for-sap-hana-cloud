@@ -1,0 +1,21 @@
+The PolynomialRegression class in the hana_ml.algorithms.pal.regression module is used to model the relationship between a scalar variable y and a variable denoted X using polynomial functions, with various parameters to control the degree of the polynomial model, matrix factorization type, adjusted R2 value inclusion, PMML model output, thread ratio, resampling method, evaluation metric, fold number, repeat times, search strategy, random search times, random state, timeout, progress indicator ID, degree values, and degree range.
+------
+Here is a Python code template for the PolynomialRegression class:
+
+```python
+from hana_ml.algorithms.pal.regression import PolynomialRegression
+
+# Create a PolynomialRegression instance
+pr = PolynomialRegression(degree=3)
+
+# Assuming that df is your training DataFrame
+pr.fit(data=df, key='ID')
+
+# Assuming that df2 is your prediction DataFrame
+prediction = pr.predict(data=df2, key='ID')
+
+# Print the prediction
+print(prediction.collect())
+```
+
+Please replace `df` and `df2` with your actual DataFrames. The `fit` method is used to train the model and the `predict` method is used to make predictions. The `collect` method is used to retrieve the prediction results.

@@ -1,0 +1,35 @@
+The CRF class in the hana_ml.algorithms.pal.crf module is a Conditional Random Field (CRF) for labeling and segmenting sequence data, such as text, with various parameters for customization including regularization weight, maximum number of iterations, and features for class/label, current word, letter n-grams, and more.
+------
+Here is the executable code template for the CRF class:
+
+```python
+from hana_ml.algorithms.pal.crf import CRF
+
+# Create a CRF instance
+crf = CRF(lamb=0.1,
+          max_iter=1000,
+          epsilon=1e-4,
+          lbfgs_m=25,
+          word_shape=0,
+          thread_ratio=1.0)
+
+# Assume that 'df' is the input DataFrame for training
+# Fit the model
+crf.fit(data=df, doc_id="DOC_ID",
+        word_pos="WORD_POSITION",
+        word="WORD", label="LABEL")
+
+# Check the trained CRF model and related statistics
+print(crf.model_.collect())
+print(crf.stats_.head(10).collect())
+
+# Assume that 'df_pred' is the input DataFrame for predicting labels
+# Do the prediction
+res = crf.predict(data=df_pred, doc_id='DOC_ID', word_pos='WORD_POSITION',
+                  word='WORD', thread_ratio=1.0)
+
+# Check the prediction result
+print(res.head(10).collect())
+```
+
+Please replace 'df' and 'df_pred' with your actual DataFrames for training and prediction respectively.

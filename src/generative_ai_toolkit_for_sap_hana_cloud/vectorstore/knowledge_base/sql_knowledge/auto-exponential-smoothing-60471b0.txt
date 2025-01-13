@@ -1,0 +1,33 @@
+Auto exponential smoothing is a function used to calculate optimal parameters for smoothing functions such as Single Exponential Smoothing, Double Exponential Smoothing, and Triple Exponential Smoothing. It also provides forecasting results based on these optimal parameters. The function uses global and local search algorithms, specifically simulated annealing and Nelder Mead, to optimize the parameters. The quality of the parameters is evaluated using mean squared error (MSE) or mean absolute percentage error (MAPE). The function can be used in a train-and-test scheme, where a partition of the time series is used for training the parameters and the remaining portion is used for testing. The logic of the function involves checking for seasonality and trend in the time series and selecting the appropriate smoothing model accordingly. The function also allows for user-defined models and parameters. The optimization algorithms used in the function, simulated annealing and Nelder-Mead, have different characteristics and stop conditions.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+	"PARAM_NAME " VARCHAR(100),
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FORECAST_MODEL_NAME', NULL, NULL,'TESM');
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ALPHA', NULL,0.4, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('BETA', NULL,0.4, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('GAMMA', NULL,0.4, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('CYCLE',4, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FORECAST_NUM',3, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('SEASONAL',0, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('INITIAL_METHOD',1, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('TRAINING_RATIO',NULL, 0.75, NULL);
+
+DROP TABLE PAL_FORECASTTRIPLESMOOTHING_DATA_TBL;
+CREATE COLUMN TABLE PAL_FORECASTTRIPLESMOOTHING_DATA_TBL ("TIMESTAMP" INT, "VALUE" DOUBLE);
+INSERT INTO PAL_FORECASTTRIPLESMOOTHING_DATA_TBL VALUES (1,362.0);
+INSERT INTO PAL_FORECASTTRIPLESMOOTHING_DATA_TBL VALUES (2,385.0);
+INSERT INTO PAL_FORECASTTRIPLESMOOTHING_DATA_TBL VALUES (3,432.0);
+INSERT INTO PAL_FORECASTTRIPLESMOOTHING_DATA_TBL VALUES (4,341.0);
+INSERT INTO PAL_FORECASTTRIPLESMOOTHING_DATA_TBL VALUES (5,382.0);
+
+CALL _SYS_AFL.PAL_AUTO_EXPSMOOTH(PAL_FORECASTTRIPLESMOOTHING_DATA_TBL, #PAL_PARAMETER_TBL, ?,?);
+

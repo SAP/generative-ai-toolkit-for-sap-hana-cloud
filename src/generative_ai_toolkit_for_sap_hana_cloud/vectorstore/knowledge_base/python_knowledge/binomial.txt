@@ -1,0 +1,25 @@
+The binomial function in the hana_ml.algorithms.pal.random module draws samples from a binomial distribution, with parameters for the database connection object, number of trials, successful fraction, number of random data to be generated, seed for the random number generator, and the proportion of available threads to use.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.random import binomial
+from hana_ml import dataframe as df
+
+# Assuming that a connection context 'cc' is already created
+
+# Set parameters
+n = 1
+p = 0.5
+num_random = 10
+seed = None
+thread_ratio = None
+
+# Call the binomial function
+res = binomial(conn_context=cc, n=n, p=p, num_random=num_random, seed=seed, thread_ratio=thread_ratio)
+
+# Collect the results
+print(res.collect())
+```
+
+Please replace the 'cc' with your actual connection context. The parameters 'n', 'p', 'num_random', 'seed', and 'thread_ratio' can be adjusted according to your needs.

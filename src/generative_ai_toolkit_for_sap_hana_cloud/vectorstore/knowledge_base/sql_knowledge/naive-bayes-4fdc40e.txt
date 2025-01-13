@@ -1,0 +1,48 @@
+Naive Bayes is a classification algorithm that estimates the probability of a class based on Bayes theorem and the assumption that attributes are conditionally independent of each other. It uses the maximum a posteriori estimation to estimate the class probability and the probability of each attribute given the class. Different Naive Bayes classifiers make different assumptions about the distribution of the attribute probabilities. The algorithm works well in document classification and spam filtering and requires only a small amount of training data. The algorithm includes two procedures: one for generating a training model and one for making predictions based on the model.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_NBCTRAIN_TRAININGSET_TBL;
+CREATE COLUMN TABLE PAL_NBCTRAIN_TRAININGSET_TBL(
+	"HomeOwner" VARCHAR (100), 
+	"MaritalStatus" VARCHAR (100),
+	"AnnualIncome" DOUBLE,
+	"DefaultedBorrower" VARCHAR (100)
+);
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('YES', 'Single', 125, 'NO');
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('NO', 'Married', 100, 'NO');
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('NO', 'Single', 70, 'NO');
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('YES', 'Married', 120, 'NO');
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('NO', 'Divorced', 95, 'YES');
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('NO', 'Married', 60, 'NO');
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('YES', 'Divorced', 220, 'NO');
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('NO', 'Single', 85, 'YES');
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('NO', 'Married', 75, 'NO');
+INSERT INTO PAL_NBCTRAIN_TRAININGSET_TBL VALUES ('NO', 'Single', 90, 'YES');
+
+DROP TABLE PAL_NBC_MODEL_TBL;
+CREATE COLUMN TABLE PAL_NBC_MODEL_TBL(
+	"ROW_INDEX" INTEGER,
+	"MODEL_CONTENT" NVARCHAR(5000)
+);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL(
+	"PARAM_NAME" NVARCHAR(256), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" NVARCHAR(1000)
+);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.2, NULL); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('LAPLACE', NULL, 1.0, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MODEL_FORMAT', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('DEPENDENT_VARIABLE', NULL, NULL, 'DefaultedBorrower');
+
+DO BEGIN
+	lt_data =SELECT * FROM PAL_NBCTRAIN_TRAININGSET_TBL;
+	lt_param=SELECT * FROM PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_NAIVE_BAYES(:lt_data, :lt_param, lt_model, lt_1, lt_2);
+	INSERT INTO PAL_NBC_MODEL_TBL SELECT * FROM :lt_model;
+END;
+SELECT * FROM PAL_NBC_MODEL_TBL; 	

@@ -1,0 +1,25 @@
+The RandomForestClassifier class in the hana_ml.algorithms.pal.trees module is an alias of the Random Decision Tree model for classification, which includes methods for initializing the model, training it on input data, predicting dependent variable values based on the fitted model, and returning the mean accuracy on given test data and labels.
+------
+Here is a Python code template for using the RandomForestClassifier class from the hana_ml.algorithms.pal.trees module:
+
+```python
+from hana_ml.algorithms.pal.trees import RandomForestClassifier
+
+# Create a RandomForestClassifier instance
+rfc = RandomForestClassifier(n_estimators=100, max_features=None, max_depth=None, min_samples_leaf=1, split_threshold=None, calculate_oob=True, random_state=None, thread_ratio=None, allow_missing_dependent=True, categorical_variable=None, sample_fraction=None, compression=None, max_bits=None, quantize_rate=None, strata=None, priors=None, model_format=None)
+
+# Fit the model on the training data
+rfc.fit(data=train_data, key='id', features=['feature1', 'feature2'], label='label', categorical_variable=['feature1'])
+
+# Predict dependent variable values based on the fitted model
+predictions = rfc.predict(data=test_data, key='id', features=['feature1', 'feature2'], verbose=None, block_size=None, missing_replacement=None, verbose_top_n=None)
+
+# Score the model on the test data
+score = rfc.score(data=test_data, key='id', features=['feature1', 'feature2'], label='label', block_size=None, missing_replacement=None)
+
+# Print the predictions and the score
+print(predictions)
+print(score)
+```
+
+Please replace 'train_data', 'test_data', 'id', 'feature1', 'feature2', and 'label' with your actual data frame, key column, feature columns, and label column.

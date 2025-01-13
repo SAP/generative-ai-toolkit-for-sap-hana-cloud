@@ -1,0 +1,39 @@
+The HANAGeneratorForCAP class in the hana_ml.artifacts.generators.hana module is a HANA artifacts generator for existing CAP projects, which takes a project name, output directory, and optional namespace as parameters, and includes methods to generate CAP artifacts and create an input table for the input dataframe.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.artifacts.generators.hana import HANAGeneratorForCAP
+from hana_ml.algorithms.pal.trees import HybridGradientBoostingClassifier
+from hana_ml.algorithms.pal.decomposition import PCA
+from hana_ml.dataframe import DataFrame
+
+# Assuming diabetes_train and diabetes_test_m are DataFrame objects
+# diabetes_train = DataFrame(...)
+# diabetes_test_m = DataFrame(...)
+
+# Define the pipeline
+my_pipeline = Pipeline([
+    ('PCA', PCA(scaling=True, scores=True)),
+    ('HGBT_Classifier', HybridGradientBoostingClassifier(
+        n_estimators=4, split_threshold=0,
+        learning_rate=0.5, fold_num=5,
+        max_depth=6))])
+
+# Fit and predict
+my_pipeline.fit(diabetes_train, key="ID", label="CLASS")
+my_pipeline.predict(diabetes_test_m, key="ID")
+
+# Initialize HANAGeneratorForCAP
+hanagen = HANAGeneratorForCAP(project_name="my_proj",
+                              output_dir=".",
+                              namespace="hana.ml")
+
+# Generate artifacts
+hanagen.generate_artifacts(my_pipeline)
+
+# Materialize data
+hanagen.materialize_ds_data(to_materialize=True)
+```
+
+Please replace the placeholders with your actual data and parameters.

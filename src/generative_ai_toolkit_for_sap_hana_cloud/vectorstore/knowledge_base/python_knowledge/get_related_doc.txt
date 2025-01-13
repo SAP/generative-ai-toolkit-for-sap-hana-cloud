@@ -1,0 +1,40 @@
+The get_related_doc function in the hana_ml.text.tm module returns the top-ranked related documents for a query document or multiple documents based on Term Frequency - Inverse Document Frequency (TF-IDF) result or reference data, with various parameters to customize the output such as language, index name, thread ratio, and more.
+------
+Here is the executable code template for the `get_related_doc` function:
+
+```python
+from hana_ml.text.tm import get_related_doc
+
+# pred_data DataFrame
+pred_data = ...
+
+# ref_data DataFrame or tuple of DataFrame
+ref_data = ...
+
+# Optional parameters
+top = ...
+threshold = ...
+lang = ...
+index_name = ...
+thread_ratio = ...
+created_index = ...
+key = ...
+
+# Call the function
+result = get_related_doc(
+    pred_data=pred_data,
+    ref_data=ref_data,
+    top=top,
+    threshold=threshold,
+    lang=lang,
+    index_name=index_name,
+    thread_ratio=thread_ratio,
+    created_index=created_index,
+    key=key
+)
+
+# Collect the result
+result_df = result.collect()
+```
+
+Please replace the `...` with your actual data and parameter values.

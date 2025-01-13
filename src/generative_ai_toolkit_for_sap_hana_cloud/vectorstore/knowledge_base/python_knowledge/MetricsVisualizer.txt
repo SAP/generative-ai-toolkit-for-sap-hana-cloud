@@ -1,0 +1,40 @@
+The MetricsVisualizer class in the hana_ml.visualizers.metrics module is used to visualize metrics with customizable parameters such as axes, size, color map, title, and the option to use plotly instead of matplotlib, and it includes methods to plot a confusion matrix, reset, and set axes, colormap, and size.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+import hana_ml.visualizers.metrics as metrics
+import matplotlib.pyplot as plt
+
+# Create a matplotlib Axes
+ax = plt.gca()
+
+# Create a MetricsVisualizer
+visualizer = metrics.MetricsVisualizer(ax=ax, size=(800, 600), cmap='viridis', title='Confusion Matrix', enable_plotly=False)
+
+# Plot the confusion matrix
+visualizer.plot_confusion_matrix(df, normalize=True)
+
+# Reset the visualizer
+visualizer.reset()
+
+# Set the Axes
+visualizer.set_ax(ax)
+
+# Set the colormap
+visualizer.set_cmap('plasma')
+
+# Set the size
+visualizer.set_size((800, 600))
+
+# Get the matplotlib Axes
+ax = visualizer.ax
+
+# Get the color map
+cmap = visualizer.cmap
+
+# Get the size
+size = visualizer.size
+```
+
+Please replace the DataFrame `df` with your actual data. The `CLASS` and `''` columns should match your data's columns.

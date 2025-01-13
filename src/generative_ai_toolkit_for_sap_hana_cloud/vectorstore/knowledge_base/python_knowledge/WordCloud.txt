@@ -1,0 +1,50 @@
+The WordCloud class in the hana_ml.visualizers module extends from wordcloud.WordCloud and provides methods to generate a word cloud from a SAP HANA DataFrame, with customizable parameters such as font size, color, and language.
+------
+Here is a Python code template for the `WordCloud` class in the `hana_ml.visualizers.word_cloud` module:
+
+```python
+from hana_ml.visualizers.word_cloud import WordCloud
+import matplotlib.pyplot as plt
+
+# Initialize WordCloud
+wordcloud = WordCloud(
+    font_path=None, 
+    width=400, 
+    height=200, 
+    margin=2, 
+    ranks_only=None, 
+    prefer_horizontal=0.9, 
+    mask=None, 
+    scale=1, 
+    color_func=None, 
+    max_words=200, 
+    min_font_size=4, 
+    stopwords=None, 
+    random_state=None, 
+    background_color='black', 
+    max_font_size=None, 
+    font_step=1, 
+    mode='RGB', 
+    relative_scaling='auto', 
+    regexp=None, 
+    collocations=True, 
+    colormap=None, 
+    normalize_plurals=True, 
+    contour_width=0, 
+    contour_color='black', 
+    repeat=False, 
+    include_numbers=False, 
+    min_word_length=0, 
+    collocation_threshold=30
+)
+
+# Assuming `data` is a DataFrame
+wordcloud.build(data=data, content_column="CONTENT", lang='EN')
+
+# Display the wordcloud
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")
+plt.show()
+```
+
+Please replace `"CONTENT"` with the actual column name in your DataFrame that you want to generate the word cloud from. Also, replace `'EN'` with the language of your text if it's not English. If `data` is not defined, you need to define it as your input DataFrame.

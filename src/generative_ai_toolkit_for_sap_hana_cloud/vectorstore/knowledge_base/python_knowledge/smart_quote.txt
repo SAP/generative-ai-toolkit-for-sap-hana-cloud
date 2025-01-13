@@ -1,0 +1,19 @@
+The smart_quote function in the hana_ml.dataframe module adds a quote to a specified target name in the schema.
+------
+Here is a Python code template for the `smart_quote` function in the `hana_ml.dataframe` module:
+
+```python
+# Import the required module
+import hana_ml.dataframe
+
+# Define the target name to be quoted
+name = "your_target_name"
+
+# Use the smart_quote function
+quoted_name = hana_ml.dataframe.smart_quote(name)
+
+# Print the result
+print(quoted_name)
+```
+
+Please replace `"your_target_name"` with the actual target name you want to quote.

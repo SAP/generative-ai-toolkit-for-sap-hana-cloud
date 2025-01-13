@@ -1,0 +1,21 @@
+The function ftest_equal_var in the hana_ml.algorithms.pal.stats module tests the equality of two random variances using F-test, with parameters for two dataframes and an optional test type, returning a dataframe with the test results.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal import stats
+
+# Define the data
+data_x = DataFrame(...)  # replace with actual DataFrame
+data_y = DataFrame(...)  # replace with actual DataFrame
+
+# Apply the ftest_equal_var function
+res = stats.ftest_equal_var(data_x=data_x, data_y=data_y, test_type='two_sides')
+
+# Collect the results
+result = res.collect()
+print(result)
+```
+
+Please replace `DataFrame(...)` with your actual DataFrame. The DataFrame should be structured in a way that it contains the data you want to test.

@@ -1,0 +1,26 @@
+The function bar_plot in the module hana_ml.visualizers.eda_plotly displays a bar plot for a specified column in a SAP HANA DataFrame, with options to aggregate data, customize the title, orientation, and font properties of the title.
+------
+Here is the executable code template based on the help doc:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers.eda_plotly import bar_plot
+
+# Assuming 'data' is your DataFrame
+column = 'your_column'  # replace 'your_column' with your column name
+aggregation = {'your_column':'count'}  # replace 'your_column' with your column name
+
+# Generate the bar plot
+fig, bar_data = bar_plot(data=data, column=column, aggregation=aggregation)
+
+# Show the plot
+fig.show()
+```
+
+You can modify the `column` and `aggregation` variables as per your requirements. If you want to use other optional parameters like `title`, `orientation`, or `title_fontproperties`, you can add them in the `bar_plot` function call. For example:
+
+```python
+title = 'Your Title'
+orientation = 'h'  # for horizontal plot
+fig, bar_data = bar_plot(data=data, column=column, aggregation=aggregation, title=title, orientation=orientation)
+```

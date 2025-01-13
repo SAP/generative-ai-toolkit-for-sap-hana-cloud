@@ -1,0 +1,30 @@
+The GRUAttention class in the hana_ml.algorithms.pal.tsa.rnn module is a Gated Recurrent Units (GRU) based encoder-decoder model with an 'Attention' mechanism for time series prediction, with various parameters for customization such as learning rate, batch size, time dimension, hidden dimension, number of layers, maximum iterations, and interval.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa import rnn
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+df = DataFrame(connection_context, 'SELECT * FROM YOUR_TIME_SERIES_TABLE')
+
+# Create a GRUAttention instance
+att = rnn.GRUAttention(max_iter=1000,
+                       learning_rate=0.01,
+                       batch_size=32,
+                       hidden_dim=128,
+                       num_layers=1,
+                       interval=1)
+
+# Perform fit
+att.fit(data=df)
+
+# Assuming that df_predict is the data for prediction
+res = att.predict(data=df_predict)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `'SELECT * FROM YOUR_TIME_SERIES_TABLE'` with your actual SQL statement to select data from your HANA table. Also, replace `df_predict` with your actual data for prediction.

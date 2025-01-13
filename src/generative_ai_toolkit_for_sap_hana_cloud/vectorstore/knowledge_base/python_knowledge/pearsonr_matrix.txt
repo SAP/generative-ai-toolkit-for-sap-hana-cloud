@@ -1,0 +1,24 @@
+The function pearsonr_matrix in the hana_ml.algorithms.pal.stats module computes a correlation matrix using Pearson's correlation coefficient for the specified columns of a DataFrame, or all columns if none are specified.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.algorithms.pal.stats import pearsonr_matrix
+from hana_ml import DataFrame
+
+# Assuming that connection_context is already defined
+# Create DataFrame from existing HANA table
+data = DataFrame(connection_context, 'MY_TABLE')
+
+# Specify columns to analyze
+cols = ['X', 'Y']
+
+# Compute Pearson's correlation coefficient matrix
+result = pearsonr_matrix(data=data, cols=cols)
+
+# Print the result
+print(result.collect())
+```
+
+Please replace `'MY_TABLE'` with your actual HANA table name. If you want to analyze all columns, you can omit the `cols` parameter. Also, ensure that `connection_context` is defined and connected to your HANA instance.

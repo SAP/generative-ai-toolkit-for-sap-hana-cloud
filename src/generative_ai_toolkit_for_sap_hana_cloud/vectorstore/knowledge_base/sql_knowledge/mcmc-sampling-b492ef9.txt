@@ -1,0 +1,30 @@
+The content describes Markov Chain Monte Carlo (MCMC) sampling, which is a method used to generate samples from a given distribution. It provides the probability density functions for various supported distributions, such as Normal, Skew Normal, Student-T, Cauchy, Laplace, Logistic, Gumbel, Exponential, Chi-Square, Inverse Chi-Square, Gamma, Weibull, Frechet, Rayleigh, Multivariate Normal, Multivariate Normal with Precision Parameterization, Multivariate Normal with Cholesky Parameterization, Multivariate Student-T, Dirichlet, Beta, Inverse Gamma, Lognormal, Pareto, and Lomax. The content also includes the distribution parameters for each distribution.
+------
+
+SET SCHEMA DM_PAL;
+ 
+DROP TABLE PAL_MCMC_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_MCMC_PARAMETER_TBL (
+        "PARAM_NAME" VARCHAR(256),
+        "INT_VALUE" INTEGER,
+        "DOUBLE_VALUE" DOUBLE,
+        "STRING_VALUE" VARCHAR(1000)
+);
+INSERT INTO PAL_MCMC_PARAMETER_TBL VALUES ('DISTRIBUTION_NAME', NULL, NULL, 'multinormal');
+INSERT INTO PAL_MCMC_PARAMETER_TBL VALUES ('DIMENSION', 2, NULL, NULL);
+--the covariance matrix Sigma stores in column-major order
+INSERT INTO PAL_MCMC_PARAMETER_TBL VALUES ('DISTRIBUTION_PARAM', NULL, NULL, '{"MU":[1,10], "SIGMA":[1,0,0,5]}');
+INSERT INTO PAL_MCMC_PARAMETER_TBL VALUES ('ITER', 2000, NULL, NULL);
+INSERT INTO PAL_MCMC_PARAMETER_TBL VALUES ('THIN', 10, NULL, NULL);
+ 
+DROP TABLE PAL_MCMC_RESULT_TBL;
+CREATE COLUMN TABLE PAL_MCMC_RESULT_TBL ("ID" INTEGER, "SAMPLES" NCLOB);
+ 
+DO BEGIN
+  lt_param = SELECT * FROM PAL_MCMC_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_MCMC (:lt_param, lt_result);
+  INSERT INTO PAL_MCMC_RESULT_TBL SELECT * FROM :lt_result;
+END;
+ 
+SELECT * FROM PAL_MCMC_RESULT_TBL;
+

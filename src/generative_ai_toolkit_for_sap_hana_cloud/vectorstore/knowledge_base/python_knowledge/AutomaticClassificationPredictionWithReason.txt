@@ -1,0 +1,12 @@
+useful for when you need to do AutoML Classification/AutomaticClassification inference and do reason code.
+------
+Do inference:
+>>> from hana_ml.algorithms.pal.auto_ml import AutomaticClassification
+>>> mymodel = AutomaticClassification()
+>>> mymodel.model_ = <data_frame>.connection_context.table(<MODEL_TABLE>)
+>>> #show_explainer needs to be set True if reason_code needs to be outputted.
+>>> result = mymodel.predict(data=<data_frame>, key=<ID>, show_explainer=True)
+>>> #save the prediction result.
+>>> result.save(<PREDICT_RESULT>)
+>>> #output the reason code
+>>> print(result.select(result.columns[3]).collect().to_numpy())

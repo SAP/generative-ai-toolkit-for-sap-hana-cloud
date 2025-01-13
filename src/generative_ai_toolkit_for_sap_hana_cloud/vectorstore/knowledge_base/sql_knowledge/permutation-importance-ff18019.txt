@@ -1,0 +1,61 @@
+Permutation importance is a feature evaluation method that measures the decrease in the model score when a feature's values are randomly shuffled. It helps determine how much the model relies on a feature for prediction by breaking the association between the feature and the true outcome. Permutation importance is model agnostic and can avoid bias against low cardinality features. It is computed on a validation set during the training procedure and works only with certain partition methods. The content also provides examples of how to calculate permutation feature importance using specific parameters in SAP HANA.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL (
+        "ID" INTEGER,
+        "OUTLOOK" NVARCHAR(20),
+        "TEMP" DOUBLE,
+        "HUMIDITY" DOUBLE,
+        "WINDY" NVARCHAR(10),
+        "CLASS" NVARCHAR(20)
+);
+INSERT INTO PAL_DATA_TBL VALUES (1, 'Sunny', 75, 70.0, 'Yes', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES (2, 'Sunny', 80, 90.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES (3, 'Sunny', 85, 91.0, 'No', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES (4, 'Sunny', 72, 95.0, 'No', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES (5, 'Sunny', 73, 70.0, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES (6, 'Overcast', 72.0, 90, 'Yes', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES (7, 'Overcast', 83.0, 78, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES (8, 'Overcast', 64.0, 65, 'Yes', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES (9, 'Overcast', 81.0, 75, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES (10, 'Rain', 71, 80.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES (11, 'Rain', 65, 70.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES (12, 'Rain', 75, 80.0, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES (13, 'Rain', 68, 80.0, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES (14, 'Rain', 70, 96.0, 'No', 'Play');
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE  COLUMN TABLE PAL_PARAMETER_TBL (
+        "PARAM_NAME" NVARCHAR (100),
+        "INT_VALUE" INTEGER,
+        "DOUBLE_VALUE" DOUBLE,
+        "STRING_VALUE" NVARCHAR (100)
+);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION', NULL, NULL, 'RDT');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('KEY', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SEED', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SPLIT_THRESHOLD', NULL, 0.0000001, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MIN_SAMPLES_LEAF', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('N_ESTIMATORS', 10, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_DEPTH', 55, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PARTITION_METHOD', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PARTITION_RANDOM_SEED', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PARTITION_STRATIFIED_VARIABLE', NULL, NULL, 'CLASS');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PARTITION_TRAINING_PERCENT', NULL, 0.3, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('OUTPUT_PARTITION_RESULT', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PERMUTATION_IMPORTANCE', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PERMUTATION_EVALUATION_METRIC', NULL, NULL, 'ACCURACY');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PERMUTATION_N_REPEATS', 5, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PERMUTATION_SEED', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PERMUTATION_N_SAMPLES', 0, NULL, NULL);
+
+DO
+BEGIN
+  lt_data = SELECT * FROM PAL_DATA_TBL;
+  lt_ctrl = SELECT * FROM PAL_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_UNIFIED_CLASSIFICATION (:lt_data, :lt_ctrl, lt_model, lt_imp, lt_stat, lt_opt, lt_cm, lt_metrics, lt_partition, lt_ph1);
+  SELECT * FROM :lt_imp;
+END;

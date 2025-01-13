@@ -1,0 +1,44 @@
+This content is an AutoML tutorial specifically focused on classification problems. It provides a link to a tutorial dataset for more information about the data table used in the tutorial.
+------
+
+set schema DM_PAL;
+
+drop table PAL_PARAMETER_TAB;
+create column table PAL_PARAMETER_TAB (
+    "PARAM_NAME" nvarchar(256),
+    "INT_VALUE" integer, 
+    "DOUBLE_VALUE" double, 
+    "STRING_VALUE" nvarchar(5000)
+);
+
+INSERT INTO PAL_PARAMETER_TAB VALUES ('PIPELINE_TYPE', null, null, 'classifier');
+INSERT INTO PAL_PARAMETER_TAB VALUES ('CONFIG_DICT', null, null,   'default');
+INSERT INTO PAL_PARAMETER_TAB VALUES ('CONFIG_REMOVE', null, null, 'SVM_Classifier');
+INSERT INTO PAL_PARAMETER_TAB VALUES ('CONFIG_REMOVE', null, null, 'OneHotEncoder'); -- no categorical feature
+INSERT INTO PAL_PARAMETER_TAB VALUES ('CONFIG_REMOVE', null, null, 'LabelEncoder');
+INSERT INTO PAL_PARAMETER_TAB VALUES ('CONFIG_MODIFY', null, null, '{"RDT_Classifier":{"TREES_NUM":[100, 200]}}');
+INSERT INTO PAL_PARAMETER_TAB VALUES ('CONFIG_MODIFY', null, null, '{"HGBT_Classifier":{"MAX_DEPTH":{"range":[1,1,4]},"ETA":[0.01,0.1,0.5],"NODE_SIZE":{"range":[1,2,10]}}}');
+
+
+drop table PAL_AUTOML_CONFIG_TAB;
+create column table PAL_AUTOML_CONFIG_TAB (
+    "ROW_INDEX" integer, 
+    "CONTENT" nvarchar(5000)
+);
+
+drop table PAL_AUTOML_CONFIGINFO_TAB;
+create column table PAL_AUTOML_CONFIGINFO_TAB (
+    "NAME" nvarchar(256),
+    "TYPE" nvarchar(256),
+    "CONFIG" nvarchar(1000)
+);
+
+DO BEGIN
+lt_para = select * from PAL_PARAMETER_TAB;
+call _SYS_AFL.PAL_AUTOML_CONFIG(:lt_para, lt_config, lt_info);
+insert into PAL_AUTOML_CONFIG_TAB select * from :lt_config;
+insert into PAL_AUTOML_CONFIGINFO_TAB select * from :lt_info;
+END;
+
+select * from PAL_AUTOML_CONFIG_TAB;
+select * from PAL_AUTOML_CONFIGINFO_TAB;

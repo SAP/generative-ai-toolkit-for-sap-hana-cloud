@@ -1,0 +1,39 @@
+The function create_dataframe_from_spark in the hana_ml.dataframe module uploads data from a Spark DataFrame to a SAP HANA database and returns a SAP HANA DataFrame, with various parameters to customize the upload process such as connection context, table name, schema, force, object type as binary, table structure, drop existing table, allow bigint, primary key, not nulls, chunk size, disable progress bar, upsert, and append.
+------
+Here is the executable code template for the function `create_dataframe_from_spark`:
+
+```python
+from hana_ml import dataframe
+
+# Assuming that you have already established a connection to the SAP HANA database
+# connection_context = dataframe.ConnectionContext(...)
+
+# Assuming that you have a Spark DataFrame
+# spark_df = ...
+
+# Define the table name in the SAP HANA database
+table_name = 'your_table_name'
+
+# Call the function
+hana_df = dataframe.create_dataframe_from_spark(
+    connection_context=connection_context,
+    spark_df=spark_df,
+    table_name=table_name,
+    schema=None,  # Optional: Provide the schema name if needed
+    force=False,  # Optional: Set to True if you want to truncate or drop the existing table
+    object_type_as_bin=False,  # Optional: Set to True if you want to consider the object type as CLOB in SAP HANA
+    table_structure=None,  # Optional: Provide the table structure if needed
+    drop_exist_tab=True,  # Optional: Set to False if you don't want to drop the existing table
+    allow_bigint=False,  # Optional: Set to True if you want to map int64 into BIGINT in HANA
+    primary_key=None,  # Optional: Provide the primary key if needed
+    not_nulls=None,  # Optional: Provide the list of column names which should get a not null constraint
+    chunk_size=50000,  # Optional: Specify the chunk size for upload
+    disable_progressbar=False,  # Optional: Set to True if you want to disable the progress bar
+    upsert=False,  # Optional: Set to True if you want to enable upsert with primary key
+    append=False  # Optional: Set to True if you want to enable append
+)
+
+# Now, hana_df is a SAP HANA DataFrame that contains the data in the Spark DataFrame
+```
+
+Please replace `'your_table_name'` with your actual table name and uncomment the lines for `connection_context` and `spark_df` after providing the actual values.

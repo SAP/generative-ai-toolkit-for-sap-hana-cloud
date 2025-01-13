@@ -1,0 +1,45 @@
+The ExponentialRegression class in the hana_ml.algorithms.pal.regression module is used to model the relationship between a scalar variable y and one or more variables denoted X using exponential functions, with parameters for matrix factorization type, adjusted R2 value inclusion, PMML model output, and thread ratio control.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.regression import ExponentialRegression
+
+# Define the Exponential Regression model
+er = ExponentialRegression(decomposition='QR', adjusted_r2=False, pmml_export='multi-row', thread_ratio=0.0)
+
+# Assume df is the training data DataFrame
+# df.collect()
+# ID       Y       X1      X2
+# 0   0     0.5     0.13    0.33
+# 1   1    0.15     0.14    0.34
+# 2   2    0.25     0.15    0.36
+# 3   3    0.35     0.16    0.35
+# 4   4    0.45     0.17    0.37
+
+# Fit the model
+er.fit(data=df, key='ID')
+
+# Assume df2 is the data DataFrame for prediction
+# df2.collect()
+# ID    X1       X2
+# 0   0   0.5      0.3
+# 2   1     4      0.4
+# 2   2     0      1.6
+# 3   3   0.3     0.45
+# 5   4   0.4      1.7
+
+# Perform prediction
+prediction = er.predict(data=df2, key='ID')
+
+# Print the prediction result
+print(prediction.collect())
+# ID                      VALUE
+# 0   0         0.6900598931338715
+# 1   1         1.2341502316656843
+# 2   2       0.006630664136180741
+# 3   3         0.3887970208571841
+# 4   4      0.0052106543571450266
+```
+
+Please replace `df` and `df2` with your actual data.

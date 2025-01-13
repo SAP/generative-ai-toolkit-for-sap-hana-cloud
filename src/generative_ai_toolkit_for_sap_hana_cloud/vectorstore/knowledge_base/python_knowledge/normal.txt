@@ -1,0 +1,23 @@
+The function 'normal' in the hana_ml.algorithms.pal.random module draws samples from a normal distribution, with parameters to specify the database connection, mean, standard deviation or variance, number of random data to be generated, seed for the random number generator, and thread ratio.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.random import normal
+from hana_ml import dataframe as df
+
+# Assuming that a connection context 'cc' has been created
+
+# Define parameters
+mean = 0
+sigma = 1
+num_random = 10
+
+# Draw samples from a normal distribution
+res = normal(conn_context=cc, mean=mean, sigma=sigma, num_random=num_random)
+
+# Collect and print the result
+print(res.collect())
+```
+
+Please replace the 'cc' with your actual connection context and adjust the parameters as needed.

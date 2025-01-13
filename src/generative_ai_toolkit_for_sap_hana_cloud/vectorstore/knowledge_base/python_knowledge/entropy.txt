@@ -1,0 +1,33 @@
+The entropy function in the hana_ml.algorithms.pal.stats module calculates the information entropy of attributes in a DataFrame, with options to specify the data column to be processed, whether to output the details of distinct value counts, and the ratio of total number of threads that can be used by this function.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.stats import entropy
+from hana_ml import DataFrame
+
+# Assuming that a connection context `cc` to a HANA database is available
+
+# Create DataFrame from the existing HANA table
+df = DataFrame(cc, 'TABLE_NAME')  # replace 'TABLE_NAME' with your actual table name
+
+# Specify the columns to be processed
+col = ['COLUMN_NAME1', 'COLUMN_NAME2']  # replace with your actual column names
+
+# Set the distinct_value_count_detail parameter
+distinct_value_count_detail = True
+
+# Set the thread_ratio parameter
+thread_ratio = 0.5
+
+# Calculate the entropy
+res1, res2 = entropy(data=df, col=col, distinct_value_count_detail=distinct_value_count_detail, thread_ratio=thread_ratio)
+
+# Print the results
+print("Entropy results:")
+print(res1.collect())
+print("\nDistinct values results:")
+print(res2.collect())
+```
+
+Please replace `'TABLE_NAME'`, `'COLUMN_NAME1'`, and `'COLUMN_NAME2'` with your actual table and column names. Also, adjust the `distinct_value_count_detail` and `thread_ratio` parameters as per your requirements.

@@ -1,0 +1,23 @@
+The function stationarity_test in the hana_ml.algorithms.pal.tsa.stationarity_test module is used to determine if a time series has a constant mean and variance over time (stationarity), which is a requirement for many time series models; it takes as input a DataFrame with at least two columns (ID and raw data), and optional parameters for ID column, series to be tested, statistic test method, type of stationarity, lag order, and confidence level, and returns a DataFrame with statistics for the time series.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.tsa import stationarity_test
+from hana_ml import DataFrame
+
+# Assuming that connection_context is already defined and connected to HANA
+
+# Create DataFrame from existing HANA table
+data = DataFrame(connection_context, 'YOUR_HANA_TABLE_NAME')
+
+# Perform stationarity_test
+stats = stationarity_test(data=data, endog='SERIES', key='TIME_STAMP',
+                          method='kpss', mode='trend',
+                          lag=5, probability=0.95)
+
+# Collect and print the results
+print(stats.collect())
+```
+
+Please replace `'YOUR_HANA_TABLE_NAME'` with the name of your HANA table. This code assumes that you have a `connection_context` object that is already connected to your HANA instance. If not, you need to create and connect it before creating the DataFrame.

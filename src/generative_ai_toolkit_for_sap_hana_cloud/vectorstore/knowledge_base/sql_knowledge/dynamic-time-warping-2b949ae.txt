@@ -1,0 +1,100 @@
+Dynamic Time Warping (DTW) is a method used to calculate the distance or dissimilarity between two series. It involves stretching or compressing one or both series to make them match as closely as possible. The DTW algorithm defines a match curve, which is a series of pairs of subscripts that represent the matching points between the two series. Constraints can be imposed on the match curve, such as a start-point constraint, an end-point constraint, and a window constraint. The distance of the DTW curve is calculated using a formula that takes into account the distance between each pair of points, the local step weight, and a normalization coefficient. Step patterns are a set of rules that determine how one pair of matches can transition to the next. There are predefined step patterns in the DTW algorithm, but users can also define their own. It is important to choose a reasonable normalization coefficient to compare different curves.
+------
+
+set schema DM_PAL;
+
+drop table PAL_DTW_QUERY_DATA_TAB;
+create column table PAL_DTW_QUERY_DATA_TAB (
+	"ID" nvarchar(100),
+	"TIMESTAMP" integer,
+	"ATTR1" integer,    -- only support integer or double
+	"ATTR2" double
+);
+
+drop table PAL_DTW_REF_DATA_TAB;
+create column table PAL_DTW_REF_DATA_TAB (
+	"ID" nvarchar(100),
+	"TIMESTAMP" integer,
+	"ATTR1" integer,    -- must have same number of data columns as query table
+	"ATTR2" double
+);
+
+drop table PAL_PARAMETER_TAB;
+create column table PAL_PARAMETER_TAB (
+	"PARAM_NAME" nvarchar (256),
+	"INT_VALUE" integer,
+	"DOUBLE_VALUE" double,
+	"STRING_VALUE" nvarchar (1000)
+);
+
+drop table PAL_DTW_RES_TAB;
+create column table PAL_DTW_RES_TAB (
+	"LEFT_ID" nvarchar(100),
+	"RIGHT_ID" nvarchar(100),
+	"DISTANCE" double
+);
+
+drop table PAL_DTW_ALIGN_TAB;
+create column table PAL_DTW_ALIGN_TAB (
+	"LEFT_ID" nvarchar(100),
+	"RIGHT_ID" nvarchar(100),
+	"LEFT_INDEX" integer,
+    "RIGHT_INDEX" integer
+);
+
+drop table PAL_DTW_STAT_TAB;
+create column table PAL_DTW_STAT_TAB (
+	"STAT_NAME" nvarchar(256),
+	"STAT_VALUE" nvarchar(1000)
+);
+
+truncate table PAL_DTW_QUERY_DATA_TAB;
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 1, 1, 5.2);
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 2, 2, 5.1);
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 3, 3, 2.0);
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 4, 4, 0.3);
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 5, 5, 1.2);
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 6, 6, 7.7);
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 7, 7, 0.0);
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 8, 8, 1.1);
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 9, 9, 3.2);
+insert into PAL_DTW_QUERY_DATA_TAB values (1, 10, 10, 2.3);
+
+insert into PAL_DTW_QUERY_DATA_TAB values (2, 1, 7, 2.0);
+insert into PAL_DTW_QUERY_DATA_TAB values (2, 2, 6, 1.4);
+insert into PAL_DTW_QUERY_DATA_TAB values (2, 3, 1, 0.9);
+insert into PAL_DTW_QUERY_DATA_TAB values (2, 4, 3, 1.2);
+insert into PAL_DTW_QUERY_DATA_TAB values (2, 5, 2, 10.2);
+insert into PAL_DTW_QUERY_DATA_TAB values (2, 6, 5, 2.3);
+insert into PAL_DTW_QUERY_DATA_TAB values (2, 7, 4, 4.5);
+insert into PAL_DTW_QUERY_DATA_TAB values (2, 8, 3, 4.6);
+insert into PAL_DTW_QUERY_DATA_TAB values (2, 9, 3, 3.5);
+
+truncate table PAL_DTW_REF_DATA_TAB;
+insert into PAL_DTW_REF_DATA_TAB values (3, 1, 10, 1.0);
+insert into PAL_DTW_REF_DATA_TAB values (3, 2, 5, 2.0);
+insert into PAL_DTW_REF_DATA_TAB values (3, 3, 2, 3.0);
+insert into PAL_DTW_REF_DATA_TAB values (3, 4, 8, 1.4);
+insert into PAL_DTW_REF_DATA_TAB values (3, 5, 1, 10.8);
+insert into PAL_DTW_REF_DATA_TAB values (3, 6, 5, 7.7);
+insert into PAL_DTW_REF_DATA_TAB values (3, 7, 5, 6.3);
+insert into PAL_DTW_REF_DATA_TAB values (3, 8, 12, 2.4);
+insert into PAL_DTW_REF_DATA_TAB values (3, 9, 20, 9.4);
+insert into PAL_DTW_REF_DATA_TAB values (3, 10, 4, 0.5);
+insert into PAL_DTW_REF_DATA_TAB values (3, 11, 6, 2.2);
+
+truncate table PAL_PARAMETER_TAB;
+insert into PAL_PARAMETER_TAB values ('THREAD_RATIO', null, 1, null);
+insert into PAL_PARAMETER_TAB values ('DISTANCE_METHOD', 2, null, null); -- 1: MANHATTAN; 2: EUCLIDEAN (default); 3: MINKOWSKI; 4: CHEBYSHEV; 6: COSINE;
+--insert into PAL_PARAMETER_TAB values ('MINKOWSKI_POWER', null, 0.7, null); -- only valid when DISTANCE_METHOD = 3, default 3.0
+insert into PAL_PARAMETER_TAB values ('WINDOW', -1, null, null);
+--insert into PAL_PARAMETER_TAB values ('STEP_PATTERN_TYPE', 5, null, null);
+-- equivalent to STEP_PATTERN_TYPE = 5
+insert into PAL_PARAMETER_TAB values ('STEP_PATTERN', null, null, '(1,1,1),(1,0,1)');
+insert into PAL_PARAMETER_TAB values ('STEP_PATTERN', null, null, '(1,1,1)');
+insert into PAL_PARAMETER_TAB values ('STEP_PATTERN', null, null, '(1,1,0.5),(0,1,0.5)');
+--insert into PAL_PARAMETER_TAB values ('BEGIN_END_ALIGNMENT', null, null, 'CLOSED');
+insert into PAL_PARAMETER_TAB values ('SAVE_ALIGNMENT', 1, null, null);
+
+call _SYS_AFL.PAL_DTW(PAL_DTW_QUERY_DATA_TAB, PAL_DTW_REF_DATA_TAB, PAL_PARAMETER_TAB, ?, ?, ?);
+

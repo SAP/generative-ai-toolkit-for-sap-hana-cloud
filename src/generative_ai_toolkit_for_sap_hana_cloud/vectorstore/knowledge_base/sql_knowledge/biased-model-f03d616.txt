@@ -1,0 +1,22 @@
+The content discusses the issues with pure least square estimates, including low prediction accuracy and difficulty in interpretation when there are a large number of features. The current implementation supports biased models to address these issues, including Ridge Penalty, Lasso Penalty, and elastic net for improving prediction accuracy, and forward selection, backward selection, and stepwise selection for variable selection.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE 
+	#PAL_PARAMETER_TBL 
+	("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ALG', 6, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ENET_LAMBDA', NULL, 0.003194, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ENET_ALPHA', NULL, 0.95, NULL);
+
+DROP TABLE PAL_ENET_MLR_DATA_TBL;
+CREATE COLUMN TABLE PAL_ENET_MLR_DATA_TBL ( "ID" INT,"Y" DOUBLE,"V1" DOUBLE,"V2" DOUBLE,"V3" DOUBLE);
+INSERT INTO PAL_ENET_MLR_DATA_TBL VALUES (0, 1.2, 0.1, 0.205, 0.9);
+INSERT INTO PAL_ENET_MLR_DATA_TBL VALUES (1, 0.2, -1.705, -3.4, 1.7);
+INSERT INTO PAL_ENET_MLR_DATA_TBL VALUES (2, 1.1, 0.4, 0.8, 0.5);
+INSERT INTO PAL_ENET_MLR_DATA_TBL VALUES (3, 1.1, 0.1, 0.201, 0.8);
+INSERT INTO PAL_ENET_MLR_DATA_TBL VALUES (4, 0.3, -0.306, -0.6, 0.2);
+
+CALL _SYS_AFL.PAL_LINEAR_REGRESSION(PAL_ENET_MLR_DATA_TBL,"#PAL_PARAMETER_TBL", ?, ?, ?,?,? );

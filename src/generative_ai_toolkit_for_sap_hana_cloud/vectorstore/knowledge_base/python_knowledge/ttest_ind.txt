@@ -1,0 +1,35 @@
+The ttest_ind function in the hana_ml.algorithms.pal.stats module performs a T-test for the mean difference of two independent samples, taking in parameters for data, sample columns, hypothesized mean difference, test type, variance equality, and confidence level, and returns a DataFrame with the statistical results.
+------
+Here is a Python code template for the `ttest_ind` function from the `hana_ml.algorithms.pal.stats` module:
+
+```python
+from hana_ml import DataFrame
+from hana_ml.algorithms.pal.stats import ttest_ind
+
+# Assuming that a HANA dataframe is already created
+# df = DataFrame(connection_context, 'TABLE_NAME')
+
+# Specify the column names for sample1 and sample2
+col1 = 'X1'
+col2 = 'X2'
+
+# Specify the hypothesized difference between the two underlying population means
+mu = 0
+
+# Specify the alternative hypothesis type
+test_type = 'two_sides'
+
+# Specify whether to assume that the two samples have equal variance
+var_equal = False
+
+# Specify the confidence level for alternative hypothesis confidence interval
+conf_level = 0.95
+
+# Perform the T-test for the mean difference of two independent samples
+result = ttest_ind(data=df, col1=col1, col2=col2, mu=mu, test_type=test_type, var_equal=var_equal, conf_level=conf_level)
+
+# Print the statistics results
+print(result.collect())
+```
+
+Please replace `'TABLE_NAME'` with the actual table name in your HANA database. Also, make sure that a valid `connection_context` is provided to create the DataFrame.

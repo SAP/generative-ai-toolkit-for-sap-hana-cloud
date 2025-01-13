@@ -1,0 +1,24 @@
+The function check_pal_function_exist in the hana_ml.algorithms.pal.utility module checks if a specific pal function exists in the given connection context.
+------
+Here is a Python code template for the function `check_pal_function_exist` from the `hana_ml.algorithms.pal.utility` module:
+
+```python
+# Import the required module
+from hana_ml.algorithms.pal.utility import check_pal_function_exist
+
+# Create a connection context
+# Please replace '<address>', '<port>', '<user>', and '<password>' with your actual HANA DB credentials
+from hana_ml import dataframe
+connection_context = dataframe.ConnectionContext('<address>', '<port>', '<user>', '<password>')
+
+# Specify the function name you want to check
+func_name = "<function_name>"
+
+# Set the 'like' parameter (optional)
+like = False
+
+# Call the function
+check_pal_function_exist(connection_context, func_name, like)
+```
+
+Please replace `"<function_name>"` with the actual name of the function you want to check. If you want to check for functions that have similar names, set `like` to `True`.

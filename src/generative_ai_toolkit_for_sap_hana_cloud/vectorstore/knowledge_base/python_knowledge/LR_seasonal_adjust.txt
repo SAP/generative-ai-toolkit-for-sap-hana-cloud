@@ -1,0 +1,28 @@
+The LR_seasonal_adjust class in the hana_ml.algorithms.pal.tsa.lr_seasonal_adjust module is a linear regression approach for forecasting time series data with a trend, providing a damped smoothing parameter to avoid over-casting due to indefinitely increasing or decreasing trends, and allowing for adjustment of forecast results based on seasonality.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.lr_seasonal_adjust import LR_seasonal_adjust
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+# df is the DataFrame for the input data
+
+# Create a LR_seasonal_adjust instance
+lr = LR_seasonal_adjust(forecast_length=10,
+                        trend=0.9, 
+                        affect_future_only=True,
+                        seasonality=1, 
+                        seasonal_period=4,
+                        accuracy_measure='mse')
+
+# Perform fit_predict() on the given data
+lr.fit_predict(data=df)
+
+# Output
+print(lr.forecast_.collect().set_index('TIMESTAMP').head(3))
+print(lr.stats_.collect())
+```
+
+Please replace the placeholders with your actual variables and data.

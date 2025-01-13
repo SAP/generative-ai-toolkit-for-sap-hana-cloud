@@ -1,0 +1,82 @@
+The content discusses the compatibility between the Unified Classification Interface and the original PAL procedures. It states that the Unified Classification Interface can use models from the original PAL procedures for prediction and scoring without any additional processing. However, in some cases, the second column needs to be removed from the Unified Classification Interface models before using them in the original PAL procedures for prediction. The table provided lists the models that require the removal processing.
+------
+
+SET SCHEMA DM_PAL;
+-------------------------Unified Cluster Training Procedure------------------------
+--Data Table
+DROP TABLE MY_DATA_TABLE; 
+CREATE COLUMN TABLE MY_DATA_TABLE (
+"DATA_ID" INTEGER,   
+"V1" DOUBLE,    
+"V2" DOUBLE,   
+"V3" VARCHAR(10) 
+); 
+
+INSERT INTO MY_DATA_TABLE VALUES(1, 0.10, 0.10,  'B');
+INSERT INTO MY_DATA_TABLE VALUES(2, 0.11, 0.10,  'A');
+INSERT INTO MY_DATA_TABLE VALUES(3, 0.10, 0.11,  'C');
+INSERT INTO MY_DATA_TABLE VALUES(4, 0.11, 0.11,  'B');
+INSERT INTO MY_DATA_TABLE VALUES(5, 0.12, 0.11,  'A');
+
+DROP TABLE PAL_PARAMETER_TBL; 
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+"NAME" VARCHAR (50),
+"INT_VALUE" INTEGER,
+"DOUBLE_VALUE" DOUBLE,
+"STRING_VALUE" VARCHAR (100)
+); 
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION', NULL, NULL, 'DBSCAN');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('AUTO_PARAM', NULL, NULL, 'true');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('METRIC', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 1.0, NULL);
+
+---model table
+DROP TABLE PAL_CLUSTERING_MODEL_TBL; 
+CREATE COLUMN TABLE PAL_CLUSTERING_MODEL_TBL (
+"ROW_INDEX" INTEGER,
+"PART_INDEX" INTEGER,
+"MODEL_CONTENT" VARCHAR (5000)
+); 
+
+DO BEGIN
+  lt_data = SELECT * FROM MY_DATA_TABLE;
+  lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+  CALL "_SYS_AFL"."PAL_UNIFIED_CLUSTERING"(:lt_data, :lt_param, lt_result, lt_centers, lt_model, lt_stat, lt_optimal_parameter, lt_place1, lt_place2);
+  INSERT INTO PAL_CLUSTERING_MODEL_TBL SELECT * FROM :lt_model;
+END;
+
+-------------------------Origin Cluster Assignment Procedure------------------------
+DROP TABLE PAL_ORIGIN_MODEL_TBL; 
+CREATE COLUMN TABLE PAL_ORIGIN_MODEL_TBL (
+"ROW_INDEX" INTEGER,
+"MODEL_CONTENT" VARCHAR (5000)
+); 
+
+------------------Remove Processing-----------------------
+INSERT INTO PAL_ORIGIN_MODEL_TBL(ROW_INDEX,MODEL_CONTENT) SELECT ROW_INDEX, MODEL_CONTENT from PAL_CLUSTERING_MODEL_TBL;   
+
+DROP TABLE PAL_DBSCAN_DATA_TBL;
+CREATE COLUMN TABLE PAL_DBSCAN_DATA_TBL (
+	"ID" INTEGER, 
+	"V1" DOUBLE, 
+	"V2" DOUBLE,
+	"V3" VARCHAR(10)
+);
+
+INSERT INTO PAL_DBSCAN_DATA_TBL VALUES (1, 0.10, 0.10, 'B');
+INSERT INTO PAL_DBSCAN_DATA_TBL VALUES (2, 0.10, -2.10, 'A');
+INSERT INTO PAL_DBSCAN_DATA_TBL VALUES (3, 3.10, 0.10, 'B');
+INSERT INTO PAL_DBSCAN_DATA_TBL VALUES (4, 10.10, 10.10, 'D');
+INSERT INTO PAL_DBSCAN_DATA_TBL VALUES (5, 3.10, -0.50, 'C');
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR(100), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR(100)
+);
+
+CALL _SYS_AFL.PAL_CLUSTER_ASSIGNMENT(PAL_DBSCAN_DATA_TBL, PAL_ORIGIN_MODEL_TBL, "#PAL_PARAMETER_TBL",  ?);
+

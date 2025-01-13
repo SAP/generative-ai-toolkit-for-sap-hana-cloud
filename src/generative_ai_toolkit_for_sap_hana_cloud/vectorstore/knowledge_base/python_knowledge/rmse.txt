@@ -1,0 +1,20 @@
+The rmse function in the hana_ml.algorithms.pal.metrics module computes the Root Mean Square Error (RMSE) for regression results using a DataFrame of true and predicted values, with specified columns for true values and predicted values.
+------
+Here is a Python code template for the `rmse` function from the `hana_ml.algorithms.pal.metrics` module:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal.metrics import rmse
+
+# Define the column names
+label_true = 'true_values'
+label_pred = 'predicted_values'
+
+# Compute RMSE
+result = rmse(data, label_true, label_pred)
+
+# Print the result
+print("RMSE: ", result)
+```
+
+Please replace the DataFrame `data` with your actual data and adjust the `label_true` and `label_pred` according to your DataFrame's column names. The `rmse` function will return the Root Mean Square Error (RMSE) for the regression results.

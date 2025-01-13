@@ -1,0 +1,28 @@
+The function create_dataframe_from_shapefile in the hana_ml.dataframe module converts a shapefile into a DataFrame that is backed in SAP HANA, expecting the shapefile to be a zip and/or have both shp and dbf parts to create a single table, and returns a SAP HANA DataFrame that can be visualized.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import necessary modules
+from hana_ml.dataframe import ConnectionContext, create_dataframe_from_shapefile
+import os
+
+# Create a connection to the SAP HANA database instance
+cc = ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Define the path to the shapefile
+shapefile_path = os.path.join(os.getcwd(), 'myshape.shp')
+
+# Create a SAP HANA DataFrame from the shapefile
+hana_df = create_dataframe_from_shapefile(
+    connection_context=cc,
+    shp_file=shapefile_path,
+    srid=4326,
+    table_name="myshape_tbl"
+)
+
+# Print the DataFrame
+print(hana_df.collect())
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual SAP HANA database instance details. Also, make sure that the shapefile `myshape.shp` is present in the current working directory.

@@ -1,0 +1,19 @@
+The bubble_plot function in the hana_ml.visualizers.eda module creates a bubble plot from a HANA dataframe, using specified columns for the x and y coordinates and the size of the bubbles, with optional parameters for color, alpha blending value, axes, whether to use plotly instead of matplotlib, and other properties when plotly is enabled.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers.eda import bubble_plot
+
+# Assuming you have a DataFrame 'df' with columns 'X', 'Y', and 'S'
+# You can create a bubble plot using the following code:
+
+# Using matplotlib
+bubble_plot(data=df, x='X', y='Y', size='S', alpha=0.5, title="Bubble Plot")
+
+# Using plotly
+bubble_plot(data=df, x='X', y='Y', size='S', enable_plotly=True, width=600, height=400)
+```
+
+Please replace `'X'`, `'Y'`, and `'S'` with the actual column names in your DataFrame. Also, make sure to replace `df` with your actual DataFrame variable. If you want to use specific colors, you can pass a list of colors to the `color` parameter. If you want to adjust the transparency of the plot, you can do so by adjusting the `alpha` parameter.

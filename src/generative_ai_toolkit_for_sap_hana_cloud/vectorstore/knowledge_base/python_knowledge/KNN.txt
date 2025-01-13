@@ -1,0 +1,44 @@
+The KNN class in the hana_ml.algorithms.pal.neighbors module is a K-Nearest Neighbor model for classification problems, with parameters for the number of nearest neighbors, thread ratio, voting type, statistic information, metric, Minkowski power, and algorithm, and methods for fitting the model, predicting class labels, and returning a scalar accuracy value.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.neighbors import KNN
+
+# Define the parameters for the KNN model
+n_neighbors = 3
+voting_type = 'majority'
+thread_ratio = 0.1
+stat_info = False
+
+# Create a KNN instance
+knn = KNN(n_neighbors=n_neighbors, voting_type=voting_type,
+          thread_ratio=thread_ratio, stat_info=stat_info)
+
+# Define the training data and features
+data = df
+key = 'ID'
+features = ['X1', 'X2']
+label = 'TYPE'
+
+# Fit the model
+knn.fit(data=data, key=key, features=features, label=label)
+
+# Define the prediction data
+pred_data = pred_df
+pred_key = "ID"
+
+# Predict the class labels
+res, stat = knn.predict(data=pred_data, key=pred_key)
+
+# Print the predicted result
+print(res.collect())
+
+# Score the model
+accuracy = knn.score(data=data, key=key, features=features, label=label)
+
+# Print the accuracy
+print(accuracy)
+```
+
+Please replace `df` and `pred_df` with your actual DataFrame objects.

@@ -1,0 +1,36 @@
+The inter-quartile range (IQR) is a measure of the spread of a series of numeric data. It is calculated by finding the difference between the third quartile (Q3) and the first quartile (Q1) of the data. Q1 is the value below which 25% of the data falls, and Q3 is the value below which 75% of the data falls. The IQR test is a method used to identify outliers in the data by comparing each value to the upper and lower bounds, which are calculated using the IQR. Values outside of this range are considered outliers.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_IQR_DATA_TBL;
+CREATE COLUMN TABLE PAL_IQR_DATA_TBL (
+    "ID" VARCHAR(10),
+    "VAL" DOUBLE
+);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P1', 10);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P2', 11);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P3', 10);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P4', 9);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P5', 10);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P6', 24);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P7', 11);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P8', 12);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P9', 10);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P10', 9);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P11', 1);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P12', 11);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P13', 12);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P14', 13);
+INSERT INTO PAL_IQR_DATA_TBL VALUES ('P15', 12);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('MULTIPLIER', null, 1.5, null);
+
+CALL "_SYS_AFL"."PAL_IQR"(PAL_IQR_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?);

@@ -1,0 +1,68 @@
+The content describes a seasonality test algorithm for time series data. The algorithm decomposes the time series into three components: seasonal, trend, and random. Two decomposition methods are provided: traditional decomposition using moving average and seasonal and trend decomposition using LOESS (STL decomposition). The algorithm identifies whether the time series has an additive or multiplicative seasonality model. Autocorrelation is used to identify the seasonality, and the autocorrelation coefficients are calculated for all possible lags. The algorithm determines the seasonality based on a user-defined criterion for the autocorrelation coefficient. If no lag satisfies the criterion, the time series is considered to have no seasonality. Otherwise, the lag with the largest autocorrelation coefficient is considered the optimal seasonality. The algorithm also provides formulas to estimate the trend, de-trend the time series, and estimate the seasonal and random components. If there is no seasonality, a smoothing method is used to decompose the series into only trend and random components.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_SEASONALITY_DATA_TBL;
+CREATE COLUMN TABLE PAL_SEASONALITY_DATA_TBL (
+	"TIME_STAMP" INTEGER,
+	"SERIES" DOUBLE
+);
+
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (1, 10);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (2, 7);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (3, 17);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (4, 34);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (5, 9);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (6, 7);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (7, 18);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (8, 40);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (9, 27);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (10, 7);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (11, 27);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (12, 100);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (13, 93);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (14, 29);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (15, 159);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (16, 614);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (17, 548);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (18, 102);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (19, 21);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (20, 238);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (21, 89);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (22, 292);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (23, 446);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (24, 689);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (25, 521);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (26, 155);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (27, 968);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (28, 1456);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (29, 936);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (30, 10);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (31, 83);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (32, 55);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (33, 207);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (34, 25);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (35, 0);
+INSERT INTO PAL_SEASONALITY_DATA_TBL VALUES (36, 0);
+
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+"PARAM_NAME" VARCHAR(100),
+"INT_VALUE" INTEGER,
+"DOUBLE_VALUE" DOUBLE,
+"STRING_VALUE" VARCHAR(100)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.5, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('ALPHA', NULL, 0.2, NULL);
+
+
+do begin
+lt_data = SELECT * FROM PAL_SEASONALITY_DATA_TBL;
+lt_ctrl = SELECT * FROM PAL_PARAMETER_TBL;
+CALL _SYS_AFL.PAL_SEASONALITY_TEST(:lt_data, :lt_ctrl, lt_stat, lt_decomp);
+select * from :lt_stat;
+select * from :lt_decomp;
+end;

@@ -1,0 +1,23 @@
+The KBinsDiscretizer class in the hana_ml.algorithms.pal.preprocessing module is used to bin continuous data into a number of intervals and perform local smoothing, with the output data type being the same as the input data type.
+------
+Here is a Python code template for the `KBinsDiscretizer` class:
+
+```python
+from hana_ml.algorithms.pal.preprocessing import KBinsDiscretizer
+
+# Create a KBinsDiscretizer instance
+binning = KBinsDiscretizer(strategy='uniform_size', smoothing='means', bin_size=10)
+
+# Assuming that df1 is your input DataFrame
+# Perform fit() on the given DataFrame
+binning.fit(data=df1, key='ID')
+
+# Assuming that df2 is your DataFrame for transforming
+# Perform transform() on the given DataFrame
+result = binning.transform(data=df2, key='ID')
+
+# Print the result
+print(result.collect())
+```
+
+Please replace `df1` and `df2` with your actual DataFrames. The `key` parameter should be the name of the ID column in your DataFrame.

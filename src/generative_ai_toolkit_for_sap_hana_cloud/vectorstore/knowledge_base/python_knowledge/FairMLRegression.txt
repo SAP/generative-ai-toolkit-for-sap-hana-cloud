@@ -1,0 +1,44 @@
+The FairMLRegression class in the hana_ml.algorithms.pal.fair_ml module is a machine learning model that aims to mitigate unfairness in predictions due to potential biases in data features such as sex, race, and age, and it provides various parameters to customize the model's behavior.
+------
+Here is a Python code template for the `FairMLRegression` class:
+
+```python
+from hana_ml.algorithms.pal.fair_ml import FairMLRegression
+
+# Initialize the FairMLRegression model
+fair_ml = FairMLRegression(
+    fair_bound=0.5,
+    fair_submodel='HGBT',
+    fair_constraint='bounded_group_loss',
+    fair_loss_func='mse',
+    fair_loss_func_for_constraint='mse',
+    fair_num_max_iter=50,
+    fair_num_min_iter=5,
+    fair_learning_rate=0.02,
+    fair_norm_bound=100,
+    fair_threshold=0.0,
+    fair_exclude_sensitive_variable=True
+)
+
+# Fit the model
+fair_ml.fit(
+    data=df,
+    key=None,
+    features=None,
+    label=None,
+    fair_sensitive_variable='gender',
+    categorical_variable=None,
+    thread_ratio=None
+)
+
+# Predict using the model
+res = fair_ml.predict(
+    data=df_predict,
+    key=None,
+    features=None,
+    thread_ratio=None,
+    model=None
+)
+```
+
+Please replace `df` and `df_predict` with your actual dataframes. Also, you may need to adjust the parameters according to your needs.

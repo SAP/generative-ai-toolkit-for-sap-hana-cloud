@@ -1,0 +1,27 @@
+The BiVariateGeometricRegression class in the hana_ml.algorithms.pal.regression module is used to model the relationship between a scalar variable y and a variable X using geometric functions, with parameters for matrix factorization type, adjusted R2 value inclusion, PMML model output control, and thread ratio control.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.regression import BiVariateGeometricRegression
+
+# Create a BiVariateGeometricRegression instance
+gr = BiVariateGeometricRegression(decomposition='QR', adjusted_r2=False, pmml_export='multi-row', thread_ratio=0.0)
+
+# Assume that df is the training data DataFrame
+# Fit the model
+gr.fit(data=df, key='ID')
+
+# Assume that df2 is the DataFrame for prediction
+# Perform prediction
+predicted = gr.predict(data=df2, key='ID')
+
+# Print the predicted values
+print(predicted.collect())
+
+# Calculate the coefficient of determination R2 of the prediction
+r2 = gr.score(data=df2, key='ID')
+print(r2)
+```
+
+Please replace `df` and `df2` with your actual DataFrames.

@@ -1,0 +1,57 @@
+Model compression aims to reduce the size of a model while minimizing the loss of accuracy. It is provided for Support Vector Machines, Random Decision Trees, and Hybrid Gradient Boosting Trees. The parameters for using model compression in each of these models are listed in the tables provided. The parameters include options for storing the model in compressed format, quantizing continuous features, and specifying compression settings. An example is also provided to demonstrate the use of model compression in a classification task.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE  PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL (
+	"OUTLOOK" VARCHAR(20),
+	"TEMP" DOUBLE,
+	"HUMIDITY" DOUBLE,
+	"WINDY" VARCHAR(10),
+	"CLASS" INTEGER
+);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 75, 70.0, 'Yes', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 80, 90.0, 'Yes', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 85, 91.0, 'No', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 72, 95.0, 'No', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 73, 70.0, 'No', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 72.0, 90, 'Yes', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 83.0, 78, 'No', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 64.0, 65, 'Yes', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 81.0, 75, 'No', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 71, 80.0, 'Yes', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 65, 70.0, 'Yes', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 75, 80.0, 'No', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 68, 80.0, 'No', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 70, 96.0, 'No', 1);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE  COLUMN TABLE PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR (100), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION', NULL, NULL, 'RDT');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SEED', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('N_ESTIMATORS', 200, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_FEATURES', 3, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('COMPRESSION', 1, NULL, NULL);                      ------parameter for model compression
+
+DROP TABLE PAL_MODEL_TBL;  
+CREATE COLUMN TABLE PAL_MODEL_TBL (
+	"ROW_INDEX" INTEGER,
+	"PART_INDEX" INTEGER,
+	"MODEL_CONTENT" NCLOB
+);
+
+DO
+BEGIN
+	lt_data = SELECT * FROM PAL_DATA_TBL;
+	lt_ctrl = SELECT * FROM PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_UNIFIED_CLASSIFICATION (:lt_data, :lt_ctrl, lt_model, lt_imp,lt_stat, lt_opt,lt_cm,lt_metrics,lt_partition,lt_ph1);
+	INSERT INTO PAL_MODEL_TBL SELECT * FROM :lt_model;
+END;
+SELECT * FROM PAL_MODEL_TBL;

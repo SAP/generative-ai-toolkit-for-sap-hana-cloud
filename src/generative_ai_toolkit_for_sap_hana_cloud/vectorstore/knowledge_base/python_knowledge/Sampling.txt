@@ -1,0 +1,21 @@
+The Sampling class in the hana_ml.algorithms.pal.preprocessing module is used to select a small portion of records as representatives, with various parameters to specify the sampling method, interval, size, random state, and percentage.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.preprocessing import Sampling
+
+# Define the sampling method and parameters
+smp = Sampling(method='every_nth', interval=5, sampling_size=8)
+
+# Assume df is your input DataFrame
+# df = ...
+
+# Apply the Sampling
+res = smp.fit_transform(data=df)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `df` with your actual DataFrame. The `method` parameter can be one of the following: 'first_n', 'middle_n', 'last_n', 'every_nth', 'simple_random_with_replacement', 'simple_random_without_replacement', 'systematic', 'stratified_with_replacement', 'stratified_without_replacement'. The `interval` parameter is only required when `method` is 'every_nth'. If `interval` is not specified, the `sampling_size` parameter will be used. The `sampling_size` parameter defaults to 1. The `random_state` parameter indicates the seed used to initialize the random number generator. It can be set to 0 or a positive value. The `percentage` parameter is used when `sampling_size` is not set. If both `sampling_size` and `percentage` are specified, `percentage` takes precedence. The `percentage` parameter defaults to 0.1.

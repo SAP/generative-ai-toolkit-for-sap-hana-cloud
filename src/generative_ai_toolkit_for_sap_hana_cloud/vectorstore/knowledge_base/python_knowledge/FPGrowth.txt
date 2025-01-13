@@ -1,0 +1,46 @@
+The FPGrowth class in the hana_ml.algorithms.pal.association module is a technique used for finding frequent patterns in a transaction dataset without generating a candidate itemset, by building a prefix tree (FP Tree) to compress information and retrieve frequent itemsets efficiently, with various parameters to adjust the algorithm's behavior.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.association import FPGrowth
+
+# Initialize a FPGrowth object and set its parameters
+fpg = FPGrowth(min_support=0.2,
+               min_confidence=0.5,
+               relational=False,
+               min_lift=1.0,
+               max_conseq=1,
+               max_len=5,
+               ubiquitous=1.0,
+               thread_ratio=0,
+               timeout=3600)
+
+# Assume df is your input DataFrame
+# Perform fit() and obtain the result
+fpg.fit(data=df, lhs_restrict=[1,2,3])
+
+# Print the result
+print(fpg.result_.collect())
+
+# Also, initialize a FPGrowth object and set its parameters with relational logic
+fpgr = FPGrowth(min_support=0.2,
+                min_confidence=0.5,
+                relational=True,
+                min_lift=1.0,
+                max_conseq=1,
+                max_len=5,
+                ubiquitous=1.0,
+                thread_ratio=0,
+                timeout=3600)
+
+# Perform fit() and obtain the result
+fpgr.fit(data=df, rhs_restrict=[1, 2, 3])
+
+# Print the result
+print(fpgr.antec_.collect())
+print(fpgr.conseq_.collect())
+print(fpgr.stats_.collect())
+```
+
+Please replace `df` with your actual DataFrame. The `lhs_restrict` and `rhs_restrict` parameters in the `fit` method are optional and should be set according to your specific needs.

@@ -1,0 +1,72 @@
+A decision tree is a classifier used to make decisions based on a set of predetermined actions. It helps identify factors and their historical associations with different outcomes. Decision trees have leaf nodes that indicate the value of the dependent variable and decision nodes that contain conditions and branches with sub-trees or leaf nodes.
+
+The PAL_DECISION_TREE function integrates three popular decision tree algorithms: C45, CHAID, and CART. These algorithms have some distinctions in terms of generating non-binary trees, handling missing variables, and handling ordered variables. C45 uses information gain ratio, CHAID uses chi-square statistics, and CART uses Gini index or least square for split.
+
+The function can handle missing values in the dependent variable but discards data with missing values before growing a tree. It also removes independent variables with identical values or only missing values.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_DT_DATA_TBL;
+CREATE COLUMN TABLE PAL_DT_DATA_TBL (
+    "OUTLOOK" VARCHAR(20),
+	"TEMP" INTEGER,
+	"HUMIDITY" DOUBLE,
+	"WINDY" VARCHAR(10),
+	"CLASS" VARCHAR(20)
+);
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Sunny', 75, 70, 'Yes', 'Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Sunny', 80, 90, 'Yes', 'Do not Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Sunny', 85, 85, 'No', 'Do not Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Sunny', 72, 95, 'No', 'Do not Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Sunny', 69, 70, 'No', 'Play');
+
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Overcast', 72, 90, 'Yes', 'Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Overcast', 83, 78, 'No', 'Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Overcast', 64, 65, 'Yes', 'Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Overcast', 81, 75, 'No', 'Play');
+
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Rain', 71, 80, 'Yes', 'Do not Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Rain', 65, 70, 'Yes', 'Do not Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Rain', 75, 80, 'No', 'Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Rain', 68, 80, 'No', 'Play');
+INSERT INTO PAL_DT_DATA_TBL VALUES ('Rain', 70, 96, 'No', 'Play');
+
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL ("NAME" VARCHAR (50),"INT_VALUE" INTEGER,"DOUBLE_VALUE" DOUBLE,"STRING_VALUE" VARCHAR (100));
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('ALGORITHM', 1, NULL, NULL); -- C45
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MODEL_FORMAT', 1, NULL, NULL); -- JSON
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SPLIT_THRESHOLD', NULL, 1e-5, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MIN_RECORDS_OF_PARENT', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MIN_RECORDS_OF_LEAF', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('IS_OUTPUT_RULES', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('IS_OUTPUT_CONFUSION_MATRIX', 1, NULL, NULL);
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE', NULL, NULL, 'TEM');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.4, NULL);
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('HAS_ID', 0, NULL, NULL);
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('DEPENDENT_VARIABLE', NULL, NULL, 'CLASS');
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('RESAMPLING_METHOD', NULL, NULL, 'cv');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('EVALUATION_METRIC', NULL, NULL, 'AUC');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PARAM_SEARCH_STRATEGY', NULL, NULL, 'grid');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FOLD_NUM', 5, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SPLIT_THRESHOLD_VALUES', NULL, NULL, '{1e-3, 1e-4, 1e-5}');
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('SPLIT_THRESHOLD_RANGE', NULL, NULL, '[1e-5, 3e-5, 1e-4]');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PROGRESS_INDICATOR_ID', NULL, NULL, 'CV');
+
+
+
+DROP TABLE PAL_DT_MODEL_TBL; -- for predicted followed
+CREATE COLUMN TABLE PAL_DT_MODEL_TBL (
+	"ROW_INDEX" INTEGER,
+	"MODEL_CONTENT" NVARCHAR(5000)
+);
+
+DO BEGIN
+  lt_data = SELECT * FROM PAL_DT_DATA_TBL;
+  lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+  CALL "_SYS_AFL"."PAL_DECISION_TREE"(:lt_data, :lt_param, lt_model, lt_result, lt_confusion_matrix, lt_stat, lt_cross_validation);
+  INSERT INTO PAL_DT_MODEL_TBL SELECT * FROM :lt_model;
+END;

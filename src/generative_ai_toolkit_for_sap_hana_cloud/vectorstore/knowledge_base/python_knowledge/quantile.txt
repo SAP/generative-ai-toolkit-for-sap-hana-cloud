@@ -1,0 +1,24 @@
+The quantile function in the hana_ml.algorithms.pal.stats module evaluates the inverse of the cumulative distribution function (CDF) or the inverse of the complementary cumulative distribution function (CCDF) for a given probability and probability distribution, using data from a DataFrame and a dictionary containing distribution information.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal import stats
+
+# Define your data and distribution information
+data = # Your DataFrame here
+distr_info = # Your distribution information here
+
+# Optional parameters
+col = # Your column name here, if not provided, it defaults to the first column
+complementary = # True or False, defaults to False
+
+# Apply the quantile function
+res = stats.quantile(data=data, distr_info=distr_info, col=col, complementary=complementary)
+
+# Print the results
+print(res.collect())
+```
+
+Please replace the comments with actual values as per your requirements.

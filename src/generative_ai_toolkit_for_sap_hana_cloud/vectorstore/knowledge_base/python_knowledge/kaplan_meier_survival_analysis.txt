@@ -1,0 +1,23 @@
+The function kaplan_meier_survival_analysis in the hana_ml.algorithms.pal.stats module is used to estimate the survival function from lifetime data using the non-parametric Kaplan-Meier estimator, often used to measure time-to-death of patients or time-to-failure of machine parts, and it returns survival estimates and log rank test statistics.
+------
+Here is a Python code template for the `kaplan_meier_survival_analysis` function:
+
+```python
+# Import required libraries
+from hana_ml.algorithms.pal.stats import kaplan_meier_survival_analysis
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA database
+# Create DataFrame from existing HANA table
+df = DataFrame(connection_context, 'YOUR_TABLE_NAME')
+
+# Perform Kaplan-Meier survival analysis
+survival_estimates, res, stats = kaplan_meier_survival_analysis(data=df, event_indicator=1, conf_level=0.95)
+
+# Print results
+print(survival_estimates.collect())
+print(res.collect())
+print(stats.collect())
+```
+
+Please replace `'YOUR_TABLE_NAME'` with the name of your table in the HANA database. This code assumes that you have a connection to the HANA database named `connection_context`.

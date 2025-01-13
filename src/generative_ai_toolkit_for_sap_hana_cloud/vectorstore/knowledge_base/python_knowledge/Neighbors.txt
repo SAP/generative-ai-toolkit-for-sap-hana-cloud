@@ -1,0 +1,19 @@
+The Neighbors class in the hana_ml.graph.algorithms.neighbors module provides a method to get a subset of a graph based on a start vertex and all vertices within a specified range of degrees of separation, with methods to execute the calculation and return the vertices.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+# Import required module
+import hana_ml.graph.algorithms as hga
+
+# Create a Neighbors object
+nb = hga.Neighbors(graph=g)
+
+# Execute the calculation of the neighbors
+nb.execute(start_vertex="1", direction='OUTGOING', lower_bound=1, upper_bound=1)
+
+# Print the vertices
+print("Vertices", nb.vertices)
+```
+
+Please replace `g` with your actual graph object. The `execute` method parameters `start_vertex`, `direction`, `lower_bound`, and `upper_bound` can be adjusted according to your needs.

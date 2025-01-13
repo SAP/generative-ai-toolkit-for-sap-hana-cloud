@@ -1,0 +1,27 @@
+The wprec function in the hana_ml.algorithms.pal.tsa.wavelet module is a Python wrapper for the PAL multi-level inverse discrete wavelet transform, which takes a DWT object, an optional wavelet filter, and an optional boundary padding method, and returns a DataFrame of the reconstructed time-series data from the inverse wavelet packet transform.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.tsa.wavelet import wprec
+
+# Assume `dwt` is a `DTW` object with the following attributes:
+# dwt.coeff_.collect()
+# dwt.stats_.collect()
+# dwt.packet
+
+# Specify the wavelet filter and padding method for boundary values
+wavelet = 'db1'
+boundary = 'zero'
+
+# Reconstruct the original time-series data
+rec = wprec(dwt=dwt, wavelet=wavelet, boundary=boundary)
+
+# Collect the reconstructed data
+rec_data = rec.collect()
+
+# Print the reconstructed data
+print(rec_data)
+```
+
+Please replace the `dwt` object with your actual DWT object. The `wavelet` and `boundary` variables are optional and can be omitted if you want to use the values in `dwt.wavelet` and `dwt.boundary` respectively.

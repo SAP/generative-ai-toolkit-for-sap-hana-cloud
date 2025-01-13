@@ -1,0 +1,39 @@
+The function plot_time_series_outlier in the hana_ml.visualizers.eda module performs OutlierDetectionTS and plots the time series with the highlighted outliers, taking in parameters such as data, column, key, window size, outlier method, threshold, and others, and returns a matplotlib.axes.Axes object or a plotly.graph_objects.Figure object depending on whether plotly is enabled.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.visualizers.eda import plot_time_series_outlier
+
+# Assuming you have a DataFrame df with columns 'ID' and 'ts'
+df = ...
+
+# Basic usage
+plot_time_series_outlier(data=df, key='ID', col='ts')
+
+# With additional parameters
+plot_time_series_outlier(
+    data=df, 
+    key='ID', 
+    col='ts', 
+    window_size=5, 
+    outlier_method='z2', 
+    threshold=2.5, 
+    detect_seasonality=True, 
+    alpha=0.3, 
+    extrapolation=True, 
+    periods=10, 
+    random_state=42, 
+    n_estimators=200, 
+    max_samples=500, 
+    bootstrap=True, 
+    contamination=0.1, 
+    minpts=2, 
+    eps=0.7, 
+    thread_ratio=0.8, 
+    title="Outliers in Time Series", 
+    enable_plotly=True
+)
+```
+
+Please replace `df = ...` with your actual DataFrame. Also, adjust the parameters according to your needs.

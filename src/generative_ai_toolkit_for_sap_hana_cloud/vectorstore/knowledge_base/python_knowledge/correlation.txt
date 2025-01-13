@@ -1,0 +1,25 @@
+The correlation function in the hana_ml.algorithms.pal.tsa.correlation_function module calculates the statistical correlation between random variables, with options to specify the method of calculation, whether to calculate Partial Autocorrelation Coefficient (PACF) and confidence intervals, and other parameters.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa import correlation_function
+
+# Assuming that 'df' is your DataFrame
+df = ...
+
+# Perform correlation function on the input dataframe
+res = correlation_function.correlation(
+    data=df,
+    key='ID',
+    x='X',
+    thread_ratio=0.4,
+    method='auto',
+    calculate_pacf=True
+)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `df = ...` with your actual DataFrame.

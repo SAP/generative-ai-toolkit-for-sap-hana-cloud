@@ -1,0 +1,22 @@
+The BCPD class in the hana_ml.algorithms.pal.tsa.changepoint module is a Bayesian Change-point detection method that detects abrupt changes in a time series, with parameters to specify the maximum number of trend and season change points to be detected, the order of trend segments, the maximum order of harmonic waves within seasonal segments, the minimum and maximum possible period within seasonal segments, the seed for the random number generator, the maximum number of iterations, and the interval ratio between change points.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.changepoint import BCPD
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+df = DataFrame(connection_context, 'SELECT * FROM YOUR_TIME_SERIES_TABLE')
+
+# Create an instance of the BCPD class
+bcpd = BCPD(max_tcp=5, max_scp=5)
+
+# Fit and predict
+tcp, scp, period, components = bcpd.fit_predict(data=df)
+
+# Collect the results
+print(scp.collect())
+```
+
+Please replace `'SELECT * FROM YOUR_TIME_SERIES_TABLE'` with your actual SQL query to fetch the time series data.

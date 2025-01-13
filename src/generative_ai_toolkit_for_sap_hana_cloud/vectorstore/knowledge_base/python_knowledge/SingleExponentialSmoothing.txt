@@ -1,0 +1,30 @@
+The SingleExponentialSmoothing class in the hana_ml.algorithms.pal.tsa.exponential_smoothing module is used to model time series data without trend and seasonality, providing two algorithms: single exponential smoothing and adaptive-response-rate simple exponential smoothing, with various parameters to adjust the model's behavior.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.exponential_smoothing import SingleExponentialSmoothing
+
+# Create a SingleExponentialSmoothing instance
+sesm = SingleExponentialSmoothing(adaptive_method=False,
+                                  accuracy_measure='mse',
+                                  alpha=0.1,
+                                  delta=0.2,
+                                  forecast_num=12,
+                                  expost_flag=True,
+                                  prediction_confidence_1=0.8,
+                                  prediction_confidence_2=0.95)
+
+# Perform fit_predict() on the given data
+sesm.fit_predict(data=df)
+
+# Output
+print(sesm.forecast_.collect().set_index('TIMESTAMP').head(3))
+print(sesm.stats_.collect())
+```
+
+Please replace the DataFrame creation part with your actual data. Also, you need to install the `hana_ml` package if you haven't done so. You can install it using pip:
+
+```shell
+pip install hana_ml
+```

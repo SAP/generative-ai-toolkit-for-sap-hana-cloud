@@ -1,0 +1,19 @@
+The iqr function in the hana_ml.algorithms.pal.stats module performs the inter-quartile range (IQR) test on a DataFrame to find outliers, marking data points as outliers if they fall outside the range from Q1 - multiplier * IQR to Q3 + multiplier * IQR, with Q1 and Q3 being the first and third quartiles of the data respectively.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.algorithms.pal.stats import iqr
+
+# Perform the IQR test
+res, stat = iqr(data=data, key='ID', col='VAL', multiplier=1.5)
+
+# Print the results
+print("Test Results:")
+print(res.collect())
+print("\nStatistical Outputs:")
+print(stat.collect())
+```
+
+Please replace the DataFrame creation part with your actual data. Also, make sure to install the `hana_ml` library if not already installed. You can do this by running `pip install hana_ml` in your Python environment.

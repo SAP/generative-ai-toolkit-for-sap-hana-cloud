@@ -1,0 +1,30 @@
+The function discover_graph_workspace in the hana_ml.graph.discovery module provides detailed information about a specific Graph Workspace in the SAP HANA Database, returning a dictionary with workspace attributes such as schema name, workspace name, edge and vertex details.
+------
+Here is a Python code template for the `discover_graph_workspace` function:
+
+```python
+from hana_ml.dataframe import ConnectionContext
+from hana_ml.graph.discovery import discover_graph_workspace
+
+# Create a connection to the HANA database
+connection_context = ConnectionContext(address='<hana_address>',
+                                       port='<hana_port>',
+                                       user='<hana_user>',
+                                       password='<hana_password>')
+
+# Specify the workspace name
+workspace_name = '<workspace_name>'
+
+# Specify the schema (optional)
+schema = '<schema>'
+
+# Discover the graph workspace
+workspace_info = discover_graph_workspace(connection_context=connection_context,
+                                          workspace_name=workspace_name,
+                                          schema=schema)
+
+# Print the workspace attributes
+print(workspace_info)
+```
+
+Please replace `<hana_address>`, `<hana_port>`, `<hana_user>`, `<hana_password>`, `<workspace_name>`, and `<schema>` with your actual values. If you don't want to specify a schema, you can remove the `schema` argument from the `discover_graph_workspace` function call.

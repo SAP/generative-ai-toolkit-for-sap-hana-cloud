@@ -1,0 +1,22 @@
+The hist function in the hana_ml.visualizers.eda module is used to plot histograms for a SAP HANA DataFrame, with various parameters to customize the number of bins, skewness debrief, x-axis label size and rotation, title font properties, rounding precision, replacement of NA values, and the choice between using plotly or matplotlib for plotting.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.visualizers.eda import hist
+from hana_ml import DataFrame
+
+# Assuming you have a HANA DataFrame 'df'
+# df = DataFrame(...)
+
+# Define the columns to be plotted
+columns = ['PCLASS', 'AGE', 'SIBSP', 'PARCH', 'FARE']
+
+# Define the number of bins
+bins = {"AGE": 10}
+
+# Call the hist function
+hist(data=df, columns=columns, default_bins=10, bins=bins)
+```
+
+You can modify the parameters as per your requirements. For example, if you want to enable plotly, you can set `enable_plotly=True` in the function call. Similarly, you can adjust other parameters like `x_axis_fontsize`, `x_axis_rotation`, `title_fontproperties`, `debrief`, `rounding_precision`, `replacena`, etc. based on your needs.

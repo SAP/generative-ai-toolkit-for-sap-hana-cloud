@@ -1,0 +1,19 @@
+The Preprocessing class in the hana_ml.algorithms.pal.auto_ml module is used to execute various preprocessing algorithms on a dataset, such as "OneHotEncoder", "FeatureNormalizer", "KBinsDiscretizer", "Imputer", "Discretize", "MDS", "SMOTE", "SMOTETomek", "TomekLinks", and "Sampling".
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal import Preprocessing
+
+# Initialize the Preprocessing object
+preprocessing = Preprocessing(name="OneHotEncoder")
+
+# Fit and transform the data
+result = preprocessing.fit_transform(data=data, key="ID", features=["BMI"])
+```
+
+Please replace `data` with your actual DataFrame. The `key` parameter should be the name of the ID column in your DataFrame, and `features` should be a list of the columns to be preprocessed. 
+
+The `name` parameter in the `Preprocessing` initialization can be any of the following: "OneHotEncoder", "FeatureNormalizer", "KBinsDiscretizer", "Imputer", "Discretize", "MDS", "SMOTE", "SMOTETomek", "TomekLinks", "Sampling". 
+
+Please refer to the documentation of the specific preprocessing algorithm for additional parameters.

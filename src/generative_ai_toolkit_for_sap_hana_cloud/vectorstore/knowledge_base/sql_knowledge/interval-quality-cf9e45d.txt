@@ -1,0 +1,31 @@
+The interval quality function is used to evaluate the quality of an interval. It takes into account the interval width and penalizes observations that fall outside the lower or upper bound. The function calculates a score for each interval, and the total score is the sum of all individual scores. The Mean Scaled Interval Score (MSIS) is the ratio of the mean interval score to the mean absolute scaled true value. Coverage is the ratio of the number of items that fall inside the interval to the total number of data. ACD is the absolute coverage difference between the coverage and the significance level.
+------
+
+set schema DM_PAL;
+
+DROP TABLE PAL_INTERVAL_TBL_PRE;
+CREATE COLUMN TABLE PAL_INTERVAL_TBL_PRE(
+     "ID" INTEGER,
+     "TRUE_VALUE" DOUBLE,
+     "LOWER_BOUND" DOUBLE,
+     "UPPER_BOUND" DOUBLE
+);
+
+INSERT INTO PAL_INTERVAL_TBL_PRE VALUES (0, 6.42496, -6.3302, 10.642);
+INSERT INTO PAL_INTERVAL_TBL_PRE VALUES (1, 1.45824, -6.2616, 10.49175);
+INSERT INTO PAL_INTERVAL_TBL_PRE VALUES (2, 20.15669, -6.3302, 10.642);
+INSERT INTO PAL_INTERVAL_TBL_PRE VALUES (3, 1.03879, -6.3302, 10.642);
+INSERT INTO PAL_INTERVAL_TBL_PRE VALUES (4, -1.39163, -6.3302, 9.7604);
+
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SIGNIFICANCE_LEVEL',null,0.05,null); 
+
+CALL _SYS_AFL.PAL_INTERVAL_QUALITY(PAL_INTERVAL_TBL_PRE, PAL_PARAMETER_TBL, ?,?);

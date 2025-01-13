@@ -1,0 +1,11 @@
+The content discusses how to restrict CPU and memory usage for PAL functions in SAP HANA for optimal performance. It suggests using the THREAD_RATIO parameter to limit concurrent threads, but recommends setting resource limits for the scriptserver where PAL functions are running. It also mentions using Workload Management (WLM) classes and admission control to manage PAL users' workload. Two examples are provided, one using a workload class and the other using a workload mapping to manage the workload for a specific PAL function.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP WORKLOAD CLASS "MY_WORKLOAD_CLASS_1";
+CREATE WORKLOAD CLASS "MY_WORKLOAD_CLASS_1"
+   SET 'PRIORITY' = '3', 'STATEMENT MEMORY LIMIT' = '100', 'STATEMENT TIMEOUT' = '2';
+
+CALL _SYS_AFL.PAL_RANDOM_DECISION_TREES (PAL_TRAINING_DATA_TBL, PAL_RDT_PARAMETER_TBL, ?, ?, ?, ?) WITH HINT( WORKLOAD_CLASS("MY_WORKLOAD_CLASS_1"));
+

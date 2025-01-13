@@ -1,0 +1,41 @@
+The TripleExponentialSmoothing class in the hana_ml.algorithms.pal.tsa.exponential_smoothing module is used to handle time series data containing a seasonal component, with various parameters to adjust the smoothing, trend, and seasonal components, as well as the forecast number, initial method, and accuracy measure.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.exponential_smoothing import TripleExponentialSmoothing
+import hana_ml.dataframe as dataframe
+
+# Assuming that a HANA dataframe df is already created and it has data
+# df = dataframe.DataFrame(...)
+
+# Create a TripleExponentialSmoothing instance
+tesm = TripleExponentialSmoothing(alpha=0.822,
+                                  beta=0.055,
+                                  gamma=0.055,
+                                  seasonal_period=4,
+                                  forecast_num=6,
+                                  seasonal=0,
+                                  initial_method=0,
+                                  phi=None,
+                                  damped=None,
+                                  accuracy_measure='mse',
+                                  ignore_zero=None,
+                                  expost_flag=True,
+                                  level_start=None,
+                                  trend_start=None,
+                                  season_start=None,
+                                  prediction_confidence_1=0.8,
+                                  prediction_confidence_2=0.95)
+
+# Perform fit_predict() on the given data
+tesm.fit_predict(data=df)
+
+# Print forecast values
+print(tesm.forecast_.collect())
+
+# Print statistics
+print(tesm.stats_.collect())
+```
+
+Please replace the `df = dataframe.DataFrame(...)` with the actual dataframe creation code. The dataframe should have at least two columns, one is ID column, the other is raw data.

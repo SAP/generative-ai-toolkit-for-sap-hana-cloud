@@ -1,0 +1,45 @@
+TF-IDF, or term frequency–inverse document frequency, is a statistical measure used to determine the importance of a word in a document within a collection or corpus. It is calculated by multiplying the number of times a word appears in a document by the inverse document frequency of the word across the entire set of documents. The TF-IDF value increases with the frequency of the word in the document but is adjusted based on how often the word appears in the corpus as a whole. This calculation is applicable to multiple languages including English, German, Spanish, French, Russian, and Portuguese.
+------
+
+set schema DM_PAL;
+
+drop table PAL_TFIDF_DATA_TAB;
+create column table PAL_TFIDF_DATA_TAB (
+"ID" nvarchar(1000),
+"CONTENT" nvarchar(1000)
+);
+
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc1','term1 term2 term2 term3 term3 term3');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc2','term2 term3 term3 term4 term4 term4');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc3','term3 term4 term4 term5 term5 term5');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc5','term3 term4 term4 term5 term5 term5 term5 term5 term5');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc4','term4 term6');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc6','term4 term6 term6 term6');
+
+
+drop table PAL_PARAMETER_TAB;
+create column table PAL_PARAMETER_TAB (
+"PARAM_NAME" nvarchar(256),
+"INT_VALUE" integer,
+"DOUBLE_VALUE" double,
+"STRING_VALUE" nvarchar(1000)
+);
+
+drop table PAL_TM_TERM_IDF_TAB;
+create column table PAL_TM_TERM_IDF_TAB ("TM_TERMS" nvarchar(1000),"IDF_VALUE" double);
+
+drop table PAL_TM_EXTEND_OUT_TAB;
+create column table PAL_TM_EXTEND_OUT_TAB ("INDEX" integer,"INFO" NCLOB);
+
+DO BEGIN
+	lt_data = SELECT * FROM PAL_TFIDF_DATA_TAB;
+	lt_param = SELECT * FROM PAL_PARAMETER_TAB;
+	CALL _SYS_AFL.PAL_TEXT_COLLECT(:lt_data,:lt_param,lt_termidf,lt_extendout);
+	INSERT INTO PAL_TM_TERM_IDF_TAB SELECT * FROM :lt_termidf;
+	INSERT INTO PAL_TM_EXTEND_OUT_TAB SELECT * FROM :lt_extendout;
+END;
+
+--------------------------------------------
+
+select * from PAL_TM_TERM_IDF_TAB;
+select * from PAL_TM_EXTEND_OUT_TAB;

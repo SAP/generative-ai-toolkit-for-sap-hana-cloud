@@ -1,0 +1,45 @@
+The GridSearchCV class in the hana_ml.algorithms.pal.model_selection module is used for exhaustive search over specified parameter values for an estimator with crossover validation, allowing for the exploration of any sequence of parameter settings.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.model_selection import GridSearchCV
+from hana_ml.algorithms.pal.unified_classification import UnifiedClassification
+
+# Create an "UnifiedClassification" object
+uhgc = UnifiedClassification(func='HybridGradientBoostingTree')
+
+# Create a "GridSearchCV" object
+gscv = GridSearchCV(
+    estimator=uhgc,
+    param_grid={
+        'learning_rate': [0.1, 0.4, 0.7, 1],
+        'n_estimators': [4, 6, 8, 10],
+        'split_threshold': [0.1, 0.4, 0.7, 1]
+    },
+    train_control={
+        'fold_num': 5,
+        'resampling_method': 'cv',
+        'random_state': 1,
+        'ref_metric': ['error_rate']
+    },
+    scoring='error_rate'
+)
+
+# Assuming df_train is your training data
+# Invoke fit()
+gscv.fit(
+    data=df_train,
+    key='ID',
+    label='CLASS',
+    partition_method='stratified',
+    partition_random_state=1,
+    stratified_column='CLASS'
+)
+
+# Predict
+# Assuming df_test is your test data
+predictions = gscv.predict(data=df_test)
+```
+
+Please replace `df_train` and `df_test` with your actual training and test data.

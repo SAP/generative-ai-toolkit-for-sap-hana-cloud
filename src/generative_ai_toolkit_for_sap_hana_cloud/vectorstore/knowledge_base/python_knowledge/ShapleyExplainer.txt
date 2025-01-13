@@ -1,0 +1,45 @@
+The ShapleyExplainer class in the hana_ml.visualizers.shap module uses the SHAP (SHapley Additive exPlanations) game theoretic approach to explain the output of a machine learning model, allowing users to plot the Shapley values of every feature for every sample to understand which features are most important for a model.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.visualizers.shap import ShapleyExplainer
+from hana_ml.algorithms.pal.unified_classification import UnifiedClassification
+from hana_ml.model_selection import GridSearchCV
+
+# Create an UnifiedClassification instance
+uc_hgbdt = UnifiedClassification('HybridGradientBoostingTree')
+
+# Create a GridSearchCV instance
+gscv = GridSearchCV(estimator=uc_hgbdt,
+                    param_grid={'learning_rate': [0.1, 0.4, 0.7, 1],
+                                'n_estimators': [4, 6, 8, 10],
+                                'split_threshold': [0.1, 0.4, 0.7, 1]},
+                    train_control=dict(fold_num=5,
+                                       resampling_method='cv',
+                                       random_state=1,
+                                       ref_metric=['auc']),
+                    scoring='error_rate')
+
+# Train the model
+gscv.fit(data=diabetes_train, key= 'ID',
+         label='CLASS',
+         partition_method='stratified',
+         partition_random_state=1,
+         stratified_column='CLASS',
+         build_report=True)
+
+# Remove 'CLASS' and 'ID' from features
+features = diabetes_train.columns
+features.remove('CLASS')
+features.remove('ID')
+
+# Use test data for prediction
+pred_res = gscv.predict(diabetes_test, key='ID', features=features)
+
+# Create a ShapleyExplainer class and invoke summary_plot()
+shapley_explainer = ShapleyExplainer(reason_code_data=pred_res.select('REASON_CODE'), feature_data=diabetes_test.select(features))
+shapley_explainer.summary_plot()
+```
+
+Please replace `diabetes_train` and `diabetes_test` with your actual DataFrame variables.

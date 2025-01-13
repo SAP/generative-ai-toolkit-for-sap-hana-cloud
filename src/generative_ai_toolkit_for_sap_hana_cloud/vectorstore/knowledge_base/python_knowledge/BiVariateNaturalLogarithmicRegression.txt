@@ -1,0 +1,37 @@
+The BiVariateNaturalLogarithmicRegression class in the hana_ml.algorithms.pal.regression module is used to model the relationship between a scalar variable y and one variable X using natural logarithmic functions, with parameters for matrix factorization type, adjusted R2 value inclusion, PMML model output control, and thread ratio control.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.regression import BiVariateNaturalLogarithmicRegression
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+
+# Create the data frames for the training and testing data
+df_train = DataFrame(connection_context, 'TRAIN_DATA_TABLE')
+df_test = DataFrame(connection_context, 'TEST_DATA_TABLE')
+
+# Initialize the BiVariateNaturalLogarithmicRegression model
+gr = BiVariateNaturalLogarithmicRegression(decomposition='QR', adjusted_r2=False, pmml_export='multi-row', thread_ratio=0.0)
+
+# Fit the model
+gr.fit(data=df_train, key='ID')
+
+# Perform prediction
+predictions = gr.predict(data=df_test, key='ID')
+
+# Collect the results
+result = predictions.collect()
+
+# Print the results
+print(result)
+
+# Score the model
+score = gr.score(data=df_test, key='ID')
+
+# Print the score
+print(score)
+```
+
+Please replace `'TRAIN_DATA_TABLE'` and `'TEST_DATA_TABLE'` with your actual table names in the HANA system. Also, replace `'ID'` with the actual ID column in your tables.

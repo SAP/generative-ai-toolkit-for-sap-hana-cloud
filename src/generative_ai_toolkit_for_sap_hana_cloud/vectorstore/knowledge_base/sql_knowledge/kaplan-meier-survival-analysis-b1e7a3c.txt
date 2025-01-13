@@ -1,0 +1,41 @@
+The Kaplan-Meier estimator is a non-parametric statistic used to estimate the survival function from lifetime data. It is commonly used in medical and engineering fields to measure the time-to-death of patients after treatment or time-to-failure of machine parts. The estimator takes into account censored observations, where subjects may drop out of the study or not experience the event of interest before the end of the study. Confidence intervals can be calculated using Greenwood's Formula or a large sample normal distribution. The log rank test can be used to compare two or more Kaplan-Meier survival functions and determine if there is a significant difference between them.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_KMSURV_DATA_TBL;
+CREATE COLUMN TABLE PAL_KMSURV_DATA_TBL (
+    "TIME" INTEGER,
+    "STATUS" INTEGER,
+    "OCCURRENCES" INTEGER,
+    "GROUP" INTEGER
+);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(9,   1, 1, 2);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(10,  1, 1, 1);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(1,   1, 2, 0);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(31,  0, 1, 1);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(2,   1, 1, 0);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(25,  1, 3, 1);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(255, 0, 1, 0);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(90,  1, 1, 0);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(22,  1, 1, 1);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(100, 0, 1, 1);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(28,  0, 1, 0);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(5,   1, 1, 1);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(7,   1, 1, 1);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(11,  0, 1, 0);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(20,  0, 1, 0);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(30,  1, 2, 2);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(101, 0, 1, 2);
+INSERT INTO PAL_KMSURV_DATA_TBL VALUES(8,   0, 1, 1);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+CALL "_SYS_AFL"."PAL_KMSURV"(PAL_KMSURV_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?, ?);
+

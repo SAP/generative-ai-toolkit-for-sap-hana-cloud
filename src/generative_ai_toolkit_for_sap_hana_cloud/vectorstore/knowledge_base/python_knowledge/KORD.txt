@@ -1,0 +1,30 @@
+The K-Optimal Rule Discovery (KORD) class in the hana_ml.algorithms.pal.association module is a machine learning tool that generates top-K association rules based on a user-defined measure, useful for tasks like market basket analysis and recommendation systems.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.association import KORD
+
+# Initialize a KORD object and set its parameters
+krd = KORD(k=5,
+           measure='lift',
+           min_support=0.1,
+           min_confidence=0.2,
+           epsilon=0.1,
+           use_epsilon=False)
+
+# Assuming that `df` is your DataFrame
+# Perform the fit() and obtain the result
+krd.fit(data=df, transaction='CUSTOMER', item='ITEM')
+
+# Print the antecedent items for the mined association rules
+print(krd.antec_.collect())
+
+# Print the consequent items for the mined association rules
+print(krd.conseq_.collect())
+
+# Print some basic statistics for the mined association rules
+print(krd.stats_.collect())
+```
+
+Please replace `'CUSTOMER'` and `'ITEM'` with your actual column names for transaction ID and item ID respectively. Also, replace `df` with your actual DataFrame.

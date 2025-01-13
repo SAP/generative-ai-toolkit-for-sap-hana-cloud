@@ -1,0 +1,18 @@
+The BeeswarmPlot class in the hana_ml.visualizers.shap module is used to initialize a beeswarm plot visualization for feature value and effect data.
+------
+Here is a Python code template for the `BeeswarmPlot` class:
+
+```python
+from hana_ml.visualizers.shap import FeatureValueAndEffect
+
+class BeeswarmPlot(object):
+    def __init__(self, feature_value_and_effect: FeatureValueAndEffect):
+        """
+        Initialize self.
+        """
+        self.feature_value_and_effect = feature_value_and_effect
+        self.__dict__ = {}
+        self.__weakref__ = []
+```
+
+Please note that this is a basic template and you may need to add more methods or properties based on your specific requirements. Also, the `__dict__` and `__weakref__` are Python internal attributes and you usually don't need to define them explicitly. They are included here just because they were mentioned in the help doc.

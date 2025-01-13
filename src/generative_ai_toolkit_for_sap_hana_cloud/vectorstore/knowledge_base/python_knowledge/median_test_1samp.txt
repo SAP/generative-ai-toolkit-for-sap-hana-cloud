@@ -1,0 +1,21 @@
+The median_test_1samp function in the hana_ml.algorithms.pal.stats module performs a one-sample non-parametric test to check if the median of the data is different from a user-specified one, with parameters for data, column name, median value, test type, confidence interval, and thread ratio.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.stats import median_test_1samp
+from hana_ml import DataFrame
+
+# Assuming that connection_context is already defined and connected to HANA
+
+# Create DataFrame from existing HANA table
+data = DataFrame(connection_context, 'TABLE_NAME')  # replace 'TABLE_NAME' with your HANA table name
+
+# Perform the one-sample median test
+res = median_test_1samp(data=data, mu=40, test_type='two_sides')
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `'TABLE_NAME'` with your actual HANA table name. Also, ensure that `connection_context` is defined and connected to your HANA instance.

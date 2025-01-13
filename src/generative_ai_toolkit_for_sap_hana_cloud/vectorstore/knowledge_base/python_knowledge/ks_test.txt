@@ -1,0 +1,25 @@
+The ks_test function in the hana_ml.algorithms.pal.stats module performs a one-sample or two-sample Kolmogorov-Smirnov test for goodness of fit on a HANA DataFrame, with optional parameters for specifying the distribution name, distribution parameters, and test type.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import required libraries
+from hana_ml import DataFrame
+from hana_ml.algorithms.pal.stats import ks_test
+
+# Assuming that a HANA dataframe is already created
+# df = DataFrame(...)
+
+# Define distribution parameters
+distribution_params = {'min':0, 'max':1}
+
+# Perform Kolmogorov-Smirnov test
+res = ks_test(data=df,
+              distribution_name='uniform',
+              distribution_parameter=distribution_params)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace the `DataFrame(...)` with your actual HANA dataframe. This code performs a Kolmogorov-Smirnov test on the data in the dataframe `df` assuming a uniform distribution with parameters `min=0` and `max=1`. The result is then printed.

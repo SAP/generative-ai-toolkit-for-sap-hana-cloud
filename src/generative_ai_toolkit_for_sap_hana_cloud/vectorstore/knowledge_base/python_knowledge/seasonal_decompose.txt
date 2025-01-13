@@ -1,0 +1,53 @@
+The seasonal_decompose function in the hana_ml.algorithms.pal.tsa module tests for seasonality in a time series and decomposes it into seasonal, trend, and random components using various parameters such as the autocorrelation coefficient criterion, thread ratio, decompose type, and others.
+------
+Here is a Python code template for the `seasonal_decompose` function from the `hana_ml.algorithms.pal.tsa.seasonal_decompose` module:
+
+```python
+# Import required modules
+from hana_ml import DataFrame
+from hana_ml.algorithms.pal.tsa import seasonal_decompose
+
+# Create a connection to HANA
+connection_context = ... # create a connection to HANA
+
+# Create a DataFrame
+data = DataFrame(connection_context, 'SELECT * FROM <your_table>')
+
+# Define parameters
+key = 'ID'
+endog = 'SERIES'
+alpha = 0.2
+thread_ratio = 0.5
+decompose_type = 'auto'
+extrapolation = False
+smooth_width = 0
+auxiliary_normalitytest = False
+periods = None
+decompose_method = 'traditional'
+stl_robust = True
+stl_seasonal_average = False
+smooth_method_non_seasonal = 'moving_average'
+
+# Perform seasonal decomposition
+stats, decompose = seasonal_decompose(data=data, 
+                                      key=key, 
+                                      endog=endog, 
+                                      alpha=alpha, 
+                                      thread_ratio=thread_ratio, 
+                                      model=decompose_type, 
+                                      decompose_type=decompose_type, 
+                                      extrapolation=extrapolation, 
+                                      smooth_width=smooth_width, 
+                                      auxiliary_normalitytest=auxiliary_normalitytest, 
+                                      periods=periods, 
+                                      decompose_method=decompose_method, 
+                                      stl_robust=stl_robust, 
+                                      stl_seasonal_average=stl_seasonal_average, 
+                                      smooth_method_non_seasonal=smooth_method_non_seasonal)
+
+# Print results
+print(stats.collect())
+print(decompose.collect())
+```
+
+Please replace `<your_table>` with the name of your table in the HANA database. Also, you need to replace the `connection_context` with your actual HANA connection.

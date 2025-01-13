@@ -1,0 +1,48 @@
+The RandomSearchCV class in the hana_ml.algorithms.pal.model_selection module performs a random search over specified parameter values for an estimator with crossover validation, allowing for the exploration of any sequence of parameter settings.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.model_selection import RandomSearchCV
+from hana_ml.algorithms.pal.unified_classification import UnifiedClassification
+
+# Create an "UnifiedClassification" object
+uhgc = UnifiedClassification(func='HybridGradientBoostingTree')
+
+# Create a "RandomSearchCV" object
+urscv = RandomSearchCV(estimator=uhgc,
+                       param_grid={'learning_rate': [0.1, 0.4, 0.7, 1],
+                                   'n_estimators': [4, 6, 8, 10],
+                                   'split_threshold': [0.1, 0.4, 0.7, 1]},
+                       train_control=dict(fold_num=5,
+                                          resampling_method='cv',
+                                          random_state=0,
+                                          random_search_times=8,
+                                          ref_metric=['error_rate']),
+                       scoring='error_rate')
+
+# Invoke fit()
+urscv.fit(data=training_df,
+          key= 'ID',
+          label='CLASS',
+          partition_method='stratified',
+          partition_random_state=1,
+          stratified_column='CLASS')
+
+# Predict
+prediction = urscv.predict(test_df)
+
+# Set resampling method
+urscv.set_resampling_method('cv')
+
+# Set scoring metric
+urscv.set_scoring_metric('accuracy')
+
+# Set seed
+urscv.set_seed(123)
+
+# Set timeout
+urscv.set_timeout(60)
+```
+
+Please replace `training_df` and `test_df` with your actual dataframes.

@@ -1,0 +1,19 @@
+The function parallel_coordinates in the hana_ml.visualizers.eda module is used to create a parallel coordinates plot, a visualization technique for multivariate data, where each variable is represented by a vertical axis and lines are drawn to connect the points representing each data observation across these axes.
+------
+Here is a Python code template for the `parallel_coordinates` function from the `hana_ml.visualizers.eda` module:
+
+```python
+from hana_ml.visualizers.eda import parallel_coordinates
+
+# Assuming df is your HANA dataframe
+label = 'your_label_column'  # replace with your label column
+cols = ['col1', 'col2', 'col3']  # replace with your column names
+
+# Using matplotlib
+ax = parallel_coordinates(data=df, label=label, cols=cols, axvlines=True, sort_labels=True)
+
+# Using plotly
+fig = parallel_coordinates(data=df, label=label, cols=cols, enable_plotly=True, width=600, height=400)
+```
+
+Please replace `'your_label_column'` and `['col1', 'col2', 'col3']` with your actual label column and list of column names respectively. The first call to `parallel_coordinates` uses matplotlib for plotting, while the second one uses plotly. You can choose to use either based on your preference.

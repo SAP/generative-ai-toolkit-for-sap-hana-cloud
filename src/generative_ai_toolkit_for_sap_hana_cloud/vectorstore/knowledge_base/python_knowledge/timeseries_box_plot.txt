@@ -1,0 +1,31 @@
+The function timeseries_box_plot in the hana_ml.visualizers.eda module plots a year-wise or month-wise box plot of a given time series data column from a HANA DataFrame, with options to define the ID column, the axes for the plot, the x-axis cycle, and whether to use plotly instead of matplotlib.
+------
+Here is the executable code template for the `timeseries_box_plot` function:
+
+```python
+from hana_ml.visualizers.eda import timeseries_box_plot
+
+# Assuming that `df` is your HANA DataFrame
+# and "Y" is your time series data column
+# and "ID" is your ID column
+
+# Example 1: YEAR
+timeseries_box_plot(data=df, col="Y", key="ID", cycle="YEAR")
+
+# If you want to use plotly instead of matplotlib
+timeseries_box_plot(data=df, col="Y", key="ID", cycle="YEAR", enable_plotly=True)
+
+# Example 2: MONTH
+timeseries_box_plot(data=df, col="Y", key="ID", cycle="MONTH")
+
+# If you want to use plotly instead of matplotlib
+timeseries_box_plot(data=df, col="Y", key="ID", cycle="MONTH", enable_plotly=True)
+
+# Example 3: QUARTER
+timeseries_box_plot(data=df, col="Y", key="ID", cycle="QUARTER")
+
+# If you want to use plotly instead of matplotlib
+timeseries_box_plot(data=df, col="Y", key="ID", cycle="QUARTER", enable_plotly=True)
+```
+
+Please replace `df`, `"Y"`, and `"ID"` with your actual HANA DataFrame and column names.

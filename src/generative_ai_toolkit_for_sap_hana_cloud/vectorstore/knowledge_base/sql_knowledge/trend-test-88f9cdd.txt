@@ -1,0 +1,47 @@
+The content discusses a trend test algorithm that can identify whether a time series has an upward or downward trend. It provides two methods for identifying the trend: the difference-sign test and the rank test. 
+
+The difference-sign test counts the number of times the difference between consecutive values in the time series is positive. It compares this count to the expected count for an independent and identically distributed series. If the difference is significantly different from the expected count, a trend is considered to be present. However, this test may give incorrect results in the case of tie data.
+
+The rank test, also known as the Mann-Kendall test, tests whether there is a monotonic trend in the time series. It compares the number of positive pairs minus the number of negative pairs to a threshold value. If the difference is significant, a trend is considered to be present. This test requires a minimum length of 4 for the time series.
+
+The resulting trend indicator can have three possible values: 1 for an upward trend, -1 for a downward trend, and 0 for no trend. If a trend is identified, a de-trended time series is provided using the first differencing approach.
+
+Overall, the algorithm provides a way to identify and calculate the de-trended time series for a given time series data.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_TREND_DATA_TBL;
+CREATE COLUMN TABLE PAL_TREND_DATA_TBL (
+	"TIME_STAMP" INTEGER,
+	"SERIES" DOUBLE
+);
+
+INSERT INTO PAL_TREND_DATA_TBL VALUES (1, 1500);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (2, 1510);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (3, 1550);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (4, 1650);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (5, 1620);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (6, 1690);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (7, 1695);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (8, 1700);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (9, 1710);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (10, 1705);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (11, 1708);
+INSERT INTO PAL_TREND_DATA_TBL VALUES (12, 1715);
+
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR(100),
+	"INT_VALUE" INTEGER,
+	"DOUBLE_VALUE" DOUBLE,
+	"STRING_VALUE" VARCHAR(100)
+);
+
+
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ALPHA', NULL, 0.05, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('METHOD', 1, NULL, NULL);
+
+CALL _SYS_AFL.PAL_TREND_TEST(PAL_TREND_DATA_TBL, "#PAL_PARAMETER_TBL", ?, ?);
+

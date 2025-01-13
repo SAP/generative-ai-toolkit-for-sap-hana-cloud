@@ -1,0 +1,24 @@
+The function plot_rolling_stddev in the hana_ml.visualizers.eda module plots the rolling standard deviation of a specified time series data column from a HANA DataFrame, using a given rolling window size, and allows customization of the plot through various parameters including the option to use plotly instead of matplotlib.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers.eda import plot_rolling_stddev
+
+# Assuming that 'df' is your HANA DataFrame
+# Specify the column name for time series data and the ID column
+col = 'your_time_series_column'
+key = 'your_id_column'
+
+# Specify the window size for rolling function
+rolling_window = 10
+
+# Plot the rolling standard deviation using matplotlib
+ax = plot_rolling_stddev(data=df, key=key, col=col, rolling_window=rolling_window)
+
+# If you want to use plotly instead of matplotlib, set 'enable_plotly' to True
+# fig = plot_rolling_stddev(data=df, key=key, col=col, rolling_window=rolling_window, enable_plotly=True)
+```
+
+Please replace `'your_time_series_column'` and `'your_id_column'` with your actual column names. Also, adjust the `rolling_window` size as per your requirement.

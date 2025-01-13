@@ -1,0 +1,43 @@
+The function train_test_val_split in the hana_ml.algorithms.pal.partition module partitions an input dataset into three disjoint subsets (training, testing, and validation) either randomly or stratified based on a categorical attribute, with the ability to specify the ID column, random seed, thread ratio, partition method, stratified column, and the percentages or sizes of the training, testing, and validation subsets.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.partition import train_test_val_split
+
+# Assuming you have a DataFrame 'df' to be partitioned
+df = ...
+
+# Specify parameters for the function
+id_column = ...
+random_seed = ...
+thread_ratio = ...
+partition_method = ...
+stratified_column = ...
+training_percentage = ...
+testing_percentage = ...
+validation_percentage = ...
+training_size = ...
+testing_size = ...
+validation_size = ...
+
+# Call the function
+train_df, test_df, valid_df = train_test_val_split(
+    data=df,
+    id_column=id_column,
+    random_seed=random_seed,
+    thread_ratio=thread_ratio,
+    partition_method=partition_method,
+    stratified_column=stratified_column,
+    training_percentage=training_percentage,
+    testing_percentage=testing_percentage,
+    validation_percentage=validation_percentage,
+    training_size=training_size,
+    testing_size=testing_size,
+    validation_size=validation_size
+)
+
+# Now 'train_df', 'test_df', and 'valid_df' hold the partitioned data
+```
+
+Please replace the `...` with your actual data or parameters.

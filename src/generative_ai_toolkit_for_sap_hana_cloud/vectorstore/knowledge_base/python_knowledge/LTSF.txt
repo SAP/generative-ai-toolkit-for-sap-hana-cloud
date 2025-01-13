@@ -1,0 +1,44 @@
+The LTSF class in the hana_ml.algorithms.pal.tsa module is a Long-term time series forecasting approach that uses deep learning to predict values for extended periods into the future, with various parameters to adjust the neural network architecture, learning rate, and other aspects of the model.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa import LTSF
+
+# Create an instance of LTSF
+ltsf = LTSF(batch_size=8,
+             num_epochs=2,
+             adjust_learning_rate=True,
+             learning_rate=0.005,
+             random_seed=1)
+
+# Assuming df_fit is the input dataframe
+# Perform fit() on the given dataframe
+ltsf.fit(data=df_fit,
+         train_length=32,
+         forecast_length=16,
+         key="TIME_STAMP",
+         endog="TARGET",
+         exog=["FEAT1", "FEAT2", "FEAT3", "FEAT4"])
+
+# Print the loss
+print(ltsf.loss_.collect())
+
+# Assuming df_predict is the input dataframe for predict
+# Perform predict() on given dataframe
+result = ltsf.predict(data=df_predict)
+
+# Print the result
+print(result.collect())
+
+# For continuous training
+ltsf.num_epochs = 2
+ltsf.learning_rate = 0.002
+ltsf.fit(data=df_fit,
+         key="TIME_STAMP",
+         endog="TARGET",
+         exog=["FEAT1", "FEAT2", "FEAT3", "FEAT4"],
+         warm_start=True)
+```
+
+Please replace `df_fit` and `df_predict` with your actual dataframes.

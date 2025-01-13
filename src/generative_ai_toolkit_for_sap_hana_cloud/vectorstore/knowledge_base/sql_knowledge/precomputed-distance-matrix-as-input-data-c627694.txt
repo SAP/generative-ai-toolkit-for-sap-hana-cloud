@@ -1,0 +1,69 @@
+The content discusses the use of precomputed distance matrices as input data for clustering algorithms. It explains that in order to perform unified clustering with pivoted precomputed distance matrices, the input data must be in either upper or lower triangular form, with unique distance values for each pair of samples. The content also mentions that the supported clustering algorithms for this type of input data are K-Medoids, AHC, and SP. It provides two important notes: the order of the distance values in the metadata table should be either "left, right" or "right, left" and a 0 value in the distance matrix indicates either disconnected points for SP algorithm or very close points for other algorithms.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE META_DATA_TABLE; 
+CREATE COLUMN TABLE META_DATA_TABLE (
+"VARIABLE_NAME" VARCHAR (100),
+"VARIABLE_VALUE" VARCHAR (100)
+); 
+
+--Define point name & type(CONTINUOUS or CATEGORICAL); distance(must be CONTINUOUS)
+INSERT INTO META_DATA_TABLE VALUES ('LEFT_POINT', 'CATEGORICAL');	
+INSERT INTO META_DATA_TABLE VALUES ('RIGHT_POINT', 'CATEGORICAL');
+INSERT INTO META_DATA_TABLE VALUES ('DISTANCE', 'CONTINUOUS');
+
+DROP TABLE MY_DATA_TABLE; 
+CREATE COLUMN TABLE MY_DATA_TABLE (
+"ID" VARCHAR(100),
+"NAME" VARCHAR (100),
+"VALUE" VARCHAR (100),
+"PURPOSE" INTEGER
+); 
+
+INSERT INTO MY_DATA_TABLE VALUES ('A0', 'LEFT_POINT','0',1);	
+INSERT INTO MY_DATA_TABLE VALUES ('A0', 'RIGHT_POINT','1',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A0', 'DISTANCE','0.707',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A1', 'LEFT_POINT','0',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A1', 'RIGHT_POINT','2',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A1', 'DISTANCE','12.747',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A2', 'LEFT_POINT','0',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A2', 'RIGHT_POINT','3',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A2', 'DISTANCE','12.727',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A3', 'LEFT_POINT','1',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A3', 'RIGHT_POINT','2',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A3', 'DISTANCE','12.727',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A4', 'LEFT_POINT','1',1);	
+INSERT INTO MY_DATA_TABLE VALUES ('A4', 'RIGHT_POINT','3',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A4', 'DISTANCE','12.747',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A5', 'LEFT_POINT','2',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A5', 'RIGHT_POINT','3',1);
+INSERT INTO MY_DATA_TABLE VALUES ('A5', 'DISTANCE','0.707',1);
+
+DROP TABLE PAL_PARAMETER_TBL; 
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+"NAME" VARCHAR (50),
+"INT_VALUE" INTEGER,
+"DOUBLE_VALUE" DOUBLE,
+"STRING_VALUE" VARCHAR (100)
+); 
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION', NULL, NULL, 'KMEDOIDS');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('N_CLUSTERS', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PRECALCULATED_DISTANCE', 1, NULL, NULL);
+
+DROP TABLE PAL_CLUSTERING_MODEL_TBL; 
+CREATE COLUMN TABLE PAL_CLUSTERING_MODEL_TBL (
+"ROW_INDEX" INTEGER,
+"PART_INDEX" INTEGER,
+"MODEL_CONTENT" VARCHAR (5000)
+); 
+
+DO BEGIN
+lt_meta = SELECT * FROM META_DATA_TABLE;
+lt_data = SELECT * FROM MY_DATA_TABLE;
+lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+CALL "_SYS_AFL"."PAL_UNIFIED_CLUSTERING_PIVOT"(:lt_meta, :lt_data, :lt_param, lt_result, lt_centers, lt_model, lt_stat, lt_optimal_parameter, lt_place1, lt_place2);
+INSERT INTO PAL_CLUSTERING_MODEL_TBL SELECT * FROM :lt_model;
+END;

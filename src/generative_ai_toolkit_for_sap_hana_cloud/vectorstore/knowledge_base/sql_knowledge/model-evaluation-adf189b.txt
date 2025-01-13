@@ -1,0 +1,49 @@
+The content discusses model evaluation in unified regression. The evaluation results are presented in an output table called the statistics table. This table is generated during both the training and scoring procedures. In the training procedure, the model evaluation is only performed if the PARTITION_METHOD is set to 1 or 2. The statistics without "TEST_" are calculated using the original algorithm on all the training data, while the statistics with "TEST_" are calculated using a unified function on the partitioned test data. It is recommended to use the latter for model evaluation.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL(
+	"OUTLOOK" VARCHAR(20),
+	"TEMP" INTEGER,
+	"HUMIDITY" DOUBLE,
+	"WINDY" VARCHAR(10),
+	"CLASS" INTEGER -- for regression
+);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 75, 70, 'Yes', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 80, 90, 'Yes', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 85, 85, 'No', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 72, 95, 'No', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 69, 70, 'No', 1);
+
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 72, 90, 'Yes', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 83, 78, 'No', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 64, 65, 'Yes', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 81, 75, 'No', 1);
+
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 71, 80, 'Yes', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 65, 70, 'Yes', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 75, 80, 'No', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 68, 80, 'No', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 70, 96, 'No', 0);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION',null,null,'DT'); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MODEL_FORMAT', 2, NULL, NULL); -- PMML
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SPLIT_THRESHOLD', NULL, 1e-5, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MIN_RECORDS_PARENT', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MIN_RECORDS_LEAF', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PARTITION_METHOD',2,null,null); 
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('PARTITION_TRAINING_PERCENT', null,0.5,null);--Default value: 0.8
+INSERT INTO PAL_PARAMETER_TBL VALUES ('OUTPUT_PARTITION_RESULT', 1,null, null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', null,0.5,null);
+
+CALL _SYS_AFL.PAL_UNIFIED_REGRESSION(PAL_DATA_TBL, PAL_PARAMETER_TBL, ?, ?, ?, ?, ?, ?); 

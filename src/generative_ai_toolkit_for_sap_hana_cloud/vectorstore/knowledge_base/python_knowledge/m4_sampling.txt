@@ -1,0 +1,22 @@
+The m4_sampling function in the hana_ml.visualizers.m4_sampling module uses the M4 algorithm to visualize big data, taking a DataFrame of time series data and a sampling rate as parameters, and returning a sampled DataFrame.
+------
+Here is a Python code template for the `m4_sampling` function from the `hana_ml.visualizers.m4_sampling` module:
+
+```python
+# Import necessary module
+from hana_ml.visualizers import m4_sampling
+
+# Define your DataFrame
+data = ...
+
+# Define the width
+width = ...
+
+# Use the m4_sampling function
+sampled_data = m4_sampling(data, width)
+
+# The sampled_data is now a DataFrame that you can use for further processing
+print(sampled_data)
+```
+
+Please replace `...` with your actual data.

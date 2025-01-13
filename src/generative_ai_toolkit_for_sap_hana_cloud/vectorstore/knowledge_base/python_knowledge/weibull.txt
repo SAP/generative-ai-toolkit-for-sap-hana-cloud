@@ -1,0 +1,21 @@
+The function 'weibull' in the 'hana_ml.algorithms.pal.random' module draws samples from a Weibull distribution, with parameters for database connection, shape, scale, number of random data to be generated, seed for the random number generator, and thread ratio for multithreading.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.random import weibull
+from hana_ml import dataframe as df
+
+# Create a connection context
+cc = df.ConnectionContext(address='myHanaHost', port=30015, user='myUser', password='myPassword')
+
+# Draw samples from a weibull distribution
+res = weibull(conn_context=cc, shape=1, scale=1, num_random=10)
+
+# Collect the results
+print(res.collect())
+```
+
+Please replace `'myHanaHost'`, `'myUser'`, and `'myPassword'` with your actual HANA host, user, and password. 
+
+This code will draw 10 samples from a Weibull distribution with shape and scale parameters set to 1. The results will be printed to the console.

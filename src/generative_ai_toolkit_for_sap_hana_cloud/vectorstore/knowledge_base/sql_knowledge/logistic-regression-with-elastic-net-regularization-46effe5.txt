@@ -1,0 +1,90 @@
+Logistic regression is a statistical model that predicts the relationship between a binary dependent variable and one or more independent variables. It uses a linear combination of the independent variables to model the log odds of the dependent variable. The logistic regression model can only handle binary-class classification problems.
+
+The logistic regression model is represented by the equation h(θ0,θ)(x) = 1/(1 + exp(–(θ0+θTx))), where θ0 is the intercept and θ represents the coefficients. The probability of the dependent variable being 1 given the independent variables is represented by P(y = 1 | x; (θ0,θ)) = h(θ0,θ)(x), and the probability of the dependent variable being 0 is represented by P(y = 0 | x; (θ0,θ)) = 1 – h(θ0,θ)(x). These probabilities can be combined into P(y | x;(θ0,θ)) = h(θ0,θ)(x)^y (1 – h(θ0,θ)(x))^(1-y).
+
+The coefficients θ0, θ1, ..., θm can be obtained through the Maximum Likelihood Estimation (MLE) method. The likelihood function and the log-likelihood function are used to estimate the coefficients.
+
+To minimize the objective function, which is the negative log likelihood function, Newton method, L-BFGS, and Cyclical Coordinate Descend algorithms are provided. Newton method and L-BFGS are preferred for fast convergence.
+
+Elastic net regularization is used to find coefficients that minimize a combination of the L1 and L2 norms of the coefficients. The parameter α controls the balance between the L1 and L2 regularization. Ridge regularization is obtained when α=0, and LASSO regularization is obtained when α=1.
+
+The parameter selection process can be time-consuming, especially for large training datasets or when the parameter search space is large. Successive-halving and hyperband algorithms are provided to accelerate the parameter selection process by early-stopping the training process for some hyper-parameters. The evaluation metric for the final optimal hyper-parameter selected by these algorithms may be sub-optimal compared to non-early-stopping algorithms, but the gaps can be arbitrarily small with enough resource budget allocated to the training process.
+
+The procedure \_SYS\_AFL.PAL\_LOGISTIC\_REGRESSION\_PREDICT is used to predict the labels for the testing data.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_LOGISTICR_DATA_TBL;
+CREATE COLUMN TABLE PAL_LOGISTICR_DATA_TBL ("V1" VARCHAR (50),"V2" DOUBLE,"V3" INTEGER,"CATEGORY" INTEGER);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',2.62,0,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',2.875,0,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',2.32,1,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',3.215,2,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',3.44,3,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',3.46,0,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',3.57,1,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',3.19,2,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',3.15,3,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',3.44,0,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',3.44,1,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',4.07,3,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',3.73,1,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',3.78,2,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',5.25,2,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',5.424,3,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',5.345,0,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',2.2,1,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',1.615,2,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',1.835,0,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',2.465,3,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',3.52,1,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',3.435,0,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',3.84,2,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',3.845,3,0);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',1.935,1,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',2.14,0,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',1.513,1,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',3.17,3,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',2.77,0,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('B',3.57,0,1);
+INSERT INTO PAL_LOGISTICR_DATA_TBL VALUES ('A',2.78,3,1);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" NVARCHAR(256),
+    "INT_VALUE" INTEGER, 
+    "DOUBLE_VALUE" DOUBLE, 
+    "STRING_VALUE" NVARCHAR (1000)
+);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('METHOD',3,NULL,NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO',NULL,0.1,NULL); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE',NULL,NULL,'V3'); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('STAT_INF',0,NULL,NULL); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PMML_EXPORT',0,NULL,NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('HAS_ID',0,NULL,NULL);
+
+DROP TABLE PAL_LOGISTICR_RESULT_TBL;
+CREATE COLUMN TABLE PAL_LOGISTICR_RESULT_TBL ("VARIABLE_NAME" NVARCHAR(1000),"COEFFICIENT" DOUBLE,"Z_SCORE" DOUBLE,"P_VALUE" DOUBLE);
+
+DROP TABLE PAL_LOGISTICR_PMMLMODEL_TBL;
+CREATE COLUMN TABLE PAL_LOGISTICR_PMMLMODEL_TBL ("ROW_INDEX" INTEGER,"MODEL_CONTENT" NVARCHAR(5000));
+
+DROP TABLE PAL_LOGISTICR_STATISTIC_TBL;
+CREATE COLUMN TABLE PAL_LOGISTICR_STATISTIC_TBL ("STAT_NAME" NVARCHAR(256),"STAT_VALUE" NVARCHAR(1000));
+
+DO BEGIN
+lt_data = SELECT * FROM PAL_LOGISTICR_DATA_TBL;
+lt_para = SELECT * FROM PAL_PARAMETER_TBL;
+CALL _SYS_AFL.PAL_LOGISTIC_REGRESSION (:lt_data,:lt_para,lt_result,lt_pmml_model,lt_stat,lt_opt_para);
+INSERT INTO PAL_LOGISTICR_RESULT_TBL
+SELECT * FROM :lt_result;
+INSERT INTO PAL_LOGISTICR_PMMLMODEL_TBL
+SELECT * FROM :lt_pmml_model;
+INSERT INTO PAL_LOGISTICR_STATISTIC_TBL
+SELECT * FROM :lt_stat;
+END;
+
+SELECT * FROM PAL_LOGISTICR_RESULT_TBL;
+SELECT * FROM PAL_LOGISTICR_PMMLMODEL_TBL;
+SELECT * FROM PAL_LOGISTICR_STATISTIC_TBL;

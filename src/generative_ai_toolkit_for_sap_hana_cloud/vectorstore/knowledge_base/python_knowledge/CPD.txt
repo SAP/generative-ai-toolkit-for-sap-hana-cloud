@@ -1,0 +1,45 @@
+The CPD class in the hana_ml.algorithms.pal.tsa.changepoint module is used for change-point detection in time-series data, which aims at detecting multiple abrupt changes such as change in mean, variance or distribution, and it provides various parameters to customize the detection process including cost function, penalty function, solver method, and others.
+------
+Here is the executable code template for the CPD class:
+
+```python
+from hana_ml.algorithms.pal.tsa.changepoint import CPD
+
+# Create a CPD instance with 'pelt' solver and 'aic' penalty
+cpd = CPD(solver='pelt',
+          cost='normal_mse',
+          penalty='aic',
+          lamb=0.02)
+
+# Apply the above CPD instance to the input data
+cp = cpd.fit_predict(data=df)
+
+# Check the detection result and related statistics
+print(cp.collect())
+print(cpd.stats_.collect())
+
+# Create another CPD instance with 'adppelt' solver and 'normal_mv' cost
+cpd = CPD(solver='adppelt',
+          cost='normal_mv',
+          range_penalty=[0.01, 100],
+          lamb=0.02)
+
+# Apply the above CPD instance to the input data
+cp = cpd.fit_predict(data=df)
+
+# Check the detection result and related statistics
+print(cp.collect())
+print(cpd.stats_.collect())
+
+# Create a third CPD instance with 'pruneddp' solver and 'oracle' penalty
+cpd = CPD(solver='pruneddp', cost='normal_m', penalty='oracle', max_k=3)
+
+# Apply the above CPD instance to the input data
+cp = cpd.fit_predict(data=df)
+
+# Check the detection result and related statistics
+print(cp.collect())
+print(cpd.stats_.collect())
+```
+
+Please replace `df` with your actual DataFrame.

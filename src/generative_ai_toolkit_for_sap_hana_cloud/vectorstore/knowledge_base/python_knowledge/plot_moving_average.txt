@@ -1,0 +1,21 @@
+The function plot_moving_average in the hana_ml.visualizers.eda module plots the rolling mean of a specified time series data column from a HANA DataFrame, using a given window size for the rolling function, and allows for optional parameters such as the ID column name, the axes for the plot, whether to compare the data with its moving average, whether to use plotly instead of matplotlib, and properties to be updated when plotly is enabled.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers.eda import plot_moving_average
+
+# Assuming you have a DataFrame 'df' with columns 'ID' and 'ts'
+# You can plot the moving average as follows:
+
+# Using matplotlib
+ax = plot_moving_average(data=df, key='ID', col='ts', rolling_window=10, compare=True, enable_plotly=False)
+ax.show()
+
+# Using plotly
+fig = plot_moving_average(data=df, key='ID', col='ts', rolling_window=10, compare=True, enable_plotly=True)
+fig.show()
+```
+
+Please replace 'df', 'ID', and 'ts' with your actual DataFrame and column names. The 'rolling_window' parameter should be set to the desired window size for the moving average calculation. The 'compare' parameter can be set to False if you only want to plot the moving average without the original data. The 'enable_plotly' parameter can be set to False if you want to use matplotlib instead of plotly for plotting.

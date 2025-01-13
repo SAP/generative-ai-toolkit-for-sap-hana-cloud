@@ -1,0 +1,4 @@
+useful for when you need to create a report. 
+------
+>>> from hana_ml.visualizers.unified_report import UnifiedReport
+>>> UnifiedReport(<data_frame>).build(key=None).display()

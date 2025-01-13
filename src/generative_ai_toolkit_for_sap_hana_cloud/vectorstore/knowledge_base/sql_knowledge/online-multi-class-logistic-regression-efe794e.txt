@@ -1,0 +1,52 @@
+The online multi-class logistic regression algorithm is a streaming version of the multi-class logistic regression algorithm. It is designed to handle scenarios where all training data cannot be fed into the algorithm at once. Instead, the algorithm processes the training data in multiple rounds, continuously improving the model based on the streaming data received in each round.
+
+The algorithm uses a multinomial logit model and calculates the negative log likelihood to optimize the model. It also supports different penalty forms such as Ridge, Lasso, and ElasticNet to avoid overfitting. Stochastic Gradient Descent (SGD) is used to compute the model.
+
+The algorithm supports different learning rate schedules, including inverse time decay, exponential decay, polynomial decay, and piece-wise constant decay. These schedules determine the step size for each iteration of SGD. The algorithm also supports adaptive learning rate methods such as AdaGrad, AdaDelta, and RMSProp, which adjust the step size based on the training data.
+
+Overall, the online multi-class logistic regression algorithm allows for continuous training and improvement of the model using streaming data, making it suitable for scenarios where batch processing is not feasible.
+------
+
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_ONLINE_RESULT_TBL;
+CREATE COLUMN TABLE PAL_ONLINE_RESULT_TBL(
+	"SEQUENCE" INTEGER,
+	"SERIALIZED_RESULT" NVARCHAR(5000)
+);
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL(
+	"PARAM_NAME" NVARCHAR(256),
+	"INT_VALUE" INTEGER,
+	"DOUBLE_VALUE" DOUBLE,
+	"STRING_VALUE" NVARCHAR(1000)
+);
+TRUNCATE TABLE PAL_PARAMETER_TBL;
+-- Use Inverse Time Schedule
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE") VALUES('LEARN_RATE_TYPE', 0, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE") VALUES('INITIAL_LEARN_RATE', NULL, 0.1, NULL);
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE") VALUES('DECAY', NULL, 0.1, NULL);
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE") VALUES('DROP_RATE', 4, NULL, NULL);
+-- Drop step size in a stair way
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE") VALUES('STAIR_CASE', 1, NULL, NULL);
+-- Set the minimum allowed step size
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE") VALUES('EPSILON', NULL, 1E-4, NULL);
+-- Set all class label value, value should be unique, and at least two value
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE") VALUES('CLASS_LABEL', NULL, NULL, '0');
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE") VALUES('CLASS_LABEL', NULL, NULL, '1');
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE") VALUES('CLASS_LABEL', NULL, NULL, '2');
+DO BEGIN
+	lt_para = SELECT *
+		FROM PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_INIT_ONLINE_MULTICLASS_LOGISTIC_REGRESSION( :lt_para, lt_online_result );
+	TRUNCATE TABLE PAL_ONLINE_RESULT_TBL;
+	INSERT INTO PAL_ONLINE_RESULT_TBL
+		SELECT *
+		FROM :lt_online_result;
+END;
+SELECT *
+FROM PAL_ONLINE_RESULT_TBL;
+
+
+      

@@ -1,0 +1,22 @@
+Multidimensional Scaling (MDS) is a function that is used for dimensional reduction or data visualization. It embeds samples in a lower-dimensional space by applying a non-linear transformation called classical multidimensional scaling. This transformation aims to preserve the distances between entities after reducing the dimensionality. The function supports two input formats: a dissimilarity matrix or an entity-feature matrix. The dissimilarity matrix represents the distances between entities, while the entity-feature matrix can be converted to a dissimilarity matrix using a specified method. The computation involves squaring and double centering the dissimilarity matrix, followed by an eigen-decomposition procedure. The resulting lower-dimensional embedding is calculated from the eigen-values and eigen-vectors. The function outputs the resulting matrix in row-major order. The user can determine the desired dimensionality by examining the proportion of variation explained by the function.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE 
+	#PAL_PARAMETER_TBL 
+	("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('INPUT_TYPE',1,NULL,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('K',2,NULL,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('THREAD_RATIO',NULL,0.5,NULL);
+
+DROP TABLE PAL_MDS_DATA_TBL;
+CREATE COLUMN TABLE PAL_MDS_DATA_TBL ("ID" varchar(50), "X1" DOUBLE, "X2" DOUBLE,
+    "X3" DOUBLE, "X4" DOUBLE);;
+INSERT INTO PAL_MDS_DATA_TBL VALUES (1, 0.0000000, 0.9047814, 0.9085961, 0.9103063);
+INSERT INTO PAL_MDS_DATA_TBL VALUES (2, 0.9047814, 0.0000000, 0.2514457, 0.5975016);
+INSERT INTO PAL_MDS_DATA_TBL VALUES (3, 0.9085961, 0.2514457, 0.0000000, 0.4403572);
+INSERT INTO PAL_MDS_DATA_TBL VALUES (4, 0.9103063, 0.5975016, 0.4403572, 0.0000000);
+
+CALL _SYS_AFL.PAL_MDS(PAL_MDS_DATA_TBL,"#PAL_PARAMETER_TBL", ?, ?);

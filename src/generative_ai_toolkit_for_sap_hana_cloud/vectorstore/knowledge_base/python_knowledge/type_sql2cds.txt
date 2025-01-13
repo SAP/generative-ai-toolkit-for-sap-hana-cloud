@@ -1,0 +1,19 @@
+The function type_sql2cds in the hana_ml.artifacts.utils.cds_convert module is for internal use and converts SQL types to CDS types.
+------
+Based on the help doc provided, here is a Python code template for using the `type_sql2cds` function from the `hana_ml.artifacts.utils.cds_convert` module.
+
+```python
+# Import the required module
+from hana_ml.artifacts.utils import cds_convert
+
+# Define the SQL type
+sql_type = "your_sql_type_here"  # replace with your SQL type
+
+# Use the function type_sql2cds
+cds_type = cds_convert.type_sql2cds(sql_type)
+
+# Print the result
+print(cds_type)
+```
+
+Please replace `"your_sql_type_here"` with your actual SQL type. The function `type_sql2cds` is for internal use, so make sure you are using it as intended in your specific context.

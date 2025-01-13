@@ -1,0 +1,24 @@
+The function plot_change_points in the hana_ml.visualizers.eda module plots a time series with highlighted change points, using a BCPD object for change point detection, and allows customization of the plot style, trend display, title, axes, and use of plotly or matplotlib.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.visualizers.eda import plot_change_points
+from hana_ml.algorithms.pal.tsa import BCPD
+
+# Initialize a BCPD object
+bcpd = BCPD(max_tcp=5, max_scp=0, random_seed=1, max_iter=1000)
+
+# Assuming 'df' is your HANA DataFrame
+plot_change_points(data=df, key='ts', col='y', cp_object=bcpd)
+```
+
+This code will plot the time series data in the 'y' column of the 'df' DataFrame, highlighting the change points detected by the BCPD object. The 'ts' column is used as the ID column. The plot will be created using matplotlib by default.
+
+If you want to use plotly instead of matplotlib, you can set `enable_plotly=True`:
+
+```python
+plot_change_points(data=df, key='ts', col='y', cp_object=bcpd, enable_plotly=True)
+```
+
+Please replace 'df', 'ts', and 'y' with your actual DataFrame and column names.

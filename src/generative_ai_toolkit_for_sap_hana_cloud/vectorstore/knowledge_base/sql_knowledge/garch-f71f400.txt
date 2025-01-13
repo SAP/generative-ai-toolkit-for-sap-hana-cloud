@@ -1,0 +1,60 @@
+GARCH (Generalized AutoRegressive Conditional Heteroskedasticity) is a statistical model used to analyze the variance of the error term in a time series. It is commonly used in financial data analysis to estimate the volatility of returns for stocks and bonds. GARCH assumes that the variance of the error term is not constant and tends to cluster. It also assumes that the variance follows an autoregressive moving average pattern. The GARCH model is defined by a set of parameters and is estimated using maximum likelihood estimation.
+------
+
+set schema DM_PAL;
+
+drop table PAL_GARCH_DATA_TAB;
+create column table PAL_GARCH_DATA_TAB (
+	"TIME" integer,
+	"VAR1" integer,
+	"VAR2" double,
+	"VAR3" nvarchar(100)
+);
+insert into PAL_GARCH_DATA_TAB values (1, 2, 0.17, 'A');
+insert into PAL_GARCH_DATA_TAB values (2, 2, 0.19, 'A');
+insert into PAL_GARCH_DATA_TAB values (3, 2, 0.28, 'A');
+insert into PAL_GARCH_DATA_TAB values (4, 2, 0.35, 'A');
+insert into PAL_GARCH_DATA_TAB values (5, 2, 1.04, 'A');
+insert into PAL_GARCH_DATA_TAB values (6, 2, 1.12, 'A');
+insert into PAL_GARCH_DATA_TAB values (7, 2, 1.99, 'A');
+insert into PAL_GARCH_DATA_TAB values (8, 2, 0.73, 'A');
+insert into PAL_GARCH_DATA_TAB values (9, 2, 0.50, 'A');
+insert into PAL_GARCH_DATA_TAB values (10, 2, 0.32, 'A');
+insert into PAL_GARCH_DATA_TAB values (11, 2, 0.40, 'A');
+insert into PAL_GARCH_DATA_TAB values (12, 2, 0.38, 'A');
+insert into PAL_GARCH_DATA_TAB values (13, 2, 0.33, 'A');
+insert into PAL_GARCH_DATA_TAB values (14, 2, 0.39, 'A');
+insert into PAL_GARCH_DATA_TAB values (15, 2, 0.98, 'A');
+insert into PAL_GARCH_DATA_TAB values (16, 2, 0.70, 'A');
+insert into PAL_GARCH_DATA_TAB values (17, 2, 0.89, 'A');
+insert into PAL_GARCH_DATA_TAB values (18, 2, 1.21, 'A');
+insert into PAL_GARCH_DATA_TAB values (19, 2, 1.32, 'A');
+insert into PAL_GARCH_DATA_TAB values (20, 2, 1.10, 'A');
+
+drop table PAL_GARCH_MODEL_TAB;
+create column table PAL_GARCH_MODEL_TAB (
+	"ROW_INDEX" integer,
+	"MODEL_CONTENT" nclob
+);
+ 
+drop table PAL_PARAMETER_TAB;
+create column table PAL_PARAMETER_TAB (
+	"PARAM_NAME" nvarchar(100),
+	"INT_VALUE" integer,
+	"DOUBLE_VALUE" double,
+	"STRING_VALUE" nvarchar(100)
+);
+insert into PAL_PARAMETER_TAB values ('P', 1, null, null);
+insert into PAL_PARAMETER_TAB values ('Q', 1, null, null);
+insert into PAL_PARAMETER_TAB values ('DEPENDENT_VARIABLE', null, null, 'VAR2');
+
+do begin
+	LT_DATA_TAB = select * from PAL_GARCH_DATA_TAB;
+	LT_PARAM_TAB = select * from PAL_PARAMETER_TAB;
+	call _SYS_AFL.PAL_GARCH(:LT_DATA_TAB, :LT_PARAM_TAB, LT_MODEL_TAB, LT_VAR_TAB, LT_STAT_TAB);
+	select * from :LT_MODEL_TAB;
+	select * from :LT_VAR_TAB;
+	select * from :LT_STAT_TAB;
+	insert into PAL_GARCH_MODEL_TAB select * from :LT_MODEL_TAB;
+end;
+

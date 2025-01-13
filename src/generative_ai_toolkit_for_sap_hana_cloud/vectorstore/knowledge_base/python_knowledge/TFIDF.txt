@@ -1,0 +1,27 @@
+The TFIDF class in the hana_ml.text.tm module is used for term frequency-inverse document frequency analysis, providing methods to compute inverse document frequency of documents and term frequency-inverse document frequency by document.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.text.tm import TFIDF
+
+# Assuming df_train is your input dataframe
+df_train = ...
+
+# Creating a TFIDF instance
+tfidf = TFIDF()
+
+# Performing text_collector() on given dataframe
+idf, _ = tfidf.text_collector(data=df_train)
+
+# Print idf
+print(idf.collect())
+
+# Performing text_tfidf() on given dataframe
+result = tfidf.text_tfidf(data=df_train)
+
+# Print result
+print(result.collect())
+```
+
+Please replace `...` with your actual dataframe.

@@ -1,0 +1,14 @@
+The function get_type_code_map in the hana_ml.type_codes module provides a map of type codes.
+------
+Here is a Python executable code template for the function `get_type_code_map` in the module `hana_ml.type_codes`:
+
+```python
+# Import the required module
+import hana_ml.type_codes
+
+# Call the function
+type_code_map = hana_ml.type_codes.get_type_code_map()
+
+# Print the result
+print(type_code_map)
+```

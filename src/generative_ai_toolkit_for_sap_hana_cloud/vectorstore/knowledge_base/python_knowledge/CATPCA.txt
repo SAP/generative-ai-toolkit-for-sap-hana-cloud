@@ -1,0 +1,39 @@
+The CATPCA class in the hana_ml.algorithms.pal.decomposition module is a Principal Components Analysis algorithm that supports categorical features, with various parameters to control aspects like scaling, thread ratio, scores, number of components, component tolerance, random state, maximum iterations, tolerance, SVD algorithm, and Lanczos iterations.
+------
+Here is the executable code template for the `CATPCA` class:
+
+```python
+from hana_ml.algorithms.pal.decomposition import CATPCA
+
+# Create a CATPCA instance
+cpc = CATPCA(scaling=True,
+             thread_ratio=0.0,
+             scores=True,
+             n_components=2,
+             component_tol=1e-5,
+             random_state=2021,
+             max_iter=550,
+             tol=1e-5,
+             svd_alg='lanczos',
+             lanczos_iter=100)
+
+# Assume that `df` is your input DataFrame
+# Perform fit
+cpc.fit(data=df, key='ID', categorical_variable='X4')
+
+# Print the loadings
+print(cpc.loadings_.collect())
+
+# Assume that `df1` is your input DataFrame for transform
+# Perform transform
+result = cpc.transform(data=df1,
+                       key="ID",
+                       n_components=2,
+                       thread_ratio = 0.5,
+                       ignore_unknown_category=False)
+
+# Print the result
+print(result.collect())
+```
+
+Please replace `df` and `df1` with your actual DataFrames.

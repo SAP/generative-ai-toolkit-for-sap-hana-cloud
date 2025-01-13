@@ -1,0 +1,19 @@
+The quarter_plot function in the hana_ml.visualizers.eda module performs a quarter plot on a HANA DataFrame to view seasonality, with options to specify the time series data column, ID column, axes for the plot, whether to use plotly instead of matplotlib, and additional properties when plotly is enabled.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers.eda import quarter_plot
+
+# Assuming you have a DataFrame 'df' with columns 'Y' and 'ID'
+# Perform quarter plot to view the seasonality
+
+# Using matplotlib
+quarter_plot(data=df, col="Y", key="ID")
+
+# Using plotly
+quarter_plot(data=df, col="Y", key="ID", enable_plotly=True)
+```
+
+Please replace 'df', 'Y', and 'ID' with your actual DataFrame and column names. If you want to use plotly for visualization, make sure to set `enable_plotly=True`. You can also pass additional keyword arguments (`kwargs`) as needed.

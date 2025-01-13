@@ -1,0 +1,84 @@
+K-Optimal Rule Discovery (KORD) is an algorithm that generates association rules based on a specific measure, rather than finding all frequent itemsets and generating all possible rules. It calculates only the top-k rules according to the measure and ensures that the rules generated are non-redundant. The algorithm uses the OPUS search strategy to traverse the search space of possible left-hand sides (LHS) in a depth-first manner and propagates information about qualified right-hand sides (RHS) to deeper search levels. KORD does not build a tree search structure but instead traverses the LHSs in a specific order, allowing for the pruning of the search space. This enables the use of pruning rules to restrict the possible LHSs and RHSs at different stages of rule generation.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_KORD_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_KORD_PARAMETER_TBL (
+	"PARAM_NAME " VARCHAR(100),
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+
+INSERT INTO PAL_KORD_PARAMETER_TBL VALUES ('TOPK', 5, null, null);
+INSERT INTO PAL_KORD_PARAMETER_TBL VALUES ('MEASURE_TYPE', 1, null, null);
+INSERT INTO PAL_KORD_PARAMETER_TBL VALUES ('MIN_SUPPORT', null, 0.1, null);
+INSERT INTO PAL_KORD_PARAMETER_TBL VALUES ('MIN_CONFIDENCE', null, 0.2, null);
+INSERT INTO PAL_KORD_PARAMETER_TBL VALUES ('IS_USE_EPSILON', 0, null, null);
+INSERT INTO PAL_KORD_PARAMETER_TBL VALUES ('EPSILON', null, 0.1, null);
+
+DROP TABLE PAL_KORD_DATA_TBL;
+CREATE COLUMN TABLE PAL_KORD_DATA_TBL (
+"CUSTOMER" INTEGER,
+"ITEM" VARCHAR(20)
+);
+
+INSERT INTO PAL_KORD_DATA_TBL VALUES (2, 'item2');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (2, 'item3');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (3, 'item1');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (3, 'item2');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (3, 'item4');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (4, 'item1');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (4, 'item3');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (5, 'item2');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (5, 'item3');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (6, 'item1');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (6, 'item3');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (0, 'item1');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (0, 'item2');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (0, 'item5'); 
+INSERT INTO PAL_KORD_DATA_TBL VALUES (1, 'item2');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (1, 'item4'); 
+INSERT INTO PAL_KORD_DATA_TBL VALUES (7, 'item1');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (7, 'item2');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (7, 'item3');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (7, 'item5');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (8, 'item1');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (8, 'item2');
+INSERT INTO PAL_KORD_DATA_TBL VALUES (8, 'item3');
+
+DROP TABLE PAL_KORD_ANTECEDENT_TBL;
+CREATE COLUMN TABLE PAL_KORD_ANTECEDENT_TBL (
+        "RULE_ID" INTEGER,
+        "ANTECEDENTITEM" NVARCHAR(1000)
+);
+
+DROP TABLE PAL_KORD_CONSEQUENT_TBL;
+CREATE COLUMN TABLE PAL_KORD_CONSEQUENT_TBL (
+        "RULE_ID" INTEGER,
+        "CONSEQUENTITEM" NVARCHAR(1000)
+);
+
+DROP TABLE PAL_KORD_STATISTICS_TBL;
+CREATE COLUMN TABLE PAL_KORD_STATISTICS_TBL (
+        "RULE_ID" INTEGER,
+        "SUPPORT" DOUBLE,
+        "CONFIDENCE" DOUBLE,
+        "LIFT" DOUBLE,
+        "LEVERAGE" DOUBLE,
+        "MEASURE" DOUBLE
+);
+
+DO BEGIN
+  lt_data = SELECT * FROM PAL_KORD_DATA_TBL;
+  lt_param = SELECT * FROM PAL_KORD_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_KORD (:lt_data, :lt_param, lt_antecedent, lt_consequent, lt_statistics);
+  INSERT INTO PAL_KORD_ANTECEDENT_TBL SELECT * FROM :lt_antecedent;
+  INSERT INTO PAL_KORD_CONSEQUENT_TBL SELECT * FROM :lt_consequent;
+  INSERT INTO PAL_KORD_STATISTICS_TBL SELECT * FROM :lt_statistics;
+END;
+
+SELECT * FROM PAL_KORD_ANTECEDENT_TBL;
+SELECT * FROM PAL_KORD_CONSEQUENT_TBL;
+SELECT * FROM PAL_KORD_STATISTICS_TBL;

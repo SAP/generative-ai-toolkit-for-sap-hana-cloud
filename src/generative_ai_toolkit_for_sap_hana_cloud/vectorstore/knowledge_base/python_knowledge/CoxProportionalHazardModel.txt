@@ -1,0 +1,57 @@
+The CoxProportionalHazardModel class in the hana_ml.algorithms.pal.regression module is a generalized linear model that demonstrates failure or death at a certain time, with various parameters to control the model's behavior, such as the method to deal with tied events, the maximum number of iterations for numeric optimization, and whether to calculate the hazard function.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.regression import CoxProportionalHazardModel
+
+# Define the model
+cox = CoxProportionalHazardModel(
+    tie_method='efron',
+    status_col=True,
+    max_iter=100,
+    convergence_criterion=0.001,
+    significance_level=0.05,
+    calculate_hazard=True,
+    output_fitted=False,
+    type_kind='risk',
+    thread_ratio=0.0
+)
+
+# Assume df1 is the training data DataFrame
+# Fit the model
+cox.fit(
+    data=df1,
+    key='ID',
+    features=['STATUS', 'X1', 'X2'],
+    label='TIME',
+    status_col=True
+)
+
+# Assume df2 is the prediction data DataFrame
+# Perform prediction
+prediction = cox.predict(
+    data=df2,
+    key='ID',
+    features=['STATUS', 'X1', 'X2'],
+    thread_ratio=0.0,
+    pred_type='risk',
+    significance_level=0.05
+)
+
+# Print the prediction result
+print(prediction.collect())
+
+# Calculate the score
+score = cox.score(
+    data=df2,
+    key='ID',
+    features=['STATUS', 'X1', 'X2'],
+    label='TIME'
+)
+
+# Print the score
+print(score)
+```
+
+Please replace `df1` and `df2` with your actual DataFrame.

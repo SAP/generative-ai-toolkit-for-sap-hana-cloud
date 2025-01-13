@@ -1,0 +1,26 @@
+The gamma function in the hana_ml.algorithms.pal.random module draws samples from a gamma distribution, allowing users to specify the shape, scale, number of random data to be generated, seed for the random number generator, and the proportion of available threads to use.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.random import gamma
+from hana_ml import dataframe as df
+
+# Create a connection context
+cc = df.ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Define parameters
+shape = 1
+scale = 1
+num_random = 100
+seed = None
+thread_ratio = None
+
+# Draw samples from a gamma distribution
+res = gamma(conn_context=cc, shape=shape, scale=scale, num_random=num_random, seed=seed, thread_ratio=thread_ratio)
+
+# Print the generated random samples
+print(res.collect())
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual database connection details. You can also adjust the parameters `shape`, `scale`, `num_random`, `seed`, and `thread_ratio` as per your requirements.

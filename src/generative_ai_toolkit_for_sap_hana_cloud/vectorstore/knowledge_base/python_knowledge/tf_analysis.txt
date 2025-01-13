@@ -1,0 +1,18 @@
+The tf_analysis function in the hana_ml.text.tm module performs Term Frequency analysis on a given document, taking as input a DataFrame with ID, document content, and document category, and optional parameters for language, stopwords, and numeric values, and returns a tuple of DataFrames with TF-IDF results, document term frequency table, and document category table.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import necessary libraries
+from hana_ml.text.tm import tf_analysis
+
+# Perform Term Frequency Analysis
+tfidf = tf_analysis(data=data, lang=None, enable_stopwords=True, keep_numeric=False)
+
+# Print the results
+print(tfidf[0].head(3))
+print(tfidf[1].head(3))
+print(tfidf[2].head(3))
+```
+
+Please note that you need to replace the `data` DataFrame with your actual data. Also, the `tf_analysis` function is a part of the `hana_ml.text.tm` module, so you need to have the `hana_ml` package installed and properly configured to connect to your HANA instance.

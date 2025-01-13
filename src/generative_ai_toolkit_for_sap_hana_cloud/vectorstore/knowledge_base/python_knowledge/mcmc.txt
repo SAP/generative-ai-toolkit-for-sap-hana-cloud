@@ -1,0 +1,29 @@
+The mcmc function in the hana_ml.algorithms.pal.random module generates samples of a specified distribution using Markov chain Monte Carlo simulation, with various parameters to customize the simulation such as the number of iterations, seed for the random number generator, and parameters specific to the chosen distribution.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+from hana_ml.algorithms.pal.random import mcmc
+from hana_ml import dataframe
+
+# Create a connection to HANA database
+cc = dataframe.ConnectionContext('address', port, 'username', 'password')
+
+# Specify the distribution and its parameters
+distribution = 'student_t'
+mu = 0
+sigma = 1
+nu = 1
+chain_iter = 50
+thin = 10
+init_radius = 0
+
+# Generate MCMC samples from the specified distribution
+res = mcmc(cc, distribution=distribution, mu=mu, sigma=sigma, nu=nu, chain_iter=chain_iter, thin=thin, init_radius=init_radius)
+
+# Collect the results
+df = res.collect()
+print(df)
+```
+
+Please replace `'address'`, `port`, `'username'`, and `'password'` with your actual HANA database connection details.

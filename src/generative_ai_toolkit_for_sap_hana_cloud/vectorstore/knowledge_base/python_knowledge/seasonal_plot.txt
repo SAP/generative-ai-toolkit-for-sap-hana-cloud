@@ -1,0 +1,32 @@
+The function seasonal_plot in the hana_ml.visualizers.eda module plots time series data by year, taking parameters such as data, column name, ID column name, axes for the plot, whether to use plotly instead of matplotlib, a plotly graph object, and other optional properties, and returns either a matplotlib.axes.Axes object or a plotly.graph_objects.Figure object.
+------
+Here is a Python code template for the `seasonal_plot` function from the `hana_ml.visualizers.eda` module:
+
+```python
+# Import required module
+from hana_ml.visualizers.eda import seasonal_plot
+
+# Assuming that `df` is your HANA DataFrame
+# Define the column name of the time series data
+col = "your_column_name"
+
+# Define the ID column name (optional)
+key = "your_id_column_name"
+
+# Use plotly instead of matplotlib (optional)
+enable_plotly = True
+
+# Define the axes for the plot (optional)
+ax = None
+
+# Define the plotly graph object (optional)
+fig = None
+
+# Define additional properties for plotly (optional)
+kwargs = {}
+
+# Call the function
+seasonal_plot(data=df, col=col, key=key, ax=ax, enable_plotly=enable_plotly, fig=fig, **kwargs)
+```
+
+Please replace `"your_column_name"` and `"your_id_column_name"` with your actual column names. If you don't have an ID column, you can omit the `key` parameter. The `ax` parameter is for the axes of the plot and is optional. If `enable_plotly` is set to `True`, the function will use plotly for plotting instead of matplotlib. The `fig` parameter is for the plotly graph object and is optional. The `kwargs` parameter is for additional properties for plotly and is optional.

@@ -1,0 +1,43 @@
+The Kolmogorov-Smirnov test is a statistical test used to determine if a sample or two samples come from a specific distribution. The test calculates a statistic called the Kolmogorov-Smirnov statistic, which measures the maximum difference between the cumulative distribution functions of the sample(s) and the given distribution(s). The test is valid only for continuous distributions. The test result is used to determine if the null hypothesis can be rejected in favor of the alternative hypothesis. In the PAL software, the test can be performed as a one-sample test or a two-sample test, depending on the number of columns in the input table.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_KSTEST_DATA1_TBL;
+CREATE COLUMN TABLE PAL_KSTEST_DATA1_TBL ("X1" DOUBLE);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.58);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.42);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.52);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.33);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.43);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.23);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.58);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.76);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.53);
+INSERT INTO PAL_KSTEST_DATA1_TBL VALUES (0.64);
+
+DROP TABLE PAL_KSTEST_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_KSTEST_PARAMETER_TBL (
+    "PARAM_NAME" NVARCHAR(256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" NVARCHAR (1000)
+);
+INSERT INTO PAL_KSTEST_PARAMETER_TBL VALUES ('DISTRIBUTION_NAME', NULL, NULL, 'uniform');
+INSERT INTO PAL_KSTEST_PARAMETER_TBL VALUES ('MIN', NULL, 0, NULL);
+INSERT INTO PAL_KSTEST_PARAMETER_TBL VALUES ('MAX', NULL, 1, NULL);
+
+DROP TABLE PAL_KSTEST_STATISTIC_TBL;
+CREATE COLUMN TABLE PAL_KSTEST_STATISTIC_TBL (
+    "STAT_NAME" NVARCHAR(100),
+    "STAT_VALUE" DOUBLE
+);
+
+DO BEGIN
+  lt_data = SELECT * FROM PAL_KSTEST_DATA1_TBL;
+  lt_param = SELECT * FROM PAL_KSTEST_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_KS_TEST (:lt_data, :lt_param, lt_statistic);
+  INSERT INTO PAL_KSTEST_STATISTIC_TBL SELECT * FROM :lt_statistic;
+END;
+
+SELECT * FROM PAL_KSTEST_STATISTIC_TBL;

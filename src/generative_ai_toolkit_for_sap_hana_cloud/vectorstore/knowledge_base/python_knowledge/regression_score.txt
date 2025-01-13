@@ -1,0 +1,26 @@
+The function regression_score in the hana_ml.algorithms.pal.metrics module computes regression scores with respect to different types of objective functions, using parameters such as data, true labels, predicted labels, score type, tweedie power, and quantile alpha.
+------
+Here is a Python code template for the `regression_score` function from the `hana_ml.algorithms.pal.metrics` module:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal.metrics import regression_score
+
+# Assume we have a DataFrame 'data' and true labels 'label_true' and predicted labels 'label_pred'
+# data = ...
+# label_true = ...
+# label_pred = ...
+
+# Define parameters
+score_type = 'r2'
+tweedie_power = 1.5
+quantile_alpha = 0.5
+
+# Compute regression scores
+scores = regression_score(data, label_true, label_pred, score_type, tweedie_power, quantile_alpha)
+
+# Print the scores
+print(scores)
+```
+
+Please replace the `data`, `label_true`, and `label_pred` with your actual data. The `score_type` parameter can be set to different types of objective functions. The `tweedie_power` and `quantile_alpha` parameters are optional and have default values of 1.5 and 0.5 respectively.

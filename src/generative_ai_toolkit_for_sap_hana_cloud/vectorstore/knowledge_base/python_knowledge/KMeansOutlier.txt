@@ -1,0 +1,29 @@
+The KMeansOutlier class in the hana_ml.algorithms.pal.clustering module is used for outlier detection based on k-means clustering, identifying the farthest point from the centroid as an outlier, with various parameters to customize the clustering and outlier detection process.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.clustering import KMeansOutlier
+
+# Initialize a KMeansOutlier instance
+kmsodt = KMeansOutlier(n_clusters=None, 
+                       distance_level='euclidean', 
+                       contamination=0.15, 
+                       sum_distance=True, 
+                       init=None, 
+                       max_iter=None, 
+                       normalization=None, 
+                       tol=None, 
+                       distance_threshold=3)
+
+# Assuming that `df` is your DataFrame
+outliers, stats, centers = kmsodt.fit_predict(data=df, key='ID')
+
+# Print the outliers
+print(outliers.collect())
+
+# Print the stats
+print(stats.collect())
+```
+
+Please replace `df` with your actual DataFrame. If you want to use different parameters for the `KMeansOutlier` instance, you can replace the values in the `KMeansOutlier` initialization.

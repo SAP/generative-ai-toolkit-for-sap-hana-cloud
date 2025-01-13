@@ -1,0 +1,47 @@
+The function create_graph_from_hana_dataframes in the hana_ml.graph.factory module creates a graph workspace based on HANA DataFrames, allowing for more advanced features such as setting a chunk_size when transferring the Pandas DataFrame to an HANA DataFrame.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.dataframe import ConnectionContext, create_dataframe_from_pandas
+from hana_ml.graph.factory import create_graph_from_hana_dataframes
+import pandas as pd
+
+# Create a connection to the SAP HANA system
+connection_context = ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Create vertices dataframe from pandas dataframe
+v_df = create_dataframe_from_pandas(
+    connection_context=connection_context,
+    pandas_df=pd.read_csv('nodes.csv'),
+    table_name="factory_test_table_vertices",
+    force=True,
+    primary_key="guid"
+)
+
+# Create edges dataframe from pandas dataframe
+e_df = create_dataframe_from_pandas(
+    connection_context=connection_context,
+    pandas_df=pd.read_csv('edges.csv'),
+    table_name="factory_test_table_edges",
+    force=True,
+    primary_key="edge_id",
+    not_nulls=["from", "to"]
+)
+
+# Create a graph from HANA dataframes
+hg = create_graph_from_hana_dataframes(
+    connection_context=connection_context,
+    vertices_df=v_df,
+    vertex_key_column="guid",
+    edges_df=e_df,
+    edge_key_column="edge_id",
+    workspace_name="test_factory_ws",
+    force=True
+)
+
+# Print the created graph
+print(hg)
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual SAP HANA system details. Also, make sure that 'nodes.csv' and 'edges.csv' files are in the correct path.

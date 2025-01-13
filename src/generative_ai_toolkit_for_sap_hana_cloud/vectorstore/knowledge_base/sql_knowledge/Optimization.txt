@@ -1,0 +1,36 @@
+AutoML uses genetic programming algorithm (GA) and random search as optimization algorithms. When using GA, the process starts with a population of randomly generated individuals, and each generation is evaluated based on the fitness of the individuals. The fittest individuals are selected and their genomes are modified to create a new generation. The algorithm terminates when a maximum number of generations have been produced or a satisfactory fitness level has been reached.
+
+If random search is used, AutoML randomly generates pipelines from the search space and evaluates them. The best pipeline is selected based on the results. When there are enough resources, all possible pipelines in the search space are evaluated.
+------
+json
+{
+    "result":{
+        "estimator0":0.2,
+        "estimator1":0.1, 
+        "estimator2":0.2
+    },
+    "estimator0":{
+        "transformer0":0.1,
+        "transformer1":0.2,
+        "ROWDATA":1.0,
+    },
+    "estimator1":{
+        "transformer1":0.3,
+        "transformer2":0.4,
+        "ROWDATA":1.0,
+    },
+    "estimator2":{
+        "transformer0":1,
+        "transformer2":3,
+    },
+    "transformer0":{
+        "transformer1":0.3,
+        "transformer2":0.4,
+    },
+    "transformer1":{
+        "ROWDATA":0.4,
+    },
+    "transformer2":{
+        "ROWDATA":0.4,
+    }
+}

@@ -1,0 +1,23 @@
+The condition index is a method used to detect collinearity problems between independent variables in a multiple linear regression model. It uses principle component analysis (PCA) to find eigenvalues and eigenvectors of the independent variable matrix. The condition index is calculated as the ratio of the maximum singular value to each singular value, and the condition number is the largest value of the condition indices. Variance decomposition proportions can also be calculated to determine how much variance of the estimated coefficient for a variable can be explained by the principle components. A dataset with a condition number larger than 30 indicates possible collinearity, and variables involved in collinearity have variance decomposition proportions greater than 0.5.
+------
+
+SET SCHEMA "DM_PAL";
+
+DROP TABLE PAL_CI_DATA_TBL;
+CREATE COLUMN TABLE PAL_CI_DATA_TBL 
+	("ID" INTEGER, "X1" DOUBLE, "X2" DOUBLE, "X3" DOUBLE, "X4" DOUBLE);
+INSERT INTO PAL_CI_DATA_TBL VALUES (1, 12, 52, 20, 44);
+INSERT INTO PAL_CI_DATA_TBL VALUES (2, 12, 57, 25, 45);
+INSERT INTO PAL_CI_DATA_TBL VALUES (3, 12, 54, 21, 45);
+INSERT INTO PAL_CI_DATA_TBL VALUES (4, 13, 52, 21, 46);
+INSERT INTO PAL_CI_DATA_TBL VALUES (5, 14, 54, 24, 46);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL 
+("PARAM_NAME" VARCHAR(50256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.1, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('INCLUDE_INTERCEPT', 1, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('SCALING', 1, NULL, NULL);
+
+CALL _SYS_AFL.PAL_CONDITION_INDEX(PAL_CI_DATA_TBL,"#PAL_PARAMETER_TBL", ?, ?);
+

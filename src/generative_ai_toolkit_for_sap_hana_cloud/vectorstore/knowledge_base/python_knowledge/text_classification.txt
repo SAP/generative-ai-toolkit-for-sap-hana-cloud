@@ -1,0 +1,35 @@
+The text_classification function in the hana_ml.text.tm module classifies an input document into categories based on parameters such as prediction data, reference data, number of nearest neighbors, thread ratio, language, algorithm, seed, top terms for Random Decision Tree algorithm, index name, and created index.
+------
+Here is the executable code template for the `text_classification` function:
+
+```python
+from hana_ml.text.tm import text_classification
+from hana_ml import DataFrame
+
+# Assuming connection context (cc) is already defined
+
+# Define the prediction data
+pred_data = DataFrame(cc, 'SELECT * FROM PREDICTION_DATA')
+
+# Define the reference data
+ref_data = DataFrame(cc, 'SELECT * FROM REFERENCE_DATA')
+
+# Call the text_classification function
+result = text_classification(
+    pred_data=pred_data,
+    ref_data=ref_data,
+    k_nearest_neighbours=1,
+    thread_ratio=0.0,
+    lang=None,
+    algorithm=None,
+    seed=None,
+    rdt_top_n=None,
+    index_name=None,
+    created_index=None
+)
+
+# Print the result
+print(result)
+```
+
+Please replace `'SELECT * FROM PREDICTION_DATA'` and `'SELECT * FROM REFERENCE_DATA'` with your actual SQL queries or table names. Also, adjust the optional parameters of the `text_classification` function as per your requirements.

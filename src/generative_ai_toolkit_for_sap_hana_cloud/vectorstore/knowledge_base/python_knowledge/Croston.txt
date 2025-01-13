@@ -1,0 +1,22 @@
+The Croston class in the hana_ml.algorithms.pal.tsa.exponential_smoothing module is a forecasting strategy for products with intermittent demand, which uses separate exponential smoothing estimates of the average size of a demand and the average interval between demands to predict future demand.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.exponential_smoothing import Croston
+
+# Create a Croston instance
+croston = Croston(alpha=0.1,
+                  forecast_num=1,
+                  method='sporadic',
+                  accuracy_measure='mape')
+
+# Perform fit() on the given data
+croston.fit_predict(data=df)
+
+# Output
+print(croston.forecast_.collect().set_index('ID').head(6))
+print(croston.stats_.collect())
+```
+
+Please replace the data with your actual data and adjust the parameters of the `Croston` instance as needed.

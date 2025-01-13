@@ -1,0 +1,51 @@
+The content discusses the concept of silhouette, which is a method used to validate the clustering of data. Silhouette has a complexity of O(N^2), where N is the number of records, making it time-consuming for large datasets. To address this, a lighter version called slight silhouette is introduced by PAL. Slight silhouette calculates the distance between a record and the center of its cluster (A(i)), as well as the minimum distance between the record and other cluster centers (B(i)). The formula for slight silhouette is provided, which ranges from -1 to 1, with -1 indicating a poor clustering result and 1 indicating a good result. For categorical attributes, the input data can be preprocessed using the K-means method.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE  PAL_SLIGHT_SIL_TBL;
+CREATE COLUMN TABLE PAL_SLIGHT_SIL_TBL(
+	"V000" DOUBLE, 
+	"V001" VARCHAR(5),
+	"V002" DOUBLE,
+	"CLUSTER" INTEGER
+);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (0.5, 'A', 0.5, 0);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (1.5, 'A', 0.5, 0);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (1.5, 'A', 1.5, 0);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (0.5, 'A', 1.5, 0);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (1.1, 'B', 1.2, 0);
+
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (0.5, 'B', 15.5, 1);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (1.5, 'B', 15.5, 1);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (1.5, 'B', 16.5, 1);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (0.5, 'B', 16.5, 1);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (1.2, 'C', 16.1, 1);
+
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (15.5, 'C', 15.5, 2);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (16.5, 'C', 15.5, 2);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (16.5, 'C', 16.5, 2);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (15.5, 'C', 16.5, 2);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (15.6, 'D', 16.2, 2);
+
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (15.5, 'D', 0.5, 3);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (16.5, 'D', 0.5, 3);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (16.5, 'D', 1.5, 3);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (15.5, 'D', 1.5, 3);
+INSERT INTO PAL_SLIGHT_SIL_TBL VALUES (15.7, 'A', 1.6, 3); 
+
+DROP TABLE #PAL_CONTROL_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_CONTROL_TBL(
+	"NAME" VARCHAR (100),
+	"INTARGS" INTEGER, 
+	"DOUBLEARGS" DOUBLE,
+	"STRINGARGS" VARCHAR(100)
+);
+INSERT INTO #PAL_CONTROL_TBL VALUES ('THREAD_NUMBER', 2, null, null);
+INSERT INTO #PAL_CONTROL_TBL VALUES ('NORMALIZATION', 0, null, null);
+INSERT INTO #PAL_CONTROL_TBL VALUES ('DISTANCE_LEVEL', 2, null, null);
+INSERT INTO #PAL_CONTROL_TBL VALUES ('CATEGORY_WEIGHTS', null, 0.7, null);
+INSERT INTO #PAL_CONTROL_TBL VALUES ('CATEGORY_COL', 1, null, null);
+
+CALL _SYS_AFL.PAL_SLIGHT_SILHOUETTE(PAL_SLIGHT_SIL_TBL, #PAL_CONTROL_TBL, ?);
+

@@ -1,0 +1,70 @@
+The function described in this content returns a list of suggested terms that match a given initial substring.
+------
+
+set schema DM_PAL;
+
+drop table PAL_TFIDF_DATA_TAB;
+create column table PAL_TFIDF_DATA_TAB (
+    "ID" nvarchar(1000),
+    "CONTENT" nvarchar(1000),
+    "CATEGORY" nvarchar(1000)
+);
+
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc1','term1 term2 term2 term3 term3 term3','CATEGORY_1');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc2','term2 term3 term3 term4 term4 term4','CATEGORY_1');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc3','term3 term4 term4 term5 term5 term5','CATEGORY_2');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc5','term3 term4 term4 term5 term5 term5 term5 term5 term5','CATEGORY_2');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc4','term4 term6','CATEGORY_3');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc6','term4 term6 term6 term6','CATEGORY_3');
+
+
+drop table #PAL_PARAMETER_TAB;
+create local temporary column table #PAL_PARAMETER_TAB (
+    "PARAM_NAME" nvarchar(256),
+    "INT_VALUE" integer, 
+    "DOUBLE_VALUE" double, 
+    "STRING_VALUE" nvarchar(1000)
+);
+
+drop table PAL_TM_TERM_TAB;
+create column table PAL_TM_TERM_TAB (
+    "TM_TERMS" nvarchar(1000),
+    "TM_TERM_FREQUENCY" integer,
+    "TM_IDF_FREQUENCY" integer,
+    "TF_VALUE" double,
+    "IDF_VALUE" double
+);
+
+drop table PAL_TM_DOC_TERM_FREQ_TAB;
+create column table PAL_TM_DOC_TERM_FREQ_TAB (
+    "ID" nvarchar(1000),
+    "TM_TERMS" nvarchar(1000),
+    "TM_TERM_FREQUENCY" integer
+);
+
+drop table PAL_TM_CATE_TAB;
+create column table PAL_TM_CATE_TAB (
+    "ID" nvarchar(1000),
+    "CATEGORY" nvarchar(1000)
+);
+
+call _SYS_AFL.PAL_TF_ANALYSIS(PAL_TFIDF_DATA_TAB, "#PAL_PARAMETER_TAB", PAL_TM_TERM_TAB, PAL_TM_DOC_TERM_FREQ_TAB, PAL_TM_CATE_TAB);
+
+----------------GetSuggestedTerm----------------
+
+drop table #PAL_PARAMETER_TAB;
+create local temporary column table #PAL_PARAMETER_TAB (
+    "PARAM_NAME" nvarchar(256),
+    "INT_VALUE" integer, 
+    "DOUBLE_VALUE" double, 
+    "STRING_VALUE" nvarchar(1000)
+);
+
+drop table PAL_TM_INPUT_TERM_TAB;
+create column table PAL_TM_INPUT_TERM_TAB (
+    "CONTENT" nvarchar(1000)
+);
+
+INSERT INTO PAL_TM_INPUT_TERM_TAB VALUES ('ter');
+
+call _SYS_AFL.PAL_TMGETSUGGESTEDTERM(PAL_TM_TERM_TAB, PAL_TM_DOC_TERM_FREQ_TAB, PAL_TM_CATE_TAB, PAL_TM_INPUT_TERM_TAB, "#PAL_PARAMETER_TAB", ?);

@@ -1,0 +1,43 @@
+Accelerated k-means is a variant of the k-means algorithm that uses technology to speed up the calculation process. It has two steps in each iteration: assigning each point to a cluster with the closest distance to its center, and calculating the new center of each cluster. The center set and cluster partition set are the same as the ordinary k-means after each iteration. 
+
+The technology used to accelerate iterations involves caches that store information between iterations, which means it uses more memory than the ordinary k-means algorithm. 
+
+In accelerated k-means, the algorithm keeps iterating until all clusters stop changing, instead of using an EXIT_THRESHOLD parameter to stop earlier. Other than that, accelerated k-means is similar to ordinary k-means. 
+
+When dealing with categorical attributes, accelerated k-means converts them into binary vectors and treats them as numerical attributes. For example, if "Gender" is a categorical attribute with two distinct values, it will be converted into a binary vector with two dimensions. The Euclidean distance between points is then calculated using a formula that includes a weight for the categorical attributes. 
+
+The means of categorical attributes are not outputted in accelerated k-means. Instead, they are replaced by the modes, similar to the k-modes algorithm.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_ACCKMEANS_DATA_TBL;
+CREATE COLUMN TABLE PAL_ACCKMEANS_DATA_TBL(
+	"ID" INTEGER,
+	"V000" DOUBLE,
+	"V001" VARCHAR(2),
+	"V002" INTEGER
+);
+INSERT INTO PAL_ACCKMEANS_DATA_TBL VALUES (0, 0.5, 'A', 0);
+INSERT INTO PAL_ACCKMEANS_DATA_TBL VALUES (1, 1.5, 'A', 0);
+INSERT INTO PAL_ACCKMEANS_DATA_TBL VALUES (2, 1.5, 'A', 1);
+INSERT INTO PAL_ACCKMEANS_DATA_TBL VALUES (3, 0.5, 'A', 1);
+INSERT INTO PAL_ACCKMEANS_DATA_TBL VALUES (4, 1.1, 'B', 1);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL(
+	"PARAM_NAME" NVARCHAR(256), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" NVARCHAR(1000)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.5, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('GROUP_NUMBER', 4, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('INIT_TYPE', 1, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('DISTANCE_LEVEL',2, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('MAX_ITERATION', 100, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('CATEGORY_WEIGHTS', NULL, 0.5, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE', NULL, NULL, 'V002');
+
+CALL _SYS_AFL.PAL_ACCELERATED_KMEANS(PAL_ACCKMEANS_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?, ?, ?, ?);
+

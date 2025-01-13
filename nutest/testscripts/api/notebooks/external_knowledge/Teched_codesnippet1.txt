@@ -1,0 +1,33 @@
+useful for when you need to create a time series forecast model for the table SALES_REFUNDS include model statistics and save the model.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.additive_model_forecast import AdditiveModelForecast
+from hana_ml.visualizers.visualizer_base import forecast_line_plot
+from hana_ml.dataframe import DataFrame
+
+# sort the dataframe 
+<dataframe> =  <datarame>.sort(['BOOKING_DATE'])
+
+# train the model
+amf = AdditiveModelForecast(growth='linear')
+amf.fit(data=<dataframe>.head(150))
+pred_data = amf.predict(data=<dataframe>.tail(30))
+
+#save the model table
+amf.model_.save('SALES_REFUNDS_MODEL', force=True)
+
+# calculate the model statistics
+test_gt=<dataframe>.sort('BOOKING_DATE', desc=True).rename_columns({'REFUNDS': 'ACTUAL'})
+test_pred=<dataframe>.select('BOOKING_DATE', 'YHAT', 'YHAT_LOWER', 'YHAT_UPPER').rename_columns({'YHAT': 'PREDICTED', 'BOOKING_DATE':'DATE'} )
+test_accAP=test_gt.alias('A').join(test_pred.alias('F'), 'A."BOOKING_DATE" = F."DATE"', select=['DATE', 'ACTUAL', 'PREDICTED']).sort('DATE')
+ 
+from hana_ml.algorithms.pal.tsa.accuracy_measure import accuracy_measure
+
+acc= accuracy_measure(data=test_accAP.select(['ACTUAL', 'PREDICTED']), evaluation_metric=['mse', 'rmse', 'mpe', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape'])
+
+display(acc.collect())
+```
+
+Replace the <dataframe> with the agent's dataframe.

@@ -1,0 +1,37 @@
+The Fast Fourier Transform (FFT) is a mathematical algorithm used to decompose a function of time into its constituent frequencies. It is a more efficient version of the Fourier transform, which was first introduced by Joseph Fourier in 1822. In engineering, the discrete Fourier transform (DFT) is commonly used, and it can be applied using the FFT.
+
+The DFT transforms a sequence of complex elements into a periodic sequence of complex numbers. It can also be reversed using the inverse discrete Fourier transform (IDFT). The DFT has a time complexity of O(N^2), but the FFT, based on the Danielson-Lanczos formula, can compute the DFT in O(Nlog2N) time.
+
+The FFT requires the length of the sequence to be a power of 2, but in cases where this condition is not met, the chirp z-transform algorithm can be used in PAL to handle such situations. This algorithm takes advantage of convolution and still maintains a time complexity of O(Nlog2N).
+
+In cases where the series is purely real or purely imaginary, a real/imaginary FFT can be applied, which reduces the computing time by half.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_FFT_DATA_TBL;
+CREATE COLUMN TABLE PAL_FFT_DATA_TBL (
+	"ID" INTEGER,
+	"RE" DOUBLE,
+	"IM" DOUBLE
+);
+INSERT INTO PAL_FFT_DATA_TBL VALUES (1, 2, 9);
+INSERT INTO PAL_FFT_DATA_TBL VALUES (2, 3, -3);
+INSERT INTO PAL_FFT_DATA_TBL VALUES (3, 5, 0);
+INSERT INTO PAL_FFT_DATA_TBL VALUES (4, 0, 0);
+INSERT INTO PAL_FFT_DATA_TBL VALUES (5, -2, -2);
+INSERT INTO PAL_FFT_DATA_TBL VALUES (6, -9, -7);
+INSERT INTO PAL_FFT_DATA_TBL VALUES (7, 7, 0);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR(100),
+	"INT_VALUE" INTEGER,
+	"DOUBLE_VALUE" DOUBLE,
+	"STRING_VALUE" VARCHAR(100)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('INVERSE', 0, NULL, NULL);
+
+
+CALL _SYS_AFL.PAL_FFT(PAL_FFT_DATA_TBL, "#PAL_PARAMETER_TBL", ?);
+

@@ -1,0 +1,54 @@
+The content describes the use of a Gated Recurrent Units (GRU) based Encoder-Decoder Model with Attention Mechanism for time series prediction. The attention mechanism allows the network to focus on relevant parts of the input sequence and access all past hidden states of the encoder. This architecture allows the decoder to selectively pick out specific elements from the encoder's sequence to produce the output. The network architecture is shown in the provided image.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_PARAMETER_TBL;
+
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (PARAM_NAME VARCHAR(256), INT_VALUE INTEGER, DOUBLE_VALUE DOUBLE, STRING_VALUE VARCHAR(1000));
+
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('TIME_DIM',         6,    Null,   Null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_ITER',       1000,    Null,   Null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('LEARNING_RATE',  Null,   0.005,   Null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('BATCH_SIZE',        8,    Null,   Null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('HIDDEN_DIM',       64,    Null,   Null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('NUM_LAYERS',        2,    Null,   Null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('INTERVAL',         50,    Null,   Null);
+
+DROP TABLE PAL_ATTENTION_DATA_TBL;
+CREATE COLUMN TABLE PAL_ATTENTION_DATA_TBL (
+	TIME_STAMP INTEGER,
+	TARGET DOUBLE
+);
+
+INSERT INTO PAL_ATTENTION_DATA_TBL VALUES (1, 129.0);
+INSERT INTO PAL_ATTENTION_DATA_TBL VALUES (2, 148.0);
+INSERT INTO PAL_ATTENTION_DATA_TBL VALUES (3, 159.0);
+INSERT INTO PAL_ATTENTION_DATA_TBL VALUES (4, 181.0);
+INSERT INTO PAL_ATTENTION_DATA_TBL VALUES (5, 138.0);
+
+DROP TABLE PAL_ATTENTION_MODEL_TBL; -- for predict followed
+CREATE COLUMN TABLE PAL_ATTENTION_MODEL_TBL ( 
+	ROW_INDEX INTEGER,
+	MODEL_CONTENT NVARCHAR(5000)
+);
+
+DROP TABLE PAL_ATTENTION_LOSS_TBL; 
+CREATE COLUMN TABLE PAL_ATTENTION_LOSS_TBL ( 
+	ITER INTEGER,
+	LOSS DOUBLE
+);
+
+
+DO BEGIN
+	lt_data = SELECT * FROM PAL_ATTENTION_DATA_TBL;
+	lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_ATTENTION_TRAIN (:lt_data, :lt_param, lt_loss, lt_model);
+	INSERT INTO PAL_ATTENTION_LOSS_TBL SELECT * FROM :lt_loss;
+	INSERT INTO PAL_ATTENTION_MODEL_TBL SELECT * FROM :lt_model;
+END;
+
+select * from PAL_ATTENTION_LOSS_TBL;
+select * from PAL_ATTENTION_MODEL_TBL;
+

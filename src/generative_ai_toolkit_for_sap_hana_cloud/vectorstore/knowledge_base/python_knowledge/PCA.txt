@@ -1,0 +1,32 @@
+The PCA class in the hana_ml.algorithms.pal.decomposition module is used for Principal Component Analysis, a method to reduce the dimensionality of multivariate data using Singular Value Decomposition, with options to control the proportion of threads used, whether to scale variables before analysis, whether to output scores on each principal component, and the number of components to keep after transforming input data.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.decomposition import PCA
+
+# Create a PCA instance
+pca = PCA(scaling=True, thread_ratio=0.5, scores=True)
+
+# Assume df is your input DataFrame
+# Perform fit
+pca.fit(data=df, key='ID')
+
+# Print loadings
+print(pca.loadings_.collect())
+
+# Print loadings statistics
+print(pca.loadings_stat_.collect())
+
+# Print scaling statistics
+print(pca.scaling_stat_.collect())
+
+# Assume df1 is another input DataFrame
+# Perform transform
+result = pca.transform(data=df1, key='ID', n_components=4)
+
+# Print result
+print(result.collect())
+```
+
+Please replace `df` and `df1` with your actual DataFrames.

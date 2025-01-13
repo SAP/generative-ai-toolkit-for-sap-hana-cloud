@@ -1,0 +1,40 @@
+The r2_score function in the hana_ml.algorithms.pal.metrics module computes the coefficient of determination for regression results, taking a DataFrame of true and predicted values, and the names of the columns containing these values, and returning a float that indicates the accuracy of the regression, with 1.0 being an exact match.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.algorithms.pal.metrics import r2_score
+from hana_ml import DataFrame
+
+# Assuming that connection_context is already defined
+# Create DataFrame for actual and predicted values
+df = DataFrame(connection_context, 'SELECT * FROM <your_table>')
+
+# Compute R2 score
+r2 = r2_score(data=df, label_true='ACTUAL', label_pred='PREDICTED')
+print("R2 Score: ", r2)
+
+# Create DataFrame for perfect predictions
+df_perfect = DataFrame(connection_context, 'SELECT * FROM <your_perfect_table>')
+
+# Compute R2 score for perfect predictions
+r2_perfect = r2_score(data=df_perfect, label_true='ACTUAL', label_pred='PREDICTED')
+print("R2 Score for Perfect Predictions: ", r2_perfect)
+
+# Create DataFrame for mean predictions
+df_mean = DataFrame(connection_context, 'SELECT * FROM <your_mean_table>')
+
+# Compute R2 score for mean predictions
+r2_mean = r2_score(data=df_mean, label_true='ACTUAL', label_pred='PREDICTED')
+print("R2 Score for Mean Predictions: ", r2_mean)
+
+# Create DataFrame for awful predictions
+df_awful = DataFrame(connection_context, 'SELECT * FROM <your_awful_table>')
+
+# Compute R2 score for awful predictions
+r2_awful = r2_score(data=df_awful, label_true='ACTUAL', label_pred='PREDICTED')
+print("R2 Score for Awful Predictions: ", r2_awful)
+```
+
+Please replace `<your_table>`, `<your_perfect_table>`, `<your_mean_table>`, and `<your_awful_table>` with your actual table names. Also, ensure that `connection_context` is defined and connected to your HANA database.

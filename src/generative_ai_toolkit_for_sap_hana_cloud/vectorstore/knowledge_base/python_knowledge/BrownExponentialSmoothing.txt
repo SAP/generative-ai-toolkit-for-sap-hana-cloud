@@ -1,0 +1,28 @@
+The BrownExponentialSmoothing class in the hana_ml.algorithms.pal.tsa.exponential_smoothing module is used to model time series data with a trend but without seasonality, offering both non-adaptive and adaptive brown linear exponential smoothing, with various parameters to customize the smoothing process and forecast.
+------
+Here is a Python code template for the `BrownExponentialSmoothing` class:
+
+```python
+from hana_ml.algorithms.pal.tsa.exponential_smoothing import BrownExponentialSmoothing
+
+# Create BrownExponentialSmoothing instance
+brown_exp_smooth = BrownExponentialSmoothing(alpha=0.1,
+                                             delta=0.2,
+                                             forecast_num=6,
+                                             adaptive_method=False,
+                                             accuracy_measure='mse',
+                                             ignore_zero=0,
+                                             expost_flag=1)
+
+# Assume that df is your input DataFrame
+# Perform fit_predict() on the given data
+brown_exp_smooth.fit_predict(data=df)
+
+# Print forecast values
+print(brown_exp_smooth.forecast_.collect())
+
+# Print statistics
+print(brown_exp_smooth.stats_.collect())
+```
+
+Please replace `df` with your actual DataFrame. The `fit_predict()` method fits the model to the data and then makes predictions. The `forecast_` attribute holds the forecast values and the `stats_` attribute holds the statistics of the model.

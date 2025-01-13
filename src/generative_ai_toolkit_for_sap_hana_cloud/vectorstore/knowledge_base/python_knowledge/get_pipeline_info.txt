@@ -1,0 +1,18 @@
+The function get_pipeline_info in the hana_ml.algorithms.pal.auto_ml module returns the information of the supported operators for a given connection to a SAP HANA instance.
+------
+Here is a Python code template for the `get_pipeline_info` function from the `hana_ml.algorithms.pal.auto_ml` module:
+
+```python
+from hana_ml.algorithms.pal.auto_ml import get_pipeline_info
+
+# Define the connection context
+connection_context = 'your_connection_context_here'
+
+# Call the function
+pipeline_info = get_pipeline_info(connection_context)
+
+# Print the pipeline information
+print(pipeline_info)
+```
+
+Please replace `'your_connection_context_here'` with your actual connection context to a SAP HANA instance.

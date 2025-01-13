@@ -1,0 +1,95 @@
+Multi-class logistic regression, also known as multinomial logistic regression, is a classification method used to solve logistic regression for multi-class problems. It extends binary logistic regression by allowing the dependent variable to have multiple different values. The algorithm models the logit function of the probability for each choice of the dependent variable as a linear combination of independent variables. However, it assumes the independence of irrelevant alternatives, meaning the choice between two class values does not depend on the presence or absence of a third class as a choice.
+
+The model consists of two procedures: training and prediction. In the training phase, the input consists of features and labels for each data instance. The features are represented by a matrix X, where each row represents a data instance and each column represents a feature. The label input vector y represents the labels of the data instances. The output model is a coefficient weight matrix W, where W0,k represents the intercept coefficient corresponding to label k. The optimal coefficient weight is obtained through an optimization problem.
+
+In the testing phase, the input consists of features only, and the model obtained from the training phase is used. For each test data instance, the output includes the predicted label and the probability of that label.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_MCLR_DATA_TBL;
+CREATE COLUMN TABLE PAL_MCLR_DATA_TBL (
+    "V1" VARCHAR (50),
+    "V2" DOUBLE,
+    "V3" INTEGER,
+    "CATEGORY" INTEGER
+);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',2.62,0,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',2.875,0,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',2.32,1,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',3.215,2,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',3.44,3,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',3.46,0,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',3.57,1,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',3.19,2,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',3.15,3,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',3.44,0,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',3.44,1,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',4.07,3,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',3.73,1,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',3.78,2,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',5.25,2,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',5.424,3,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',5.345,0,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',2.2,1,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',1.615,2,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',1.835,0,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',2.465,3,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',3.52,1,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',3.435,0,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',3.84,2,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',3.845,3,0);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',1.935,1,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',2.14,0,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',1.513,1,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',3.17,3,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',2.77,0,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('B',3.57,0,1);
+INSERT INTO PAL_MCLR_DATA_TBL VALUES ('A',2.78,3,1);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL ( 
+    "PARAM_NAME" NVARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" NVARCHAR (1000)
+);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_ITERATION',500,NULL,NULL); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('JSON_EXPORT',1,NULL,NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('HAS_ID',0,NULL,NULL);  
+INSERT INTO PAL_PARAMETER_TBL VALUES ('STANDARDIZE',1,NULL,NULL);
+ 
+
+DROP TABLE PAL_MCLR_MODEL_TBL;
+CREATE COLUMN TABLE PAL_MCLR_MODEL_TBL (		
+    "VARIABLE_NAME" NVARCHAR(1000), 
+    "CLASS" NVARCHAR(100), 
+    "COEFFICIENT" DOUBLE,
+    "Z_SCORE" DOUBLE,
+    "P_VALUE" DOUBLE
+);
+
+DROP TABLE PAL_MCLR_JSON_TBL;
+CREATE COLUMN TABLE PAL_MCLR_JSON_TBL (
+    "ROW_INDEX" INT,
+    "MODEL_CONTENT" NVARCHAR(5000)
+);
+
+DROP TABLE PAL_MCLR_STATISTIC_TBL;
+CREATE COLUMN TABLE PAL_MCLR_STATISTIC_TBL ("STAT_NAME" NVARCHAR(256),"STAT_VALUE" NVARCHAR(1000));
+
+DO BEGIN
+lt_data = SELECT * FROM PAL_MCLR_DATA_TBL;
+lt_para = SELECT * FROM PAL_PARAMETER_TBL;
+CALL _SYS_AFL.PAL_MULTICLASS_LOGISTIC_REGRESSION (:lt_data,:lt_para,lt_result,lt_json_model,lt_stat,lt_opt_para);
+INSERT INTO PAL_MCLR_MODEL_TBL
+SELECT * FROM :lt_result;
+INSERT INTO PAL_MCLR_JSON_TBL
+SELECT * FROM :lt_json_model;
+INSERT INTO PAL_MCLR_STATISTIC_TBL
+SELECT * FROM :lt_stat;
+END;
+
+SELECT * FROM PAL_MCLR_MODEL_TBL;
+SELECT * FROM PAL_MCLR_JSON_TBL;
+SELECT * FROM PAL_MCLR_STATISTIC_TBL;

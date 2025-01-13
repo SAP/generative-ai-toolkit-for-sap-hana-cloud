@@ -1,0 +1,4 @@
+The content explains that a pipeline is used to create a composite estimator by chaining together transformers and estimators. This is useful when training a specific algorithm model, as it allows for a fixed sequence of pre-processing steps to be applied to the data. The pipeline can combine these steps into a single estimator model, making it easier to train and predict with the model.
+------
+
+{"<name>":{"args":{"arg1": value1, ...},"inputs":{"input1": data1, ...}}}

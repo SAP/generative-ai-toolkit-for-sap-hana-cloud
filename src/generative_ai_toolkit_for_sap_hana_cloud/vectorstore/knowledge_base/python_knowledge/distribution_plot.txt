@@ -1,0 +1,33 @@
+The function distribution_plot in the module hana_ml.visualizers.eda_plotly displays a distribution plot for a specified column in a SAP HANA DataFrame, with parameters to customize the number of bins, plot title, axis labels, axis label size and rotation, skewness debrief inclusion, rounding precision, NA replacement value, graph object, and subplot position.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers import eda_plotly
+
+# Assuming you have a DataFrame 'df' and you want to plot the distribution of a column 'FARE'
+
+column = "FARE"  # replace with your column name
+
+# Set the parameters
+bins = 100
+title = "Distribution of FARE"
+x_axis_label = ''
+y_axis_label = ''
+x_axis_fontsize = 10
+x_axis_rotation = 0
+debrief = False
+rounding_precision = 3
+replacena = 0
+fig = None
+subplot_pos = (1, 1)
+
+# Call the function
+fig, dist_data = eda_plotly.distribution_plot(data=data, column=column, bins=bins, title=title, x_axis_label=x_axis_label, y_axis_label=y_axis_label, x_axis_fontsize=x_axis_fontsize, x_axis_rotation=x_axis_rotation, debrief=debrief, rounding_precision=rounding_precision, replacena=replacena, fig=fig, subplot_pos=subplot_pos)
+
+# Show the plot
+fig.show()
+```
+
+Please replace `data` and `column` with your actual DataFrame and column name. You can also adjust the other parameters as per your requirements.

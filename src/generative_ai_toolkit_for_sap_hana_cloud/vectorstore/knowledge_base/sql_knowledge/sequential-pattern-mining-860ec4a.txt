@@ -1,0 +1,48 @@
+The sequential pattern mining algorithm is used to find frequent patterns in sequence databases. A sequence database consists of ordered events, and the algorithm determines if an event or subsequence is frequent based on its support, which is the number of sequences that contain it. The algorithm finds patterns in input sequences that meet a user-defined minimum support.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_SPM_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_SPM_PARAMETER_TBL (
+	"PARAM_NAME " VARCHAR(100),
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+
+INSERT INTO PAL_SPM_PARAMETER_TBL VALUES ('MIN_SUPPORT', NULL, 0.5,NULL);
+INSERT INTO PAL_SPM_PARAMETER_TBL VALUES ('CALCULATE_LIFT', 1, NULL, NULL);
+
+DROP TABLE PAL_SPM_DATA_TBL;
+CREATE COLUMN TABLE PAL_SPM_DATA_TBL ("CUSTID" VARCHAR(100), "TRANSID" INT, "ITEMS" VARCHAR(100));
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('A',1,'Apple');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('A',1,'Blueberry');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('A',2,'Apple');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('A',2,'Cherry');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('A',3,'Dessert');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('B',1,'Cherry');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('B',1,'Blueberry');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('B',1,'Apple');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('B',2,'Dessert');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('B',3,'Blueberry');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('C',1,'Apple');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('C',2,'Blueberry');
+INSERT INTO PAL_SPM_DATA_TBL VALUES ('C',3,'Dessert');
+
+DROP TABLE PAL_SPM_RESULT_TBL;
+CREATE COLUMN TABLE PAL_SPM_RESULT_TBL (
+	"PATTERN" NVARCHAR(5000),
+        "SUPPORT" DOUBLE,
+        "CONFIDENCE" DOUBLE,
+        "LIFT" DOUBLE
+);
+
+DO BEGIN
+  lt_data = SELECT * FROM PAL_SPM_DATA_TBL;
+  lt_param = SELECT * FROM PAL_SPM_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_SPM (:lt_data, :lt_param, lt_result);
+  INSERT INTO PAL_SPM_RESULT_TBL SELECT * FROM :lt_result;
+END;
+
+SELECT * FROM PAL_SPM_RESULT_TBL;

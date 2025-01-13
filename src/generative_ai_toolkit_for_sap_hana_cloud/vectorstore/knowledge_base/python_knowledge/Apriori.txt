@@ -1,0 +1,50 @@
+The Apriori class in the hana_ml.algorithms.pal.association module is a machine learning algorithm used for mining frequent itemsets and relevant association rules, particularly effective in market basket analysis, with various parameters to customize its operation such as minimum support, minimum confidence, and maximum number of items in consequents.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.association import Apriori
+
+# Initialize a Apriori object and set its parameters
+ap = Apriori(min_support=0.1,
+             min_confidence=0.3,
+             relational=False,
+             min_lift=1.1,
+             max_conseq=1,
+             max_len=5,
+             ubiquitous=1.0,
+             use_prefix_tree=False,
+             thread_ratio=0,
+             timeout=3600,
+             pmml_export='single-row')
+
+# Assuming that `df` is your DataFrame
+# Perform the fit() and obtain the result
+ap.fit(data=df)
+
+# Print the result
+print(ap.result_.head(5).collect())
+
+# Also, initialize a Apriori object and set its parameters with relational logic
+apr = Apriori(min_support=0.1,
+              min_confidence=0.3,
+              relational=True,
+              min_lift=1.1,
+              max_conseq=1,
+              max_len=5,
+              ubiquitous=1.0,
+              use_prefix_tree=False,
+              thread_ratio=0,
+              timeout=3600,
+              pmml_export='single-row')
+
+# Perform the fit() and obtain the result
+apr.fit(data=df)
+
+# Print the result
+print(apr.antec_.head(5).collect())
+print(apr.conseq_.head(5).collect())
+print(apr.stats_.head(5).collect())
+```
+
+Please replace `df` with your actual DataFrame.

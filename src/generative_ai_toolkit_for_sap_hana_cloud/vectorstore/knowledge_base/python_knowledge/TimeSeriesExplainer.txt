@@ -1,0 +1,48 @@
+The TimeSeriesExplainer class in the hana_ml.visualizers.time_series_report module provides methods for setting and getting data related to time series forecasting, including training data, forecasted data and results, and comparison items.
+------
+Here is a Python code template for the `TimeSeriesExplainer` class:
+
+```python
+from hana_ml.visualizers.time_series_report import TimeSeriesExplainer
+from hana_ml.dataframe import DataFrame
+
+class TimeSeriesExplainer(object):
+    def __init__(self, key, endog, exog):
+        pass
+
+    def add_line_to_comparison_item(self, title, data, x_name, y_name=None, confidence_interval_names=None, color=None):
+        pass
+
+    def get_comparison_item(self, title='Comparison'):
+        pass
+
+    def get_decomposition_items_from_forecasted_result(self):
+        pass
+
+    def get_force_plot_item_from_forecasted_result(self):
+        pass
+
+    def get_summary_plot_items_from_forecasted_result(self):
+        pass
+
+    def set_fitted_result(self, fitted_result: DataFrame):
+        pass
+
+    def set_forecasted_data(self, forecasted_data: DataFrame):
+        pass
+
+    def set_forecasted_result(self, forecasted_result: DataFrame):
+        pass
+
+    def set_forecasted_result_explainer(self, forecasted_result_explainer: DataFrame, reason_code_name='EXOGENOUS'):
+        pass
+
+    def set_training_data(self, training_data: DataFrame):
+        pass
+
+    @staticmethod
+    def get_items_from_best_pipeline(best_pipeline: DataFrame, highlighted_metric_name):
+        pass
+```
+
+Please replace `pass` with your own implementation.

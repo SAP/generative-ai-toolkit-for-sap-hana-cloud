@@ -1,0 +1,14 @@
+The content discusses the Pipeline Operator, which is a set of operators used in the Pipeline system. These operators are mostly adapted from original PAL procedures, with some modifications to the parameters. Additionally, there are a few built-in operators that can only be used within the Pipeline system.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_PARAMETER_TAB;
+CREATE COLUMN TABLE PAL_PARAMETER_TAB (
+    "PARAM_NAME" NVARCHAR(256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" NVARCHAR(5000)
+);
+
+CALL _SYS_AFL.PAL_PIPELINE_INFO(PAL_PARAMETER_TAB,?)

@@ -1,0 +1,29 @@
+The AffinityPropagation class in the hana_ml.algorithms.pal.clustering module is an implementation of the Affinity Propagation algorithm, which identifies exemplars among data points and forms clusters around these exemplars, with various parameters to control the clustering process such as the number of clusters, maximum iterations, damping, preference, seed ratio, and thread ratio.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.clustering import AffinityPropagation
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+df = DataFrame(connection_context, 'SELECT * FROM YOUR_DATA_TABLE')
+
+ap = AffinityPropagation(
+    affinity='euclidean',
+    n_clusters=0,
+    max_iter=500,
+    convergence_iter=100,
+    damping=0.9,
+    preference=0.5,
+    seed_ratio=None,
+    times=None,
+    minkowski_power=None,
+    thread_ratio=1)
+
+ap.fit(data=df, key='ID')
+
+print(ap.labels_.collect())
+```
+
+Please replace `'SELECT * FROM YOUR_DATA_TABLE'` with your actual SQL statement to fetch the data. The `connection_context` should be the connection object to your HANA system.

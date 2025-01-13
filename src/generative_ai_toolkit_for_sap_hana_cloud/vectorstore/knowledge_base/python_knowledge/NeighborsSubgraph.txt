@@ -1,0 +1,43 @@
+The NeighborsSubgraph class in the hana_ml.graph.algorithms.neighbors module provides a method to get a subset of a graph based on a start vertex and all vertices within a specified range of degrees of separation, including edges between neighbors, which can be useful for visualization.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+import hana_ml.graph.algorithms as hga
+
+class NeighborsSubgraph(hga._NeighborsBase):
+    def __init__(self, graph):
+        super().__init__(graph)
+
+    def execute(self, start_vertex, direction='OUTGOING', lower_bound=1, upper_bound=1):
+        # Executes the calculation of the neighbors with edges.
+        pass
+
+    @property
+    def edges(self):
+        # Returns a Pandas DataFrame that contains the edges between neighbors
+        pass
+
+    @property
+    def vertices(self):
+        # Returns a Pandas DataFrame that contains the vertices
+        pass
+
+    @staticmethod
+    def projection_expr_from_cols(source, variable, column_filter=None):
+        # Turn columns into a string for projection expression
+        pass
+
+    @staticmethod
+    def signature_from_cols(source, column_filter=None):
+        # Turn columns into a string for script parameters
+        pass
+
+# Usage
+# Assuming 'g' is a graph object
+nb = NeighborsSubgraph(graph=g).execute(start_vertex="1")
+print("Vertices", nb.vertices)
+print("Edges", nb.edges)
+```
+
+Please note that this is a template and the actual implementation of the methods is not provided. You need to replace the `pass` statements with your own code.

@@ -1,0 +1,63 @@
+The content discusses the concept of local interpretability of machine learning models. It introduces the Shapley Values in game theory and how they can be used to explain individual predictions. The content then explains the different implementations of SHAP values for different types of machine learning models.
+
+For tree-based models, there are two explainers: tree SHAP and Saabas. Tree SHAP can compute the Shapley values exactly and is interpretation consistent. Saabas, on the other hand, considers only the single decision path and can run in logarithmic time.
+
+For linear-based models, a linear SHAP explainer is provided. It uses samplings from the training dataset to estimate the SHAP values.
+
+For nonlinear and non-tree based models, a kernel SHAP explainer is provided. It also uses sampling from the training dataset to estimate the SHAP values.
+
+The content also mentions that the interpretation of the output may differ for certain models. For example, in exponential regression and generalized linear models, the linear SHAP explainer is used to explain the linear predictor instead of the original output.
+
+Finally, a table is provided that summarizes the supported SHAP versions for different methods.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL(
+	"OUTLOOK" VARCHAR(20),
+	"TEMP" INTEGER,
+	"HUMIDITY" DOUBLE,
+	"WINDY" VARCHAR(10),
+	"CLASS" INTEGER -- for regression
+);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 75, 70, 'Yes', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 80, 90, 'Yes', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 85, 85, 'No', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 72, 95, 'No', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 69, 70, 'No', 1);
+
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 72, 90, 'Yes', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 83, 78, 'No', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 64, 65, 'Yes', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 81, 75, 'No', 1);
+
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 71, 80, 'Yes', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 65, 70, 'Yes', 0);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 75, 80, 'No', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 68, 80, 'No', 1);
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 70, 96, 'No', 0);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION',null,null,'DT'); 
+
+DROP TABLE PAL_DATA_MODEL_TBL;
+CREATE COLUMN TABLE PAL_DATA_MODEL_TBL(
+     "ROW_INDEX" INTEGER,
+     "PART_INDEX" INTEGER,
+     "MODEL_CONTENT" VARCHAR (5000)
+);
+
+DO BEGIN
+  data_tab = SELECT * FROM PAL_DATA_TBL; 
+  control_tab = SELECT * FROM PAL_PARAMETER_TBL; 
+  CALL _SYS_AFL.PAL_UNIFIED_REGRESSION(:data_tab, :control_tab, model_tab, stats_tab, optimal_parameter_tab, partition_result, place_holder_1_tab, place_holder_2_tab); 
+  INSERT into PAL_DATA_MODEL_TBL SELECT * FROM :model_tab; 
+END

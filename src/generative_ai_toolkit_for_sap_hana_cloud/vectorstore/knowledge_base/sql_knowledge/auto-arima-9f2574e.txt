@@ -1,0 +1,39 @@
+The auto-ARIMA function in PAL (Predictive Analytics Library) is used to automatically determine the orders of an ARIMA model. The orders of an ARIMA model are represented by (p, d, q) (P, D, Q)m, where m is the seasonal period. The function uses information criteria such as AICc, AIC, and BIC to identify the optimal orders. 
+
+The process of determining the orders involves estimating the seasonality (m) using other time series techniques, such as the SEASONALITYTEST function. The values of d and D, which represent the differencing orders, are determined using unit root tests like the KPSS and CH tests. 
+
+To obtain the optimal values of p, q, P, and Q, two approaches can be used. The first approach is an exhaustive search, where all possible combinations of p, q, P, and Q are tried from a subset of values. This method can be time-consuming for long series. The second approach is a stepwise search, where an initial optimal model is guessed based on series properties like the ACF and PACF. The values of p, q, P, and Q are then iteratively changed by 1, and the model with the least criterion information is chosen as the new optimal model. This process is repeated until no further optimal model can be found. 
+
+The decision to include a constant part in the model is based on the criterion information and depends on the values of d and D. If d + D is not larger than 1, the constant part is tested and included if necessary. In other cases, the constant part is excluded. 
+
+Once the optimal model is determined, functions like PAL_ARIMA_FORECAST can be used to make forecasts.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_ARIMA_DATA_TBL;
+CREATE COLUMN TABLE PAL_ARIMA_DATA_TBL ("TIMESTAMP" INTEGER, "Y" DOUBLE);
+INSERT INTO PAL_ARIMA_DATA_TBL VALUES(1   , -24.525 );
+INSERT INTO PAL_ARIMA_DATA_TBL VALUES(2   , 34.72   );
+INSERT INTO PAL_ARIMA_DATA_TBL VALUES(3   , 57.325  );
+INSERT INTO PAL_ARIMA_DATA_TBL VALUES(4   , 10.34   );
+INSERT INTO PAL_ARIMA_DATA_TBL VALUES(5   , -12.89  );
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL ( "NAME" VARCHAR (50),"INT_VALUE" INTEGER,"DOUBLE_VALUE" DOUBLE,"STRING_VALUE" VARCHAR (100));
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SEARCH_STRATEGY', 1,NULL,NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('ALLOW_LINEAR', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 1.0, NULL);
+
+
+DROP TABLE PAL_ARIMA_MODEL_TBL;  -- for the forecast followed
+CREATE COLUMN TABLE PAL_ARIMA_MODEL_TBL ("KEY" NVARCHAR(100), "VALUE" NVARCHAR(5000));
+
+do begin 
+	lt_data = select * from PAL_ARIMA_DATA_TBL;
+	lt_control = select * from PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_AUTOARIMA(:lt_data, :lt_control, lt_model, lt_fit);
+	INSERT INTO PAL_ARIMA_MODEL_TBL SELECT * FROM :lt_model;
+	SELECT * FROM PAL_ARIMA_MODEL_TBL;
+	SELECT* FROM :lt_fit;
+end;

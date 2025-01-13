@@ -1,0 +1,30 @@
+The cdf function in the hana_ml.algorithms.pal.stats module evaluates the probability of a variable x from the cumulative distribution function (CDF) or complementary cumulative distribution function (CCDF) for a given probability distribution, using data from a DataFrame and distribution information provided in a dictionary.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import required libraries
+from hana_ml.algorithms.pal.stats import cdf
+from hana_ml import DataFrame
+
+# Assuming that connection_context is already defined
+# Create DataFrame from existing HANA table
+data = DataFrame(connection_context, 'TABLE_NAME') # replace 'TABLE_NAME' with your table name
+
+# Define distribution information
+distr_info = {'name':'normal', 'mean':0, 'variance':1.0} # replace with your distribution info
+
+# Define column name if necessary
+col = 'COLUMN_NAME' # replace 'COLUMN_NAME' with your column name
+
+# Define whether to use complementary cumulative distribution function
+complementary = False
+
+# Apply the cdf function
+res = cdf(data=data, distr_info=distr_info, col=col, complementary=complementary)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `'TABLE_NAME'` and `'COLUMN_NAME'` with your actual table and column names. Also, adjust the `distr_info` dictionary according to your distribution information.

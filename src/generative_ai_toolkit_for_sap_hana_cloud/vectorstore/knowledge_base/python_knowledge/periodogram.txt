@@ -1,0 +1,26 @@
+The periodogram function in the hana_ml.algorithms.pal.tsa module estimates the spectral density of a signal or time series, helping to determine if a particular frequency is a meaningful component of the data or just random noise, with various parameters to customize the analysis.
+------
+Here is the executable code template for the periodogram function:
+
+```python
+from hana_ml.algorithms.pal.tsa import periodogram
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA database
+
+# Create DataFrame
+df = DataFrame(connection_context, 'SELECT * FROM YOUR_TABLE')
+
+# Perform Periodogram function
+res = periodogram(data=df,
+                  key='ID',
+                  endog='X',
+                  sampling_rate=100,
+                  window="hamming",
+                  freq_range="two_sides")
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `'SELECT * FROM YOUR_TABLE'` with your actual SQL statement to select data from your HANA database.

@@ -1,0 +1,28 @@
+The GeometryDBSCAN class in the hana_ml.algorithms.pal.clustering module is a geometry version of DBSCAN that works with geospatial data, accepting only 2D points, and allows for customization of parameters such as minimum points to form a cluster, scanning radius, thread ratio, metric, Minkowski power, algorithm, and whether to save the model.
+------
+Here is a Python code template for the GeometryDBSCAN class:
+
+```python
+from hana_ml.algorithms.pal.clustering import GeometryDBSCAN
+
+# Create a GeometryDBSCAN instance
+geo_dbscan = GeometryDBSCAN(minpts=5, eps=0.5, thread_ratio=0.2, metric='manhattan', minkowski_power=3, algorithm='kd-tree', save_model=True)
+
+# Assume that df is your input DataFrame
+# Fit the model
+geo_dbscan.fit(data=df, key='ID')
+
+# Print the labels
+print(geo_dbscan.labels_.collect())
+
+# Print the model
+print(geo_dbscan.model_.collect())
+
+# Perform fit_predict
+result = geo_dbscan.fit_predict(data=df, key='ID')
+
+# Print the result
+print(result.collect())
+```
+
+Please replace `df` with your actual DataFrame. The `key` parameter in the `fit` and `fit_predict` methods should be the name of the ID column in your DataFrame.

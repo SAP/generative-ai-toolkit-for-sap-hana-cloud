@@ -1,0 +1,28 @@
+The FairMLClassification class in the hana_ml.algorithms.pal.fair_ml module is a machine learning model that aims to mitigate unfairness in predictions due to potential biases in data features such as sex, race, and age, and it provides flexibility by utilizing other machine learning models or technologies.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.fair_ml import FairMLClassification
+
+# Initialize the FairMLClassification model
+fair_ml = FairMLClassification(fair_submodel='HGBT', fair_constraint='demographic_parity')
+
+# Define your training data DataFrame 'df' and sensitive variable 'gender'
+# df = ...
+# gender = ...
+
+# Fit the model
+fair_ml.fit(data=df, fair_sensitive_variable=gender)
+
+# Define your prediction data DataFrame 'df_predict'
+# df_predict = ...
+
+# Make predictions
+res = fair_ml.predict(data=df_predict)
+
+# Print the predictions
+print(res)
+```
+
+Please replace the 'df', 'gender', and 'df_predict' with your actual data.

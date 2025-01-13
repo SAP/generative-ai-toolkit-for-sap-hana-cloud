@@ -1,0 +1,46 @@
+Single Exponential Smoothing is a time series modeling technique that is used when there is no trend or seasonality in the data. It calculates a smoothed value by taking a weighted sum of the previous smoothed value and the previous observed value. There are two variations of single exponential smoothing: regular single exponential smoothing and adaptive-response-rate single exponential smoothing. The adaptive-response-rate version allows for the modification of the alpha parameter.
+
+In regular single exponential smoothing, the smoothed value for the first time period is equal to the first observed value. For subsequent time periods, the smoothed value is calculated using the formula: smoothed value = alpha * previous observed value + (1 - alpha) * previous smoothed value. The forecast is made by using the formula: forecasted value = alpha * last observed value + (1 - alpha) * last smoothed value.
+
+In adaptive-response-rate single exponential smoothing, the smoothed value for the first time period is equal to the first observed value. The alpha parameter is initialized to 0.2. The algorithm then updates the alpha parameter based on the difference between the observed value and the smoothed value. The updated alpha is used to calculate the smoothed value for the next time period.
+
+PAL (Predictive Analytics Library) provides the calculation of the prediction interval for the forecasted values. The prediction interval represents the likely variation in the forecasted values. It assumes that the forecast data is normally distributed. The upper and lower bounds of the prediction interval are calculated using the mean value of the forecasted values and the variance. The one-tailed value of a standard normal distribution is used to calculate the bounds.
+
+Overall, single exponential smoothing is a simple and effective technique for modeling time series data without trend or seasonality. It provides smoothed values and forecasts, and PAL extends it to calculate prediction intervals.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+	"PARAM_NAME " VARCHAR(100),
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ADAPTIVE_METHOD',0, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('MEASURE_NAME', NULL, NULL, 'MSE');
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ALPHA', NULL,0.1, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FORECAST_NUM',12, NULL,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('EXPOST_FLAG',1, NULL,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('PREDICTION_CONFIDENCE_1', NULL, 0.8, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('PREDICTION_CONFIDENCE_2', NULL, 0.95, NULL);
+
+DROP TABLE PAL_SINGLESMOOTH_DATA_TBL;
+CREATE COLUMN TABLE PAL_SINGLESMOOTH_DATA_TBL ("ID" INT, "RAWDATA" DOUBLE);
+
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (1,200.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (2,135.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (3,195.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (4,197.5);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (5,310.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (6,175.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (7,155.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (8,130.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (9,220.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (10,277.5);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES (11,235.0);
+
+CALL _SYS_AFL.PAL_SINGLE_EXPSMOOTH(PAL_SINGLESMOOTH_DATA_TBL, #PAL_PARAMETER_TBL, ?,?);
+

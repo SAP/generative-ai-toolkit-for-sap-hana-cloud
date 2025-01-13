@@ -1,0 +1,30 @@
+The interval_quality function in the hana_ml.algorithms.pal.stats module evaluates the quality of interval forecasts by comparing the quality of prediction intervals of the same testing dataset using different approaches, under the same significance level.
+------
+Here is the executable code template for the `interval_quality` function:
+
+```python
+from hana_ml.algorithms.pal.stats import interval_quality
+from hana_ml import DataFrame
+
+# Assuming that a HANA dataframe is already created
+# data = DataFrame(...)
+
+# Define parameters
+significance_level = 0.1
+score_type = 'classical'
+percent = False
+check_consistency = True
+
+# Call the function
+res, stat = interval_quality(data=data,
+                             significance_level=significance_level,
+                             score_type=score_type,
+                             percent=percent,
+                             check_consistency=check_consistency)
+
+# Print the results
+print(res.collect())
+print(stat.collect())
+```
+
+Please replace the `data = DataFrame(...)` with the actual dataframe creation code. The dataframe should have the structure as mentioned in the help doc.

@@ -1,0 +1,21 @@
+The function plot_psd in the hana_ml.visualizers.eda module plots the Power Spectral Density (PSD) with periodogram for a given HANA DataFrame, allowing for various optional parameters to customize the plot, and returns either a matplotlib.axes.Axes object or a plotly.graph_objects.Figure object depending on the value of enable_plotly.
+------
+Here is the executable code template for the function `plot_psd`:
+
+```python
+from hana_ml.visualizers.eda import plot_psd
+
+# Assuming that `df` is your DataFrame
+plot_psd(
+    data=df, 
+    col="your_time_series_column",  
+    key="your_id_column", 
+    sampling_rate=your_sampling_rate, 
+    window="your_window_type", 
+    freq_range="your_frequency_range", 
+    title="your_plot_title", 
+    semilogy=True_or_False
+)
+```
+
+Please replace `"your_time_series_column"`, `"your_id_column"`, `your_sampling_rate`, `"your_window_type"`, `"your_frequency_range"`, `"your_plot_title"`, and `True_or_False` with your actual values.

@@ -1,0 +1,39 @@
+The MLPRecommender class in the hana_ml.algorithms.pal.recommender module is a Python interface for a Multi-Layer Perceptron (MLP) based recommender system method in the Predictive Analysis Library (PAL), which currently only supports binary-classification tasks and allows for various parameters to be specified such as batch size, number of training epochs, number of heads used in bilinear interaction aggregation layer, embedding size of each feature vector, whether or not to use feature selection, learning rate, dropout probability for MLP1 and MLP2, sizes of hidden-layers for MLP1, MLP2 and the feature selection module, seed for random number generation, and the task for the recommender system.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.recommender import MLPRecommender
+
+# Initialize the MLPRecommender
+mr = MLPRecommender(batch_size=10,
+                    num_epochs=20,
+                    random_state=2023,
+                    num_heads=5,
+                    embedding_dim=10,
+                    use_feature_selection=True,
+                    learning_rate=0.01,
+                    mlp1_dropout_prob=0.1,
+                    mlp2_dropout_prob=0.1,
+                    mlp1_hidden_dim=[256, 128, 96],
+                    mlp2_hidden_dim=[256, 128, 96],
+                    fs_hidden_dim=[256, 128, 96])
+
+# Assume that 'data' is a DataFrame containing your training data
+# Fit the model
+mr.fit(data, key='ID', label='label',
+       selected_feature_set1=['user', 'homework'],
+       selected_feature_set2=['item', 'daytime'])
+
+# Print training log
+print(mr.train_log_.filter('BATCH=\'epoch average loss\'').head(5).collect())
+
+# Assume that 'test_data' is a DataFrame containing your test data
+# Predict the labels for the test data
+predictions = mr.predict(test_data, key='ID')
+
+# Print the predictions
+print(predictions)
+```
+
+Please replace `'data'` and `'test_data'` with your actual DataFrame variables.

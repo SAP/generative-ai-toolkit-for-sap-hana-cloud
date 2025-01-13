@@ -1,0 +1,42 @@
+The function discover_graph_workspaces in the hana_ml.graph.discovery module provides a view of the Graph Workspaces (GWS) on a given connection to SAP HANA, allowing users to create a HANA graph from existing GWS using the SYS SQL provided, and returns a list of tuples with headers included as a dictionary.
+------
+Here is a Python code template for the `discover_graph_workspaces` function:
+
+```python
+from hana_ml.dataframe import ConnectionContext
+
+def discover_graph_workspaces(connection_context: ConnectionContext):
+    """
+    Provide a view of the Graph Workspaces (GWS) on a given connection to
+    SAP HANA. This provides the basis for creating a HANA graph from
+    existing GWS instead of only creating them from vertex and edge tables.
+    Use the SYS SQL provided for Graph Workspaces so a user can create a
+    HANA graph from one of them. The SQL returns the following per GWS:
+    
+        SCHEMA_NAME, WORKSPACE_NAME, CREATE_TIMESTAMP, USER_NAME,
+        EDGE_SCHEMA_NAME, EDGE_TABLE_NAME, EDGE_SOURCE_COLUMN_NAME,
+        EDGE_TARGET_COLUMN_NAME, EDGE_KEY_COLUMN_NAME, VERTEX_SCHEMA_NAME,
+        VERTEX_TABLE_NAME, VERTEX_KEY_COLUMN_NAME, IS_VALID.
+    
+    Due to the differences in Cloud and On-Prem Graph workspaces, the SQL
+    creation requires different methods to derive the same summary pattern
+    for GWS as defined above. For this reason, 2 internal functions return
+    the summary.
+    
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection to the given SAP HANA Database and implied Graph
+        Workspace.
+    
+    Returns
+    -------
+    list
+        The list of tuples returned by fetchall but with headers included
+        and as a dict.
+    """
+    # Your code here
+    pass
+```
+
+Please replace the `# Your code here` comment with the actual implementation.

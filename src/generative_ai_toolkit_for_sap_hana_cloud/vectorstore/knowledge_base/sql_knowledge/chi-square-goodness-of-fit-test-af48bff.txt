@@ -1,0 +1,16 @@
+The chi-square goodness-of-fit test is used to determine if an observed distribution is significantly different from an expected chi-squared distribution. It calculates a chi-squared value by comparing observed and expected frequencies. This chi-squared value is then compared to a chi-squared distribution to calculate a p-value. The degrees of freedom for the test is determined by the reduction in degrees of freedom.
+------
+
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_CHISQTESTFIT_DATA_TBL;
+CREATE COLUMN TABLE PAL_CHISQTESTFIT_DATA_TBL ("ID" INTEGER, "OBSERVED" DOUBLE, "P"  DOUBLE);
+INSERT INTO PAL_CHISQTESTFIT_DATA_TBL VALUES (0,519,0.3);
+INSERT INTO PAL_CHISQTESTFIT_DATA_TBL VALUES (1,364,0.2);
+INSERT INTO PAL_CHISQTESTFIT_DATA_TBL VALUES (2,363,0.2);
+INSERT INTO PAL_CHISQTESTFIT_DATA_TBL VALUES (3,200,0.1);
+INSERT INTO PAL_CHISQTESTFIT_DATA_TBL VALUES (4,212,0.1);
+INSERT INTO PAL_CHISQTESTFIT_DATA_TBL VALUES (5,193,0.1);
+
+CALL _SYS_AFL.PAL_CHISQUARED_GOF_TEST(PAL_CHISQTESTFIT_DATA_TBL, ?, ?);

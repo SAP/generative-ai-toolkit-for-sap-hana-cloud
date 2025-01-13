@@ -1,0 +1,19 @@
+The function student_t in the hana_ml.algorithms.pal.random module draws samples from a Student's t-distribution, allowing users to specify parameters such as degrees of freedom, number of random data to be generated, seed for the random number generator, and the proportion of available threads to use.
+------
+Here is the executable code template based on the help doc:
+
+```python
+from hana_ml import ConnectionContext
+from hana_ml.algorithms.pal.random import student_t
+
+# Create a connection
+cc = ConnectionContext(address='myHanaHost', port=30015, user='myUsername', password='myPassword')
+
+# Draw samples from a Student's t-distribution
+res = student_t(conn_context=cc, dof=1, num_random=10)
+
+# Collect the result
+print(res.collect())
+```
+
+Please replace `'myHanaHost'`, `'30015'`, `'myUsername'`, and `'myPassword'` with your actual HANA host, port, username, and password.

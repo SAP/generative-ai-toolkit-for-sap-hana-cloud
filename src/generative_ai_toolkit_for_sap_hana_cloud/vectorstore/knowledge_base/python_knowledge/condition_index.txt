@@ -1,0 +1,26 @@
+The function condition_index in the hana_ml.algorithms.pal.stats module is used to detect collinearity problems between independent variables that are later used as predictors in a multiple linear regression model, with various parameters to customize the process such as data scaling, inclusion of intercept, and thread ratio.
+------
+Here is the executable code template for the `condition_index` function:
+
+```python
+from hana_ml.algorithms.pal.stats import condition_index
+from hana_ml import DataFrame
+
+# Assuming that a HANA dataframe is already created
+# df = DataFrame(...)
+
+# Define parameters
+key = 'ID'
+scaling = True
+include_intercept = True
+thread_ratio = 0.1
+
+# Apply the condition index function
+res, stats = condition_index(data=df, key=key, scaling=scaling, include_intercept=include_intercept, thread_ratio=thread_ratio)
+
+# Print the results
+print(res.collect())
+print(stats.collect())
+```
+
+Please replace the `DataFrame(...)` with the actual connection details to your HANA instance.

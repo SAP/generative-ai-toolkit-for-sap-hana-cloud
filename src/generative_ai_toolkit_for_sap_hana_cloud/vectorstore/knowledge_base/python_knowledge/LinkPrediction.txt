@@ -1,0 +1,26 @@
+The LinkPrediction class in the hana_ml.algorithms.pal.linkpred module is used to calculate proximity scores between nodes in a network that are not directly linked, which can be useful for predicting missing links.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.linkpred import LinkPrediction
+from hana_ml import DataFrame
+
+# Assuming that a connection context to HANA has already been established
+# and a DataFrame df has been created
+
+# Create a LinkPrediction instance
+lp = LinkPrediction(method='common_neighbors',
+                    beta=0.005,
+                    min_score=0,
+                    thread_ratio=0.2)
+
+# Calculate the proximity score of all nodes in the network with
+# missing links, and check the result
+res = lp.proximity_score(data=df, node1='NODE1', node2='NODE2')
+
+# Print the result
+print(res.collect())
+```
+
+Please replace the placeholders with your actual data and parameters.

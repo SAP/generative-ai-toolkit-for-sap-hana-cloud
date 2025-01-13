@@ -1,0 +1,33 @@
+The AMDPGenerator class in the hana_ml.artifacts.generators.abap module provides ABAP Managed Database Procedure (AMDP) specific generation functionality, extending the config for AMDP generation specific config, and supports the UnifiedClassification hana-ml algorithm.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.artifacts.generators.abap import AMDPGenerator
+from hana_ml.algorithms.pal.unified_classification import UnifiedClassification
+
+# Define parameters for the UnifiedClassification
+rfc_params = dict(n_estimators=5, split_threshold=0, max_depth=10)
+
+# Create a UnifiedClassification instance
+rfc = UnifiedClassification(func="randomdecisiontree", **rfc_params)
+
+# Fit the model
+rfc.fit(diabetes_train_valid,
+        key='ID',
+        label='CLASS',
+        categorical_variable=['CLASS'],
+        partition_method='stratified',
+        stratified_column='CLASS')
+
+# Predict using the model
+rfc.predict(diabetes_test.drop(cols=['CLASS']), key="ID")
+
+# Create an AMDPGenerator instance
+generator = AMDPGenerator(project_name="PIMA_DIAB", version="1", connection_context=connection_context, outputdir="out/")
+
+# Generate the AMDP artifact
+generator.generate()
+```
+
+Please replace `diabetes_train_valid`, `diabetes_test`, and `connection_context` with your actual data and connection context.

@@ -1,0 +1,19 @@
+The function get_max_index in module hana_ml.visualizers.m4_sampling retrieves the maximum timestamp from the time series data provided in the DataFrame, where the first column is the index and the second one is the value.
+------
+Here is a Python code template for the `get_max_index` function:
+
+```python
+# Import necessary modules
+from hana_ml.visualizers import m4_sampling
+
+# Convert 'index' column to datetime
+data['index'] = pd.to_datetime(data['index'])
+
+# Use the get_max_index function
+max_timestamp = m4_sampling.get_max_index(data)
+
+# Print the maximum timestamp
+print(max_timestamp)
+```
+
+Please replace the DataFrame `data` with your actual time series data. The 'index' column should be of datetime type. The `get_max_index` function will return the maximum timestamp in the 'index' column.

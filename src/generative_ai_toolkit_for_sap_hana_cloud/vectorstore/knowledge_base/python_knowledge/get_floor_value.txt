@@ -1,0 +1,19 @@
+The function get_floor_value in the module hana_ml.visualizers.ui_components is used to retrieve the floor value of a given input.
+------
+Here is a Python code template for the function `get_floor_value` from the `hana_ml.visualizers.ui_components` module:
+
+```python
+# Import the required module
+from hana_ml.visualizers import ui_components
+
+# Define the value
+value = # Add your value here
+
+# Use the get_floor_value function
+floor_value = ui_components.get_floor_value(value)
+
+# Print the result
+print(floor_value)
+```
+
+Please replace `# Add your value here` with the actual value you want to use.

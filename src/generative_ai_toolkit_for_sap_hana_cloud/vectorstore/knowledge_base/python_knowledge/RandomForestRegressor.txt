@@ -1,0 +1,21 @@
+The RandomForestRegressor class in the hana_ml.algorithms.pal.trees module is an alias of the Random Decision Tree model for regression, which includes methods for training the model, predicting dependent variable values based on the fitted model, and returning the coefficient of determination R^2 of the prediction.
+------
+Here is a Python code template for using the RandomForestRegressor class from the hana_ml.algorithms.pal.trees module:
+
+```python
+from hana_ml.algorithms.pal.trees import RandomForestRegressor
+
+# Create an instance of the RandomForestRegressor
+rf = RandomForestRegressor(n_estimators=100, max_features=None, max_depth=None, min_samples_leaf=None, split_threshold=None, calculate_oob=True, random_state=None, thread_ratio=None, allow_missing_dependent=True, categorical_variable=None, sample_fraction=None, compression=None, max_bits=None, quantize_rate=None, fittings_quantization=None, model_format=None)
+
+# Fit the model to the training data
+rf.fit(data, key=None, features=None, label=None, categorical_variable=None)
+
+# Predict dependent variable values based on fitted model
+predictions = rf.predict(data, key=None, features=None, verbose=None, block_size=None, missing_replacement=None)
+
+# Returns the coefficient of determination R^2 of the prediction
+score = rf.score(data, key=None, features=None, label=None, block_size=None, missing_replacement=None)
+```
+
+Please replace the `data` with your actual DataFrame. The `key`, `features`, `label`, and `categorical_variable` parameters should be replaced with the actual column names in your DataFrame. The other parameters can be adjusted according to your needs.

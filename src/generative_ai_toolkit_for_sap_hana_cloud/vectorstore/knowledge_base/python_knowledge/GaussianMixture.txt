@@ -1,0 +1,38 @@
+The GaussianMixture class in the hana_ml.algorithms.pal.mixture module is a probabilistic model used for modeling data points that are assumed to be generated from a mixture of Gaussian distributions, with various parameters to control the initialization mode, number of Gaussian distributions, covariance matrices, thread ratio, maximum iterations, error tolerance, regularization factor, and random seed.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.mixture import GaussianMixture
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+
+# Create the input DataFrame
+df = DataFrame(connection_context, 'SELECT * FROM YOUR_INPUT_TABLE')
+
+# Create a GaussianMixture instance
+gmm = GaussianMixture(init_param='farthest_first_traversal',
+                      n_components=2, 
+                      covariance_type='full',
+                      shared_covariance=False, 
+                      max_iter=500,
+                      error_tol=0.001, 
+                      thread_ratio=0.5,
+                      categorical_variable=['X3'], 
+                      random_seed=1)
+
+# Perform fit
+gmm.fit(data=df, key='ID')
+
+# Print the labels
+print(gmm.labels_.head(14).collect())
+
+# Print the stats
+print(gmm.stats_.collect())
+
+# Print the model
+print(gmm.model_collect())
+```
+
+Please replace `'SELECT * FROM YOUR_INPUT_TABLE'` with your actual SQL statement to select data from your HANA table.

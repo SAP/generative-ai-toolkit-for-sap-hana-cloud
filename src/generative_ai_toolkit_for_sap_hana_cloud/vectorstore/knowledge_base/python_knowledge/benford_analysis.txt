@@ -1,0 +1,30 @@
+The benford_analysis function in the hana_ml.algorithms.pal.stats module is a data mining tool based on Benford's law, used to analyze numerical data for irregularities potentially indicating fraudulent behavior or bias, by comparing the actual count of each leading digit in a feature to the expected count calculated using Benford's law.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.stats import benford_analysis
+
+# Perform Benford analysis
+result, bfd, sec_ord, mantissa = benford_analysis(
+    data=data,
+    key='ID',
+    categorical_variable='Y',
+    sign='positive',
+    number_of_digits=1,
+    discrete=True,
+    rounding=3
+)
+
+# Print the results
+print("Benford Analysis Result:")
+print(result)
+print("\nBFD Info:")
+print(bfd)
+print("\nSecond Order Info:")
+print(sec_ord)
+print("\nMantissa Statistics:")
+print(mantissa)
+```
+
+Please replace the `data` DataFrame with your actual data for the analysis.

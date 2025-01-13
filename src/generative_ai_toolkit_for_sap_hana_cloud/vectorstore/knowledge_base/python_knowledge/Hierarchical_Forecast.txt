@@ -1,0 +1,19 @@
+The Hierarchical_Forecast class in the hana_ml.algorithms.pal.tsa.hierarchical_forecast module is a forecasting algorithm that ensures forecasts sum appropriately across different levels of a hierarchy, with methods for reconciling forecasts across the hierarchy and weights for the 'optimal_combination' method.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.hierarchical_forecast import Hierarchical_Forecast
+
+# Create a Hierarchical_Forecast instance
+hr = Hierarchical_Forecast(method='optimal_combination', weights='minimum_trace')
+
+# Assuming orig_df, pred_df, and stru_df are your input DataFrames
+# Perform fit_predict() on the given DataFrames
+stats_tbl, result_tbl = hr.fit_predict(orig_data=orig_df, pred_data=pred_df, stru_data=stru_df)
+
+# Print the result
+print(result_tbl.collect().head(5))
+```
+
+Please replace `orig_df`, `pred_df`, and `stru_df` with your actual DataFrames.

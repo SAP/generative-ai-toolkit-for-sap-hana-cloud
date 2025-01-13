@@ -1,0 +1,20 @@
+The ShortestPathsOneToAll class in the hana_ml.graph.algorithms.shortest_paths_one_to_all module calculates the shortest paths from a start vertex to all other vertices in a graph, with the calculation initiated by calling the execute function.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import required modules
+import hana_ml.graph.algorithms as hga
+
+# Create an instance of ShortestPathsOneToAll
+spoa = hga.ShortestPathsOneToAll(graph=g)
+
+# Execute the calculation of the shortest paths one to all
+spoa.execute(source=2257, direction='OUTGOING', weight='DIST_KM')
+
+# Print the vertices and edges
+print("Vertices", spoa.vertices)
+print("Edges", spoa.edges)
+```
+
+Please replace `g` with your actual graph object. The `source` parameter in the `execute` method should be replaced with the vertex key from which the shortest paths one to all will start. The `direction` parameter can be 'OUTGOING', 'INCOMING', or 'ANY' which determines the algorithm results. The `weight` parameter is the variable for column name to which to apply the weight.

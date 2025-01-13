@@ -1,0 +1,41 @@
+The content explains the concept of entropy and its calculation for attributes. Entropy is a function used to measure the information content of attributes. It is calculated based on the probability of each distinct value of an attribute. The formula for entropy is provided, where pi represents the probability of the ith value of the attribute.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE  PAL_ENTROPY_DATA_TBL;
+CREATE COLUMN TABLE PAL_ENTROPY_DATA_TBL (
+	"OUTLOOK" VARCHAR(20),
+	"TEMP" INTEGER,
+	"HUMIDITY" DOUBLE,
+	"WINDY" VARCHAR(10),
+	"CLASS" VARCHAR(20)
+);
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Sunny', 75, 70.0, 'Yes', 'Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Sunny', NULL, 90.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Sunny', 85, NULL, 'No', 'Do not Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Sunny', 72, 95.0, 'No', 'Do not Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES (NULL, NULL, 70.0, NULL, 'Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Overcast', 72.0, 90, 'Yes', 'Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Overcast', 83.0, 78, 'No', 'Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Overcast', 64.0, 65, 'Yes', 'Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Overcast', 81.0, 75, 'No', 'Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES (NULL, 71, 80.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Rain', 65, 70.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Rain', 75, 80.0, 'No', 'Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Rain', 68, 80.0, 'No', 'Play');
+INSERT INTO PAL_ENTROPY_DATA_TBL VALUES ('Rain', 70, 96.0, 'No', 'Play');
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR (100), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('COLUMN', NULL, NULL, 'TEMP');
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('COLUMN', NULL, NULL, 'WINDY');
+--INSERT INTO #PAL_PARAMETER_TBL VALUES ('DISTINCT_VALUE_COUNT_DETAIL', 0, NULL, NULL);
+
+CALL _SYS_AFL.PAL_ENTROPY(PAL_ENTROPY_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?);
+

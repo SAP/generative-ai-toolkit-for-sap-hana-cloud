@@ -1,0 +1,58 @@
+The HANAScheduler class in the hana_ml module allows users to create, alter, check, list, and delete scheduled jobs in the HANA system, with methods to create training, applying, and scoring schedules, and to display the status of all scheduled jobs.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml import ConnectionContext, DataFrame
+from hana_ml.hana_scheduler import HANAScheduler
+
+# Create a connection to HANA
+connection_context = ConnectionContext(address='<address>',
+                                       port='<port>',
+                                       user='<user>',
+                                       password='<password>',
+                                       encrypt=True,
+                                       sslValidateCertificate=False)
+
+# Create a HANA DataFrame
+df_fit = DataFrame(connection_context, '<table_name>')
+
+# Create a HANAScheduler instance
+hana_schedule = HANAScheduler(connection_context)
+
+# Check if a job exists
+hana_schedule.check_scheduler_job_exist('my_job')
+
+# Create a training schedule
+hana_schedule.create_training_schedule(job_name='my_job',
+                                       obj=df_fit,
+                                       cron="* * * mon,tue,wed,thu,fri 1 23 45",
+                                       output_table_names=['BEST_PIPELINE_1122', 'MODEL_1122', 'INFO_1122'],
+                                       force=True)
+
+# List all schedules
+hana_schedule.list_schedules()
+
+# Delete a schedule
+hana_schedule.delete_schedule('my_job')
+
+# Create an applying schedule
+hana_schedule.create_applying_schedule(job_name='my_job2',
+                                       obj=df_fit,
+                                       cron="* * * mon,tue,wed,thu,fri 1 23 45",
+                                       output_table_names=['RESULT_1123', 'INFO_1123'],
+                                       force=True)
+
+# Display the status of all the schedule jobs
+hana_schedule.display_schedule_status()
+
+# Set a schedule
+hana_schedule.set_schedule(job_name='my_job3',
+                           cron="* * * mon,tue,wed,thu,fri 1 23 45",
+                           procedure_name='PROC_my_job3',
+                           status='active',
+                           procedure_params={"THREAD_RATIO": 1},
+                           force=True)
+```
+
+Please replace `<address>`, `<port>`, `<user>`, `<password>`, and `<table_name>` with your actual HANA connection details and table name.

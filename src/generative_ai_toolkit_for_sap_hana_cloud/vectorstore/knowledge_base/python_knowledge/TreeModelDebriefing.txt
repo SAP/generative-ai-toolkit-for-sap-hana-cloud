@@ -1,0 +1,45 @@
+The TreeModelDebriefing class in the hana_ml.visualizers.model_debriefing module is used to visualize and parse tree models built with the PAL algorithm, supporting classes in the `hana_ml.algorithms.pal.trees` module and the UnifiedClassification class, but it does not support tree models built with the APL algorithm.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+from hana_ml.algorithms.pal.trees import RDTClassifier
+from hana_ml.visualizers.model_debriefing import TreeModelDebriefing
+
+# Create a dataframe for training
+df1 = # Your dataframe here
+
+# Create an instance of RDTClassifier
+rdtc = RDTClassifier(n_estimators=3,
+                     max_features=3,
+                     random_state=2,
+                     split_threshold=0.00001,
+                     calculate_oob=True,
+                     min_samples_leaf=1,
+                     thread_ratio=1.0)
+
+# Fit the model on the dataframe
+rdtc.fit(data=df1, features=['OUTLOOK', 'TEMP', 'HUMIDITY', 'WINDY'], label='CLASS')
+
+# Visualize the tree model in JSON format
+TreeModelDebriefing.tree_debrief(rdtc.model_)
+
+# Visualize the tree model in DOT format
+TreeModelDebriefing.tree_debrief_with_dot(rdtc.model_, iframe_height=500)
+
+# Visualize the tree model in XML format
+rdtc = RDTClassifier(n_estimators=3,
+                     max_features=3,
+                     random_state=2,
+                     split_threshold=0.00001,
+                     calculate_oob=True,
+                     min_samples_leaf=1,
+                     thread_ratio=1.0,
+                     model_format='pmml')
+
+rdtc.fit(data=df1, features=['OUTLOOK', 'TEMP', 'HUMIDITY', 'WINDY'], label='CLASS')
+
+TreeModelDebriefing.tree_debrief(rdtc.model_)
+```
+
+Please replace `# Your dataframe here` with your actual dataframe.

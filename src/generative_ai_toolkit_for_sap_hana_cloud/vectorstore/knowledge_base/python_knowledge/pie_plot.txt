@@ -1,0 +1,16 @@
+The function pie_plot in the module hana_ml.visualizers.eda_plotly displays a pie plot for a specified column in a SAP HANA DataFrame, with options to customize the title, font properties, figure, and subplot position.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers.eda_plotly import pie_plot
+
+# Call the function
+fig, pie_data = pie_plot(data, column="PCLASS", title="% of passengers in each cabin")
+
+# Display the plot
+fig.show()
+```
+
+Please replace the `data` DataFrame with your actual DataFrame. The column "PCLASS" should also exist in your DataFrame. The title is optional and can be customized as per your needs.

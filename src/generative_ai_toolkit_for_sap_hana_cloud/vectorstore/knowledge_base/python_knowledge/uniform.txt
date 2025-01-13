@@ -1,0 +1,19 @@
+The function 'uniform' in the 'hana_ml.algorithms.pal.random' module draws samples from a uniform distribution, with parameters to specify the database connection, lower and upper bounds, number of random data to be generated, seed for the random number generator, and the proportion of available threads to use.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.random import uniform
+from hana_ml import dataframe as df
+
+# Create a connection context
+cc = df.ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Draw samples from a uniform distribution
+res = uniform(conn_context=cc, low=-1, high=1, num_random=10)
+
+# Collect the results
+print(res.collect())
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual database connection details.

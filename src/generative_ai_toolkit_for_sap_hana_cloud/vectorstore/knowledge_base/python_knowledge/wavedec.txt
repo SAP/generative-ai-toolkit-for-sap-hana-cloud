@@ -1,0 +1,30 @@
+The wavedec function in the hana_ml.algorithms.pal.tsa.wavelet module is a Python wrapper for the PAL multi-level discrete wavelet transform, which applies a discrete wavelet transform to time-series data using specified parameters such as wavelet filter, padding method for boundary values, decompose level, thresholding method, and thresholding values.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.tsa.wavelet import wavedec
+
+# Assuming `data` is your DataFrame with time-series data
+wavelet = 'db2'  # Choose the wavelet filter
+key = None  # Optional: specify the time-stamp column
+col = None  # Optional: specify the signal values column
+boundary = 'symmetric'  # Optional: specify the padding method
+level = 2  # Optional: specify the decompose level
+compression = False  # Optional: specify whether to discard zero values
+method = 'no'  # Optional: specify the thresholding method
+threshold = 1e-9  # Optional: specify the uniform thresholding value
+level_thresholds = None  # Optional: specify level-wise thresholding values
+
+# Perform the wavelet transformation
+dwt = wavedec(data=data, wavelet=wavelet, key=key, col=col, boundary=boundary, level=level, 
+              compression=compression, method=method, threshold=threshold, level_thresholds=level_thresholds)
+
+# Access the wavelet transformation result
+coefficients = dwt.coeff_
+
+# Print the result
+print(coefficients.collect())
+```
+
+Please replace `'db2'` with the wavelet filter you want to use, and adjust the optional parameters as needed. The `data` variable should be a DataFrame containing your time-series data.

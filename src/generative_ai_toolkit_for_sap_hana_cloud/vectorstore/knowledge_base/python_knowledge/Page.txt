@@ -1,0 +1,27 @@
+The Page class in the hana_ml.visualizers.report_builder module represents a page in a report, which can contain multiple items, and includes methods to add single or multiple items to the page, and to return the configuration data of the page.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.visualizers.report_builder import Page, Item
+
+# Create a page
+page = Page(title="My Page")
+
+# Create an item
+item = Item()  # Add parameters as needed
+
+# Add the item to the page
+page.addItem(item)
+
+# Create a list of items
+items = [Item(), Item()]  # Add parameters as needed
+
+# Add the list of items to the page
+page.addItems(items)
+
+# Get the config data of the page
+config_data = page.to_json()
+``` 
+
+Please replace `Item()` with the actual item instance you want to add to the page. The `Item` class is not defined in the provided documentation, so you need to refer to the `Item` class documentation for the correct usage.

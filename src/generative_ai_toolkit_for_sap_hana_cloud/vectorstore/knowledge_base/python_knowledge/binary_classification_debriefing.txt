@@ -1,0 +1,32 @@
+The function binary_classification_debriefing in the hana_ml.algorithms.pal.metrics module computes debriefing coefficients for binary classification results, taking in a DataFrame of true and predicted values, the names of the columns containing these values, optional input data for calculating predictive power, and optional labels for positive and negative classification.
+------
+Here is a Python code template for the `binary_classification_debriefing` function:
+
+```python
+from hana_ml.algorithms.pal.metrics import binary_classification_debriefing
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to your HANA database
+
+# Create DataFrame for data
+data = DataFrame(connection_context, 'SELECT * FROM MY_DATA')
+
+# Specify the column names for true and predicted values
+label_true = 'TRUE_COLUMN_NAME'
+label_pred = 'PREDICTED_COLUMN_NAME'
+
+# Create DataFrame for auc_data if available
+auc_data = DataFrame(connection_context, 'SELECT * FROM MY_AUC_DATA')
+
+# Specify positive and negative labels if different from default
+positive_label = 1
+negative_label = 0
+
+# Compute debriefing coefficients
+debriefing_stats = binary_classification_debriefing(data, label_true, label_pred, auc_data=auc_data, positive_label=positive_label, negative_label=negative_label)
+
+# Print the debriefing stats
+print(debriefing_stats)
+```
+
+Please replace `'SELECT * FROM MY_DATA'` and `'SELECT * FROM MY_AUC_DATA'` with your actual SQL statements to select the data. Also, replace `'TRUE_COLUMN_NAME'` and `'PREDICTED_COLUMN_NAME'` with the actual column names in your data for the true and predicted values. If your positive and negative labels are different from the default values (1 and 0), please specify them in `positive_label` and `negative_label`.

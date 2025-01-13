@@ -1,0 +1,36 @@
+The FFMClassifier class in the hana_ml.algorithms.pal.recommender module is a Field-Aware Factorization Machine for classification tasks, with various parameters for customization such as factorization dimensionality, seed for random number generator, proportion of dataset used for training, maximum number of iterations, normalization, inclusion of constant part and linear part of regression model, early stopping, learning rate, regularization parameters, convergence criterion, handling of missing values, and more.
+------
+Here is the executable code template for the `FFMClassifier` class:
+
+```python
+from hana_ml.algorithms.pal.recommender import FFMClassifier
+
+# Create a FFMClassifier instance
+ffm = FFMClassifier(
+    linear_lamb=1e-5,
+    poly2_lamb=1e-6,
+    random_state=1,
+    factor_num=4,
+    early_stop=1,
+    learning_rate=0.2,
+    max_iter=20,
+    train_size=0.8
+)
+
+# Assume that df_train_classification is the input dataframe for classification training
+# Perform fit() on given dataframe
+ffm.fit(
+    data=df_train_classification,
+    categorical_variable='TIMESTAMP'
+)
+
+# Perform predict()
+# Assume that df_predict is the dataframe to be predicted
+res = ffm.predict(
+    data=df_predict,
+    key='ID',
+    thread_ratio=1
+)
+```
+
+Please replace `df_train_classification` and `df_predict` with your actual dataframes.

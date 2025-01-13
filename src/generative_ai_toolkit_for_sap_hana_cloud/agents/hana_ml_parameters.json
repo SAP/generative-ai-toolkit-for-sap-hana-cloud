@@ -1,0 +1,154 @@
+{
+    "training":{
+        "AutomaticClassification": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "label" : "the label column",
+                "workload_class_name" : "the workload class used to limit the resource"
+            },
+            "optional_fields": {
+                "features" : "the columns to be processed."
+            }
+        },
+        "AutomaticRegression": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "label" : "the label column",
+                "workload_class_name" : "the workload class used to limit the resource"
+            },
+            "optional_fields": {
+                "features" : "the columns to be processed."
+            }
+        },
+        "AutomaticTimeSeries": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "endog" : "the endogenous column",
+                "workload_class_name" : "the workload class used to limit the resource"
+            },
+            "optional_fields": {
+                "features" : "the columns to be processed."
+            }
+        },
+        "UnifiedClassification": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "label" : "the label column",
+                "func" : "the function name for the model"
+            },
+            "optional_fields": {
+                "features" : "the columns to be processed."
+            }
+        },
+        "AdditiveModelForecast": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "endog" : "the endogenous column"
+            },
+            "optional_fields": {
+                "exog" : "the columns to be processed.",
+                "holiday_table": "the holiday table name"
+            }
+        }
+    },
+    "prediction": {
+        "AutomaticClassification": {
+                "mandatory_fields": {
+                    "key" : "the id column",
+                    "model_table" : "the model table name"
+                },
+                "optional_fields": {
+                    "features" : "the columns to be processed."
+                }
+            },
+        "AutomaticRegression": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "model_table" : "the model table name"
+            },
+            "optional_fields": {
+                "features" : "the columns to be processed."
+            }
+        },
+        "AutomaticTimeSeries": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "model_table" : "the model table name"
+            },
+            "optional_fields": {
+                "exog" : "the columns to be processed."
+            }
+        },
+        "UnifiedClassification": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "model_table" : "the model table name",
+                "func" : "the function name for the model"
+            },
+            "optional_fields": {
+                "features" : "the columns to be processed."
+            }
+        },
+        "AdditiveModelForecast": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "model_table" : "the model table name"
+            },
+            "optional_fields": {
+                "exog" : "the columns to be processed."
+            }
+        }
+    },
+    "scoring": {
+        "AutomaticClassification": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "model_table" : "the model table name",
+                "label" : "the label column"
+            },
+            "optional_fields": {
+                "features" : "the columns to be processed."
+            }
+        },
+        "AutomaticRegression": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "model_table" : "the model table name",
+                "label" : "the label column"
+            },
+            "optional_fields": {
+                "features" : "the columns to be processed."
+            }
+        },
+        "AutomaticTimeSeries": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "model_table" : "the model table name",
+                "endog" : "the endogenous column"
+            },
+            "optional_fields": {
+                "exog" : "the columns to be processed."
+            }
+        },
+        "UnifiedClassification": {
+            "mandatory_fields": {
+                "key" : "the id column",
+                "model_table" : "the model table name",
+                "func" : "the function name for the model",
+                "label" : "the label column"
+            },
+            "optional_fields": {
+                "features" : "the columns to be processed."
+            }
+        }
+    },
+    "result_analysis": {
+        "forecast_line_plot": {
+            "mandatory_fields": {
+                "actual_table" : "the actual data table to be compared with the forecast one"
+            },
+            "optional_fields": {
+            }
+        }
+    }
+}

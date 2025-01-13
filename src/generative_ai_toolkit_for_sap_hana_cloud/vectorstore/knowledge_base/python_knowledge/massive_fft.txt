@@ -1,0 +1,30 @@
+The function 'massive_fft' in the 'hana_ml.algorithms.pal.tsa.fft' module is used for massive Fast Fourier Transform (FFT) computation, with various parameters for customization such as num_type, inverse, window, window_start, window_length, alpha, beta, attenuation, flattop_model, flattop_precision, r, and flattop_mode.
+------
+Here is a Python code template for the `massive_fft` function from the `hana_ml.algorithms.pal.tsa.fft` module:
+
+```python
+# Import the required module
+from hana_ml.algorithms.pal.tsa.fft import massive_fft
+
+# Define the data
+data = None  # Replace with your data
+
+# Define the parameters
+num_type = None  # Replace with your num_type
+inverse = None  # Replace with your inverse
+window = None  # Replace with your window
+window_start = None  # Replace with your window_start
+window_length = None  # Replace with your window_length
+alpha = None  # Replace with your alpha
+beta = None  # Replace with your beta
+attenuation = None  # Replace with your attenuation
+flattop_model = None  # Replace with your flattop_model
+flattop_precision = None  # Replace with your flattop_precision
+r = None  # Replace with your r
+flattop_mode = None  # Replace with your flattop_mode
+
+# Call the function
+massive_fft(data, num_type=num_type, inverse=inverse, window=window, window_start=window_start, window_length=window_length, alpha=alpha, beta=beta, attenuation=attenuation, flattop_model=flattop_model, flattop_precision=flattop_precision, r=r, flattop_mode=flattop_mode)
+```
+
+Please replace `None` with your actual values.

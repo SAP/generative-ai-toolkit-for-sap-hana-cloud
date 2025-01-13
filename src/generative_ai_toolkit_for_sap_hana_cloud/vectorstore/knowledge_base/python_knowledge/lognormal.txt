@@ -1,0 +1,25 @@
+The function lognormal in the hana_ml.algorithms.pal.random module draws samples from a lognormal distribution, with parameters to specify the database connection, mean and standard deviation of the underlying normal distribution, number of random data to be generated, seed for the random number generator, and the proportion of available threads to use.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.random import lognormal
+from hana_ml import dataframe as df
+
+# Assuming that a connection context 'cc' is already created
+
+# Set parameters
+mean = 0
+sigma = 1
+num_random = 10
+seed = None
+thread_ratio = None
+
+# Draw samples from a lognormal distribution
+res = lognormal(conn_context=cc, mean=mean, sigma=sigma, num_random=num_random, seed=seed, thread_ratio=thread_ratio)
+
+# Collect and print the results
+print(res.collect())
+```
+
+Please replace `'cc'` with your actual connection context. Also, you can adjust the parameters `mean`, `sigma`, `num_random`, `seed`, and `thread_ratio` according to your needs.

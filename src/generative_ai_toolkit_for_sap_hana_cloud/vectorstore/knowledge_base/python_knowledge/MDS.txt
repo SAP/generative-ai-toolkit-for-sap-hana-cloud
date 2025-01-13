@@ -1,0 +1,22 @@
+The MDS class in the hana_ml.algorithms.pal.preprocessing module is a tool for dimensional reduction or data visualization that supports two kinds of input formats: a dissimilarity matrix or an entity-feature matrix, with parameters to specify the type of input DataFrame, the ratio of total number of threads that can be used, the number of dimensions to reduce the input dataset to, the type of distance during the calculation of the dissimilarity matrix, and the value of power when the metric is set as 'minkowski'.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.preprocessing import MDS
+
+# Define the input DataFrame
+# df = ...
+
+# Create a MDS instance
+mds = MDS(matrix_type='dissimilarity', dim=2, thread_ratio=0.5)
+
+# Fit and transform the data
+res, stats = mds.fit_transform(data=df)
+
+# Print the results
+print(res.collect())
+print(stats.collect())
+```
+
+Please replace the `df` with your actual DataFrame.

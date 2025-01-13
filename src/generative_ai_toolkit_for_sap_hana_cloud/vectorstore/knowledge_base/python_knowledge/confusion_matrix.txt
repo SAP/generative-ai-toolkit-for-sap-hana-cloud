@@ -1,0 +1,27 @@
+The confusion_matrix function in the hana_ml.algorithms.pal.metrics module computes a confusion matrix to evaluate the accuracy of a classification, taking in parameters for data, key, true labels, predicted labels, a beta value, and a boolean for native SQL statements, and returns a DataFrame with the confusion matrix and a classification report table.
+------
+Here is the executable code template for the `confusion_matrix` function:
+
+```python
+from hana_ml.algorithms.pal.metrics import confusion_matrix
+from hana_ml import DataFrame
+
+# Assuming that a HANA dataframe is already created
+# df = DataFrame(connection_context, 'TABLE_NAME')
+
+# Specify the column names for ID, original label, and predicted label
+key = 'ID'
+label_true = 'ORIGINAL'
+label_pred = 'PREDICT'
+
+# Compute the confusion matrix
+cm, cr = confusion_matrix(data=df, key=key, label_true=label_true, label_pred=label_pred)
+
+# Print the confusion matrix
+print(cm.collect())
+
+# Print the classification report
+print(cr.collect())
+```
+
+Please replace `'TABLE_NAME'` with the actual table name in your HANA database. The table should have columns for ID, original label, and predicted label.

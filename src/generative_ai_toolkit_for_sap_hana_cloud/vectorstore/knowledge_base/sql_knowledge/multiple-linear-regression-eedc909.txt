@@ -1,0 +1,30 @@
+The content discusses multiple linear regression, which is a statistical approach used to model the linear relationship between a dependent variable and one or more independent variables. In linear regression, data is modeled using linear functions, and the unknown model parameters are estimated from the data. The content also mentions an overdetermined linear system that is used to obtain the least squares solution for the regression. The implementation provides two stored procedures for multiple linear regression: `_SYS_AFL.PAL_LINEAR_REGRESSION` for fitting the linear model and `_SYS_AFL.PAL_LINEAR_REGRESSION_PREDICTION` for making predictions using the fitted model.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE 
+	#PAL_PARAMETER_TBL 
+	("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('THREAD_RATIO',NULL,0.5,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('JSON_EXPORT',1,NULL,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE',NULL,NULL,'X3');
+
+DROP TABLE PAL_MLR_DATA_TBL;
+CREATE COLUMN TABLE PAL_MLR_DATA_TBL 
+    ("ID" varchar(50), "Y" DOUBLE, "X1" DOUBLE,
+    "X2" varchar(100), "X3" INT
+	);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (0, -6.879, 0.00, 'A', 1);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (1, -3.449, 0.50, 'A', 1);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (2,  6.635, 0.54, 'B', 1);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (3, 11.844, 1.04, 'B', 1);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (4,  2.786, 1.50, 'A', 1);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (5,  2.389, 0.04, 'B', 2);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (6, -0.011, 2.00, 'A', 2);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (7,  8.839, 2.04, 'B', 2);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (8,  4.689, 1.54, 'B', 1);
+INSERT INTO PAL_MLR_DATA_TBL VALUES (9, -5.507, 1.00, 'A', 2);
+
+CALL _SYS_AFL.PAL_LINEAR_REGRESSION(PAL_MLR_DATA_TBL,"#PAL_PARAMETER_TBL", ?, ?, ?, ?,?);

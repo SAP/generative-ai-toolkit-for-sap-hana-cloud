@@ -1,0 +1,32 @@
+The Settings class in the hana_ml.algorithms.pal.utility module is used for configuring the logging level, loading HANA credentials, and setting the logging level with parameters such as 'info', 'warn', 'debug', and 'error'.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+class Settings(object):
+    """
+    Configuration of logging level
+    """
+    settings = None
+    user = None
+
+    @staticmethod
+    def load_config(config_file, tag='hana'):
+        """
+        Load HANA credentials.
+        """
+        pass
+
+    @staticmethod
+    def set_log_level(level='info'):
+        """
+        Set logging level.
+        
+        Parameters
+        ----------
+        level : {'info', 'warn', 'debug', 'error'}
+        """
+        pass
+```
+
+This is a basic template and does not include any actual functionality. You would need to fill in the `pass` statements with your own code.

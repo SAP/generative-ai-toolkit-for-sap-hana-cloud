@@ -1,0 +1,23 @@
+The f_oneway function in the hana_ml.algorithms.pal.stats module performs a 1-way ANOVA to determine if there is a statistically significant difference between the means of three or more independent groups, returning statistics for each group, computed results for ANOVA, and multiple comparison results.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.stats import f_oneway
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA database
+df = DataFrame(connection_context, 'SELECT * FROM YOUR_TABLE')
+
+# Perform the function
+stats, anova, mult_comp = f_oneway(data=df,
+                                   multcomp_method='Tukey-Kramer',
+                                   significance_level=0.05)
+
+# Print the outputs
+print(stats.collect())
+print(anova.collect())
+print(mult_comp.collect())
+```
+
+Please replace `'SELECT * FROM YOUR_TABLE'` with your actual SQL query to fetch the data. Also, ensure that `connection_context` is the connection to your HANA database.

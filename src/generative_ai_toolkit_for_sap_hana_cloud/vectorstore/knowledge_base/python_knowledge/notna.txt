@@ -1,0 +1,28 @@
+The notna function in pandas module checks for non-missing values in a scalar or array-like object, returning a boolean or an array of booleans indicating whether each corresponding element is valid (not missing).
+------
+Here is the executable code template based on the help doc:
+
+```python
+import pandas as pd
+import numpy as np
+
+# For scalar values
+print(pd.notna('dog'))  # Returns: True
+print(pd.notna(pd.NA))  # Returns: False
+print(pd.notna(np.nan))  # Returns: False
+
+# For ndarrays
+array = np.array([[1, np.nan, 3], [4, 5, np.nan]])
+print(pd.notna(array))  # Returns: array([[ True, False,  True], [ True,  True, False]])
+
+# For indexes
+index = pd.DatetimeIndex(["2017-07-05", "2017-07-06", None, "2017-07-08"])
+print(pd.notna(index))  # Returns: array([ True,  True, False,  True])
+
+# For Series and DataFrame
+df = pd.DataFrame([['ant', 'bee', 'cat'], ['dog', None, 'fly']])
+print(pd.notna(df))  # Returns: DataFrame with booleans
+print(pd.notna(df[1]))  # Returns: Series with booleans
+```
+
+This code uses the `notna` function from the pandas library to check for non-missing values in different types of objects. The function returns a boolean or an array-like of booleans indicating whether each corresponding element is valid (not missing).

@@ -1,0 +1,21 @@
+The get_relevant_term function in the hana_ml.text.tm module returns the top-ranked relevant terms that describe a document or multiple documents based on Term Frequency - Inverse Document Frequency (TF-IDF) result or reference data, with various parameters to customize the output such as language, index name, thread ratio, and more.
+------
+Here is the executable code template for the `get_relevant_term` function:
+
+```python
+from hana_ml import dataframe
+from hana_ml.text.tm import get_relevant_term
+
+# Assuming that connection_context is the connection to the HANA database
+# Create the dataframes for pred_data and ref_data
+pred_df = dataframe.create_dataframe_from_pandas(connection_context, pandas_df_pred, 'PRED_TABLE', force=True)
+ref_df = dataframe.create_dataframe_from_pandas(connection_context, pandas_df_ref, 'REF_TABLE', force=True)
+
+# Call the function
+result_df = get_relevant_term(pred_data=pred_df, ref_data=ref_df, top=10, threshold=0.5, lang='EN', index_name='index', thread_ratio=0.5, created_index=None, key=None)
+
+# Collect the result to a pandas dataframe
+result_pd = result_df.collect()
+```
+
+In this template, replace `pandas_df_pred` and `pandas_df_ref` with your actual pandas dataframes. The `connection_context` should be the connection to your HANA database. You can adjust the parameters of the `get_relevant_term` function according to your needs.

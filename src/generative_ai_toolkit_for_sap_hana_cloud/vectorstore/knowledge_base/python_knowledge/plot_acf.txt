@@ -1,0 +1,20 @@
+The function plot_acf in the hana_ml.visualizers.eda module creates an autocorrelation function plot (ACF) for a given time series data, with options to specify the calculation method, maximum lag, whether to calculate confidence intervals, and whether to use plotly instead of matplotlib for the plot.
+------
+Here is a Python code template for the `plot_acf` function:
+
+```python
+from hana_ml.visualizers.eda import plot_acf
+
+# Assuming you have a DataFrame 'df' with columns 'ID' and 'ts'
+plot_acf(data=df, key='ID', col='ts', method='fft', thread_ratio=0.4, calculate_confint=True, max_lag=40)
+```
+
+This code will generate an Autocorrelation function plot (ACF) for the time series data in the 'ts' column of the DataFrame 'df', using the 'fft' method for calculating the correlation function. The 'thread_ratio' parameter is set to 0.4, meaning 40% of available threads will be used. The 'calculate_confint' parameter is set to True, so confidence intervals will be calculated. The 'max_lag' parameter is set to 40, meaning the maximum lag for the correlation function will be 40.
+
+If you want to use plotly instead of matplotlib, you can set the 'enable_plotly' parameter to True:
+
+```python
+plot_acf(data=df, key='ID', col='ts', method='fft', thread_ratio=0.4, calculate_confint=True, max_lag=40, enable_plotly=True)
+```
+
+This will return a plotly.graph_objects.Figure object.

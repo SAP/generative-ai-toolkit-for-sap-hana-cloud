@@ -1,0 +1,20 @@
+{
+    "cds": {
+        "build": {
+            "tasks": [
+                {
+                    "for": "hana",
+                    "dest": "../db"
+                },
+                {
+                    "for": "node-cf"
+                }
+            ]
+        },
+        "requires": {
+            "db": {
+                "kind": "hana-cloud"
+            }
+        }
+    }
+}

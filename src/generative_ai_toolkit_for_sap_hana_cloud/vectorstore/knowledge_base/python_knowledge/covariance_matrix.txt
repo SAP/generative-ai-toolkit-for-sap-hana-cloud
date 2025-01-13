@@ -1,0 +1,24 @@
+The covariance_matrix function in the hana_ml.algorithms.pal.stats module computes the covariance matrix for a given DataFrame, with the option to specify certain columns, and returns a DataFrame with the covariance between any two data samples.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import required libraries
+from hana_ml.algorithms.pal.stats import covariance_matrix
+from hana_ml import DataFrame
+
+# Assuming that a connection towards HANA has been established
+# conn is the connection object
+
+# Create DataFrame
+query = 'SELECT * FROM <your_table>'
+df = DataFrame(conn, query)
+
+# Compute the covariance matrix
+result = covariance_matrix(data=df)
+
+# Print the result
+print(result.collect())
+```
+
+Please replace `<your_table>` with your actual table name. This code assumes that a connection towards HANA has been established and `conn` is the connection object.

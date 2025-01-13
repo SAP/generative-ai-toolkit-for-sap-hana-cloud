@@ -1,0 +1,21 @@
+The accuracy_score function in the hana_ml.algorithms.pal.metrics module computes the mean accuracy score for classification results, which is the proportion of correctly predicted results among the total number of cases examined, using a DataFrame of true and predicted labels.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.algorithms.pal.metrics import accuracy_score
+from hana_ml import DataFrame
+
+# Assuming you have a HANA dataframe 'df' with columns 'ACTUAL' and 'PREDICTED'
+# df = DataFrame(...)
+
+# Compute accuracy score
+accuracy = accuracy_score(data=df, label_true='ACTUAL', label_pred='PREDICTED')
+
+# Print the accuracy score
+print("Accuracy Score: ", accuracy)
+
+```
+
+Please replace the DataFrame(...) with your actual DataFrame. The DataFrame should be a HANA DataFrame with columns 'ACTUAL' and 'PREDICTED'.

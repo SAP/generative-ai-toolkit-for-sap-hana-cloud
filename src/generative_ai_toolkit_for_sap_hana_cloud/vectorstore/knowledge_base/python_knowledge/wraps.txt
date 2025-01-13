@@ -1,0 +1,25 @@
+The wraps function in the functools module is a decorator factory that applies update_wrapper() to a wrapper function, simplifying the application of partial() to update_wrapper().
+------
+Here is a basic code template for the `functools.wraps` function:
+
+```python
+import functools
+
+def my_decorator(f):
+    @functools.wraps(f)
+    def decorated(*args, **kwargs):
+        print('Before function call')
+        result = f(*args, **kwargs)
+        print('After function call')
+        return result
+    return decorated
+
+@my_decorator
+def my_function(x, y):
+    """This is my function"""
+    return x + y
+
+print(my_function(5, 3))
+```
+
+In this example, `my_decorator` is a decorator that uses `functools.wraps` to preserve the metadata of the original function `my_function` when it is decorated. The `decorated` function is the wrapper function that is called instead of the original function when `my_function` is invoked. The `*args` and `**kwargs` arguments allow the wrapper function to accept any number of positional and keyword arguments, respectively.

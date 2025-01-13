@@ -1,0 +1,28 @@
+The HanaGenerator class in the hana_ml.artifacts.generators.hana module provides HANA specific generation functionality, extending the config file for HANA specific config generation, and includes methods for initializing the class and generating artifacts.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.artifacts.generators.hana import HanaGenerator
+
+# Define your parameters
+project_name = "your_project_name"
+version = "your_version"
+grant_service = "your_grant_service"
+connection_context = "your_connection_context"
+outputdir = "your_output_directory"
+generation_merge_type = 1
+generation_group_type = 12
+sda_grant_service = None
+remote_source = ''
+
+# Initialize the HanaGenerator
+hg = HanaGenerator(project_name, version, grant_service, connection_context, outputdir, generation_merge_type, generation_group_type, sda_grant_service, remote_source)
+
+# Generate the artifacts
+output_path = hg.generate_artifacts(base_layer=True, consumption_layer=True, sda_data_source_mapping_only=False)
+
+print(output_path)
+```
+
+Please replace `"your_project_name"`, `"your_version"`, `"your_grant_service"`, `"your_connection_context"`, and `"your_output_directory"` with your actual values.

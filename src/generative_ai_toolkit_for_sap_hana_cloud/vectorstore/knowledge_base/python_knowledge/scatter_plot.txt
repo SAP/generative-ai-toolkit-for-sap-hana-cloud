@@ -1,0 +1,24 @@
+The scatter_plot function in the hana_ml.visualizers.eda_plotly module displays a scatter plot for specified columns of a SAP HANA DataFrame, with options to set the number of x and y axis bins, title, color map, correlation debrief, sampling method, and title font properties.
+------
+Here is the executable code template for the `scatter_plot` function:
+
+```python
+from hana_ml.visualizers.eda_plotly import scatter_plot
+
+# Assuming `data` is your DataFrame
+x = "your_column_for_x_axis"
+y = "your_column_for_y_axis"
+
+# Example 1: Using x_bins and y_bins
+x_bins = 5
+y_bins = 5
+fig1 = scatter_plot(data=data, x=x, y=y, x_bins=x_bins, y_bins=y_bins)
+fig1.show()
+
+# Example 2: Using sample_frac
+sample_frac = 0.8
+fig2 = scatter_plot(data=data, x=x, y=y, sample_frac=sample_frac)
+fig2.show()
+```
+
+Please replace `"your_column_for_x_axis"` and `"your_column_for_y_axis"` with the actual column names you want to plot on the x and y axes. Also, ensure that `data` is your DataFrame.

@@ -1,0 +1,50 @@
+The MetricReportBuilder class in the hana_ml.visualizers.model_report module is used to build various types of data for model reports, including cumulative gain, lift, and ROC data, and it also provides methods for setting metric samplings and tables, and getting generated HTML, JS, and items.
+------
+Here is a Python code template for the `MetricReportBuilder` class from the `hana_ml.visualizers.model_report` module:
+
+```python
+from hana_ml.visualizers.model_report import MetricReportBuilder
+
+# Initialize the MetricReportBuilder
+report_builder = MetricReportBuilder()
+
+# Build the report
+report_builder.build()
+
+# Build cumulative gain data
+report_builder.build_cumgain_data()
+
+# Build cumulative lift data
+report_builder.build_cumlift_data()
+
+# Build items
+report_builder.build_items()
+
+# Build lift data
+report_builder.build_lift_data()
+
+# Build ROC data
+report_builder.build_roc_data()
+
+# Do sampling and build data if not
+report_builder.do_sampling_and_build_data_if_not()
+
+# Get generated HTML and JS
+report_builder.get_generated_html_and_js()
+
+# Get generated items
+report_builder.get_generated_items()
+
+# Set metric samplings
+# You need to replace `roc_sampling` and `other_samplings` with your own values
+roc_sampling = None
+other_samplings = None
+report_builder.set_metric_samplings(roc_sampling, other_samplings)
+
+# Set metric table
+# You need to replace `target_df` with your own DataFrame
+target_df = None
+report_builder.set_metric_table(target_df)
+```
+
+Please replace `None` with your own values.

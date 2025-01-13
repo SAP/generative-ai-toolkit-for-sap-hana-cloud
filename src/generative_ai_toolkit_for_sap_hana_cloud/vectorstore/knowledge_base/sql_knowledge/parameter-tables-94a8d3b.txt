@@ -1,0 +1,4 @@
+The content discusses parameter tables for unified classification with pivoted input data. It provides a list of all parameters related to this topic.
+------
+
+2, 3, 4

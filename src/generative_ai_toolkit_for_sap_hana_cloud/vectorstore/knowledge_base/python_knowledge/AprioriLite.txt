@@ -1,0 +1,29 @@
+The AprioriLite class in the hana_ml.algorithms.pal.association module is a lightweight version of the Apriori algorithm for association rule mining, which reduces computational overhead by focusing on the creation and analysis of up to two-item sets, making it useful for large datasets.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.association import AprioriLite
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+
+# Create DataFrame for the input data
+df = DataFrame(connection_context, 'SELECT * FROM YOUR_TABLE')
+
+# Initialize a AprioriLite object and set its parameters
+apl = AprioriLite(min_support=0.1,
+                  min_confidence=0.3,
+                  subsample=1.0,
+                  recalculate=False,
+                  timeout=3600,
+                  pmml_export='single-row')
+
+# Perform the fit() and obtain the result
+apl.fit(data=df)
+
+# Print the result
+print(apl.result_.collect())
+```
+
+Please replace `'SELECT * FROM YOUR_TABLE'` with your actual SQL statement to select data from your HANA table.

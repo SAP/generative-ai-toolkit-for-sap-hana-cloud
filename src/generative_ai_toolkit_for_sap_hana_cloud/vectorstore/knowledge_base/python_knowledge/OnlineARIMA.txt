@@ -1,0 +1,28 @@
+The OnlineARIMA class in the hana_ml.algorithms.pal.tsa.online_algorithms module implements an online learning method to estimate the parameters of ARIMA models by reformulating it into a full information online optimization task, which doesn't depend on noise terms and doesn't require access to the entire large-scale dataset in advance.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.online_algorithms import OnlineARIMA
+from hana_ml import dataframe as df
+
+# Create a connection to your HANA system
+cc = df.ConnectionContext(address='<HANA_HOST>', port=<HANA_PORT>, user='<HANA_USER>', password='<HANA_PASSWORD>')
+
+# Create a DataFrame from a HANA table
+data = df.DataFrame(cc, 'SELECT * FROM <HANA_TABLE>')
+
+# Initialize the OnlineARIMA model
+arima = OnlineARIMA(order=(4,0,8), output_fitted=True, learning_rate=0.00001)
+
+# Fit the model
+arima.partial_fit(data=data, key='TIMESTAMP')
+
+# Predict
+forecast = arima.predict(forecast_length=10)
+
+# Print the forecast
+print(forecast.collect())
+```
+
+Please replace `<HANA_HOST>`, `<HANA_PORT>`, `<HANA_USER>`, `<HANA_PASSWORD>`, and `<HANA_TABLE>` with your actual SAP HANA host, port, user, password, and table name respectively.

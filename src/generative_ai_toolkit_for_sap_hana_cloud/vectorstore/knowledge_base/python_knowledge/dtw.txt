@@ -1,0 +1,41 @@
+The dtw function in the hana_ml.algorithms.pal.tsa module calculates the Dynamic Time Warping (DTW) distance or similarity between two time series, allowing for various parameters such as the method for computing distance between points, the alignment constraint, and the type of step patterns for the DTW algorithm.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa import dtw
+from hana_ml import DataFrame
+
+# Assuming that connection_context is already defined and connected to HANA
+
+# Define your query_data and ref_data
+query_data = DataFrame(connection_context, 'QUERY_DATA_TABLE')  # replace with your table name
+ref_data = DataFrame(connection_context, 'REF_DATA_TABLE')  # replace with your table name
+
+# Define optional parameters
+radius = -1
+thread_ratio = -1
+distance_method = 'euclidean'
+minkowski_power = 3
+alignment_method = 'closed'
+step_pattern = 3
+save_alignment = False
+
+# Call dtw function
+res, align, stats = dtw(query_data=query_data,
+                        ref_data=ref_data,
+                        radius=radius,
+                        thread_ratio=thread_ratio,
+                        distance_method=distance_method,
+                        minkowski_power=minkowski_power,
+                        alignment_method=alignment_method,
+                        step_pattern=step_pattern,
+                        save_alignment=save_alignment)
+
+# Print the results
+print(res.collect())
+print(align.collect())
+print(stats.collect())
+```
+
+Please replace `'QUERY_DATA_TABLE'` and `'REF_DATA_TABLE'` with your actual table names. Also, adjust the optional parameters as per your requirements.

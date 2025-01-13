@@ -1,0 +1,23 @@
+The univariate_analysis function in the hana_ml.algorithms.pal.stats module provides an overview of a dataset, calculating various statistical quantities for continuous and discrete columns, and allowing for customization of the analysis through parameters such as the significance level and trimmed percentage.
+------
+Here is the executable code template for the `univariate_analysis` function:
+
+```python
+from hana_ml.algorithms.pal.stats import univariate_analysis
+
+# Assuming that 'df' is your DataFrame
+continuous, categorical = univariate_analysis(
+    data=df,
+    key=None,
+    cols=None,
+    categorical_variable=None,
+    significance_level=0.05,
+    trimmed_percentage=0.05
+)
+
+# To view the results
+print(continuous.collect())
+print(categorical.collect())
+```
+
+Please replace `'df'` with your actual DataFrame. You can also specify the optional parameters (`key`, `cols`, `categorical_variable`, `significance_level`, `trimmed_percentage`) according to your needs.

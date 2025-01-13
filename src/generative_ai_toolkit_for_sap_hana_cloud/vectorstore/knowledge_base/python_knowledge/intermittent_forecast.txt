@@ -1,0 +1,29 @@
+The intermittent_forecast function in the hana_ml.algorithms.pal.tsa.intermittent_forecast module is a forecasting strategy for products with intermittent demand, providing an exponential weight to estimate, not requiring the initial value of non-zero demands and time interval between non-zero demands, and allowing for various parameters to be specified or optimized, returning a tuple of two DataFrames with forecast values and related statistics.
+------
+Here is the executable code template for the `intermittent_forecast` function:
+
+```python
+from hana_ml.algorithms.pal.tsa import intermittent_forecast
+
+# Apply intermittent_forecast
+forecasts, stats = intermittent_forecast(
+    data=data, 
+    p=3, 
+    forecast_num=3,
+    optimizer='lbfgsb_grid', 
+    grid_size=20,
+    optimize_step=0.011, 
+    expost_flag=False,
+    accuracy_measure='mse', 
+    ignore_zero=False,
+    thread_ratio=0.5
+)
+
+# Print the forecast values
+print(forecasts)
+
+# Print the related statistics
+print(stats)
+```
+
+Please replace the `data` DataFrame with your actual data and adjust the parameters of the `intermittent_forecast` function according to your needs.

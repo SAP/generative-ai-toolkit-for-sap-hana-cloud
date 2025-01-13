@@ -1,0 +1,18 @@
+The function get_min_index in the hana_ml.visualizers.m4_sampling module returns the minimum timestamp from the time series data provided in the DataFrame, where the first column is the index and the second one is the value.
+------
+Here is a Python code template for the `get_min_index` function:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers import m4_sampling
+from datetime import datetime
+
+
+# Use the get_min_index function
+min_timestamp = m4_sampling.get_min_index(data)
+
+# Print the result
+print(min_timestamp)
+```
+
+Please replace the `data` DataFrame with your actual time series data. The `get_min_index` function will return the minimum timestamp in the 'index' column of your DataFrame.

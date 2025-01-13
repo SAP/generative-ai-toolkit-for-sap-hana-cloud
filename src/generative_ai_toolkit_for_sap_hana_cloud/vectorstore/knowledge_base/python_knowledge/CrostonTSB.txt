@@ -1,0 +1,31 @@
+The CrostonTSB class in the hana_ml.algorithms.pal.tsa.exponential_smoothing module is a forecast strategy for products with intermittent demand, which modifies Croston's method by replacing the demand interval with a demand probability that is updated every period, providing a non-biased forecast and a probability forecast for estimating the risk of obsolescence.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.exponential_smoothing import CrostonTSB
+
+# Create an instance of CrostonTSB
+cr = CrostonTSB(alpha=0.3,
+                beta=0.1,
+                forecast_num=10,
+                method='constant',
+                accuracy_measure=['mape'],
+                expost_flag=True,
+                ignore_zero=False,
+                remove_leading_zeros=False)
+
+# Perform fit and predict
+forecast = cr.fit_predict(data=data, key='ID', endog='Y')
+
+# Print the forecast
+print(forecast.collect())
+
+# Print the stats
+print(cr.stats_.collect())
+
+# Print the metrics
+print(cr.metrics_.collect())
+```
+
+Please replace the DataFrame creation part with your actual data. Also, you might need to adjust the parameters of the `CrostonTSB` instance and the `fit_predict` method according to your needs.

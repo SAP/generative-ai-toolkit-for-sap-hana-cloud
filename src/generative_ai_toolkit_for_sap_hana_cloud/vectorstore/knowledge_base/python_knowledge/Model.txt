@@ -1,0 +1,69 @@
+The Model class in the mlflow.models.model module is an MLflow Model that supports multiple model flavors and provides APIs for implementing new Model flavors, with methods for adding flavors, retrieving input/output/parameters schema, loading input examples and their parameters, saving the model, serializing the model to a dictionary, and writing the model as json or yaml string.
+------
+Here is a Python code template for the `Model` class in the `mlflow.models.model` module:
+
+```python
+from typing import Optional, Dict, Any, Union, Callable
+from mlflow.models import Model
+
+# Initialize a Model instance
+model = Model(
+    artifact_path=None,
+    run_id=None,
+    utc_time_created=None,
+    flavors=None,
+    signature=None,
+    saved_input_example_info=None,
+    model_uuid=None,
+    mlflow_version='2.9.1',
+    metadata=None,
+    model_size_bytes=None
+)
+
+# Add a flavor to the model
+model.add_flavor(name='flavor_name', param1='value1', param2='value2')
+
+# Get the input schema of the model
+input_schema = model.get_input_schema()
+
+# Get the model info
+model_info = model.get_model_info()
+
+# Get the output schema of the model
+output_schema = model.get_output_schema()
+
+# Get the parameters schema of the model
+params_schema = model.get_params_schema()
+
+# Load the input example saved along a model
+input_example = model.load_input_example(path='path_to_model_directory')
+
+# Load the params of input example saved along a model
+input_example_params = model.load_input_example_params(path='path_to_model_directory')
+
+# Save the model
+model.save(path='path_to_save_model')
+
+# Serialize the model to a dictionary
+model_dict = model.to_dict()
+
+# Write the model as json
+model_json = model.to_json()
+
+# Write the model as yaml string
+model_yaml = model.to_yaml(stream=None)
+
+# Load a model from its YAML representation
+loaded_model = Model.load(path='path_to_model_yaml')
+
+# Log model using supplied flavor module
+logged_model = Model.log(
+    artifact_path='artifact_path',
+    flavor='flavor',
+    registered_model_name=None,
+    await_registration_for=300,
+    metadata=None
+)
+```
+
+Please replace `'flavor_name'`, `'value1'`, `'value2'`, `'path_to_model_directory'`, `'path_to_save_model'`, `'artifact_path'`, `'flavor'`, and `'path_to_model_yaml'` with your actual values.

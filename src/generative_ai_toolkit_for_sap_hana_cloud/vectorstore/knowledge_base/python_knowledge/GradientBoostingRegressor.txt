@@ -1,0 +1,39 @@
+The GradientBoostingRegressor class in the hana_ml.algorithms.pal.trees module is a Gradient Boosting Tree model for regression, with various parameters for customization such as the number of trees, loss function type, maximum depth of a tree, learning rate, and more.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.trees import GradientBoostingRegressor
+
+# Create GradientBoostingRegressor instance
+gbr = GradientBoostingRegressor(
+    n_estimators=20, 
+    split_threshold=0.75,
+    learning_rate=0.75, 
+    fold_num=5, 
+    max_depth=6,
+    cv_metric='rmse', 
+    ref_metric=['mae'],
+    cross_validation_range=[
+        ('learning_rate',[0.0,5,1.0]), 
+        ('n_estimators', [10, 11, 20]), 
+        ('split_threshold', [0.0, 5, 1.0])
+    ]
+)
+
+# Assume df is your training data DataFrame
+# Perform fit() on given dataframe
+gbr.fit(data=df, features=['ATT1', 'ATT2', 'ATT3', 'ATT4'], label='TARGET')
+
+# Print model statistics
+print(gbr.stats_.collect())
+
+# Assume df1 is your prediction data DataFrame
+# Perform predict() on given dataframe
+result = gbr.predict(data=df1)
+
+# Print prediction results
+print(result.head(4).collect())
+```
+
+Please replace `df` and `df1` with your actual DataFrame objects. The `features` parameter in the `fit` method should be a list of your feature column names, and the `label` parameter should be the name of your target column. Similarly, in the `predict` method, replace `data=df1` with your actual test DataFrame.

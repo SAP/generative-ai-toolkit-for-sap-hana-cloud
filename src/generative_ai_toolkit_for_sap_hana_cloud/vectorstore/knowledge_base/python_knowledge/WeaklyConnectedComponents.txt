@@ -1,0 +1,29 @@
+The WeaklyConnectedComponents class in the hana_ml.graph.algorithms module identifies weakly connected components in a graph, where each vertex and edge is part of exactly one weakly connected component, and provides methods to execute the connected component and return the number of weakly connected components, the connected components and vertices in each component.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+# Import required modules
+import hana_ml.graph.algorithms as hga
+from hana_ml.graph.hana_graph import Graph
+
+# Create a Graph object
+g = Graph()
+
+# Create a WeaklyConnectedComponents object
+cc = hga.WeaklyConnectedComponents(graph=g)
+
+# Execute the connected component
+cc.execute()
+
+# Print the vertices
+print("Vertices", cc.vertices)
+
+# Print the components
+print("Components", cc.components)
+
+# Print the number of components
+print("Number of Components", cc.components_count)
+```
+
+Please replace `Graph()` with your actual graph object.

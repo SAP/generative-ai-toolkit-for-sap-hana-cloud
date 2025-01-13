@@ -1,0 +1,35 @@
+The Croston's method is a forecasting strategy used for products with intermittent demand. It involves two steps: estimating the average size of demand using exponential smoothing and calculating the average interval between demands. These estimates are then used in a constant model to predict future demand. The method takes into account historical demand and intervals, as well as a smoothing factor. The forecast parameters are determined based on the modified constant model. The Croston's method can output results in either constant mode or sporadic mode, depending on the desired forecasting approach.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_CROSTON_DATA_TBL;
+CREATE COLUMN TABLE PAL_CROSTON_DATA_TBL (
+    "ID" INT,
+    "RAWDATA" DOUBLE
+);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (0, 0.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (1, 1.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (2, 4.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (3, 0.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (4, 0.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (5, 0.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (6, 5.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (7, 3.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (8, 0.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (9, 0.0);
+INSERT INTO PAL_CROSTON_DATA_TBL VALUES (10, 0.0);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ALPHA', NULL,0.1,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FORECAST_NUM',1, NULL,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('METHOD',0, NULL,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES('MEASURE_NAME',NULL,NULL,'MAPE');
+
+CALL "_SYS_AFL"."PAL_CROSTON"(PAL_CROSTON_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?);

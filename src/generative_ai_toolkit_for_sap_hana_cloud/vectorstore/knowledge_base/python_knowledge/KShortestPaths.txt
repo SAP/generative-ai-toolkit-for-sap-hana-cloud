@@ -1,0 +1,39 @@
+The KShortestPaths class in the hana_ml.graph.algorithms module is used to calculate the top-k shortest paths between a source and target vertex_key in a graph, with an optional weight parameter, and may fail for HANA versions prior to SP05.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+import hana_ml.graph.algorithms as hga
+from hana_ml.graph.hana_graph import Graph
+
+class KShortestPaths(hga.algorithm_base.AlgorithmBase):
+    def __init__(self, graph: Graph):
+        # Initialize self
+        pass
+
+    def execute(self, source: str, target: str, k: int, weight: str = None) -> 'KShortestPaths':
+        # Executes the calculation of the top-k shortest paths
+        pass
+
+    @property
+    def paths(self):
+        # Returns a Pandas DataFrame that contains the paths
+        pass
+
+    @staticmethod
+    def projection_expr_from_cols(source, variable, column_filter=None):
+        # Turn columns into a string for projection expression
+        pass
+
+    @staticmethod
+    def signature_from_cols(source, column_filter=None):
+        # Turn columns into a string for script parameters
+        pass
+
+# Example usage
+g = Graph()  # Initialize your graph here
+topk = KShortestPaths(graph=g).execute(source="1", target="3", k=3)
+print("Paths", topk.paths)
+```
+
+Please replace the `pass` statements with your actual implementation. The `Graph` object `g` should also be initialized with your actual graph data.

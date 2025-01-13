@@ -1,0 +1,25 @@
+The PageRank class in the hana_ml.algorithms.pal.pagerank module is a model that calculates the rank for each node in a given data set, with optional parameters for damping factor, maximum iterations, stop condition, and thread ratio.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.pagerank import PageRank
+from hana_ml import DataFrame
+
+# Assuming that a connection context to HANA is available
+# conn is the connection context
+
+# Create DataFrame for training data
+df = DataFrame(conn, 'SELECT * FROM TRAINING_DATA')
+
+# Create a PageRank instance
+pr = PageRank(damping=0.85, max_iter=0, tol=1e-6, thread_ratio=0)
+
+# Run the PageRank algorithm
+result = pr.run(data=df)
+
+# Collect the result
+print(result.collect())
+```
+
+Please replace `'SELECT * FROM TRAINING_DATA'` with your actual SQL query to fetch the training data. Also, you need to provide a valid HANA connection context in place of `conn`.

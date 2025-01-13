@@ -1,0 +1,26 @@
+The trend_test function in the hana_ml.algorithms.pal.tsa.trend_test module is a statistical method used in time series analysis to determine if there is a consistent upward or downward trend over time, and it calculates the de-trended time series, with parameters for input data, ID column, series to be tested, method of trend identification, and significance value.
+------
+Here is the executable code template for the `trend_test` function:
+
+```python
+from hana_ml.algorithms.pal.tsa import trend_test
+from hana_ml import DataFrame
+
+# Assuming that a HANA dataframe is already created
+# data = DataFrame(...)
+
+# Define parameters
+key = 'TIME_STAMP'
+endog = 'SERIES'
+method = 'mk'
+alpha = 0.05
+
+# Perform trend_test
+stats, detrended = trend_test(data=data, key=key, endog=endog, method=method, alpha=alpha)
+
+# Print outputs
+print(stats.collect())
+print(detrended.collect())
+```
+
+Please replace the `data = DataFrame(...)` with the actual dataframe creation code. The dataframe should be created from a HANA table or view.

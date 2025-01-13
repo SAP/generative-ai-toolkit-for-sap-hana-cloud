@@ -1,0 +1,18 @@
+The function plot_pacf in the hana_ml.visualizers.eda module plots the partial autocorrelation function (PACF) of a given time series data from a HANA DataFrame, with options to specify the ID column, calculation method, maximum lag, whether to calculate confidence intervals, and whether to use plotly instead of matplotlib for plotting.
+------
+Here is the executable code template for the `plot_pacf` function:
+
+```python
+from hana_ml.visualizers.eda import plot_pacf
+
+# Assuming that 'df' is your HANA DataFrame
+# 'ID' is the ID column and 'ts' is the time series data column
+
+# Using matplotlib
+ax = plot_pacf(data=df, key='ID', col='ts', method='fft', thread_ratio=0.4, max_lag=20, calculate_confint=True)
+
+# Using plotly
+fig = plot_pacf(data=df, key='ID', col='ts', method='fft', thread_ratio=0.4, max_lag=20, calculate_confint=True, enable_plotly=True)
+```
+
+Please replace `'df'`, `'ID'`, and `'ts'` with your actual DataFrame and column names. You can also adjust the other parameters as needed.

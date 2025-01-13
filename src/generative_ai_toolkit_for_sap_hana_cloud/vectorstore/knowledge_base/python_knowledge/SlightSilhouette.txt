@@ -1,0 +1,39 @@
+The SlightSilhouette function in the hana_ml.algorithms.pal.clustering module is a method used to validate the cluster of data by providing a graphical representation of how well each object lies within its cluster, with various parameters to customize the computation such as the method for computing distance, the type of normalization, and the number of threads.
+------
+Here is the executable code template for the `SlightSilhouette` function:
+
+```python
+from hana_ml.algorithms.pal.clustering import SlightSilhouette
+from hana_ml import DataFrame
+
+# Assuming that a connection context to HANA has already been established
+
+# Create DataFrame from existing HANA table
+data = DataFrame(connection_context, 'MY_EXISTING_HANA_TABLE')
+
+# Define parameters
+features = ['V000', 'V001', 'V002']
+label = 'CLUSTER'
+distance_level = 'euclidean'
+minkowski_power = 3.0
+normalization = 'no'
+thread_number = 1
+categorical_variable = None
+category_weights = 0.707
+
+# Call the function
+res = SlightSilhouette(data=data, 
+                       features=features, 
+                       label=label, 
+                       distance_level=distance_level, 
+                       minkowski_power=minkowski_power, 
+                       normalization=normalization, 
+                       thread_number=thread_number, 
+                       categorical_variable=categorical_variable, 
+                       category_weights=category_weights)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `'MY_EXISTING_HANA_TABLE'` with your actual HANA table name. Also, adjust the parameters according to your needs.

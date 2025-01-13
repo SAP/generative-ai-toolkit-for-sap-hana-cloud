@@ -1,0 +1,18 @@
+PROCEDURE hana_ml_base_pal_additive_model_predict(
+in in_0_hana_ml_base_pal_additive_model_predict TABLE("BOOKING_DATE" DATE, "REFUNDS" DOUBLE),
+in in_1_hana_ml_base_pal_additive_model_predict TABLE("ROW_INDEX" INT, "MODEL_CONTENT" NCLOB),
+out out_0_hana_ml_base_pal_additive_model_predict TABLE("BOOKING_DATE" DATE, "YHAT" DOUBLE, "YHAT_LOWER" DOUBLE, "YHAT_UPPER" DOUBLE))
+LANGUAGE SQLSCRIPT
+SQL SECURITY INVOKER
+AS
+BEGIN
+DECLARE param_name VARCHAR(5000) ARRAY;
+DECLARE int_value INTEGER ARRAY;
+DECLARE double_value DOUBLE ARRAY;
+DECLARE string_value VARCHAR(5000) ARRAY;
+params = UNNEST(:param_name, :int_value, :double_value, :string_value);
+in_0 = SELECT * FROM :in_0_hana_ml_base_pal_additive_model_predict;
+in_1 = SELECT * FROM :in_1_hana_ml_base_pal_additive_model_predict;
+CALL "SYSAFL::PALADDITIVEMODELPREDICT"(:in_0, :in_1, :params, out_0);
+out_0_hana_ml_base_pal_additive_model_predict = SELECT * FROM :out_0;
+END

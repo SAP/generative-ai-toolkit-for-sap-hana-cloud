@@ -1,0 +1,21 @@
+The function mae in the hana_ml.algorithms.pal.metrics module computes the Mean Absolute Error (MAE) for regression results using a DataFrame of true and predicted values, with specified columns for true values and predicted values.
+------
+Here is a Python code template for the function described in the help doc:
+
+```python
+# Import necessary module
+from hana_ml.algorithms.pal.metrics import mae
+
+# Define your DataFrame, true label column, and predicted label column
+data = # Your DataFrame here
+label_true = # Your true label column here
+label_pred = # Your predicted label column here
+
+# Compute MAE
+result = mae(data, label_true, label_pred)
+
+# Print the result
+print(result)
+```
+
+Please replace the placeholders with your actual DataFrame and column names.

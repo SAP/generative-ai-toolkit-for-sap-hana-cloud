@@ -1,0 +1,19 @@
+The function 'pert' in the 'hana_ml.algorithms.pal.random' module draws samples from a PERT distribution, with parameters for database connection, minimum and maximum values, most likely value, scale, number of random data to be generated, seed for random number generator, and thread ratio.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.random import pert
+from hana_ml import ConnectionContext
+
+# Create a connection context
+cc = ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Draw samples from a pert distribution
+res = pert(conn_context=cc, minimum=-1, mode=0, maximum=1, num_random=10)
+
+# Collect the result
+print(res.collect())
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual HANA database connection details.

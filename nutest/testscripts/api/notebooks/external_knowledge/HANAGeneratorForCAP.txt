@@ -1,0 +1,24 @@
+The HANAGeneratorForCAP class in the hana_ml.artifacts.generators.hana module is a HANA artifacts generator for existing CAP projects, which takes a project name, output directory, and optional namespace as parameters, and includes methods to generate CAP artifacts and create an input table for the input dataframe.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.artifacts.generators.hana import HANAGeneratorForCAP
+from hana_ml.algorithms.pal.tsa.additive_model_forecast import AdditiveModelForecast
+from hana_ml.visualizers.visualizer_base import forecast_line_plot
+from hana_ml.dataframe import DataFrame
+
+
+amf = AdditiveModelForecast(growth='linear')
+amf.fit(data=<dataframe>.head(150))
+pred_data = amf.predict(data=<dataframe>.tail(30))
+
+
+# Initialize HANAGeneratorForCAP
+hanagen = HANAGeneratorForCAP(project_name="CAP_project_template",
+                              output_dir=".",
+                              namespace="hana.ml")
+
+# Generate artifacts
+hanagen.generate_artifacts(amf)
+```

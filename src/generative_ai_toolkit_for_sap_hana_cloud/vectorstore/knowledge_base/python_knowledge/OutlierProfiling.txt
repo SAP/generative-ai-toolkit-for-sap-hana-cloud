@@ -1,0 +1,34 @@
+The OutlierProfiling class in the hana_ml.algorithms.pal.outlier_profiling module provides a way to detect outliers in a dataset from multiple perspectives using various hana-ml classes/functions for outlier detection, each with its own parameter specification.
+------
+Here is a Python code template for the `OutlierProfiling` class:
+
+```python
+from hana_ml.algorithms.pal.outlier_profiling import OutlierProfiling
+
+# Create an instance of the OutlierProfiling class
+profiling = {
+    'KMeansOutlier': {'n_clusters': 3, 'distance_level': 2, 'contamination': 0.1},
+    'grubbs_test': {'method': 'two-tailed', 'alpha': 0.05},
+    'iqr': {'multiplier': 1.5},
+    'DBSCAN': {'minpts': 5, 'eps': 0.5},
+    'OneClassSVM': {'c': 1, 'kernel': 'rbf', 'degree': 3, 'gamma': 0.1, 'coef_lin': 0, 'coef_const': 1, 'shrink': True, 'tol': 0.001, 'nu': 0.5, 'scale_info': 'standard', 'handle_missing': 'mean'},
+    'IsolationForest': {'n_estimators': 100, 'max_samples': 'auto', 'max_features': 1.0, 'bootstrap': False, 'random_state': None, 'contamination': 0.1}
+}
+outlier_profiling = OutlierProfiling(profiling=profiling)
+
+# Fit and predict outliers
+data = # DataFrame containing the data used for outlier detection
+key = # Name of ID column in data
+categorical_variable = # Names of integer columns in data that should be treated as categorical
+string_variable = # Name of string column storing not categorical data
+grubbs_cols = # Numerical columns used for Grubbs' test
+iqr_cols = # Numerical columns used for Inter-Quantile-Range(IQR) test
+outliers = outlier_profiling.fit_predict(data, key=key, categorical_variable=categorical_variable, string_variable=string_variable, grubbs_cols=grubbs_cols, iqr_cols=iqr_cols)
+
+# Print the detected outliers
+for algorithm, outliers_df in outliers.items():
+    print(f"Outliers detected by {algorithm}:")
+    print(outliers_df)
+```
+
+Please replace the `# DataFrame containing the data used for outlier detection` comment with your actual DataFrame. Also, replace the `# Name of ID column in data`, `# Names of integer columns in data that should be treated as categorical`, `# Name of string column storing not categorical data`, `# Numerical columns used for Grubbs' test`, and `# Numerical columns used for Inter-Quantile-Range(IQR) test` comments with your actual column names.

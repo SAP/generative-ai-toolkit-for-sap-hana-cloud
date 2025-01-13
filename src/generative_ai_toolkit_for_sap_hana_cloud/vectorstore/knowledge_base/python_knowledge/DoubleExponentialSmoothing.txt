@@ -1,0 +1,28 @@
+The DoubleExponentialSmoothing class in the hana_ml.algorithms.pal.tsa.exponential_smoothing module is used to model time series data with a trend but without seasonality, using parameters such as alpha and beta for smoothing and trend components, forecast_num for the number of values to be forecast, and options for damped trend method, accuracy measure, and prediction confidence intervals.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.exponential_smoothing import DoubleExponentialSmoothing
+
+# Create a DoubleExponentialSmoothing instance
+desm = DoubleExponentialSmoothing(alpha=0.501,
+                                  beta=0.072,
+                                  forecast_num=6,
+                                  phi=None,
+                                  damped=None,
+                                  accuracy_measure='mse',
+                                  ignore_zero=None,
+                                  expost_flag=None,
+                                  prediction_confidence_1=0.8,
+                                  prediction_confidence_2=0.95)
+
+# Perform fit_predict() on the given data
+desm.fit_predict(data=df)
+
+# Output
+print(desm.forecast_.collect().set_index('TIMESTAMP').head(3))
+print(desm.stats_.collect())
+```
+
+Please replace the DataFrame `df` with your actual data. The `fit_predict()` function fits the model to the data and then makes a prediction. The results are stored in the `forecast_` and `stats_` attributes of the `DoubleExponentialSmoothing` instance.

@@ -1,0 +1,36 @@
+The GradientBoostingClassifier class in the hana_ml.algorithms.pal.trees module is a Gradient Boosting model for classification that allows users to specify parameters such as the number of trees, loss function type, maximum tree depth, learning rate, and more, and includes methods for training the model, making predictions, and evaluating model performance.
+------
+Here is a Python code template for the GradientBoostingClassifier class:
+
+```python
+from hana_ml.algorithms.pal.trees import GradientBoostingClassifier
+
+# Create Gradient Boosting Classifier
+gbc = GradientBoostingClassifier(
+    n_estimators = 4, 
+    split_threshold=0,
+    learning_rate=0.5, 
+    fold_num=5, 
+    max_depth=6,
+    cv_metric = 'error_rate', 
+    ref_metric=['auc'],
+    cross_validation_range=[
+        ('learning_rate',[0.1,1.0,3]), 
+        ('n_estimators', [4,10,3]), 
+        ('split_threshold', [0.1,1.0,3])
+    ]
+)
+
+# Assume df is your training DataFrame
+# Perform fit() on given dataframe:
+gbc.fit(data=df, features=['ATT1', 'ATT2', 'ATT3', 'ATT4'], label='LABEL')
+
+# Assume df1 is your testing DataFrame
+# Perform predict() on given dataframe
+result = gbc.predict(data=df1, key='ID', verbose=False)
+
+# Print the result
+print(result.collect())
+```
+
+Please replace `df` and `df1` with your actual DataFrames. The `features` parameter in the `fit` method should be a list of your feature column names, and `label` should be the name of your target column. The `key` parameter in the `predict` method should be the name of your ID column.

@@ -1,0 +1,22 @@
+The function forecast_line_plot in the hana_ml.visualizers.visualizer_base module is used to plot the prediction data for time series forecast or regression model, with options to include actual data, confidence bounds, and various customization options for the plot.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers.visualizer_base import forecast_line_plot
+from hana_ml.algorithms.pal.tsa.additive_model_forecast import AdditiveModelForecast
+
+# Create an 'AdditiveModelForecast' instance and invoke the fit and predict functions
+amf = AdditiveModelForecast(growth='linear')
+amf.fit(data=train_df)
+pred_data = amf.predict(data=test_df)
+
+# Visualize the forecast values
+ax = forecast_line_plot(pred_data=pred_data.set_index("INDEX"),
+                        actual_data=df.set_index("INDEX"),
+                        confidence=("YHAT_LOWER", "YHAT_UPPER"),
+                        max_xticklabels=10)
+```
+
+Please replace `train_df`, `test_df`, and `df` with your actual dataframes. Also, make sure that the column names in the `confidence` tuple match the column names in your dataframe.

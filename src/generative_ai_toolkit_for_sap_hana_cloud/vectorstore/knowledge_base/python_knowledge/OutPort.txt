@@ -1,0 +1,21 @@
+The OutPort class in the hana_ml.visualizers.digraph module represents a fixed connection point on a node, with attributes for the node it's fixed on, a unique port ID, port name, and its position among all output ports.
+------
+Here is a Python code template for the `OutPort` class in the `hana_ml.visualizers.digraph` module:
+
+```python
+from hana_ml.visualizers.digraph import Node, OutPort
+
+# Create a Node instance
+node = Node(node_id="node1", node_name="Node 1")
+
+# Create an OutPort instance
+out_port = OutPort(node=node, port_id="port1", port_name="Port 1", port_sequence=1)
+
+# Access instance variables
+print(out_port.__dict__)
+
+# Access list of weak references to the object (if defined)
+print(out_port.__weakref__)
+```
+
+Please replace the placeholder values with your actual values. Note that `port_id` and `port_sequence` are automatically generated, so you don't need to provide them.

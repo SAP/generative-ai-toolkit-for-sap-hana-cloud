@@ -1,0 +1,34 @@
+Grubbs' test is a statistical test used to detect outliers in a dataset. It assumes that the data comes from a Gaussian distribution. The test involves calculating a test statistic and comparing it to a critical value based on the significance level. If the test statistic exceeds the critical value, the hypothesis that there are no outliers is rejected, indicating the presence of outliers in the dataset. There are two versions of the test: a two-sided test and a one-sided test for minimum or maximum values. In the case of a one-sided test, the critical value is adjusted accordingly. If an outlier is detected, it can be removed from the dataset and the test can be repeated. The outliers detected by the test are returned as the result.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_GRUBBS_DATA_TBL;
+CREATE COLUMN TABLE PAL_GRUBBS_DATA_TBL (
+    "ID" INTEGER,
+    "VAL" DOUBLE
+);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (100, 4.254843);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (200, 0.135000);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (300, 11.072257);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (400, 14.797838);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (500, 12.125133);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (600, 14.265839);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (700, 7.731352);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (800, 6.856739);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (900, 15.094403);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (101,  8.149382);
+INSERT INTO PAL_GRUBBS_DATA_TBL VALUES (201, 9.160144);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ALPHA',  null,  0.2, null);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('METHOD',    2, null, null);
+
+CALL "_SYS_AFL"."PAL_GRUBBS_TEST"(PAL_GRUBBS_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?);
+

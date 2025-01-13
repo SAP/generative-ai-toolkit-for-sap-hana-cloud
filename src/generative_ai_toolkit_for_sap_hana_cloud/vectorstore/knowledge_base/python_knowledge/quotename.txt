@@ -1,0 +1,19 @@
+The quotename function in the hana_ml.dataframe module escapes a schema, table, or column name for use in SQL, returning the escaped name surrounded in quotation marks with existing quotation marks escaped by doubling them.
+------
+Here is a Python code template for the `quotename` function in the `hana_ml.dataframe` module:
+
+```python
+# Import the required module
+import hana_ml.dataframe
+
+# Define the schema, table, or column name
+name = "your_schema_table_or_column_name"
+
+# Use the quotename function to escape the name for use in SQL
+escaped_name = hana_ml.dataframe.quotename(name)
+
+# Print the escaped name
+print(escaped_name)
+```
+
+Please replace `"your_schema_table_or_column_name"` with your actual schema, table, or column name. The `quotename` function will return the escaped name, which is surrounded in quotation marks, and existing quotation marks are escaped by doubling them.

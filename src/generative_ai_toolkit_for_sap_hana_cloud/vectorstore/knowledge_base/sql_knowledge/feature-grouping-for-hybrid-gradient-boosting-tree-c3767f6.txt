@@ -1,0 +1,55 @@
+The content discusses the concept of feature grouping in hybrid gradient boosting tree algorithms. It explains that data sets often contain sparse features, which have a large amount of insignificant data. Similarly, a set of features can also be sparse, with only one feature containing significant data in each data row. Feature grouping aims to group together sparse features to reduce memory usage and accelerate the training process. The content mentions that finding the exact set of features that satisfy the requirement of feature grouping is a complicated algorithm, but a greedy algorithm can be used to find approximate sets. The requirement for feature grouping can also be relaxed to allow for some violations.
+------
+
+set schema DM_PAL;
+
+drop table PAL_HGBT_DATA_TAB;
+create column table PAL_HGBT_DATA_TAB (
+	"ATT1" double,
+	"ATT2" double,
+	"ATT3" double,
+	"ATT4" double,
+	"LABEL" nvarchar(50)
+);
+insert into PAL_HGBT_DATA_TAB values (1.0, 0.0, 0.0, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.1, 0.0, 0.0, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (0.0, 10.2, 0.0, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.3, 0.0, 0.0, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.2, 0.0, 0.0, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (0.0, 40.0, 400, 0.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.1, 0.0, 400, 0.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.2, 0.0, 400, 0.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.3, 0.0, 400, 0.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (0.0, 40.3, 400, 0.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (0.0, 90.0, 900, 0.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (0.0, 90.1, 0.0, 1.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (0.0, 90.2, 0.0, 2.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (0.0, 90.4, 0.0, 1.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (0.0, 90.3, 900, 0.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (1.0, 0.0, 100, 0.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.1, 0.0, 100, 0.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.2, 0.0, 100, 0.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (0.0, 10.4, 100, 0.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.2, 0.0, 100, 0.0, 'A');
+
+drop table PAL_PARAMETER_TAB;
+create column table PAL_PARAMETER_TAB (
+	"PARAM_NAME" nvarchar(100),
+	"INT_VALUE" integer,
+	"DOUBLE_VALUE" double,
+	"STRING_VALUE" nvarchar(100)
+);
+insert into PAL_PARAMETER_TAB values ('FEATURE_GROUPING', 1, null, null);
+insert into PAL_PARAMETER_TAB values ('TOLERANT_RATE', null, 0.01, null);
+
+do begin
+	LT_DATA_TAB = select * from PAL_HGBT_DATA_TAB;
+	LT_PARAM_TAB = select * from PAL_PARAMETER_TAB;
+	call _SYS_AFL.PAL_HGBT(:LT_DATA_TAB, :LT_PARAM_TAB, LT_MODEL_TAB, LT_IMP_TAB, LT_CONFUSE_TAB, LT_STAT_TAB, LT_CV_TAB);
+	select * from :LT_MODEL_TAB;
+	select * from :LT_IMP_TAB;
+	select * from :LT_CONFUSE_TAB;
+	select * from :LT_STAT_TAB;
+	select * from :LT_CV_TAB;
+	insert into PAL_HGBT_MODEL_TAB select * from :LT_MODEL_TAB;
+end;

@@ -1,0 +1,61 @@
+The content provides an example of how to switch between the linear regression and random decision trees algorithms for training using the same dataset. It starts by preparing a training data table called PAL_DATA_TBL with columns for ID, Y, X1, X2, and X3. The table is then populated with sample data.
+
+Next, a parameter table called #PAL_MLR_PARAMETER_TBL is created for linear regression. It includes parameters such as THREAD_RATIO, PMML_EXPORT, and CATEGORICAL_VARIABLE. The linear regression algorithm is then called using the PAL_LINEAR_REGRESSION function, passing the PAL_DATA_TBL and #PAL_MLR_PARAMETER_TBL as input.
+
+After that, a parameter table called #PAL_RDT_PARAMETER_TBL is created for random decision trees. It includes parameters such as TREES_NUM, SPLIT_THRESHOLD, NODE_SIZE, CATEGORICAL_VARIABLE, HAS_ID, and DEPENDENT_VARIABLE. The random decision trees algorithm is called using the PAL_RANDOM_DECISION_TREES function, passing the PAL_DATA_TBL and #PAL_RDT_PARAMETER_TBL as input.
+
+Overall, the content demonstrates how to switch between the linear regression and random decision trees algorithms for training using the same dataset by preparing different parameter tables for each algorithm and calling the corresponding functions.
+------
+
+SET SCHEMA DM_PAL;
+
+-- Prepare training data table 
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL 
+(
+	"ID" VARCHAR(50), 
+	"Y" DOUBLE, 
+	"X1" DOUBLE,
+	"X2" VARCHAR(100), 
+	"X3" INTEGER
+);
+
+INSERT INTO PAL_DATA_TBL VALUES (0, -6.879, 0.00, 'A', 1);
+INSERT INTO PAL_DATA_TBL VALUES (1, -3.449, 0.50, 'A', 1);
+INSERT INTO PAL_DATA_TBL VALUES (2,  6.635, 0.54, 'B', 1);
+INSERT INTO PAL_DATA_TBL VALUES (3, 11.844, 1.04, 'B', 1);
+INSERT INTO PAL_DATA_TBL VALUES (4,  2.786, 1.50, 'A', 1);
+INSERT INTO PAL_DATA_TBL VALUES (5,  2.389, 0.04, 'B', 2);
+INSERT INTO PAL_DATA_TBL VALUES (6, -0.011, 2.00, 'A', 2);
+INSERT INTO PAL_DATA_TBL VALUES (7,  8.839, 2.04, 'B', 2);
+INSERT INTO PAL_DATA_TBL VALUES (8,  4.689, 1.54, 'B', 1);
+INSERT INTO PAL_DATA_TBL VALUES (9, -5.507, 1.00, 'A', 2);
+
+-- Prepare parameter table for linear regression
+DROP TABLE #PAL_MLR_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_MLR_PARAMETER_TBL ("NAME" VARCHAR(100), "INTARGS" INT, "DOUBLEARGS" DOUBLE,"STRINGARGS" VARCHAR(100));
+
+INSERT INTO #PAL_MLR_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.5, NULL);
+INSERT INTO #PAL_MLR_PARAMETER_TBL VALUES ('PMML_EXPORT', 1, NULL, NULL);
+-- INTEGER column is by default continuous column, explicitly set to categorical variable
+INSERT INTO #PAL_MLR_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE', NULL, NULL,'X3');
+
+-- Call linear regression
+CALL _SYS_AFL.PAL_LINEAR_REGRESSION(PAL_DATA_TBL, "#PAL_MLR_PARAMETER_TBL", ?, ?, ?, ?, ?);
+
+-- Prepare parameter table for random decision trees
+DROP TABLE #PAL_RDT_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_RDT_PARAMETER_TBL ("NAME" VARCHAR(100), "INTARGS" INT, "DOUBLEARGS" DOUBLE,"STRINGARGS" VARCHAR(100));
+
+INSERT INTO #PAL_RDT_PARAMETER_TBL VALUES ('TREES_NUM', 10, NULL, NULL);
+INSERT INTO #PAL_RDT_PARAMETER_TBL VALUES ('SPLIT_THRESHOLD', NULL, 1e-5, NULL);
+INSERT INTO #PAL_RDT_PARAMETER_TBL VALUES ('NODE_SIZE', 1, NULL, NULL);
+INSERT INTO #PAL_RDT_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE',NULL,NULL,'X3');
+-- The training data consist of ID column, explicitly set HAS_ID = 1 and algorithm will not consider the first column as feature
+INSERT INTO #PAL_RDT_PARAMETER_TBL VALUES ('HAS_ID', 1, NULL, NULL);
+-- By default the last column of the input table is the DEPENDENT_VARIABLE, explicitly set DEPENDENT_VARIABLE as column 'Y' 
+INSERT INTO #PAL_RDT_PARAMETER_TBL VALUES ('DEPENDENT_VARIABLE', NULL, NULL,'Y');
+
+-- Call random decision trees with same training data
+CALL _SYS_AFL.PAL_RANDOM_DECISION_TREES(PAL_DATA_TBL, "#PAL_RDT_PARAMETER_TBL", ?, ?, ?, ?);
+

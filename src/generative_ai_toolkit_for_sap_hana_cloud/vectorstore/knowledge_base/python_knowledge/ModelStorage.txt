@@ -1,0 +1,62 @@
+The ModelStorage class in the hana_ml module allows users to save, list, load, and delete models in SAP HANA tables, with models identified by a name and version, and can be saved in three ways: for the first time, as a replacement, or with a higher version.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.model_storage import ModelStorage
+from hana_ml.dataframe import ConnectionContext
+from hana_ml.algorithms.pal.neural_network import MLPClassifier
+from hana_ml.algorithms.apl.classification import AutoClassifier
+
+# Create a connection to SAP HANA
+conn = ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Create and train a model with functions MLPClassifier and AutoClassifier
+model_pal_name = 'MLPClassifier 1'
+model_pal = MLPClassifier(conn, hidden_layer_size=[10, ], activation='TANH', output_activation='TANH', learning_rate=0.01, momentum=0.001)
+model_pal.fit(data, label='IS_SETOSA', key='ID')
+
+model_apl_name = 'AutoClassifier 1'
+model_apl = AutoClassifier(conn_context=conn)
+model_apl.fit(data, label='IS_SETOSA', key='ID')
+
+# Create an instance of ModelStorage
+MODEL_SCHEMA = 'MODEL_STORAGE' # HANA schema in which models are to be saved
+model_storage = ModelStorage(connection_context=conn, schema=MODEL_SCHEMA)
+
+# Save these two trained models for the first time
+model_pal.name = model_pal_name
+model_storage.save_model(model=model_pal)
+model_apl.name = model_apl_name
+model_storage.save_model(model=model_apl)
+
+# List saved models
+print(model_storage.list_models())
+
+# Reload saved models
+model1 = model_storage.load_model(name=model_pal_name, version=1)
+model2 = model_storage.load_model(name=model_apl_name, version=1)
+
+# Use loaded model model2 for new prediction
+out = model2.predict(data=data_test)
+print(out.head(3).collect())
+
+# Save a model by overwriting the original model
+model_storage.save_model(model=model_apl, if_exists='replace')
+print(list_models = model_storage.list_models(name=model.name))
+
+# Save a model by upgrading the version
+model_storage.save_model(model=model_apl, if_exists='upgrade')
+print(list_models = model_storage.list_models(name=model.name))
+
+# Delete a model with specified version
+model_storage.delete_model(name=model.name, version=model.version)
+
+# Delete models with same model name and different versions
+model_storage.delete_models(name=model.name)
+
+# Clean up all models and meta data at once
+model_storage.clean_up()
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual SAP HANA connection details. Also, replace `data` and `data_test` with your actual training and testing datasets.

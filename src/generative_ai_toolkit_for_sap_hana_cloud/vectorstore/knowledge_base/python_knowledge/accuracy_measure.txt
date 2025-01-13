@@ -1,0 +1,24 @@
+The accuracy_measure function in the hana_ml.algorithms.pal.tsa.accuracy_measure module measures the accuracy of a forecast using various metrics such as mean percentage error, mean square error, root mean square error, etc., and can operate in either single or massive mode, with the ability to ignore zero values and specify unit opportunity cost and unit stock-keeping cost parameters.
+------
+Here is the executable code template for the `accuracy_measure` function:
+
+```python
+from hana_ml.algorithms.pal.tsa import accuracy_measure
+from hana_ml import DataFrame
+
+# Assuming that a HANA dataframe is already created
+# df = DataFrame(connection_context, 'SELECT * FROM YOUR_TABLE')
+
+# Define the evaluation metrics
+evaluation_metrics = ['mse', 'rmse', 'mpe', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape']
+
+# Call the accuracy_measure function
+res = accuracy_measure(data=df, evaluation_metric=evaluation_metrics)
+
+# Collect the result
+result = res.collect()
+
+print(result)
+```
+
+Please replace `'SELECT * FROM YOUR_TABLE'` with your actual SQL statement to create a HANA dataframe. The `accuracy_measure` function calculates the accuracy of the forecast based on the actual and forecasted data in the dataframe. The `evaluation_metric` parameter is a list of strings specifying the accuracy measures to be calculated. The result is another dataframe containing the accuracy measures and their values.

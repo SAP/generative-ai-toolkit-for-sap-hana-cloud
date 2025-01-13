@@ -1,0 +1,25 @@
+The function 'gumbel' in the 'hana_ml.algorithms.pal.random' module draws samples from a Gumbel distribution, which is used in modeling extreme value problems, and returns a DataFrame containing the generated random samples.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.random import gumbel
+from hana_ml import dataframe as df
+
+# Assuming that a connection context 'cc' is already created
+
+# Set parameters
+location = 0
+scale = 1
+num_random = 10
+seed = None
+thread_ratio = None
+
+# Draw samples from a Gumbel distribution
+res = gumbel(conn_context=cc, location=location, scale=scale, num_random=num_random, seed=seed, thread_ratio=thread_ratio)
+
+# Collect and print the result
+print(res.collect())
+```
+
+Please replace `'cc'` with your actual connection context. Also, you can adjust the parameters (`location`, `scale`, `num_random`, `seed`, `thread_ratio`) as per your requirements.

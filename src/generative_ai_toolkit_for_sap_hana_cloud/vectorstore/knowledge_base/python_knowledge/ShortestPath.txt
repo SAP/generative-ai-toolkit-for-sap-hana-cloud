@@ -1,0 +1,41 @@
+The ShortestPath class in the hana_ml.graph.algorithms.shortest_path module is used to find the shortest path between a source and target vertex_key in a graph, with optional weight and direction, and the results can be visualized using libraries like networkX.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+import hana_ml.graph.algorithms as hga
+from hana_ml.graph.hana_graph import Graph
+
+class ShortestPath(hga.algorithm_base.AlgorithmBase):
+    def __init__(self, graph: Graph):
+        # Initialize self
+        pass
+
+    def execute(self, source: str, target: str, weight: str = None, direction: str = 'OUTGOING') -> 'ShortestPath':
+        # Executes the calculation of the shortest path
+        pass
+
+    @property
+    def edges(self):
+        # Returns a Pandas DataFrame that contains the edges of the shortest path
+        pass
+
+    @property
+    def vertices(self):
+        # Returns a Pandas DataFrame that contains the vertices of the shortest path
+        pass
+
+    @property
+    def weight(self):
+        # Returns the weight of the shortest path
+        pass
+
+# Example usage
+g = Graph()  # Initialize your graph here
+sp = ShortestPath(graph=g).execute(source="1", target="3")
+print("Vertices", sp.vertices)
+print("Edges", sp.edges)
+print("Weight:", sp.weight)
+```
+
+Please replace the `pass` statements with your actual implementation. Also, you need to initialize the `Graph` object `g` with your actual graph data.

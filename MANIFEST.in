@@ -1,0 +1,4 @@
+include src/generative_ai_toolkit_for_sap_hana_cloud/vectorstore/knowledge_base/python_knowledge/*
+include src/generative_ai_toolkit_for_sap_hana_cloud/vectorstore/knowledge_base/sql_knowledge/*
+include src/generative_ai_toolkit_for_sap_hana_cloud/agents/scenario_knowledge_base/*
+include img/*

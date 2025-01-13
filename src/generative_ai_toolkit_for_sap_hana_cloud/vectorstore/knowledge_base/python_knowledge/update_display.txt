@@ -1,0 +1,21 @@
+The function update_display in the IPython.core.display_functions module updates an existing display using a specified object and display id.
+------
+Here is a Python code template for the `update_display` function from the `IPython.core.display_functions` module:
+
+```python
+from IPython.core.display import update_display
+
+# Define the object to update the display with
+obj = ...
+
+# Define the id of the display to update
+display_id = ...
+
+# Optional keyword arguments
+kwargs = ...
+
+# Call the function
+update_display(obj, display_id=display_id, **kwargs)
+```
+
+Please replace the `...` with your actual values.

@@ -1,0 +1,24 @@
+PROCEDURE hana_ml_base_pal_additive_model_analysis(
+in in_0_hana_ml_base_pal_additive_model_analysis TABLE("BOOKING_DATE" DATE, "REFUNDS" DOUBLE),
+out out_0_hana_ml_base_pal_additive_model_analysis TABLE("ROW_INDEX" INT, "MODEL_CONTENT" NCLOB))
+LANGUAGE SQLSCRIPT
+SQL SECURITY INVOKER
+AS
+BEGIN
+DECLARE param_name VARCHAR(5000) ARRAY;
+DECLARE int_value INTEGER ARRAY;
+DECLARE double_value DOUBLE ARRAY;
+DECLARE string_value VARCHAR(5000) ARRAY;
+DECLARE ts TIMESTAMP ARRAY;
+DECLARE name VARCHAR(255) ARRAY;
+DECLARE lower_window INTEGER ARRAY;
+DECLARE upper_window INTEGER ARRAY;
+param_name[1] := N'GROWTH';
+int_value[1] := NULL;
+double_value[1] := NULL;
+string_value[1] := N'linear';
+params = UNNEST(:param_name, :int_value, :double_value, :string_value);
+in_0 = SELECT * FROM :in_0_hana_ml_base_pal_additive_model_analysis;
+CALL "SYSAFL::PALADDITIVEMODELANALYSIS"(:in_0, :holidays, :params, out_0);
+out_0_hana_ml_base_pal_additive_model_analysis = SELECT * FROM :out_0;
+END

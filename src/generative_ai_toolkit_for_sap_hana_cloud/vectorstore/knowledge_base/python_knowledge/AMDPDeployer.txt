@@ -1,0 +1,42 @@
+The AMDPDeployer class in the hana_ml.artifacts.deployers.amdp module provides functionality for deploying AMDP classes into the ISLM framework, supporting the UnifiedClassification algorithm, and requiring the SAP_INTNW_ISLM role for deployers related functions.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.artifacts.deployers.amdp import AMDPDeployer
+
+# Initialize AMDPDeployer
+deployer = AMDPDeployer(backend_url='backend_url',
+                        backend_auth=('backend_user', 'backend_password'),
+                        frontend_url='frontend_url',
+                        frontend_auth=('frontend_user', 'frontend_password'))
+
+# Deploy
+guid = deployer.deploy(fp="XXX.abap",
+                       model_name="MODEL_01",
+                       catalog="$TMP",
+                       scenario_name="DEMO_CUSTOM01",
+                       scenario_description="Hello S/4 demo!",
+                       scenario_type="CLASSIFICATION",
+                       force_overwrite=True,
+                       master_system="ER9",
+                       transport_request="$TMP",
+                       sap_client='000')
+
+# Delete the scenario in ISLM
+deployer.delete_islm(scenario_name='scenario_name', sap_client='sap_client')
+
+# Get ISLM information
+deployer.get_is_information_from_islm(scenario_name='scenario_name', sap_client='sap_client')
+
+# Publish the scenario in ISLM
+deployer.publish_islm(scenario_name='scenario_name', train_cds='train_cds', apply_cds='apply_cds', sap_client='sap_client')
+
+# Register in ISLM
+deployer.register_islm(class_name='class_name', model_name='model_name', catalog='catalog', scenario_name='scenario_name', scenario_type='scenario_type', scenario_description='scenario_description', sap_client='sap_client')
+
+# Train the model in ISLM
+deployer.train_islm(model_name='model_name', model_description='model_description', scenario_name='scenario_name', sap_client='sap_client')
+```
+
+Please replace the placeholder values with your actual values.

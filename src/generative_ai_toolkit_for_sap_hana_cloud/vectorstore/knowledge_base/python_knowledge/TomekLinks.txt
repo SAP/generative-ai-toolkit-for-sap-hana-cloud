@@ -1,0 +1,20 @@
+The TomekLinks class in the hana_ml.algorithms.pal.preprocessing module is used for performing under-sampling by removing Tomek's links, with various parameters to specify distance method, Minkowski power, thread ratio, search method, sampling strategy, and category weights.
+------
+Here is a Python code template for the `TomekLinks` class:
+
+```python
+from hana_ml.algorithms.pal.preprocessing import TomekLinks
+
+# Instantiate the TomekLinks class
+tomeklinks = TomekLinks(distance_level='euclidean', 
+                        minkowski_power=3, 
+                        thread_ratio=0, 
+                        search_method='brute-force', 
+                        sampling_strategy='majority', 
+                        category_weights=0.707)
+
+# Perform under-sampling on given datasets by removing Tomek's links
+res = tomeklinks.fit_transform(data=df, label='TYPE')
+```
+
+Please replace `df` with your actual DataFrame and `'TYPE'` with the actual label in your DataFrame.

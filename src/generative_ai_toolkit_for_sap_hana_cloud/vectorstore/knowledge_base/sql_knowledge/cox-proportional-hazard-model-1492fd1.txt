@@ -1,0 +1,75 @@
+The Cox proportional hazard model (CoxPHM) is a type of generalized linear model used to analyze survival data. It models the hazard rate, which represents the probability of an event (such as failure or death) occurring at a certain time. The model includes a baseline hazard function and parameters that influence the hazard rate. Unlike other generalized linear models, CoxPHM does not have an intercept term. Parameter estimation is done using maximum likelihood estimation, with the tied events (events with the same time) being handled using approximation methods.
+------
+
+SET SCHEMA DM_PAL;
+
+
+DROP TABLE PAL_COX_DATA_TBL;
+CREATE COLUMN TABLE PAL_COX_DATA_TBL(
+	"ID" INTEGER,
+	"TIME" DOUBLE,
+	"STATUS" INTEGER, -- if a failure/death, or right-censored, optional
+	"X1" DOUBLE,
+	"X2" DOUBLE
+);
+INSERT INTO PAL_COX_DATA_TBL VALUES(1, 4, 1, 0, 0);
+INSERT INTO PAL_COX_DATA_TBL VALUES(2, 3, 1, 2, 0);
+INSERT INTO PAL_COX_DATA_TBL VALUES(3, 1, 1, 1, 0);
+INSERT INTO PAL_COX_DATA_TBL VALUES(4, 1, 0, 1, 0);
+INSERT INTO PAL_COX_DATA_TBL VALUES(5, 2, 1, 1, 1);
+INSERT INTO PAL_COX_DATA_TBL VALUES(6, 2, 1, 0, 1);
+INSERT INTO PAL_COX_DATA_TBL VALUES(7, 3, 0, 0, 1);
+
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR(100),
+	"INT_VALUE" INTEGER,
+	"DOUBLE_VALUE" DOUBLE,
+	"STRING_VALUE" VARCHAR (100)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('TIE_METHOD', null, null, 'efron');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('CALCULATE_HAZARD', 1, null, null); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('OUTPUT_FITTED', 1, null, null);
+
+
+DROP TABLE PAL_COX_STATS_TBL;
+CREATE COLUMN TABLE PAL_COX_STATS_TBL (
+	"STAT_NAME" NVARCHAR(1000),
+	"STAT_VALUE" NVARCHAR(1000)
+);
+
+DROP TABLE PAL_COX_COEFF_TBL;
+CREATE COLUMN TABLE PAL_COX_COEFF_TBL (
+	"VARIABLE_NAME" NVARCHAR(256),
+	"COEFFICIENT" DOUBLE,
+	"MEAN" DOUBLE,
+	"SE" DOUBLE,
+	"SCORE" DOUBLE,
+	"PROBABILITY" DOUBLE,
+	"CI_LOWER"	DOUBLE,
+	"CI_UPPER" DOUBLE
+);
+
+DROP TABLE PAL_COX_VCOV_TBL;
+CREATE COLUMN TABLE PAL_COX_VCOV_TBL (
+	"VARIABLE_I" NVARCHAR(256),
+	"VARIABLE_J" NVARCHAR(256),
+	"COVARIANCE" DOUBLE
+);
+
+do begin 
+	lt_data = select * from PAL_COX_DATA_TBL;
+	lt_control = select * from PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_COXPH(:lt_data, :lt_control, lt_stats, lt_coeff, lt_vcov, lt_hazard, lt_fit);
+	INSERT INTO PAL_COX_STATS_TBL SELECT * FROM :lt_stats;
+	INSERT INTO PAL_COX_COEFF_TBL SELECT * FROM :lt_coeff;
+	INSERT INTO PAL_COX_VCOV_TBL SELECT * FROM :lt_vcov;
+	SELECT * FROM PAL_COX_STATS_TBL;
+	SELECT * FROM PAL_COX_COEFF_TBL;
+	SELECT * FROM PAL_COX_VCOV_TBL;
+	SELECT * FROM :lt_hazard;
+	SELECT * FROM :lt_fit;
+end;
+

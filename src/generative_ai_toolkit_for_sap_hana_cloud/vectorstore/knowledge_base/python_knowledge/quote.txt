@@ -1,0 +1,28 @@
+The quote function in urllib.parse module in Python is used to percent-encode a URL string, preserving certain characters as specified by the 'safe' argument, with default encoding as 'utf-8' and error handling as 'strict'.
+------
+Here is a Python code template for the `quote` function in the `urllib.parse` module:
+
+```python
+# Import the required module
+from urllib.parse import quote
+
+# Define the string to be quoted
+string = 'abc def'
+
+# Define the safe characters
+safe = '/'
+
+# Define the encoding
+encoding = 'utf-8'  # Default is 'utf-8'
+
+# Define the error handling strategy
+errors = 'strict'  # Default is 'strict'
+
+# Quote the string
+quoted_string = quote(string, safe=safe, encoding=encoding, errors=errors)
+
+# Print the quoted string
+print(quoted_string)
+```
+
+You can replace the `string`, `safe`, `encoding`, and `errors` variables with your own values. The `quote` function will return a string where all characters that are neither in the unreserved chars ("always safe") nor the additional chars set via the `safe` arg are %-escaped.

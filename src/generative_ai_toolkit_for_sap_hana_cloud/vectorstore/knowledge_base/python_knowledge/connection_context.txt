@@ -1,0 +1,4 @@
+This is connection_context that include functions add_primary_key, create_table, create_schema, create_virtual_table, drop_procedure, drop_view, drop_table, explain_plan_statement, has_table, has_schema, hana_version, get_current_schema, get_tables, get_procedures, get_temporary_tables, clean_up_temporary_tables, sql and table.
+------
+
+Please use the tool `python_repl_ast`.

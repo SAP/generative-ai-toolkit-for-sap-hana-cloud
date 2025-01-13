@@ -1,0 +1,44 @@
+The UnifiedExponentialSmoothing class in the hana_ml.algorithms.pal.unified_exponentialsmoothing module is a Python wrapper for the SAP HANA PAL Unified Exponential Smoothing function, which includes Single, Double, Triple, Brown, and Auto Exponential Smoothing algorithms, and allows for massive mode operation and group-specific parameter settings.
+------
+Here is a Python code template for the `UnifiedExponentialSmoothing` class:
+
+```python
+from hana_ml.algorithms.pal.unified_exponential_smoothing import UnifiedExponentialSmoothing
+
+# Create an instance of the UnifiedExponentialSmoothing class
+ub = UnifiedExponentialSmoothing(func='besm',
+                                 alpha=0.1,
+                                 forecast_num=6,
+                                 adaptive_method=False,
+                                 accuracy_measure='mse',
+                                 expost_flag=True,
+                                 prediction_confidence_1=0.8,
+                                 prediction_confidence_2=0.95)
+
+# Assume we have a DataFrame `df` for training
+# Fit and predict on the given data
+ub.fit_predict(data=df)
+
+# Print forecast values
+print(ub.forecast_.collect())
+
+# Print statistics
+print(ub.stats_.collect())
+```
+
+Please replace `'besm'` with the name of the exponential smoothing algorithm you want to use. The options are `'SESM'`, `'DESM'`, `'TESM'`, `'BESM'`, and `'AESM'`.
+
+Also, replace `df` with your actual DataFrame. The DataFrame should have a structure similar to the example in the help doc:
+
+```python
+df.collect()
+ID        RAWDATA
+ 1          143.0
+ 2          152.0
+ 3          161.0
+ 4          139.0
+ 5          137.0
+ ...
+```
+
+The `fit_predict` method fits the model to the data and makes predictions. The forecast values and statistics can be accessed through the `forecast_` and `stats_` attributes, respectively.

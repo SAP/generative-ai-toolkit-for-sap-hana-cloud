@@ -1,0 +1,26 @@
+The multinomial function in the hana_ml.algorithms.pal.random module draws samples from a multinomial distribution, given a database connection object, number of trials, success fractions of each category, and optional parameters for the number of random data to be generated, seed for the random number generator, and thread ratio.
+------
+Here is the executable code template based on the help doc:
+
+```python
+from hana_ml.algorithms.pal.random import multinomial
+from hana_ml import dataframe as df
+
+# Create a connection context
+cc = df.ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Define parameters
+n = 10
+pvals = (0.1, 0.2, 0.3, 0.4)
+num_random = 10
+seed = None
+thread_ratio = None
+
+# Draw samples from a multinomial distribution
+res = multinomial(conn_context=cc, n=n, pvals=pvals, num_random=num_random, seed=seed, thread_ratio=thread_ratio)
+
+# Collect and print the result
+print(res.collect())
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual HANA database connection details.

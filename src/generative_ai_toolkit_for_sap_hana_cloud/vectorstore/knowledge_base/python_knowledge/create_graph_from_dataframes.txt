@@ -1,0 +1,42 @@
+The function create_graph_from_dataframes in the hana_ml.graph.factory module creates a HANA Graph workspace based on an edge and a vertices dataframe, with parameters to specify the connection context, vertices and edges dataframes, workspace name, schema, edge source and target columns, edge and vertex key columns, and various optional parameters for object type, dropping existing tables, allowing bigint, forcing tables and workspace, replacing, geo columns, and spatial reference system id.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+import hana_ml
+from hana_ml.dataframe import ConnectionContext
+import pandas as pd
+
+# Create a connection to the SAP HANA system
+connection_context = ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Load vertices and edges data from csv files
+v_pdf = pd.read_csv("nodes.csv")
+e_pdf = pd.read_csv("edges.csv")
+
+# Create a HANA Graph workspace based on an edge and a vertices dataframe
+hg = hana_ml.graph.factory.create_graph_from_dataframes(
+    connection_context=connection_context,
+    vertices_df=v_pdf,
+    vertex_key_column="guid",
+    edges_df=e_pdf,
+    workspace_name="test_factory_ws",
+    schema=None,
+    edge_source_column='from',
+    edge_target_column='to',
+    edge_key_column=None,
+    object_type_as_bin=False,
+    drop_exist_tab=True,
+    allow_bigint=False,
+    force_tables=True,
+    force_workspace=True,
+    replace=False,
+    geo_cols=[("lon", "lat")],
+    srid=4326
+)
+
+# Print the created HANA Graph
+print(hg)
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual SAP HANA system details. Also, make sure that the csv files "nodes.csv" and "edges.csv" are in the correct path.

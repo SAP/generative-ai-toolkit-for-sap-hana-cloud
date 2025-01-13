@@ -1,0 +1,19 @@
+The wilcoxon function in the hana_ml.algorithms.pal.stats module performs a one-sample or paired two-sample non-parametric test to check if the median of the data is different from a specific value, with parameters for data, column name, location mu0 for one sample test, test type, and continuity correction for p-value calculation.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal.stats import wilcoxon
+
+# Assuming that 'df' is your DataFrame
+print(df.collect())
+
+# Perform the wilcoxon signed rank test
+res = wilcoxon(data=df, mu=40, test_type='two_sides', correction=True)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace 'df' with your actual DataFrame.

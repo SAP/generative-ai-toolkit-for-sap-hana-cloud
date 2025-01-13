@@ -1,0 +1,18 @@
+The content explains the importance of understanding the reasons behind the forecasts made by ARIMA models. It mentions that simply getting the forecasting value is not enough, and users need to trust the predictions and make decisions based on the reasons behind the predictions. The content also discusses the importance of exogenous variables and how their contributions can be quantified.
+
+The formula of an ARIMAX model with exogenous variables is provided, and it is explained that the model can be divided into two parts: the ARIMA part and the regressor part. The ARIMA part is interpreted using a decomposition method derived from the Digital Signal Processing realm, which decomposes the forecasted values into trend, seasonal, transitory, and irregular parts. The regressor part is interpreted using the LinearSHAP algorithm, which generates the contribution of each exogenous feature to the forecasted values.
+
+The content concludes by mentioning a new function called PAL_ARIMA_EXPLAIN, which combines the functionalities of PAL_ARIMA_FORECAST and is capable of decomposing the forecasts into different interpretable parts.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_ARIMA_DATA_TBL;
+CREATE COLUMN TABLE PAL_ARIMA_DATA_TBL ("TIMESTAMP" INTEGER, "Y" DOUBLE);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL ( "NAME" VARCHAR (50),"INT_VALUE" INTEGER,"DOUBLE_VALUE" DOUBLE,"STRING_VALUE" VARCHAR (100));
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FORECAST_METHOD', 1, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FORECAST_LENGTH', 10, NULL, NULL);
+
+CALL _SYS_AFL.PAL_ARIMA_EXPLAIN (PAL_ARIMA_DATA_TBL, PAL_ARIMA_MODEL_TBL, "#PAL_PARAMETER_TBL", ?, ?);

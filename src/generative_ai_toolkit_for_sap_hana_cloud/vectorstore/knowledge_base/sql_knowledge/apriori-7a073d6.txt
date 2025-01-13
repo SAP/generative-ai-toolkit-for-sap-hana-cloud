@@ -1,0 +1,75 @@
+Apriori is a predictive analysis algorithm used for finding association rules in association analysis. It uncovers patterns and correlations among a set of items or objects. The algorithm operates on databases containing transactions and attempts to find subsets that are common to a minimum number of item sets. It uses a "bottom up" approach, extending frequent subsets one item at a time. The algorithm terminates when no further successful extensions are found. Apriori uses breadth-first search and a tree structure to efficiently count candidate item sets. The Apriori function in PAL uses vertical data format to store transaction data in memory and supports various output values such as confidence, support, and lift. The number of output rules can be selected using SQL script.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_APRIORI_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_APRIORI_PARAMETER_TBL (
+	"PARAM_NAME " VARCHAR(100),
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+
+INSERT INTO PAL_APRIORI_PARAMETER_TBL VALUES ('MIN_SUPPORT', null, 0.1, null);
+INSERT INTO PAL_APRIORI_PARAMETER_TBL VALUES ('MIN_CONFIDENCE', null, 0.3, null);
+INSERT INTO PAL_APRIORI_PARAMETER_TBL VALUES ('MIN_LIFT', null, 1.1, null);
+INSERT INTO PAL_APRIORI_PARAMETER_TBL VALUES ('MAX_CONSEQUENT', 1, null, null);
+INSERT INTO PAL_APRIORI_PARAMETER_TBL VALUES ('PMML_EXPORT', 1, null, null);
+
+DROP TABLE PAL_APRIORI_TRANS_TBL;
+CREATE COLUMN TABLE PAL_APRIORI_TRANS_TBL (
+	"CUSTOMER" INTEGER,
+	"ITEM" VARCHAR(20)
+);
+
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (2, 'item2');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (2, 'item3');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (3, 'item1');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (3, 'item2');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (3, 'item4');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (4, 'item1');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (4, 'item3');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (5, 'item2');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (5, 'item3');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (6, 'item1');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (6, 'item3');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (0, 'item1');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (0, 'item2');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (0, 'item5');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (1, 'item2');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (1, 'item4'); 
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (7, 'item1');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (7, 'item2');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (7, 'item3');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (7, 'item5');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (8, 'item1');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (8, 'item2');
+INSERT INTO PAL_APRIORI_TRANS_TBL VALUES (8, 'item3');
+
+DROP TABLE PAL_APRIORI_RESULT_TBL;
+CREATE COLUMN TABLE PAL_APRIORI_RESULT_TBL (
+	"ANTECEDENT" NVARCHAR(1000),
+	"CONSEQUENT" NVARCHAR(1000),
+        "SUPPORT" DOUBLE,
+        "CONFIDENCE" DOUBLE,
+        "LIFT" DOUBLE
+);
+
+
+DROP TABLE PAL_APRIORI_MODEL_TBL;
+CREATE COLUMN TABLE PAL_APRIORI_MODEL_TBL (
+        "ROW_INDEX" INTEGER,
+        "MODEL_CONTENT" NVARCHAR(5000)
+);
+
+DO BEGIN
+  lt_trans = SELECT * FROM PAL_APRIORI_TRANS_TBL;
+  lt_param = SELECT * FROM PAL_APRIORI_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_APRIORI (:lt_trans, :lt_param, lt_result, lt_model);
+  INSERT INTO PAL_APRIORI_RESULT_TBL SELECT * FROM :lt_result;
+  INSERT INTO PAL_APRIORI_MODEL_TBL SELECT * FROM :lt_model;
+END;
+
+SELECT * FROM PAL_APRIORI_RESULT_TBL;
+SELECT * FROM PAL_APRIORI_MODEL_TBL;

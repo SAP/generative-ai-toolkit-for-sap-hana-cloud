@@ -1,0 +1,31 @@
+The BestPipelineReport class in the hana_ml.visualizers.automl_report module generates a report of the best pipeline, either as a HTML file or a notebook iframe, using an instance of AutomaticClassification or AutomaticRegression.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+# Import necessary modules
+from hana_ml.visualizers.automl_report import BestPipelineReport
+from hana_ml.algorithms.pal.auto_ml import AutomaticClassification
+import uuid
+
+# Create an AutomaticClassification instance
+progress_id = "automl_{}".format(uuid.uuid1())
+auto_c = AutomaticClassification(generations=2,
+                                 population_size=5,
+                                 offspring_size=5,
+                                 progress_indicator_id=progress_id)
+
+# Training
+auto_c.fit(data=df_train)  # df_train should be your training data
+
+# Create a BestPipelineReport instance
+report = BestPipelineReport(auto_c)
+
+# Generate the best pipeline report as a notebook iframe
+report.generate_notebook_iframe()
+
+# Save the best pipeline report as a html file
+report.generate_html("best_pipeline_report.html")
+```
+
+Please replace `df_train` with your actual training data. Also, make sure to provide a valid filename in the `generate_html` method.

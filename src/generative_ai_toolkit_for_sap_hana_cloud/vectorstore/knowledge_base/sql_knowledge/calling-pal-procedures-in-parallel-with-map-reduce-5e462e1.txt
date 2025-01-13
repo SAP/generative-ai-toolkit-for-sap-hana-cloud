@@ -1,0 +1,113 @@
+The content explains how to run selected PAL procedures in parallel using the `WITH HINT (PARALLEL_BY_PARAMETER_PARTITIONS ())` clause in SAP HANA SQLScript. This feature allows for parallel execution of scoring procedures with a trained model from PAL supervised learning algorithms. The scoring procedure is initiated on each data partition of a partitioned data table, sharing the same trained model and other procedure parameters. This feature works in both single-node and multiple-node SAP HANA environments.
+
+The content also provides an example of using the hint to perform scoring for various PAL procedures, such as decision trees, random decision trees, logistic regression, support vector machine, etc. The example includes sample code for creating tables, inserting data, and calling the PAL procedures with the hint.
+
+The expected result of the example is not provided in the content.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TYPE PAL_SES_DATA_T;
+CREATE TYPE PAL_SES_DATA_T AS TABLE (
+    "ID" INT,
+    "RAWDATA" DOUBLE
+);
+
+DROP TYPE PAL_SES_PARAMETER_T;
+CREATE TYPE PAL_SES_PARAMETER_T AS TABLE (
+	"PARAM_NAME" NVARCHAR(100),
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" NVARCHAR(100)
+);
+
+DROP TYPE PAL_SES_DATA_GRP_T;
+CREATE TYPE PAL_SES_DATA_GRP_T AS TABLE (
+    "GROUP_ID" NVARCHAR(10),
+    "ID" INT,
+    "RAWDATA" DOUBLE
+);
+
+DROP TYPE PAL_SES_RESULT_GRP_T;
+CREATE TYPE PAL_SES_RESULT_GRP_T AS TABLE (
+    "GROUP_ID" NVARCHAR(10),
+    "TIMESTAMP" INT,
+    "VALUE" DOUBLE,
+    "PI1_LOWER" DOUBLE,
+    "PI1_UPPER" DOUBLE,
+    "PI2_LOWER" DOUBLE,
+    "PI2_UPPER" DOUBLE
+);
+
+DROP TYPE PAL_SES_STAT_GRP_T;
+CREATE TYPE PAL_SES_STAT_GRP_T AS TABLE (
+    "GROUP_ID" NVARCHAR(10),
+    "STAT_NAME" NVARCHAR(100),
+    "STAT_VALUE" DOUBLE
+);
+
+DROP TABLE PAL_SES_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_SES_PARAMETER_TBL LIKE PAL_SES_PARAMETER_T;
+INSERT INTO PAL_SES_PARAMETER_TBL VALUES ('ADAPTIVE_METHOD',0, NULL, NULL);
+INSERT INTO PAL_SES_PARAMETER_TBL VALUES ('MEASURE_NAME', NULL, NULL, 'MSE');
+INSERT INTO PAL_SES_PARAMETER_TBL VALUES ('ALPHA', NULL,0.1, NULL);
+INSERT INTO PAL_SES_PARAMETER_TBL VALUES ('DELTA', NULL,0.2, NULL);
+INSERT INTO PAL_SES_PARAMETER_TBL VALUES ('FORECAST_NUM',12, NULL,NULL);
+INSERT INTO PAL_SES_PARAMETER_TBL VALUES ('EXPOST_FLAG',1, NULL,NULL);
+INSERT INTO PAL_SES_PARAMETER_TBL VALUES ('PREDICTION_CONFIDENCE_1', NULL, 0.8, NULL);
+INSERT INTO PAL_SES_PARAMETER_TBL VALUES ('PREDICTION_CONFIDENCE_2', NULL, 0.95, NULL);
+
+DROP TABLE PAL_SES_DATA_GRP_TBL;
+CREATE COLUMN TABLE PAL_SES_DATA_GRP_TBL LIKE PAL_SES_DATA_GRP_T;
+INSERT INTO PAL_SES_DATA_GRP_TBL VALUES ('GROUP_1',  1, 200.0);
+INSERT INTO PAL_SES_DATA_GRP_TBL VALUES ('GROUP_1',  2, 135.0);
+INSERT INTO PAL_SES_DATA_GRP_TBL VALUES ('GROUP_2',  1, 200.0);
+INSERT INTO PAL_SES_DATA_GRP_TBL VALUES ('GROUP_2',  2, 135.0);
+
+-- Mapper
+
+DROP FUNCTION SINGLE_EXPSMOOTH_MAPPER;
+CREATE FUNCTION SINGLE_EXPSMOOTH_MAPPER(
+  dummy_value INT,
+  it_data     PAL_SES_DATA_GRP_T
+) RETURNS PAL_SES_DATA_GRP_T AS
+BEGIN
+  RETURN :it_data;
+END;
+
+-- Reducer
+DROP PROCEDURE SINGLE_EXPSMOOTH_REDUCER;
+CREATE PROCEDURE SINGLE_EXPSMOOTH_REDUCER(
+  IN  iv_group_id   NVARCHAR(10),
+  IN  it_data       PAL_SES_DATA_T,
+  IN  it_param      PAL_SES_PARAMETER_T,
+  OUT ot_result     PAL_SES_RESULT_GRP_T,
+  OUT ot_stat       PAL_SES_STAT_GRP_T
+) READS SQL DATA AS
+BEGIN
+  CALL _SYS_AFL.PAL_SINGLE_EXPSMOOTH(:it_data, :it_param, lt_result, lt_stat);
+  ot_result = SELECT :iv_group_id AS "GROUP_ID", "TIMESTAMP", "VALUE", "PI1_LOWER", "PI1_UPPER", "PI2_LOWER", "PI2_UPPER"FROM :lt_result;
+  ot_stat   = SELECT :iv_group_id AS "GROUP_ID", "STAT_NAME", "STAT_VALUE" FROM :lt_stat;
+END;
+
+-- Main procedure
+DROP PROCEDURE SINGLE_EXPSMOOTH_MAIN;
+CREATE PROCEDURE SINGLE_EXPSMOOTH_MAIN(
+  IN  it_group_data   PAL_SES_DATA_GRP_T,
+  OUT ot_group_result PAL_SES_RESULT_GRP_T,
+  OUT ot_group_stat   PAL_SES_STAT_GRP_T
+) AS
+BEGIN
+  DECLARE lt_group_result PAL_SES_RESULT_GRP_T;
+  DECLARE lt_group_stat   PAL_SES_STAT_GRP_T;
+
+  lt_dummy = SELECT 1 a FROM dummy;
+  lt_param = SELECT "PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE" FROM PAL_SES_PARAMETER_TBL;
+  MAP_REDUCE(:lt_dummy, SINGLE_EXPSMOOTH_MAPPER(:lt_dummy.a, :it_group_data) GROUP BY "GROUP_ID" AS "GROUP_DATA",
+                        SINGLE_EXPSMOOTH_REDUCER("GROUP_DATA"."GROUP_ID", "GROUP_DATA", :lt_param, lt_group_result, lt_group_stat) );
+  ot_group_result = SELECT * FROM :lt_group_result;
+  ot_group_stat   = SELECT * FROM :lt_group_stat;
+END;
+
+CALL SINGLE_EXPSMOOTH_MAIN(PAL_SES_DATA_GRP_TBL, ?, ?);
+

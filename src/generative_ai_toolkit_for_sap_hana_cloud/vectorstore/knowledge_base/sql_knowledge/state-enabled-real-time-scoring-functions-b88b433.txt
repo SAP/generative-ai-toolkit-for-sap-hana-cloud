@@ -1,0 +1,87 @@
+State enabled real-time scoring functions in PAL (Predictive Analysis Library) allow for the separation of model parsing and model application steps. This is beneficial for scenarios where the same complex model is applied multiple times, as it avoids the need to parse the model repeatedly. The model parsing step involves deserializing content from a database table or converting text-format content into a model object. The model is then kept in a container called state, which has a longer life cycle than a scoring function. The state can be created, listed, scored with data, and cleared using PAL functions. State enabled functions include various machine learning algorithms such as Support Vector Machine, Decision Trees, Naive Bayes, and Logistic Regression. The unified classification and regression feature allows for the creation of models compatible with multiple algorithms, but not with the original prediction method.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE  PAL_RDT_DATA_TBL;
+CREATE COLUMN TABLE PAL_RDT_DATA_TBL (
+	"OUTLOOK" VARCHAR(20),
+	"TEMP" INTEGER,
+	"HUMIDITY" DOUBLE,
+	"WINDY" VARCHAR(10),
+	"CLASS" VARCHAR(20)
+);
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Sunny', 75, 70.0, 'Yes', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Sunny', NULL, 90.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Sunny', 85, NULL, 'No', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Sunny', 72, 95.0, 'No', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES (NULL, NULL, 70.0, NULL, 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Overcast', 72.0, 90, 'Yes', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Overcast', 83.0, 78, 'No', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Overcast', 64.0, 65, 'Yes', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Overcast', 81.0, 75, 'No', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES (NULL, 71, 80.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Rain', 65, 70.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Rain', 75, 80.0, 'No', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Rain', 68, 80.0, 'No', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Rain', 70, 96.0, 'No', 'Play');
+
+DROP TABLE PAL_RDT_TRAINING_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_RDT_TRAINING_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR (100), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+INSERT INTO PAL_RDT_TRAINING_PARAMETER_TBL VALUES ('TREES_NUM', 300, NULL, NULL);
+INSERT INTO PAL_RDT_TRAINING_PARAMETER_TBL VALUES ('TRY_NUM', 3, NULL, NULL);
+INSERT INTO PAL_RDT_TRAINING_PARAMETER_TBL VALUES ('SEED', 2, NULL, NULL);
+INSERT INTO PAL_RDT_TRAINING_PARAMETER_TBL VALUES ('SPLIT_THRESHOLD', NULL, 1e-5, NULL);
+INSERT INTO PAL_RDT_TRAINING_PARAMETER_TBL VALUES ('CALCULATE_OOB', 1, NULL, NULL);
+INSERT INTO PAL_RDT_TRAINING_PARAMETER_TBL VALUES ('NODE_SIZE', 1, NULL, NULL);
+INSERT INTO PAL_RDT_TRAINING_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 1.0, NULL);
+
+DROP TABLE PAL_RDT_MODEL_TBL;
+CREATE COLUMN TABLE PAL_RDT_MODEL_TBL (
+	"ROW_INDEX" INTEGER,
+	"TREE_INDEX" INTEGER,
+	"MODEL_CONTENT" NVARCHAR(5000)
+);
+
+DO BEGIN
+  lt_data = SELECT * FROM PAL_RDT_DATA_TBL;
+  lt_param = SELECT * FROM PAL_RDT_TRAINING_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_RANDOM_DECISION_TREES (:lt_data, :lt_param, lt_model, lt_imp, lt_error, lt_cm);
+  INSERT INTO PAL_RDT_MODEL_TBL SELECT * FROM :lt_model;
+END;
+
+/* create state */
+DROP TABLE PAL_SET_STATE_PARAMETERS_TBL;
+CREATE COLUMN TABLE PAL_SET_STATE_PARAMETERS_TBL(
+	"PARAM_NAME" VARCHAR (100), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+INSERT INTO PAL_SET_STATE_PARAMETERS_TBL VALUES('ALGORITHM', 2, NULL, NULL);
+INSERT INTO PAL_SET_STATE_PARAMETERS_TBL VALUES('STATE_DESCRIPTION', NULL, NULL, 'PAL Random Decision Tree State');
+
+DROP TABLE PAL_EMPTY_TBL;
+CREATE TABLE PAL_EMPTY_TBL( 
+	ID double
+);
+
+DROP TABLE PAL_STATE_TBL;
+CREATE TABLE PAL_STATE_TBL (	
+    S_KEY VARCHAR(50), 
+	S_VALUE VARCHAR(100)
+);
+
+DO BEGIN
+  lt_model = SELECT * FROM PAL_RDT_MODEL_TBL;
+  lt_empty = SELECT * FROM PAL_EMPTY_TBL;
+  lt_param = SELECT * FROM PAL_SET_STATE_PARAMETERS_TBL;
+  CALL _SYS_AFL.PAL_CREATE_MODEL_STATE(:lt_model, :lt_empty, :lt_empty, :lt_empty, :lt_empty, :lt_param, lt_state);
+  INSERT INTO PAL_STATE_TBL SELECT * FROM :lt_state;
+END;
+SELECT * FROM PAL_STATE_TBL;

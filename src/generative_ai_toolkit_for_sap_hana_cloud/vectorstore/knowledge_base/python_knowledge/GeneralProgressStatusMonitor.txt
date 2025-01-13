@@ -1,0 +1,28 @@
+The GeneralProgressStatusMonitor class in the hana_ml.visualizers.progress module allows monitoring the execution progress of a function in the SAP HANA system, with the ability to set the time interval for querying progress information and to interrupt the monitoring process.
+------
+Here is a Python code template for the `GeneralProgressStatusMonitor` class:
+
+```python
+from hana_ml.dataframe import ConnectionContext
+from hana_ml.algorithms.pal import *  # Import the required PAL algorithm
+
+# Create a connection to the SAP HANA system
+cc = ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Create an instance of the required PAL algorithm with progress_indicator_id attribute
+pal_obj = ...  # Replace with the actual PAL algorithm instance
+
+# Create an instance of GeneralProgressStatusMonitor
+monitor = GeneralProgressStatusMonitor(connection_context=cc, pal_obj=pal_obj, interval=0.01)
+
+# Start monitoring
+monitor.start()
+
+# Execute the function
+# ...
+
+# If needed, interrupt the monitoring
+# monitor.interrupt()
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual SAP HANA system details. Also, replace `...` with the actual PAL algorithm instance that contains the `progress_indicator_id` attribute.

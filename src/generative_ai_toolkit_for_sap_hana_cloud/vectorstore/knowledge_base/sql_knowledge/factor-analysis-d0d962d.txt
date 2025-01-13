@@ -1,0 +1,35 @@
+Factor analysis is a statistical method used to extract a small number of unobserved variables, called factors, that can best describe the relationships between a larger set of observed variables. It can be used to reduce the dimensionality of data and reveal underlying relationships. The factor analysis model is represented by the equation x=μ+Lf+ϵ, where x is the set of observed variables, μ is the population mean, L is the matrix of factor loadings, f is the vector of factors, and ϵ is the independent specific factors. The model assumes that the factors and specific factors have a mean of zero and that the covariance of the factors is an identity matrix. The factor analysis model can also be expressed as Cov(x)=LL^T+Ψ, where Ψ is a diagonal matrix. The parameters of the model can be estimated using the principal component method, which approximates the covariance structure with the first few terms of the eigendecomposition of the covariance matrix. Factor rotation can be used to make the results more interpretable, with orthogonal rotation and oblique rotation being the two main types.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_FACTOR_ANALYSIS_DATA_TBL;
+CREATE COLUMN TABLE PAL_FACTOR_ANALYSIS_DATA_TBL ("ID" INTEGER, "X1" DOUBLE, "X2" DOUBLE, "X3" DOUBLE, "X4" DOUBLE, "X5" DOUBLE, "X6" DOUBLE);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (1, 1, 1, 3, 3, 1, 1);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (2, 1, 2, 3, 3, 1, 1);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (3, 1, 1, 3, 4, 1, 1);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (4, 1, 1, 3, 3, 1, 2);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (5, 1, 1, 3, 3, 1, 1);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (6, 1, 1, 1, 1, 3, 3);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (7, 1, 2, 1, 1, 3, 3);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (8, 1, 1, 1, 2, 3, 3);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (9, 1, 2, 1, 1, 3, 4);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (10, 1, 1, 1, 1, 3, 3);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (11, 3, 3, 1, 1, 1, 1);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (12, 3, 4, 1, 1, 1, 1);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (13, 3, 3, 1, 2, 1, 1);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (14, 3, 3, 1, 1, 1, 2);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (15, 3, 3, 1, 1, 1, 1);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (16, 4, 4, 5, 5, 6, 6);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (17, 5, 6, 4, 6, 4, 5);
+INSERT INTO PAL_FACTOR_ANALYSIS_DATA_TBL VALUES (18, 6, 5, 6, 4, 5, 4);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL ("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FACTOR_NUMBER', 2, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('METHOD', 0, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ROTATION', 2, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('SCORE', 1, NULL, NULL);
+
+CALL _SYS_AFL.PAL_FACTOR_ANALYSIS (PAL_FACTOR_ANALYSIS_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+

@@ -1,0 +1,43 @@
+The SOM class in the hana_ml.algorithms.pal.som module is a Self-Organizing Map (SOM) implementation for cluster analysis, with various parameters for customization such as convergence criterion, normalization type, random seed, map dimensions, kernel function, learning rate, grid shape, scan radius, batch SOM, and maximum iterations.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.som import SOM
+
+# Create a SOM instance
+som = SOM(convergence_criterion=1.0e-6, 
+          normalization='no',
+          random_seed=1, 
+          height_of_map=4, 
+          width_of_map=4,
+          kernel_function='gaussian', 
+          alpha=None,
+          learning_rate='exponential', 
+          shape_of_grid='hexagon',
+          radius=None, 
+          batch_som='classical', 
+          max_iter=4000)
+
+# Assume df is your input DataFrame
+# Perform fit
+som.fit(data=df, key='TRANS_ID')
+
+# Print the map after training
+print(som.map_.collect().head(3))
+
+# Print the label of input data
+print(som.labels_.collect().head(3))
+
+# Print the model
+print(som.model_.collect())
+
+# Assume df2 is your input DataFrame for prediction
+# Perform predict on the given data
+label = som.predict(data=df2, key='TRANS_ID')
+
+# Print the prediction result
+print(label.collect())
+```
+
+Please replace `df` and `df2` with your actual DataFrames.

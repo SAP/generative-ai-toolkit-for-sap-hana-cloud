@@ -1,0 +1,4 @@
+The dataframe's properties include columns, shape, names, quoted_name, description and stats. The dataframe functions include add_id, add_constant, alias, count, diff, drop, distinct, drop_duplicates, dropna, deselect, has_constant_columns, drop_constant_columns, dtypes, empty, filter, has, head, hasna, fillna, get_table_structure, join, save, split_column, concat_columns, nullif, replace, sort, sort_value, sort_index, select, union, collect, rename_columns, auto_cast, cast, tail, to_head, to_tail, summary, describe, bin, agg, is_numeric, corr, min, max, sum, median, mean, stddev, value_counts, pivot_table, rearrange, to_pickle, to_datetime, generate_feature and mutate.
+------
+
+Please use the tool `python_repl_ast`.

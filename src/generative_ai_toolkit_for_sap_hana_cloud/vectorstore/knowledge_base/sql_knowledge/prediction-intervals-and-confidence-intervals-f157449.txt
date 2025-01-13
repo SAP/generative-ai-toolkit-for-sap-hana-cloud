@@ -1,0 +1,76 @@
+The content discusses prediction intervals and confidence intervals in the context of the PAL (Prediction and Scoring Regression) procedure. It explains that PAL provides interval estimates and point estimates of response values. There are two types of interval estimates: confidence intervals and prediction intervals. The `INTERVAL` parameter is used to specify the desired type of interval, and the `SIGNIFICANCE_LEVEL` parameter represents the proportion of intervals that fall outside of the true estimated target. The difference between prediction intervals and confidence intervals is that prediction intervals predict the distribution of individual future observations, while confidence intervals predict the mean statistic of the future target population. Prediction intervals and confidence intervals are available for Generalised Linear Models (GLM), Multiple Linear Regression (MLR), Random Decision Trees (RDT), and Hybrid Gradient Boosting Tree (HGBT) in the prediction and scoring procedure.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL(
+     "ID" INTEGER,
+     "X1" DOUBLE,
+     "X2" VARCHAR (100),
+     "X3" INTEGER,
+     "Y" DOUBLE
+);
+INSERT INTO PAL_DATA_TBL VALUES (0, 0.0, 'A', 1, -6.879);
+INSERT INTO PAL_DATA_TBL VALUES (1, 0.50, 'A', 1, -3.449);
+INSERT INTO PAL_DATA_TBL VALUES (2, 0.54, 'B', 1, 6.635);
+INSERT INTO PAL_DATA_TBL VALUES (3, 1.04, 'B', 1, 11.844);
+INSERT INTO PAL_DATA_TBL VALUES (4, 1.50, 'A', 1, 2.786);
+INSERT INTO PAL_DATA_TBL VALUES (5, 0.04, 'B', 2, 2.389);
+INSERT INTO PAL_DATA_TBL VALUES (6, 2.00, 'A', 2, -0.011);
+INSERT INTO PAL_DATA_TBL VALUES (7, 2.04, 'B', 2, 8.839);
+INSERT INTO PAL_DATA_TBL VALUES (8, 1.54, 'B', 1, 4.689);
+INSERT INTO PAL_DATA_TBL VALUES (9, 1.00, 'A', 2, -5.507);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION',null,null,'MLR'); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('OUTPUT_COEFCOV',1,null,null); 
+
+DROP TABLE PAL_DATA_MODEL_TBL;
+CREATE COLUMN TABLE PAL_DATA_MODEL_TBL(
+     "ROW_INDEX" INTEGER,
+     "PART_INDEX" INTEGER,
+     "MODEL_CONTENT" VARCHAR (5000)
+);
+
+DO BEGIN
+  data_tab = SELECT * FROM PAL_DATA_TBL; 
+  control_tab = SELECT * FROM PAL_PARAMETER_TBL; 
+  CALL _SYS_AFL.PAL_UNIFIED_REGRESSION(:data_tab, :control_tab, model_tab, stats_tab, optimal_parameter_tab, partition_result, place_holder_1_tab, place_holder_2_tab); 
+  INSERT into PAL_DATA_MODEL_TBL SELECT * FROM :model_tab; 
+END;
+
+-------------------------------Predict-------------------------------
+DROP TABLE PAL_DATA_TBL_PRE;
+CREATE COLUMN TABLE PAL_DATA_TBL_PRE(
+     "ID" INTEGER,
+     "X1" DOUBLE,
+     "X2" VARCHAR (100),
+     "X3" INTEGER
+);
+INSERT INTO PAL_DATA_TBL_PRE VALUES (0, 1.69, 'B', 1);
+INSERT INTO PAL_DATA_TBL_PRE VALUES (1, 0.054, 'B', 2);
+INSERT INTO PAL_DATA_TBL_PRE VALUES (2, 0.123, 'A', 2);
+INSERT INTO PAL_DATA_TBL_PRE VALUES (3, 1.980, 'A', 1);
+INSERT INTO PAL_DATA_TBL_PRE VALUES (4, 0.563, 'A', 1);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FUNCTION',null,null,'MLR');
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('SIGNIFICANCE_LEVEL',null,0.1,null); 
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('INTERVAL',2,null,null); 
+
+CALL _SYS_AFL.PAL_UNIFIED_REGRESSION_PREDICT(PAL_DATA_TBL_PRE, PAL_DATA_MODEL_TBL, #PAL_PARAMETER_TBL, ?,?);

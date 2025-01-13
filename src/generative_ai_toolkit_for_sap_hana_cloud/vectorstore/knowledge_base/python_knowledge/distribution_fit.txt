@@ -1,0 +1,32 @@
+The function distribution_fit in the hana_ml.algorithms.pal.stats module fits a probability distribution to a variable based on a series of measurements, with options to specify the type of distribution, the estimation method, and whether the data is censored or not.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import required libraries
+from hana_ml import DataFrame
+from hana_ml.algorithms.pal.stats import distribution_fit
+
+# Assuming that a HANA dataframe is already created
+# df = DataFrame(...)
+
+# Specify the type of distribution to fit
+distr_type = 'weibull'
+
+# Specify the estimation method
+optimal_method = 'maximum_likelihood'
+
+# Specify if data is censored or not
+censored = False
+
+# Perform the function
+res, stats = distribution_fit(data=df, distr_type=distr_type, optimal_method=optimal_method, censored=censored)
+
+# Print the fitting results
+print(res.collect())
+
+# Print the fitting statistics
+print(stats.collect())
+```
+
+Please replace the `DataFrame(...)` with your actual dataframe. Also, you can change the `distr_type`, `optimal_method`, and `censored` variables as per your requirements.

@@ -1,0 +1,66 @@
+Support Vector Machines (SVMs) are a family of supervised learning models that use the concept of support vectors. SVMs have the advantage of being able to produce both linear and non-linear models, with the latter achieved through a technique called Kernel Trick. 
+
+SVMs have a training phase and a testing phase. In the training phase, a function is learned that maps a sample to a target. The training set consists of pairs of samples and their corresponding targets. In the testing phase, the learned function is used to predict the target for a sample with an unknown target.
+
+In PAL, SVMs can be used for four tasks: Support Vector Classification (SVC), Support Vector Regression (SVR), Support Vector Ranking, and One Class SVM. SVC is used for classification tasks and can produce non-linear decision boundaries. SVR is used for regression analysis and can have non-linear regression functions. Support Vector Ranking is used for learning ranking functions from ranked samples. One Class SVM is used for outlier detection.
+
+The choice of kernel type and parameters is important for SVMs, as they determine the non-linearity of the model.
+------
+
+SET SCHEMA DM_PAL; 
+
+DROP TABLE PAL_SVM_DATA_TBL;
+CREATE COLUMN TABLE PAL_SVM_DATA_TBL ( 
+    ID INTEGER,
+    ATTRIBUTE1 DOUBLE,
+    ATTRIBUTE2 DOUBLE,
+    ATTRIBUTE3 DOUBLE,
+    ATTRIBUTE4 VARCHAR(10),
+    LABEL INTEGER
+);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (0,1,10,100,'A',1);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (1,1.1,10.1,100,'A',1);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (2,1.2,10.2,100,'A',1);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (3,1.3,10.4,100,'A',1);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (4,1.2,10.3,100,'AB',1);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (5,4,40,400,'AB',2);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (6,4.1,40.1,400,'AB',2);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (7,4.2,40.2,400,'AB',2);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (8,4.3,40.4,400,'AB',2);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (9,4.2,40.3,400,'AB',2);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (10,9,90,900,'B',3);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (11,9.1,90.1,900,'A',3);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (12,9.2,90.2,900,'B',3);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (13,9.3,90.4,900,'A',3);
+INSERT INTO PAL_SVM_DATA_TBL VALUES (14,9.2,90.3,900,'A',3);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" NVARCHAR(256),
+    "INT_VALUE" INTEGER, 
+    "DOUBLE_VALUE" DOUBLE, 
+    "STRING_VALUE" NVARCHAR (1000)
+);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('KERNEL_TYPE',2,NULL,NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('TYPE',1,NULL,NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('RBF_GAMMA',NULL,0.005,NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('HAS_ID',1,NULL,NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('HANDLE_MISSING', 0, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('COMPRESSION', 0, NULL, NULL);
+
+DROP TABLE PAL_SVM_MODEL_TBL_EX1;
+CREATE COLUMN TABLE PAL_SVM_MODEL_TBL_EX1 (ROW_INDEX INTEGER, MODEL_CONTENT NVARCHAR(5000));
+
+DROP TABLE PAL_SVM_STAT_TBL;
+CREATE COLUMN TABLE PAL_SVM_STAT_TBL (STAT_NAME NVARCHAR(256), STAT_VALUE NCLOB);
+
+DO BEGIN
+	lt_data = SELECT * FROM PAL_SVM_DATA_TBL;
+	lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_SVM(:lt_data,:lt_param,lt_model,lt_stat,lt_opt);
+	INSERT INTO PAL_SVM_MODEL_TBL_EX1 SELECT * FROM :lt_model;
+	INSERT INTO PAL_SVM_STAT_TBL SELECT * FROM :lt_stat;
+END;
+
+SELECT * FROM PAL_SVM_MODEL_TBL_EX1;
+SELECT * FROM PAL_SVM_STAT_TBL;

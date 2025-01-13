@@ -1,0 +1,16 @@
+The function unify_min_max_value_of_yAxis in the module hana_ml.visualizers.ui_components standardizes the minimum and maximum values of the yAxis in chart configurations.
+------
+Here is a Python code template for the function `unify_min_max_value_of_yAxis` from the module `hana_ml.visualizers.ui_components`:
+
+```python
+# Import the required module
+from hana_ml.visualizers import ui_components
+
+# Define the chart configurations
+chart_configs = # TODO: Define the chart configurations
+
+# Call the function
+ui_components.unify_min_max_value_of_yAxis(chart_configs)
+```
+
+Please replace the `# TODO: Define the chart configurations` with your actual chart configurations.

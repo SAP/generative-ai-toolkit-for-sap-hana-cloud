@@ -1,0 +1,125 @@
+PAL provides interval estimates in addition to the point estimate of the response value in the prediction or scoring regression procedure. There are two types of interval estimates: confidence intervals and prediction intervals. The `INTERVAL` parameter is used to specify the desired type of interval, and the `SIGNIFICANCE_LEVEL` parameter represents the proportion of intervals that fall outside of the true estimated target. Prediction intervals predict the distribution of individual future observations, while confidence intervals predict the mean statistic of the future target population. Prediction intervals and confidence intervals are available for GLM, MLR, RDT, and HGBT models in the prediction and scoring procedure.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE META_DATA_TAB;
+CREATE COLUMN TABLE META_DATA_TAB(
+    "VARIABLE_NAME" NVARCHAR(50),
+    "VARIABLE_TYPE" NVARCHAR(50)
+);
+
+INSERT INTO META_DATA_TAB VALUES ('X1',    'CONTINUOUS');
+INSERT INTO META_DATA_TAB VALUES ('Y' ,    'TARGET');
+INSERT INTO META_DATA_TAB VALUES ('X2',    'CATEGORICAL');
+INSERT INTO META_DATA_TAB VALUES ('X3',    'CONTINUOUS');
+
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL(
+    "ID" INT,
+    "VARIABLE_NAME" NVARCHAR(50),
+    "VALUE" NVARCHAR(50), 
+    "PURPOSE" INT
+);
+INSERT INTO PAL_DATA_TBL VALUES (0,    'Y',    '-6.879',   1);
+INSERT INTO PAL_DATA_TBL VALUES (0,    'X1',   '0.00',     1);
+INSERT INTO PAL_DATA_TBL VALUES (0,    'X2',   'A',        1);
+INSERT INTO PAL_DATA_TBL VALUES (0,    'X3',   '1',        1);
+INSERT INTO PAL_DATA_TBL VALUES (1,    'Y',    '-3.449',   1);
+INSERT INTO PAL_DATA_TBL VALUES (1,    'X1',   '0.50',     1);
+INSERT INTO PAL_DATA_TBL VALUES (1,    'X2',   'A',        1);
+INSERT INTO PAL_DATA_TBL VALUES (1,    'X3',   '1',        1);
+INSERT INTO PAL_DATA_TBL VALUES (2,    'Y',    '6.635',    1);
+INSERT INTO PAL_DATA_TBL VALUES (2,    'X1',   '0.54',     1);
+INSERT INTO PAL_DATA_TBL VALUES (2,    'X2',   'B',        1);
+INSERT INTO PAL_DATA_TBL VALUES (2,    'X3',   '1',        1);
+INSERT INTO PAL_DATA_TBL VALUES (3,    'Y',    '11.844',   2);
+INSERT INTO PAL_DATA_TBL VALUES (3,    'X1',   '1.04',     2);
+INSERT INTO PAL_DATA_TBL VALUES (3,    'X2',   'B',        2);
+INSERT INTO PAL_DATA_TBL VALUES (3,    'X3',   '1',        2);
+INSERT INTO PAL_DATA_TBL VALUES (4,    'Y',    '2.786',    1);
+INSERT INTO PAL_DATA_TBL VALUES (4,    'X1',   '1.50',     1);
+INSERT INTO PAL_DATA_TBL VALUES (4,    'X2',   'A',        1);
+INSERT INTO PAL_DATA_TBL VALUES (4,    'X3',   '1',        1);
+INSERT INTO PAL_DATA_TBL VALUES (5,    'Y',    '2.389',    1);
+INSERT INTO PAL_DATA_TBL VALUES (5,    'X1',   '0.04',     1);
+INSERT INTO PAL_DATA_TBL VALUES (5,    'X2',   'B',        1);
+INSERT INTO PAL_DATA_TBL VALUES (5,    'X3',   '2',        1);
+INSERT INTO PAL_DATA_TBL VALUES (6,    'Y',    '-0.011',   2);
+INSERT INTO PAL_DATA_TBL VALUES (6,    'X1',   '2.00',     2);
+INSERT INTO PAL_DATA_TBL VALUES (6,    'X2',   'A',        2);
+INSERT INTO PAL_DATA_TBL VALUES (6,    'X3',   '2',        2);
+INSERT INTO PAL_DATA_TBL VALUES (7,    'Y',    '8.839',    1);
+INSERT INTO PAL_DATA_TBL VALUES (7,    'X1',   '2.04',     1);
+INSERT INTO PAL_DATA_TBL VALUES (7,    'X2',   'B',        1);
+INSERT INTO PAL_DATA_TBL VALUES (7,    'X3',   '2',        1);
+INSERT INTO PAL_DATA_TBL VALUES (8,    'Y',    '4.689',    1);
+INSERT INTO PAL_DATA_TBL VALUES (8,    'X1',   '1.54',     1);
+INSERT INTO PAL_DATA_TBL VALUES (8,    'X2',   'B',        1);
+INSERT INTO PAL_DATA_TBL VALUES (8,    'X3',   '1',        1);
+INSERT INTO PAL_DATA_TBL VALUES (9,    'Y',    '-5.507',   1);
+INSERT INTO PAL_DATA_TBL VALUES (9,    'X1',   '1.00',     1);
+INSERT INTO PAL_DATA_TBL VALUES (9,    'X2',   'A',        1);
+INSERT INTO PAL_DATA_TBL VALUES (9,    'X3',   '2',        1);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION',null,null,'MLR');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('OUTPUT_COEFCOV',1,null,null); 
+
+DROP TABLE PAL_DATA_MODEL_TBL;
+CREATE COLUMN TABLE PAL_DATA_MODEL_TBL(
+     "ROW_INDEX" INTEGER,
+     "PART_INDEX" INTEGER,
+     "MODEL_CONTENT" VARCHAR (5000)
+);
+
+DO BEGIN
+  meta_data_tab = SELECT * FROM META_DATA_TAB;
+  data_tab = SELECT * FROM PAL_DATA_TBL; 
+  control_tab = SELECT * FROM PAL_PARAMETER_TBL; 
+  CALL _SYS_AFL.PAL_UNIFIED_REGRESSION_PIVOT(:meta_data_tab, :data_tab, :control_tab, model_tab, stats_tab, optimal_parameter_tab, partition_result, place_holder_1_tab, place_holder_2_tab); 
+  INSERT into PAL_DATA_MODEL_TBL SELECT * FROM :model_tab; 
+END;
+
+-------------------------------Predict-------------------------------
+DROP TABLE PAL_DATA_TBL_PRE;
+CREATE COLUMN TABLE PAL_DATA_TBL_PRE(
+    "ID" INT,
+    "VARIABLE_NAME" NVARCHAR(50),
+    "VALUE" NVARCHAR(50)
+);
+INSERT INTO PAL_DATA_TBL_PRE VALUES (0,	'X1',	'1.69');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (0,	'X2',	'B');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (0,	'X3',	'1');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (1,	'X1',	'0.054');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (1,	'X2',	'B');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (1,	'X3',	'2');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (2,	'X1',	'0.123');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (2,	'X2',	'A');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (2,	'X3',	'2');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (3,	'X1',	'1.980');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (3,	'X2',	'A');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (3,	'X3',	'1');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (4,	'X1',	'0.563');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (4,	'X2',	'A');
+INSERT INTO PAL_DATA_TBL_PRE VALUES (4,	'X3',	'1');
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('SIGNIFICANCE_LEVEL',null,0.15,null); 
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('INTERVAL',1,null,null); 
+
+CALL _SYS_AFL.PAL_UNIFIED_REGRESSION_PREDICT_PIVOT(PAL_DATA_TBL_PRE, PAL_DATA_MODEL_TBL, #PAL_PARAMETER_TBL, ?,?);

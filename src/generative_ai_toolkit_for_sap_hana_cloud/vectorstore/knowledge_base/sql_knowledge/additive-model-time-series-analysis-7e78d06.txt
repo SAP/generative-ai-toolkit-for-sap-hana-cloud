@@ -1,0 +1,48 @@
+Additive model time series analysis, also known as Prophet, is a forecasting method that uses a decomposable time series model with three main components: trend, seasonality, and holidays or events. The trend function models non-periodic changes, while the seasonal component represents periodic changes. The effect of holidays is also taken into account. The model is represented by the formula y(t) = g(t) + s(t) + h(t) + ϵ(t), where g(t) is the trend function, s(t) is the seasonal component, h(t) is the effect of holidays, and ϵ(t) is the error term. 
+
+Prophet implements two trend models: a non-linear saturating growth model and a piecewise linear model. The non-linear saturating growth model takes into account the carrying capacity, growth rate, and offset parameter. The growth rate is not constant and can change at specific time points. The piecewise linear model is a linear growth trend with adjustments at change points.
+
+Seasonality is handled using Fourier series to smooth the seasonal effect. The Fourier order and regular period are used to approximate the seasonal component.
+
+Holidays or events are also considered in the model. Each holiday has a set of past and future dates, and an indicator function is used to determine if a specific time is during a holiday. The forecast is adjusted based on the corresponding change for each holiday.
+
+The model is fitted using Stan's L-BFGS algorithm to find the maximum posteriori estimate. The model includes priors for the parameters and likelihood functions for the observed data.
+
+Overall, additive model time series analysis is a robust method for forecasting time series data with strong seasonal effects and shifting historical trends.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_DATA_TBL;
+CREATE COLUMN TABLE PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_DATA_TBL("GroupID" INTEGER, "ts" DATE, "y" DOUBLE);
+INSERT INTO PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_DATA_TBL VALUES(0,'2008-02-03',9.698061122);
+INSERT INTO PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_DATA_TBL VALUES(0,'2008-02-04',12.09745684);
+INSERT INTO PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_DATA_TBL VALUES(0,'2008-02-05',10.63527836);
+INSERT INTO PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_DATA_TBL VALUES(0,'2008-02-06',9.691716588);
+INSERT INTO PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_DATA_TBL VALUES(0,'2008-02-07',9.315600883);
+
+DROP TABLE PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_PARAMETER_TBL ("GroupID" INTEGER, "NAME" VARCHAR(50), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(100));
+INSERT INTO PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_PARAMETER_TBL VALUES (0, 'SEASONALITY_MODE', NULL, NULL, 'additive');
+INSERT INTO PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_PARAMETER_TBL VALUES (1, 'SEASONALITY_MODE', NULL, NULL, 'multiplicative');
+
+DROP TABLE PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_HOLIDAY;
+CREATE COLUMN TABLE PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_HOLIDAY ("GroupID" INTEGER, "ts" timestamp, "holiday" NVARCHAR(50));
+
+DROP TABLE PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_MODEL;
+CREATE COLUMN TABLE PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_MODEL ("GroupID" INTEGER, "ROW_INDEX" INTEGER, "MODEL_CONTENT" NCLOB);
+
+DROP TABLE PAL_MASSIVE_ERRORMSG_TBL;
+CREATE COLUMN TABLE PAL_MASSIVE_ERRORMSG_TBL ("GroupID" INTEGER, "ERROR_TIMESTAMP" NVARCHAR(50), "ERRORCODE" INTEGER, "MASSAGE" NVARCHAR(100));
+
+DO BEGIN
+  lt_data = SELECT * FROM PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_DATA_TBL;
+  lt_holiday = SELECT * FROM PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_HOLIDAY;
+  lt_param = SELECT * FROM PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS (:lt_data, :lt_holiday, :lt_param, lt_model, lt_errmsg);
+  INSERT INTO PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_MODEL SELECT * FROM :lt_model;
+  INSERT INTO PAL_MASSIVE_ERRORMSG_TBL SELECT * FROM :lt_errmsg;
+END;
+
+SELECT * FROM PAL_MASSIVE_ADDITIVE_MODEL_ANALYSIS_MODEL;
+SELECT * FROM PAL_MASSIVE_ERRORMSG_TBL;

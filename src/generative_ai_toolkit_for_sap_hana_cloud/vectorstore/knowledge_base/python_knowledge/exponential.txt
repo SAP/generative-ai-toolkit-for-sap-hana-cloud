@@ -1,0 +1,25 @@
+The function 'exponential' in the 'hana_ml.algorithms.pal.random' module draws samples from an exponential distribution, with parameters for database connection, rate, number of random data, seed for random number generator, and thread ratio.
+------
+Here is a Python code template for the `exponential` function in the `hana_ml.algorithms.pal.random` module:
+
+```python
+from hana_ml import ConnectionContext
+from hana_ml.algorithms.pal.random import exponential
+
+# Create a connection
+cc = ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Set parameters
+lamb = 1
+num_random = 100
+seed = None
+thread_ratio = None
+
+# Draw samples from an exponential distribution
+res = exponential(conn_context=cc, lamb=lamb, num_random=num_random, seed=seed, thread_ratio=thread_ratio)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual database connection details. You can also adjust the parameters `lamb`, `num_random`, `seed`, and `thread_ratio` as per your requirements.

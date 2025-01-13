@@ -1,0 +1,48 @@
+The AdditiveModelForecastExplainer class in the hana_ml.visualizers.time_series_report module is a tool for explaining the results of additive model forecasts, with methods for initializing the explainer, getting summary plot items from forecasted results, and setting seasonality mode.
+------
+Here is a Python code template for the `AdditiveModelForecastExplainer` class:
+
+```python
+from hana_ml.visualizers.time_series_report import AdditiveModelForecastExplainer
+
+# Initialize the AdditiveModelForecastExplainer
+explainer = AdditiveModelForecastExplainer(key, endog, exog)
+
+# Set seasonality mode
+explainer.set_seasonality_mode(exogenous_names_with_additive_mode, exogenous_names_with_multiplicative_mode)
+
+# Get summary plot items from forecasted result
+summary_plot_items = explainer.get_summary_plot_items_from_forecasted_result()
+
+# Set fitted result
+explainer.set_fitted_result(fitted_result)
+
+# Set forecasted data
+explainer.set_forecasted_data(forecasted_data)
+
+# Set forecasted result
+explainer.set_forecasted_result(forecasted_result)
+
+# Set forecasted result explainer
+explainer.set_forecasted_result_explainer(forecasted_result_explainer, reason_code_name='EXOGENOUS')
+
+# Set training data
+explainer.set_training_data(training_data)
+
+# Add line to comparison item
+explainer.add_line_to_comparison_item(title, data, x_name, y_name=None, confidence_interval_names=None, color=None)
+
+# Get comparison item
+comparison_item = explainer.get_comparison_item(title='Comparison')
+
+# Get decomposition items from forecasted result
+decomposition_items = explainer.get_decomposition_items_from_forecasted_result()
+
+# Get force plot item from forecasted result
+force_plot_item = explainer.get_force_plot_item_from_forecasted_result()
+
+# Get items from best pipeline
+items_from_best_pipeline = AdditiveModelForecastExplainer.get_items_from_best_pipeline(best_pipeline, highlighted_metric_name)
+```
+
+Please replace `key`, `endog`, `exog`, `exogenous_names_with_additive_mode`, `exogenous_names_with_multiplicative_mode`, `fitted_result`, `forecasted_data`, `forecasted_result`, `forecasted_result_explainer`, `training_data`, `title`, `data`, `x_name`, `y_name`, `confidence_interval_names`, `color`, `best_pipeline`, and `highlighted_metric_name` with your actual data.

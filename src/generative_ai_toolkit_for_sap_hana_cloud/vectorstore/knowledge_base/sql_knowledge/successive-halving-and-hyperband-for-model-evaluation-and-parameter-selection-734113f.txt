@@ -1,0 +1,66 @@
+Successive halving is a method used for parameter selection in machine learning models. It aims to filter out unpromising candidates in the search space by reducing the number of candidates at each iteration. The resource used in successive halving can vary, but it is typically the size of the dataset. However, some parameters, such as the learning rate, may be sensitive to successive halving. Successive halving may not always select the best candidate based on the evaluation metric, but it aims to find a relatively good one. Hyperband is a technique that combines successive halving with random search to determine the best configuration for a specific search task. It tries multiple configurations and uses successive halving to identify the best one.
+------
+
+set schema DM_PAL;
+
+drop table PAL_HGBT_DATA_TAB;
+create column table PAL_HGBT_DATA_TAB (
+	"ATT1" double,
+	"ATT2" double,
+	"ATT3" double,
+	"ATT4" double,
+	"LABEL" nvarchar(50)
+);
+insert into PAL_HGBT_DATA_TAB values (1.0, 10.0, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.1, 10.1, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.2, 10.2, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.3, 10.4, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.2, 10.3, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (4.0, 40.0, 400, 4.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.1, 40.1, 400, 4.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.2, 40.2, 400, 4.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.3, 40.4, 400, 4.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.2, 40.3, 400, 4.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (9.0, 90.0, 900, 2.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (9.1, 90.1, 900, 1.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (9.2, 90.2, 900, 2.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (9.3, 90.4, 900, 1.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (9.2, 90.3, 900, 1.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (1.0, 10.0, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.1, 10.1, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.2, 10.2, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.3, 10.4, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.2, 10.3, 100, 1.0, 'A');
+
+drop table PAL_PARAMETER_TAB;
+create column table PAL_PARAMETER_TAB (
+	"PARAM_NAME" nvarchar(100),
+	"INT_VALUE" integer,
+	"DOUBLE_VALUE" double,
+	"STRING_VALUE" nvarchar(100)
+);
+insert into PAL_PARAMETER_TAB values ('RESAMPLING_METHOD', null, null, 'bootstrap_sha');
+insert into PAL_PARAMETER_TAB values ('RESOURCE', null, null, 'ITER_NUM');
+insert into PAL_PARAMETER_TAB values ('MAX_RESOURCE', 10, null, null);
+insert into PAL_PARAMETER_TAB values ('MIN_RESOURCE_RATE', null, 0.0, null);
+insert into PAL_PARAMETER_TAB values ('AGGRESSIVE_ELIMINATION', 1, null, null);
+insert into PAL_PARAMETER_TAB values ('PARAM_SEARCH_STRATEGY', null, null, 'grid');
+insert into PAL_PARAMETER_TAB values ('EVALUATION_METRIC', null, null, 'ERROR_RATE');
+
+insert into PAL_PARAMETER_TAB values ('SEED', 1, null, null);
+insert into PAL_PARAMETER_TAB values ('MAX_DEPTH_VALUES', null, null, '{3, 5, 6}');
+insert into PAL_PARAMETER_TAB values ('ETA_RANGE', null, null, '[0.1, 0.1, 1.0]');
+insert into PAL_PARAMETER_TAB values ('GAMMA_RANGE', null, null, '[0.1, 0.1, 1.0]');
+insert into PAL_PARAMETER_TAB values ('ALPHA_RANGE', null, null, '[0.1, 0.1, 1.0]');
+
+do begin
+	LT_DATA_TAB = select * from PAL_HGBT_DATA_TAB;
+	LT_PARAM_TAB = select * from PAL_PARAMETER_TAB;
+	call _SYS_AFL.PAL_HGBT(:LT_DATA_TAB, :LT_PARAM_TAB, LT_MODEL_TAB, LT_IMP_TAB, LT_CONFUSE_TAB, LT_STAT_TAB, LT_CV_TAB);
+	select * from :LT_MODEL_TAB;
+	select * from :LT_IMP_TAB;
+	select * from :LT_CONFUSE_TAB;
+	select * from :LT_STAT_TAB;
+	select * from :LT_CV_TAB;
+	insert into PAL_HGBT_MODEL_TAB select * from :LT_MODEL_TAB;
+end;

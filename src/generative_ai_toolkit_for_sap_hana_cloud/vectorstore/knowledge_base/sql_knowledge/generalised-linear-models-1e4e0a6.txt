@@ -1,0 +1,86 @@
+Generalized linear models (GLM) are used to regress responses that follow exponential distributions, such as Normal, Poisson, Binomial, Gamma, inverse Gaussian (IG), and negative binomial (NB). GLM regresses a linear predictor instead of the response itself, and the linear predictor and the expected response are connected via a link function. The link function ensures that the regressed responses are within the valid range. GLM can also be used for ordinal regression, which is a regression problem where the response variable has an ordered categorical scale. GLM estimates the coefficients using maximum likelihood estimation (MLE) and the Newton-Raphson method for numerical optimization. GLM can also be regularized to prevent overfitting, with penalty terms such as L1 and L2 regularization. The regularization problem can be solved using pathwise coordinate descent.
+------
+
+SET SCHEMA DM_PAL;
+
+
+DROP TABLE PAL_GLM_DATA_TBL;
+CREATE COLUMN TABLE PAL_GLM_DATA_TBL(
+	"ID" INTEGER,
+	"Y" INTEGER,
+	"X" INTEGER
+);
+INSERT INTO PAL_GLM_DATA_TBL VALUES (1, 0, -1);
+INSERT INTO PAL_GLM_DATA_TBL VALUES (2, 0, -1);
+INSERT INTO PAL_GLM_DATA_TBL VALUES (3, 1, 0);
+INSERT INTO PAL_GLM_DATA_TBL VALUES (4, 1, 0);
+INSERT INTO PAL_GLM_DATA_TBL VALUES (5, 1, 0);
+INSERT INTO PAL_GLM_DATA_TBL VALUES (6, 1, 0);
+INSERT INTO PAL_GLM_DATA_TBL VALUES (7, 2, 1);
+INSERT INTO PAL_GLM_DATA_TBL VALUES (8, 2, 1);
+INSERT INTO PAL_GLM_DATA_TBL VALUES (9, 2, 1);
+
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR(100),
+	"INT_VALUE" INTEGER,
+	"DOUBLE_VALUE" DOUBLE,
+	"STRIN_VALUE" VARCHAR (100)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SOLVER', null, null, 'irls'); -- IRLS
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('SOLVER', null, null, 'cd'); -- coordinate descent
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FAMILY', null, null, 'poisson');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('LINK', null, null, 'log');
+
+/*----- this part for ordinal -------
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SOLVER', null, null, 'nr'); -- Newton-Raphson
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FAMILY', null, null, 'ordinal');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('LINK', null, null, 'logit');
+*/-------- end ordinal ---------
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('OUTPUT_FITTED', 1, null, null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SIGNIFICANCE_LEVEL', null, 0.05, null);
+
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('HAS_ID', 1, null, null);
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE', null, null, 'X');
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('DEPENDENT_VARIABLE', null, null, 'Y');
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('ORDERING', null, null, 'low, right, high'); -- specify ordinal
+
+DROP TABLE PAL_GLM_STATS_TBL;
+CREATE COLUMN TABLE PAL_GLM_STATS_TBL (
+	"STAT_NAME" NVARCHAR(1000),
+	"STAT_VALUE" NVARCHAR(1000)
+);
+
+DROP TABLE PAL_GLM_COEFF_TBL;
+CREATE COLUMN TABLE PAL_GLM_COEFF_TBL (
+	"VARIABLE_NAME" NVARCHAR(256),
+	"COEFFICIENT" DOUBLE,
+	"SE" DOUBLE,
+	"SCORE" DOUBLE,
+	"PROBABILITY" DOUBLE,
+	"CI_LOWER"	DOUBLE,
+	"CI_UPPER" DOUBLE
+);
+
+DROP TABLE PAL_GLM_VCOV_TBL;
+CREATE COLUMN TABLE PAL_GLM_VCOV_TBL (
+	"VARIABLE_I" NVARCHAR(256),
+	"VARIABLE_J" NVARCHAR(256),
+	"COVARIANCE" DOUBLE
+);
+
+do begin 
+	lt_data = select * from PAL_GLM_DATA_TBL;
+	lt_control = select * from PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_GLM(:lt_data, :lt_control, lt_stats, lt_coeff, lt_vcov, lt_fit);
+	INSERT INTO PAL_GLM_STATS_TBL SELECT * FROM :lt_stats;
+	INSERT INTO PAL_GLM_COEFF_TBL SELECT * FROM :lt_coeff;
+	INSERT INTO PAL_GLM_VCOV_TBL SELECT * FROM :lt_vcov;
+	SELECT * FROM PAL_GLM_STATS_TBL;
+	SELECT * FROM PAL_GLM_COEFF_TBL;
+	SELECT * FROM PAL_GLM_VCOV_TBL;
+	SELECT * FROM :lt_fit;
+end;

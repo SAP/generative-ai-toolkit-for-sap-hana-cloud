@@ -1,0 +1,30 @@
+A correlation function is a statistical measure of the correlation between random variables. It can be used to calculate the auto-correlation function (ACF) for a single variable at different time points, or the cross-correlation function (CCF) between different variables. Correlation functions are commonly used in astronomy, financial analysis, econometrics, and statistical mechanics. The partial auto-correlation function (PACF) is a variation of the auto-correlation function that measures the relationship between two variables after removing the effects of other time lags. The cross-covariance function and cross-correlation function are used to measure the correlation between two series of variables. Correlation functions can be computed using the fast Fourier transform (FFT) algorithm.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_CORR_DATA_TBL;
+CREATE COLUMN TABLE PAL_CORR_DATA_TBL (
+	"ID" INTEGER,
+	"X" DOUBLE
+);
+INSERT INTO PAL_CORR_DATA_TBL VALUES(1, 88);
+INSERT INTO PAL_CORR_DATA_TBL VALUES(2, 84);
+INSERT INTO PAL_CORR_DATA_TBL VALUES(3, 85);
+INSERT INTO PAL_CORR_DATA_TBL VALUES(4, 85);
+INSERT INTO PAL_CORR_DATA_TBL VALUES(5, 84);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR(100),
+	"INT_VALUE" INTEGER,
+	"DOUBLE_VALUE" DOUBLE,
+	"STRING_VALUE" VARCHAR(100)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.4, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('USE_FFT', -1, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('CALCULATE_PACF', 1, NULL, NULL);
+
+
+CALL _SYS_AFL.PAL_CORRELATION_FUNCTION (PAL_CORR_DATA_TBL, "#PAL_PARAMETER_TBL", ?);
+

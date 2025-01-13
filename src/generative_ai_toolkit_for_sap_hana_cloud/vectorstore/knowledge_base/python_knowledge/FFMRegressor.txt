@@ -1,0 +1,27 @@
+The FFMRegressor class in the hana_ml.algorithms.pal.recommender module is a Field-Aware Factorization Machine for regression tasks, with various parameters for customization such as factorization dimensionality, seed for random number generator, proportion of data used for training, maximum number of iterations for the ALS algorithm, and handling of missing values.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.recommender import FFMRegressor
+
+# Create a FFMRegressor instance
+ffm = FFMRegressor(factor_num=4, early_stop=True, learning_rate=0.2, max_iter=20, train_size=0.8,
+                   linear_lamb=1e-5, poly2_lamb=1e-6, random_state=1)
+
+# Assume df_train_regression is your training data
+# Perform fit() on given dataframe
+ffm.fit(data=df_train_regression, categorical_variable='TIMESTAMP')
+
+# Print model statistics
+print(ffm.stats_.collect())
+
+# Assume df_predict is your prediction data
+# Perform predict()
+res = ffm.predict(data=df_predict, key='ID', thread_ratio=1)
+
+# Print prediction results
+print(res.collect())
+```
+
+Please replace `df_train_regression` and `df_predict` with your actual data.

@@ -1,0 +1,52 @@
+The content discusses the concept of local interpretability of machine learning models and introduces the Shapley Additive Explanations (SHAP) method for explaining individual predictions. It explains that there are different implementations of SHAP values for different types of machine learning models. For tree-based models, a tree SHAP explainer and Saabas method are provided. For nonlinear and non-tree based models, a kernel SHAP explainer is used. The table provides an overview of the supported SHAP versions for different functions, including decision trees, random decision trees, hybrid gradient boosting tree, naive Bayes, support vector machine, multilayer perceptron, and multi-class logistic regression.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE  PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL (
+	"OUTLOOK" NVARCHAR(20),
+	"TEMP" DOUBLE,
+	"HUMIDITY" DOUBLE,
+	"WINDY" NVARCHAR(10),
+	"CLASS" NVARCHAR(20)
+);
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 75, 70.0, 'Yes', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 80, 90.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 85, 91.0, 'No', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 72, 95.0, 'No', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Sunny', 73, 70.0, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 72.0, 90, 'Yes', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 83.0, 78, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 64.0, 65, 'Yes', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Overcast', 81.0, 75, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 71, 80.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 65, 70.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 75, 80.0, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 68, 80.0, 'No', 'Play');
+INSERT INTO PAL_DATA_TBL VALUES ('Rain', 70, 96.0, 'No', 'Play');
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE  COLUMN TABLE PAL_PARAMETER_TBL (
+	"PARAM_NAME" NVARCHAR (100), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" NVARCHAR (100)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION', NULL, NULL, 'RDT');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SEED', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_DEPTH', 10, NULL, NULL);
+DROP TABLE PAL_MODEL_RDT_TBL;  
+CREATE COLUMN TABLE PAL_MODEL_RDT_TBL (
+	"ROW_INDEX" INTEGER,
+	"PART_INDEX" INTEGER,
+	"MODEL_CONTENT" NCLOB
+);
+DO
+BEGIN
+	lt_data = SELECT * FROM PAL_DATA_TBL;
+	lt_ctrl = SELECT * FROM PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_UNIFIED_CLASSIFICATION (:lt_data, :lt_ctrl, lt_model,lt_imp,lt_stat, lt_opt,lt_cm,lt_metrics,lt_partition,lt_ph1);
+	INSERT INTO PAL_MODEL_RDT_TBL SELECT * FROM :lt_model;
+END;

@@ -1,0 +1,43 @@
+The function create_dataframe_from_pandas in the hana_ml.dataframe module uploads data from a Pandas DataFrame to a SAP HANA database and returns a SAP HANA DataFrame, with various parameters to customize the upload process such as table name, schema, force, replace, object type, table structure, and more.
+------
+Here is the executable code template for the function `create_dataframe_from_pandas`:
+
+```python
+from hana_ml import dataframe
+from hana_ml.dataframe import ConnectionContext
+
+# Create a connection to the SAP HANA database instance
+connection_context = ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Assuming pandas_df is your pandas DataFrame
+pandas_df = ...
+
+# Define the table name in the SAP HANA database
+table_name = '<table_name>'
+
+# Call the function
+df = dataframe.create_dataframe_from_pandas(
+    connection_context=connection_context,
+    pandas_df=pandas_df,
+    table_name=table_name,
+    schema=None,
+    force=False,
+    replace=False,
+    object_type_as_bin=False,
+    table_structure=None,
+    drop_exist_tab=True,
+    allow_bigint=False,
+    geo_cols=None,
+    srid=4326,
+    primary_key=None,
+    not_nulls=None,
+    chunk_size=50000,
+    disable_progressbar=False,
+    upsert=False,
+    append=False
+)
+
+# df is now a SAP HANA DataFrame that contains the data in pandas_df
+```
+
+Please replace `<address>`, `<port>`, `<user>`, `<password>` and `<table_name>` with your actual values. Also, `pandas_df` should be your actual pandas DataFrame.

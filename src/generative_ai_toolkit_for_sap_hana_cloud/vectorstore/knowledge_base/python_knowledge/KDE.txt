@@ -1,0 +1,43 @@
+The KDE class in the hana_ml.algorithms.pal.kernel_density module is used to perform Kernel Density Estimation, a method for smoothing a histogram, with various parameters to customize the process such as thread ratio, leaf size, kernel function type, search method, bandwidth, and distance level.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.kernel_density import KDE
+
+# Define the parameters for the KDE instance
+thread_ratio = 0.0
+leaf_size = 30
+kernel = 'gaussian'
+method = 'brute_force'
+distance_level = 'euclidean'
+minkowski_power = 3.0
+atol = 0
+rtol = 1e-8
+bandwidth = 0
+resampling_method = 'loocv'
+evaluation_metric = 'nll'
+bandwidth_values = None
+bandwidth_range = None
+stat_info = True
+random_state = 0
+search_strategy = 'grid'
+repeat_times = 1
+algorithm = 'brute-force'
+
+# Create a KDE instance
+kde = KDE(thread_ratio=thread_ratio, leaf_size=leaf_size, kernel=kernel, method=method, distance_level=distance_level, minkowski_power=minkowski_power, atol=atol, rtol=rtol, bandwidth=bandwidth, resampling_method=resampling_method, evaluation_metric=evaluation_metric, bandwidth_values=bandwidth_values, bandwidth_range=bandwidth_range, stat_info=stat_info, random_state=random_state, search_strategy=search_strategy, repeat_times=repeat_times, algorithm=algorithm)
+
+# Assume df_train and df_pred are the training and prediction dataframes respectively
+# Fit the model
+kde.fit(data=df_train, key='ID')
+
+# Predict
+res, stats = kde.predict(data=df_pred, key='ID')
+
+# Print the results
+print(res.collect())
+print(stats.collect())
+```
+
+Please replace `df_train` and `df_pred` with your actual dataframes.

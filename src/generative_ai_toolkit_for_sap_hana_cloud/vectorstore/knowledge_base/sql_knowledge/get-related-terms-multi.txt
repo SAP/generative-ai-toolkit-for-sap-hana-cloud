@@ -1,0 +1,72 @@
+I'm sorry, but you haven't provided any content to summarize. Please provide the content you would like me to summarize.
+------
+
+set schema DM_PAL;
+
+drop table PAL_TFIDF_DATA_TAB; 
+create column table PAL_TFIDF_DATA_TAB (
+	"ID" nvarchar(1000),
+	"CONTENT" nvarchar(1000),
+	"CATEGORY" nvarchar(1000)
+);
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc1','term1 term2 term2 term3 term3 term3','CATEGORY_1'); 
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc2','term2 term3 term3 term4 term4 term4','CATEGORY_1'); 
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc3','term3 term4 term4 term5 term5 term5','CATEGORY_2'); 
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc5','term3 term4 term4 term5 term5 term5 term5 term5 term5','CATEGORY_2'); 
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc4','term4 term6','CATEGORY_3'); 
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc6','term4 term6 term6 term6','CATEGORY_3'); 
+
+drop table #PAL_PARAMETER_TAB; 
+create local temporary column table #PAL_PARAMETER_TAB (
+	"PARAM_NAME" nvarchar(256),
+	"INT_VALUE" integer,
+	"DOUBLE_VALUE" double,
+	"STRING_VALUE" nvarchar(1000)
+);  
+drop table PAL_TM_TERM_TAB;
+create column table PAL_TM_TERM_TAB (
+	"TM_TERMS" nvarchar(1000),
+	"TM_TERM_FREQUENCY" integer,
+	"TM_IDF_FREQUENCY" integer,
+	"TF_VALUE" double,
+	"IDF_VALUE" double 
+);  
+drop table PAL_TM_DOC_TERM_FREQ_TAB;
+create column table PAL_TM_DOC_TERM_FREQ_TAB (
+	"ID" nvarchar(1000),
+	"TM_TERMS" nvarchar(1000),
+	"TM_TERM_FREQUENCY" integer );
+drop table PAL_TM_CATE_TAB;
+create column table PAL_TM_CATE_TAB (
+	"ID" nvarchar(1000),
+	"CATEGORY" nvarchar(1000) );
+
+DO BEGIN
+lt_data = SELECT * FROM PAL_TFIDF_DATA_TAB;
+lt_para = SELECT * FROM PAL_PARAMETER_TAB;
+CALL _SYS_AFL.PAL_TF_ANALYSIS (:lt_data, :lt_para, lt_term, lt_doctermfreq, lt_cate);
+INSERT INTO PAL_TM_TERM_TAB SELECT * FROM :lt_term;
+INSERT INTO PAL_TM_DOC_TERM_FREQ_TAB SELECT * FROM :lt_doctermfreq;
+INSERT INTO PAL_TM_CATE_TAB SELECT * FROM :lt_cate;
+END;
+
+----------------GetRelatedTermMI----------------
+
+drop table #PAL_PARAMETER_TAB;
+create local temporary column table #PAL_PARAMETER_TAB (
+	"PARAM_NAME" nvarchar(256),
+	"INT_VALUE" integer,
+	"DOUBLE_VALUE" double,
+	"STRING_VALUE" nvarchar(1000) );
+INSERT INTO #PAL_PARAMETER_TAB VALUES ('THREAD_RATIO',NULL, 0.5, NULL);
+
+drop table PAL_TM_INPUT_TERM_TAB_IM;
+create column table PAL_TM_INPUT_TERM_TAB_IM (
+	"ID" integer,
+	"CONTENT" nvarchar(1000) );
+INSERT INTO PAL_TM_INPUT_TERM_TAB_IM VALUES (1,'term3');
+INSERT INTO PAL_TM_INPUT_TERM_TAB_IM VALUES (2,'term33');
+INSERT INTO PAL_TM_INPUT_TERM_TAB_IM VALUES (3,'term6'); 
+
+call _SYS_AFL.PAL_TMGETRELATEDTERM_MULTIINPUT(PAL_TM_TERM_TAB, PAL_TM_DOC_TERM_FREQ_TAB, PAL_TM_CATE_TAB, PAL_TM_INPUT_TERM_TAB_IM, "#PAL_PARAMETER_TAB", ?);
+

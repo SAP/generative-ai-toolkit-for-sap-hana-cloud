@@ -1,0 +1,16 @@
+The IdGenerator class in the hana_ml.visualizers.ui_components module is used to initialize itself and generate IDs, with instance variables and weak references to the object defined if necessary.
+------
+Here is a Python code template for the `IdGenerator` class:
+
+```python
+class IdGenerator(object):
+    def __init__(self):
+        # Initialize self
+        pass
+
+    def id(self):
+        # Method to generate id
+        pass
+```
+
+Please note that this is a basic template and you may need to add your own logic to the `__init__` and `id` methods.

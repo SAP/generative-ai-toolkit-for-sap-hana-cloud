@@ -1,0 +1,18 @@
+The DWT class in the hana_ml.algorithms.pal.tsa.wavelet module is designed for discrete wavelet transform and wavelet packet transform, with various parameters to specify the wavelet filter, padding method for boundary values, decompose level for wavelet, whether to perform wavelet packet transformation, the order of node in the wavelet packet coefficients table, whether to discard zero values in wavelet coefficients, the thresholding method applied to wavelet coefficients, the uniform thresholding value for soft/hard-thresholding, and level-wise thresholding values.
+------
+Here is a Python code template for the DWT class:
+
+```python
+from hana_ml.algorithms.pal.tsa.wavelet import DWT
+
+# Create an instance of the DWT class
+dwt = DWT(wavelet='db1', boundary='zero', level=1, packet=False, order='index', compression=False, method='no', threshold=1e-9, level_thresholds=None)
+
+# Perform the forward transformation
+dwt.transform(data, key, col=None)
+
+# Perform the inverse transformation
+dwt.inverse(wavelet=None, boundary=None)
+```
+
+In this template, you need to replace `data` and `key` with your actual data and key. The `col` parameter is optional and should be the signal values for wavelet transformation if specified. The `wavelet` and `boundary` parameters in the `inverse` method are also optional. If not provided, the values in `self.wavelet` and `self.boundary` are used.

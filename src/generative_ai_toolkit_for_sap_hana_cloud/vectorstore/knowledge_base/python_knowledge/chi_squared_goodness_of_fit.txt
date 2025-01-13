@@ -1,0 +1,27 @@
+The chi_squared_goodness_of_fit function in the hana_ml.algorithms.pal.stats module performs the chi-squared goodness-of-fit test on a given data set to determine if an observed distribution differs from an expected chi-squared distribution, returning a comparison between the actual and expected counts and statistical outputs including the calculated chi-squared value, degrees of freedom, and p-value.
+------
+Here is a Python code template for the `chi_squared_goodness_of_fit` function:
+
+```python
+from hana_ml import DataFrame
+from hana_ml.algorithms.pal.stats import chi_squared_goodness_of_fit
+
+# Assuming that a HANA dataframe 'df' already exists
+# df = DataFrame(connection_context, 'your_table')
+
+# Specify the key column
+key = 'ID'
+
+# Specify the observed_data and expected_freq columns if they exist
+# observed_data = 'your_observed_data_column'
+# expected_freq = 'your_expected_freq_column'
+
+# Perform the chi-squared goodness-of-fit test
+res, stat = chi_squared_goodness_of_fit(data=df, key=key)
+
+# Print the results
+print(res.collect())
+print(stat.collect())
+```
+
+Please replace `'your_table'`, `'ID'`, `'your_observed_data_column'`, and `'your_expected_freq_column'` with your actual table name, ID column name, observed data column name, and expected frequency column name respectively. If the `observed_data` and `expected_freq` columns are not given, they default to the first and second non-ID columns respectively.

@@ -1,0 +1,33 @@
+The wpdec function in the hana_ml.algorithms.pal.tsa.wavelet module is a Python wrapper for the PAL multi-level (discrete) wavelet packet transformation, which applies a discrete wavelet transform to time-series data using specified parameters such as wavelet filter, padding method for boundary values, decompose level, order of node, thresholding method, and threshold value.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.wavelet import wpdec
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+data = DataFrame(connection_context, 'SELECT * FROM TIME_SERIES_DATA')
+
+# Apply discrete wavelet transform
+wpres = wpdec(
+    data=data,
+    wavelet='db2',
+    key='ID',
+    col='VAL',
+    boundary='symmetric',
+    level=2,
+    order='frequency',
+    compression=False,
+    method='no',
+    threshold=1e-9
+)
+
+# Print the wavelet packet transformation of data
+print(wpres.coeff_.collect())
+
+# Print the decomposition result
+print(wpres.stats_.collect())
+```
+
+Please replace `'SELECT * FROM TIME_SERIES_DATA'` with your actual SQL query to fetch the time-series data. Also, make sure that the `connection_context` is properly defined and connected to your HANA system.

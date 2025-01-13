@@ -1,0 +1,38 @@
+The get_related_term function in the hana_ml.text.tm module returns the top-ranked related terms for a query term or multiple terms based on Term Frequency - Inverse Document Frequency (TF-IDF) result or reference data, with various parameters to customize the input data, reference data, language, index name, thread ratio, and created index.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+# Import required module
+from hana_ml.text import tm
+
+# Define your dataframes
+# pred_data and ref_data should be pandas dataframes or similar
+pred_data = ...
+ref_data = ...
+
+# Define optional parameters
+top = ...
+threshold = ...
+lang = 'EN'
+index_name = ...
+thread_ratio = ...
+created_index = ...
+key = ...
+
+# Call the function
+result = tm.get_related_term(pred_data=pred_data, 
+                             ref_data=ref_data, 
+                             top=top, 
+                             threshold=threshold, 
+                             lang=lang, 
+                             index_name=index_name, 
+                             thread_ratio=thread_ratio, 
+                             created_index=created_index, 
+                             key=key)
+
+# Print or use the result
+print(result)
+```
+
+Please replace the `...` with your actual data or values.

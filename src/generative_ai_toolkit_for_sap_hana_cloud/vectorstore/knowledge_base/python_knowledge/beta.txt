@@ -1,0 +1,28 @@
+The function beta in the hana_ml.algorithms.pal.random module draws samples from a Beta distribution, with parameters for database connection, alpha and beta values, number of random data to be generated, seed for random number generator, and thread ratio.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.random import beta
+from hana_ml import dataframe as df
+
+# Assuming that a connection context 'cc' is already created
+
+# Set parameters
+a = 0.5
+b = 0.5
+num_random = 100
+seed = None
+thread_ratio = None
+
+# Call the beta function
+res = beta(conn_context=cc, a=a, b=b, num_random=num_random, seed=seed, thread_ratio=thread_ratio)
+
+# Collect the result
+result = res.collect()
+
+# Print the result
+print(result)
+```
+
+Please replace the 'cc' with your actual connection context. The connection context is used to establish a connection to your HANA database. You may need to import additional modules based on your specific setup and requirements.

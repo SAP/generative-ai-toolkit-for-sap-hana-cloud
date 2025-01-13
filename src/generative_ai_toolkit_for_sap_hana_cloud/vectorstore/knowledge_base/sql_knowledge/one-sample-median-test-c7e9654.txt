@@ -1,0 +1,45 @@
+The one-sample median test is a non-parametric test that checks whether the median of a dataset is different from a specified value. It uses the sign test, which does not assume any specific distribution of the data. If the data is drawn from a symmetric distribution, the Wilcoxon signed rank test can also be used. The test compares the null hypothesis that the median of the population from which the data is drawn is equal to a specified value, against alternative hypotheses that the median is not equal to, less than, or greater than the specified value. The p-value of the test is calculated approximately, and it is recommended to use this test when the sample size is at least 20. The test also provides the estimated median and the corresponding confidence interval.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_SIGNTEST_DATA_TBL;
+CREATE COLUMN TABLE PAL_SIGNTEST_DATA_TBL ("X" INT);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (85);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (65);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (20);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (56);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (30);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (46);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (83);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (33);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (89);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (72);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (51);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (76);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (68);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (82);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (27);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (59);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (69);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (40);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (64);
+INSERT INTO PAL_SIGNTEST_DATA_TBL VALUES (8);
+
+DROP TABLE PAL_SIGNTEST_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_SIGNTEST_PARAMETER_TBL ("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+
+INSERT INTO PAL_SIGNTEST_PARAMETER_TBL VALUES ('M0',NULL,40,NULL);
+INSERT INTO PAL_SIGNTEST_PARAMETER_TBL VALUES ('TEST_TYPE', 0,NULL,NULL); //default value is 0, it can be {0,1,2}
+
+DROP TABLE PAL_SIGNTEST_RESULT_TBL;
+CREATE COLUMN TABLE PAL_SIGNTEST_RESULT_TBL ("STAT_NAME" NVARCHAR(100), "STAT_VALUE" DOUBLE);
+
+DO BEGIN
+  lt_data = SELECT * FROM PAL_SIGNTEST_DATA_TBL;
+  lt_param = SELECT * FROM PAL_SIGNTEST_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_SIGN_TEST (:lt_data, :lt_param, lt_result);
+  INSERT INTO PAL_SIGNTEST_RESULT_TBL SELECT * FROM :lt_result;
+END;
+
+SELECT * FROM PAL_SIGNTEST_RESULT_TBL;

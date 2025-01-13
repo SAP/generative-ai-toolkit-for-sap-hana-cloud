@@ -1,0 +1,66 @@
+The TimeSeriesReport class in the hana_ml.visualizers module is a builder for time series reports, allowing users to create, add content to, and generate reports in various formats such as notebook iframes or local HTML files.
+------
+Here is the executable code template based on the help doc:
+
+```python
+# Importing classes
+from hana_ml.visualizers.time_series_report import TimeSeriesReport, DatasetAnalysis
+from hana_ml.visualizers.report_builder import Page
+
+# Creating a report instance
+report = TimeSeriesReport('Time Series Data Report')
+
+# Create a data analysis instance and a page array
+dataset_analysis = DatasetAnalysis(data=df_acf, endog="Y", key="ID")
+pages = []
+
+# Construct the contents of each page of the report
+page0 = Page('Stationarity')
+page0.addItem(dataset_analysis.stationarity_item())
+pages.append(page0)
+
+page1 = Page('Partial Autocorrelation')
+page1.addItem(dataset_analysis.pacf_item())
+pages.append(page1)
+
+page2 = Page('Rolling Mean and Standard Deviation')
+page2.addItems([dataset_analysis.moving_average_item(-3), dataset_analysis.rolling_stddev_item(10)])
+pages.append(page2)
+
+page3 = Page('Real and Seasonal')
+page3.addItem(dataset_analysis.real_item())
+page3.addItem(dataset_analysis.seasonal_item())
+page3.addItems(dataset_analysis.seasonal_decompose_items())
+pages.append(page3)
+
+page4 = Page('Box')
+page4.addItem(dataset_analysis.timeseries_box_item('YEAR'))
+page4.addItem(dataset_analysis.timeseries_box_item('MONTH'))
+page4.addItem(dataset_analysis.timeseries_box_item('QUARTER'))
+pages.append(page4)
+
+page5 = Page('Quarter')
+page5.addItem(dataset_analysis.quarter_item())
+pages.append(page5)
+
+page6 = Page('Outlier')
+page6.addItem(dataset_analysis.outlier_item())
+pages.append(page6)
+
+page7 = Page('Change Points')
+bcpd = BCPD(max_tcp=2, max_scp=1, max_harmonic_order =10, random_seed=1, max_iter=10000)
+page7.addItem(dataset_analysis.change_points_item(bcpd))
+pages.append(page7)
+
+# Add all pages to report instance
+report.addPages(pages)
+
+# Generating notebook iframe
+report.build()
+report.generate_notebook_iframe()
+
+# Generating a local HTML file
+report.generate_html("TimeSeriesReport")
+```
+
+Please replace `df_acf` with your actual DataFrame and `BCPD` with the actual class or function for change point detection.

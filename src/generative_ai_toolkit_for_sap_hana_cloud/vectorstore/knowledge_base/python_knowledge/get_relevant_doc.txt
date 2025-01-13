@@ -1,0 +1,40 @@
+The get_relevant_doc function in the hana_ml.text.tm module returns the top-ranked documents relevant to a term or multiple terms based on Term Frequency - Inverse Document Frequency (TF-IDF) result or reference data, with various parameters to customize the input data, reference data, language, index name, thread ratio, and created index.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+# Import required libraries
+from hana_ml import dataframe
+from hana_ml.text import tm
+
+# Create a connection to HANA
+connection_context = dataframe.ConnectionContext(address='<address>',
+                                                 port='<port>',
+                                                 user='<user>',
+                                                 password='<password>')
+
+# Create DataFrame for pred_data
+pred_data = connection_context.table('<table_name>')
+
+# Create DataFrame for ref_data
+ref_data = connection_context.table('<table_name>')
+
+# Call the function
+result = tm.get_relevant_doc(pred_data=pred_data, 
+                             ref_data=ref_data, 
+                             top=5, 
+                             threshold=0.5, 
+                             lang='EN', 
+                             index_name=None, 
+                             thread_ratio=0.5, 
+                             created_index=None, 
+                             key=None)
+
+# Collect the result
+result_df = result.collect()
+
+# Print the result
+print(result_df)
+```
+
+Please replace `<address>`, `<port>`, `<user>`, `<password>`, and `<table_name>` with your actual values.

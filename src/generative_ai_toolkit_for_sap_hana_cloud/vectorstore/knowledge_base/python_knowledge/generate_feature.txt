@@ -1,0 +1,37 @@
+The function generate_feature in the hana_ml.algorithms.pal.feature_tool module adds additional features to an existing dataframe using aggregation and transformation functions, with parameters for the input dataframe, target columns, group by column, aggregation function, transformation function, order by column, and transformation parameters.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.feature_tool import generate_feature
+
+# Assuming df is your input DataFrame
+df = ...
+
+# Specify the targets
+targets = ["TEMPERATURE", "HUMIDITY", "OXYGEN", "CO2"]
+
+# Specify the transformation function
+trans_func = "LAG"
+
+# Specify the order by column
+order_by = "TIME"
+
+# Specify the transformation parameters
+trans_param = [range(1, 7), range(1, 5), range(1, 5), range(1,7)]
+
+# Generate features
+df_new = generate_feature(data=df,
+                          targets=targets,
+                          trans_func=trans_func,
+                          order_by=order_by,
+                          trans_param=trans_param)
+
+# Drop NA values and deselect the "TIME" column
+df_new = df_new.dropna().deselect("TIME")
+
+# Print the first 2 rows of the new DataFrame
+print(df_new.head(2).collect())
+```
+
+Please replace `df = ...` with your actual DataFrame.

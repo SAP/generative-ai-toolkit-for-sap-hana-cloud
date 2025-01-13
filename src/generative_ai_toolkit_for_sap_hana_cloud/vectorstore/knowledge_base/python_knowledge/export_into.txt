@@ -1,0 +1,26 @@
+The function export_into in the hana_ml.dataframe module exports SAP HANA tables into the disk, with parameters to specify the connection context, tables to export, optional conditions for data subset, export location, format, whether to replace existing data, whether to obfuscate CSV data, and the number of threads used for export.
+------
+Here is a Python code template for the `export_into` function from the `hana_ml.dataframe` module:
+
+```python
+from hana_ml import dataframe
+
+def export_hana_tables(connection_context, tables, condition='', directory=None, export_format='BINARY', replace=False, scramble=False, threads=1):
+    """
+    Exports SAP HANA tables into the disk.
+
+    Parameters:
+    connection_context (ConnectionContext): A connection to the SAP HANA database instance.
+    tables (str or list of str): Table(s) ready for export.
+    condition (str, optional): Exports a subset of table data. The WHERE clause follows, and is associated with, a single table in the EXPORT statement. Defaults to "".
+    directory (str, optional): Export location. Defaults to '/tmp/HANAML_<uuid>.tgz'.
+    export_format (str, optional): Defaults to "BINARY".
+    replace (bool, optional): Defines the behavior if the export data already exists in the specified directory. If REPLACE is not specified, then an error is returned if previously exported data exists in the specified export directory. Defaults to False.
+    scramble (bool, optional): Obfuscates CSV format exported data. Defaults to False.
+    threads (int): The number of threads used for export.
+    """
+
+    dataframe.export_into(connection_context, tables, condition, directory, export_format, replace, scramble, threads)
+```
+
+You can use this function in your code by calling `export_hana_tables` with the appropriate parameters. Please replace the placeholders with actual values before running the code.

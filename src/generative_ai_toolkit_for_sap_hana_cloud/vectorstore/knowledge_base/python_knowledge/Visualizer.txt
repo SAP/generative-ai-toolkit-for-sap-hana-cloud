@@ -1,0 +1,33 @@
+The Visualizer class in the hana_ml.visualizers.visualizer_base module is a base class for all visualizations, storing axes, size, title, and other drawing parameters, with options to use matplotlib or plotly for plotting.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+import matplotlib.pyplot as plt
+from hana_ml.visualizers.visualizer_base import Visualizer
+
+# Create a Visualizer instance
+visualizer = Visualizer(ax=None, size=None, cmap=None, enable_plotly=True, fig=None, no_fig=False)
+
+# Set the Axes
+ax = plt.gca()  # get current axes
+visualizer.set_ax(ax)
+
+# Set the colormap
+cmap = plt.cm.Blues
+visualizer.set_cmap(cmap)
+
+# Set the size
+size = (800, 600)  # width, height in pixels
+visualizer.set_size(size)
+
+# Access readonly properties
+print(visualizer.ax)
+print(visualizer.cmap)
+print(visualizer.size)
+
+# Reset the visualizer
+visualizer.reset()
+```
+
+Please replace the placeholders with actual values as per your requirements.

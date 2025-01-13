@@ -1,0 +1,39 @@
+The hull_white_simulate function in the hana_ml.algorithms.pal.tsa.hull_white module is used to simulate various interest rate paths using the Hull-White model, a single-factor interest rate model crucial in financial mathematics and risk management, by taking in parameters like data, key, endog, num_simulation_paths, random_seed, mean_reversion_speed, volatility, time_increment, confidence_level, and initial_value, and returns a DataFrame with the simulation results.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal.tsa.hull_white import hull_white_simulate
+
+# Define your DataFrame
+# data = ...
+
+# Define parameters
+key = 'TIME_STAMP'
+endog = 'VALUE'
+num_simulation_paths = 5000
+random_seed = 1
+mean_reversion_speed = 0.1
+volatility = 0.01
+time_increment = 0.083
+confidence_level = 0.95
+initial_value = 0.0
+
+# Perform hull_white_simulate()
+result = hull_white_simulate(data=data,
+                             key=key,
+                             endog=endog,
+                             num_simulation_paths=num_simulation_paths,
+                             random_seed=random_seed,
+                             mean_reversion_speed=mean_reversion_speed,
+                             volatility=volatility,
+                             time_increment=time_increment,
+                             confidence_level=confidence_level,
+                             initial_value=initial_value)
+
+# Print the result
+print(result.collect())
+```
+
+Please replace `# data = ...` with your actual DataFrame.

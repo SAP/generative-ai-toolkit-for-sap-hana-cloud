@@ -1,0 +1,19 @@
+The geometric function in the hana_ml.algorithms.pal.random module draws samples from a geometric distribution, with parameters for the database connection object, successful fraction, number of random data to be generated, seed for the random number generator, and the proportion of available threads to use.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.random import geometric
+from hana_ml import ConnectionContext
+
+# Create a connection context
+cc = ConnectionContext(address='<hana_address>', port='<hana_port>', user='<hana_user>', password='<hana_password>')
+
+# Draw samples from a geometric distribution
+res = geometric(conn_context=cc, p=0.5, num_random=10)
+
+# Collect the result
+print(res.collect())
+```
+
+Please replace `<hana_address>`, `<hana_port>`, `<hana_user>`, and `<hana_password>` with your actual HANA database connection details.

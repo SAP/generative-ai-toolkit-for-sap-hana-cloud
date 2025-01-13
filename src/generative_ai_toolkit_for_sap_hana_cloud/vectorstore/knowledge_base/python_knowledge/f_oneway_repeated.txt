@@ -1,0 +1,38 @@
+The function f_oneway_repeated in the hana_ml.algorithms.pal.stats module performs a one-way repeated measures analysis of variance, Mauchly's Test of Sphericity, and post hoc multiple comparison tests on a given DataFrame, returning statistics for each group, Mauchly test results, computed results, and multiple comparison results.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.stats import f_oneway_repeated
+from hana_ml import DataFrame
+
+# Assuming that connection_context is already defined and a connection to HANA is established
+
+# Define your data
+data = {
+    'ID': [1, 2, 3, 4, 5, 6, 7, 8],
+    'MEASURE1': [8.0, 9.0, 6.0, 5.0, 8.0, 7.0, 10.0, 12.0],
+    'MEASURE2': [7.0, 5.0, 2.0, 3.0, 4.0, 5.0, 2.0, 6.0],
+    'MEASURE3': [1.0, 2.0, 3.0, 1.0, 5.0, 6.0, 7.0, 8.0],
+    'MEASURE4': [6.0, 5.0, 8.0, 9.0, 8.0, 7.0, 2.0, 1.0]
+}
+
+# Create a DataFrame
+df = DataFrame(connection_context, data)
+
+# Perform the function
+stats, mtest, anova, mult_comp = f_oneway_repeated(
+    data=df,
+    subject_id='ID',
+    multcomp_method='bonferroni',
+    significance_level=0.05,
+    se_type='two-group')
+
+# Print the results
+print(stats.collect())
+print(mtest.collect())
+print(anova.collect())
+print(mult_comp.collect())
+```
+
+Please replace the `connection_context` with your actual HANA connection context. The `data` dictionary should be replaced with your actual data.

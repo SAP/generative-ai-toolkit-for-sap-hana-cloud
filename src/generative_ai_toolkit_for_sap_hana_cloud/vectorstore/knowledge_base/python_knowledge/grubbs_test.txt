@@ -1,0 +1,31 @@
+The grubbs_test function in the hana_ml.algorithms.pal.stats module performs Grubbs' test to detect outliers in a given univariate data set, assuming the data comes from a Gaussian distribution, and returns test results and statistics.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+# Import necessary libraries
+from hana_ml.algorithms.pal.stats import grubbs_test
+from hana_ml import DataFrame
+
+# Assuming connection context `cc` is already defined and a connection to HANA is established
+
+# Define the data
+data = DataFrame(cc, 'SELECT * FROM <your_table>')  # replace <your_table> with your actual table name
+
+# Define the parameters
+key = '<key_column>'  # replace <key_column> with your actual key column name
+col = '<col_column>'  # replace <col_column> with your actual column name
+method = 'one_side_max'  # choose from 'two_sides', 'one_side_min', 'one_side_max', 'repeat_two_sides'
+alpha = 0.2  # significance level
+
+# Perform the Grubbs' test
+res, stats = grubbs_test(data=data, key=key, col=col, method=method, alpha=alpha)
+
+# Print the results
+print("Test results:")
+print(res.collect())
+print("\nStatistics:")
+print(stats.collect())
+```
+
+Please replace `<your_table>`, `<key_column>`, and `<col_column>` with your actual table name and column names. Also, make sure that a connection to HANA is established and the connection context `cc` is defined.

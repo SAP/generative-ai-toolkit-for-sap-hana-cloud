@@ -1,0 +1,24 @@
+The SpectralClustering class in the hana_ml.algorithms.pal.clustering module is a machine learning algorithm that treats data as points in space, connects them with edges, and uses the edge weights to perform low-dimension embedding of the affinity matrix between samples, followed by k-means clustering of the components of the eigenvectors in the low dimensional space.
+------
+Here is a Python code template for the SpectralClustering class:
+
+```python
+from hana_ml.algorithms.pal.clustering import SpectralClustering
+
+# Create a SpectralClustering instance
+spc = SpectralClustering(n_clusters=4,
+                         n_neighbors=4,
+                         init='patent',
+                         distance_level='euclidean',
+                         max_iter=100,
+                         tol=1e-6,
+                         category_weights=0.5)
+
+# Assuming that `df` is your input DataFrame
+labels = spc.fit_predict(data=df, thread_ratio=0.2)
+
+# `labels` is a DataFrame that holds the cluster labels
+print(labels.collect())
+```
+
+Please replace `df` with your actual DataFrame. The `fit_predict` method performs spectral clustering for the given dataset and returns the corresponding cluster labels. The `thread_ratio` parameter specifies the ratio of total number of threads that can be used by spectral clustering. The value range is from 0 to 1, where 0 means only using 1 thread, and 1 means using at most all the currently available threads.

@@ -1,0 +1,32 @@
+The CommunitiesLouvain class in the hana_ml.graph.algorithms module is used to identify communities in a given graph, providing methods to execute the community identification, and properties to access the identified communities, their count, modularity, and vertices.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+# Import required modules
+import hana_ml.graph.algorithms as hga
+from hana_ml.graph.hana_graph import Graph
+
+# Create a Graph instance
+hana_graph = Graph()
+
+# Create a CommunitiesLouvain instance
+comm = hga.CommunitiesLouvain(graph=hana_graph)
+
+# Execute the communities
+comm.execute(runs=2, weight='LENGTH')
+
+# Print the number of communities
+print("Communities:", comm.communities_count)
+
+# Print the modularity of the communities
+print("Modularity:", comm.modularity)
+
+# Print the communities histogram
+print("Communities Histogram:", comm.communities)
+
+# Print the vertices
+print("Vertices:", comm.vertices)
+```
+
+Please replace `Graph()` with your actual graph instance.

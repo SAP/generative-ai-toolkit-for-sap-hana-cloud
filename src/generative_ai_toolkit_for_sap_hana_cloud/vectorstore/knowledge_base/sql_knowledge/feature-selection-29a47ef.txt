@@ -1,0 +1,78 @@
+Feature selection is a technique used to reduce the dimensionality of data by selecting a subset of relevant features for model construction. This helps to improve computational efficiency and reduce memory storage without significant loss of information. There are various algorithms for feature selection, including statistic-based methods (such as Anova and Chi-squared), information theory-based methods (such as Information Gain and MRMR), similarity-based methods (such as Laplacian Score and ReliefF), sparse learning-based methods (such as ADMM), and wrapper methods (such as CSO). These methods can be classified based on their efficiency, capability of handling supervision, and feature redundancy.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TYPE PAL_FS_DATA_TT;
+CREATE TYPE PAL_FS_DATA_TT AS TABLE (
+            "X1" INTEGER,
+            "X2" DOUBLE,
+            "X3" DOUBLE,
+            "X4" DOUBLE,
+            "X5" DOUBLE,
+            "X6" DOUBLE,
+            "X7" DOUBLE,
+            "X8" DOUBLE,
+            "X9" DOUBLE,
+            "X10" DOUBLE,
+            "X11" DOUBLE,
+            "X12" DOUBLE,
+            "X13" DOUBLE,
+            "Y" DOUBLE
+);
+
+DROP TABLE PAL_FS_DATA_TBL;
+CREATE COLUMN TABLE PAL_FS_DATA_TBL like  PAL_FS_DATA_TT;
+
+
+DROP PROCEDURE FILL_DATA;
+CREATE PROCEDURE FILL_DATA AS
+BEGIN
+    DECLARE x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,y DOUBLE ARRAY;
+    DECLARE len INTEGER = 30;
+    declare i integer;
+    DECLARE data PAL_FS_DATA_TT;
+    x1 = ARRAY(1,0,0,0,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1);
+    x2 = ARRAY(22.08,22.67,29.58,21.67,20.17,15.83,17.42,58.67,27.83,55.75,33.5,41.42,20.67,34.92,58.58,48.08,29.58,18.92,20.0,22.42,28.17,19.17,41.17,41.58,19.5,32.75,22.5,33.17,30.67,23.08);
+    x3 = ARRAY(11.46,7.0,1.75,11.5,8.17,0.585,6.5,4.46,1.0,7.08,1.75,5.0,1.25,5.0,2.71,6.04,4.5,9.0,1.25,5.665,0.585,0.585,1.335,1.75,9.585,1.5,0.125,3.04,12.0,2.5);
+    x4 = ARRAY(2,2,1,1,2,2,2,2,1,2,2,2,1,2,2,2,2,2,1,2,2,1,2,2,2,2,1,1,2,2);
+    x5 = ARRAY(4,8,4,5,6,8,3,11,2,4,14,11,8,14,8,4,9,6,4,11,6,6,2,4,6,13,4,8,8,8);
+    x6 = ARRAY(4,4,4,3,4,8,4,8,8,8,8,8,8,8,4,4,4,4,4,4,4,4,4,4,4,8,4,8,4,4);
+    x7 = ARRAY(1.585,0.165,1.25,0.0,1.96,1.5,0.125,3.04,3.0,6.75,4.5,5.0,1.375,7.5,2.415,0.04,7.5,0.75,0.125,2.585,0.04,0.585,0.165,0.21,0.79,5.5,0.125,2.04,2.0,1.085);
+    x8 = ARRAY(0,0,0,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,1,0,1,0,1,0,1,0,1,1,1);
+    x9 = ARRAY(0,0,0,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,1,0,0,0,0,0,1,0,1,1,1);
+    x10 = ARRAY(0,0,0,11,14,2,0,6,0,3,4,6,3,6,0,0,2,2,0,7,0,0,0,0,0,3,0,1,1,11);
+    x11 = ARRAY(1,0,1,1,0,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,1,0,0,0,1,0,1,0,1);
+    x12 = ARRAY(2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2);
+    x13 = ARRAY(100,160,280,0,60,100,60,43,176,100,253,470,140,0,320,0,330,88,140,129,260,160,168,160,80,0,200,180,220,60);
+    y = ARRAY(1213,1,1,1,159,1,101,561,538,51,858,1,211,1001,1,2691,1,592,5,3258,1005,1,1,1,351,1,71,18028,20,2185);
+    for i in 1..len do
+        data = 
+            SELECT * FROM :data
+            UNION ALL
+            select :x1[i] as value, :x2[i] as value, :x3[i] as value, :x4[i] as value, :x5[i] as value, :x6[i] as value, :x7[i] as value, :x8[i] as value, :x9[i] as value, :x10[i] as value, :x11[i] as value, :x12[i] as value, :x13[i] as value, :y[i] as value from dummy;
+    end for;
+
+    TRUNCATE TABLE PAL_FS_DATA_TBL;
+    INSERT INTO PAL_FS_DATA_TBL SELECT * FROM :data;
+END;
+
+CALL FILL_DATA;
+--select * from PAL_FS_DATA_TBL;
+
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+    "PARAM_NAME" NVARCHAR(256),
+    "INT_VALUE" INTEGER, 
+    "DOUBLE_VALUE" DOUBLE, 
+    "STRING_VALUE" NVARCHAR (1000)
+);
+--INSERT INTO #PAL_PARAMETER_TBL VALUES ('HAS_ID', 0, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FS_METHOD', 3, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('TOP_K_BEST', 8, NULL, NULL);
+--INSERT INTO #PAL_PARAMETER_TBL VALUES ('VERBOSE', 1, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('DEPENDENT_VARIABLE', NULL, NULL, 'Y');
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE', NULL, NULL, 'X1');
+
+CALL _SYS_AFL.PAL_FEATURE_SELECTION (PAL_FS_DATA_TBL, "#PAL_PARAMETER_TBL", ?);

@@ -1,0 +1,21 @@
+The waverec function in the hana_ml.algorithms.pal.tsa.wavelet module is a Python wrapper for the PAL multi-level inverse discrete wavelet transform, which takes a DWT object, an optional wavelet filter, and an optional boundary padding method, and returns a DataFrame of the reconstructed time-series data from the inverse discrete wavelet transform.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.tsa.wavelet import DWT, waverec
+
+# Assuming `dwt` is a `DWT` object
+dwt = DWT()
+
+# Populate `dwt` with data
+# ...
+
+# Reconstruct the original time-series data
+rec = waverec(dwt=dwt)
+
+# Print the reconstructed data
+print(rec.collect())
+```
+
+Please replace the `# Populate `dwt` with data` comment with actual code to populate the `dwt` object with data. The `DWT` class is used to perform discrete wavelet transform, and its usage is not covered in the provided documentation. You may need to refer to the documentation of `DWT` for its usage.

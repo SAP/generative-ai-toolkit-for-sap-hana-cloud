@@ -1,0 +1,26 @@
+The OnlineBCPD class in the hana_ml.algorithms.pal.tsa.changepoint module is used for online Bayesian Change-point detection, with various parameters for the t-distribution, constant hazard function, threshold for determining a change point, delay, pruning, massive mode, and group parameters.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.changepoint import OnlineBCPD
+
+# Create an OnlineBCPD instance
+obcpd = OnlineBCPD(alpha=0.1,
+                   beta=0.01,
+                   kappa=1.0,
+                   mu=0.0,
+                   delay=5,
+                   threshold=0.5,
+                   prune=True)
+
+# Assuming that `df` is your DataFrame
+# Invoke fit_predict()
+model, cp = obcpd.fit_predict(data=df, model=None)
+
+# Print the model and change points
+print(model.head(5).collect())
+print(cp.collect())
+```
+
+Please replace `df` with your actual DataFrame. The `fit_predict` method detects change-points of the input data. The `model` DataFrame contains the model for change point detection and `cp` DataFrame contains the detected change points.

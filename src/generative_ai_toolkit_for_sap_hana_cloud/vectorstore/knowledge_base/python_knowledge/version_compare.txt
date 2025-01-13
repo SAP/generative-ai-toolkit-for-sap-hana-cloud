@@ -1,0 +1,23 @@
+The function version_compare in module hana_ml.algorithms.pal.utility checks if the package's version is greater than the specified version, returning True if it is and False if it isn't.
+------
+Here is a Python code template for the `version_compare` function in the `hana_ml.algorithms.pal.utility` module:
+
+```python
+# Import the required module
+from hana_ml.algorithms.pal.utility import version_compare
+
+# Specify the package version and the version to compare with
+pkg_version = '1.0.0'  # replace with your package version
+version = '0.9.0'  # replace with the version to compare with
+
+# Use the version_compare function
+is_greater = version_compare(pkg_version, version)
+
+# Print the result
+if is_greater:
+    print(f"The package version {pkg_version} is greater than {version}.")
+else:
+    print(f"The package version {pkg_version} is not greater than {version}.")
+```
+
+Please replace `'1.0.0'` and `'0.9.0'` with your actual package version and the version you want to compare with, respectively.

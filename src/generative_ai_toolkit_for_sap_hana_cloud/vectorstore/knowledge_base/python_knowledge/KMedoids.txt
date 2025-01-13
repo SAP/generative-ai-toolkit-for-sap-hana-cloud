@@ -1,0 +1,36 @@
+The KMedoids class in the hana_ml.algorithms.pal.clustering module is a K-Medoids clustering algorithm that partitions observations into clusters based on their nearest cluster center, with various parameters to control the clustering process such as the number of clusters, maximum iterations, convergence threshold, thread ratio, distance level, and more.
+------
+Here is a Python code template for the KMedoids class:
+
+```python
+from hana_ml.algorithms.pal.clustering import KMedoids
+
+# Create a KMedoids instance
+kmedoids = KMedoids(n_clusters=4, init='first_K',
+                    max_iter=100, tol=1.0E-6,
+                    distance_level='Euclidean',
+                    thread_ratio=0.3, category_weights=0.5)
+
+# Fit the model to the data
+kmedoids.fit(data=df, key='ID')
+
+# Print the cluster centers
+print(kmedoids.cluster_centers_.collect())
+
+# Perform fit_predict and print the result
+print(kmedoids.fit_predict(data=df, key='ID').collect())
+```
+
+In this code:
+
+- `n_clusters` is the number of clusters.
+- `init` is the method for initializing the cluster centers.
+- `max_iter` is the maximum number of iterations.
+- `tol` is the convergence threshold.
+- `distance_level` is the method for calculating the distance between data points.
+- `thread_ratio` is the proportion of available threads to use.
+- `category_weights` is the weight of category attributes.
+- `df` is the input DataFrame.
+- `key` is the name of the ID column in the DataFrame.
+
+Please replace `df` with your actual DataFrame.

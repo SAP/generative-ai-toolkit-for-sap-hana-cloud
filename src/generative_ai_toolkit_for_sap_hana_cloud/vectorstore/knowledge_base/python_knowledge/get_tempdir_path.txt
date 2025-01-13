@@ -1,0 +1,14 @@
+The function get_tempdir_path in module hana_ml.visualizers.automl_progress retrieves the path of the temporary directory.
+------
+Here is a Python code template for the function `get_tempdir_path` from the module `hana_ml.visualizers.automl_progress`:
+
+```python
+# Import the required module
+from hana_ml.visualizers import automl_progress
+
+# Call the function
+tempdir_path = automl_progress.get_tempdir_path()
+
+# Print the result
+print(tempdir_path)
+```

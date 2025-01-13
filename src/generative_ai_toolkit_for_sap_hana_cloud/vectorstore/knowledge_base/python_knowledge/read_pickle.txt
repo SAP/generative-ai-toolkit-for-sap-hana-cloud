@@ -1,0 +1,35 @@
+The function read_pickle in the hana_ml.dataframe module loads a pickled DataFrame object from a file, with parameters allowing for connection to a SAP HANA database instance, specification of file path, table name, compression type, schema name, and options to drop the table, handle missing values, consider object type as CLOB, and manually define column types.
+------
+Here is a Python code template for the `read_pickle` function:
+
+```python
+from hana_ml import dataframe
+
+# Create a connection to SAP HANA
+connection_context = dataframe.ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Define parameters
+path = '<path_to_pickle_file>'
+table_name = '<table_name>'
+compression = 'infer'  # or 'gzip', 'bz2', 'zip', 'xz', None
+schema = None  # or '<schema_name>'
+force = False
+replace = True
+object_type_as_bin = False
+table_structure = None  # or {<column_name>: <column_type>, ...}
+
+# Load a pickled DataFrame object from file
+df = dataframe.read_pickle(
+    connection_context=connection_context,
+    path=path,
+    table_name=table_name,
+    compression=compression,
+    schema=schema,
+    force=force,
+    replace=replace,
+    object_type_as_bin=object_type_as_bin,
+    table_structure=table_structure
+)
+```
+
+Please replace `<address>`, `<port>`, `<user>`, `<password>`, `<path_to_pickle_file>`, `<table_name>`, and `<schema_name>` with your actual values. If you want to manually define column types, replace `{<column_name>: <column_type>, ...}` with your actual column names and types.

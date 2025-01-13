@@ -1,0 +1,40 @@
+The Node class in the hana_ml.visualizers.digraph module is an entity class that represents a node with unique identification, name, icon, content, and lists of input and output port names.
+------
+Here is a Python code template for the `Node` class from the `hana_ml.visualizers.digraph` module:
+
+```python
+class Node(object):
+    def __init__(self, node_id: int, node_name: str, node_icon_id: int, node_content: str, node_in_ports: list, node_out_ports: list):
+        """
+        The Node class of digraph framework is an entity class.
+
+        Parameters
+        ----------
+        node_id : int [Automatic generation]
+            Unique identification of node.
+        node_name : str
+            The node name.
+        node_icon_id : int [Automatic generation]
+            Unique identification of node icon.
+        node_content : str
+            The node content.
+        node_in_ports : list
+            List of input port names.
+        node_out_ports : list
+            List of output port names.
+        """
+        self.node_id = node_id
+        self.node_name = node_name
+        self.node_icon_id = node_icon_id
+        self.node_content = node_content
+        self.node_in_ports = node_in_ports
+        self.node_out_ports = node_out_ports
+```
+
+You can use this class like this:
+
+```python
+node = Node(1, 'Node1', 1, 'Content1', ['in1', 'in2'], ['out1', 'out2'])
+```
+
+Please note that the `node_id` and `node_icon_id` parameters are marked as "[Automatic generation]" in the documentation, which suggests that these values might be automatically generated in some way. The provided template does not include any automatic generation of these values.

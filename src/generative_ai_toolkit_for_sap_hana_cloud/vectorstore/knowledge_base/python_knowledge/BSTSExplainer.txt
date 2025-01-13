@@ -1,0 +1,52 @@
+The BSTSExplainer class in the hana_ml.visualizers.time_series_report module is a subclass of TimeSeriesExplainer that provides methods for initializing the explainer, adding lines to comparison items, getting comparison items, decomposition items, force plot items, summary plot items from forecasted results, setting fitted results, forecasted data, forecasted results, forecasted result explainer, and training data.
+------
+Here is a Python code template for the `BSTSExplainer` class:
+
+```python
+from hana_ml.visualizers.time_series_report import BSTSExplainer
+from hana_ml.dataframe import DataFrame
+
+# Initialize BSTSExplainer
+explainer = BSTSExplainer(key='key', endog='endog', exog='exog')
+
+# Set training data
+training_data = DataFrame(...)  # replace with actual DataFrame
+explainer.set_training_data(training_data)
+
+# Set fitted result
+fitted_result = DataFrame(...)  # replace with actual DataFrame
+explainer.set_fitted_result(fitted_result)
+
+# Set forecasted data
+forecasted_data = DataFrame(...)  # replace with actual DataFrame
+explainer.set_forecasted_data(forecasted_data)
+
+# Set forecasted result
+forecasted_result = DataFrame(...)  # replace with actual DataFrame
+explainer.set_forecasted_result(forecasted_result)
+
+# Set forecasted result explainer
+forecasted_result_explainer = DataFrame(...)  # replace with actual DataFrame
+explainer.set_forecasted_result_explainer(forecasted_result_explainer)
+
+# Add line to comparison item
+explainer.add_line_to_comparison_item(title='title', data='data', x_name='x_name', y_name='y_name')
+
+# Get comparison item
+comparison_item = explainer.get_comparison_item(title='Comparison')
+
+# Get decomposition items from forecasted result
+decomposition_items = explainer.get_decomposition_items_from_forecasted_result()
+
+# Get force plot item from forecasted result
+force_plot_item = explainer.get_force_plot_item_from_forecasted_result()
+
+# Get summary plot items from forecasted result
+summary_plot_items = explainer.get_summary_plot_items_from_forecasted_result()
+
+# Get items from best pipeline
+best_pipeline = DataFrame(...)  # replace with actual DataFrame
+items_from_best_pipeline = BSTSExplainer.get_items_from_best_pipeline(best_pipeline, highlighted_metric_name='highlighted_metric_name')
+```
+
+Please replace the placeholders with actual values as per your requirements.

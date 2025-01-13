@@ -1,0 +1,14 @@
+langchain
+numpy<2.0
+pandas
+hana-ml>=2.21.24061801
+langchain-community
+langchain-core
+langchain-experimental
+langchain-text-splitters
+langgraph
+langsmith
+pydantic
+pydantic-core
+crewai
+generative-ai-hub-sdk[all]

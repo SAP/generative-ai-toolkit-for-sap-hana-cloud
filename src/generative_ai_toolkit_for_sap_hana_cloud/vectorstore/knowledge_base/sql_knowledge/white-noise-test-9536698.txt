@@ -1,0 +1,40 @@
+The White Noise Test algorithm is used to determine if a time series is a white noise series. It uses the Ljung-Box test to check for autocorrelation at different lags. The null hypothesis is that white noise exists in the time series, while the alternative hypothesis is that it does not. The test statistic is calculated using the sample size, sample autocorrelation, and the number of lags being tested. The statistic follows a chi-square distribution, and the critical region for rejecting the hypothesis of randomness is determined based on the significance level. If white noise is present in the time series, the algorithm returns 1, otherwise it returns 0.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_WN_DATA_TBL;
+CREATE COLUMN TABLE PAL_WN_DATA_TBL (
+	"TIME_STAMP" INTEGER,
+	"SERIES" DOUBLE
+);
+
+INSERT INTO PAL_WN_DATA_TBL VALUES (0, 1356.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (1, 826.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (2, 1586.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (3, 1010.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (4, 1337.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (5, 1415.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (6, 1514.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (7, 1474.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (8, 1662.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (9, 1805.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (10, 2218.00);
+INSERT INTO PAL_WN_DATA_TBL VALUES (11, 2400.00);
+
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR(100),
+	"INT_VALUE" INTEGER,
+	"DOUBLE_VALUE" DOUBLE,
+	"STRING_VALUE" VARCHAR(100)
+);
+
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.2, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('PROBABILITY', NULL, 0.9, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('LAG', 3, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('MODEL_DF', 1, NULL, NULL);
+
+CALL _SYS_AFL.PAL_WN_TEST(PAL_WN_DATA_TBL, "#PAL_PARAMETER_TBL", ?);
+

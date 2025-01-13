@@ -1,0 +1,58 @@
+A weighted score table is a method used to evaluate alternatives based on different criteria. Each alternative is given a score for each criterion, which is then weighted based on its importance. The weighted scores are added together to calculate a total weighted score, and the alternative with the highest score is considered the best. Weighted score tables can also be used to predict customer behavior by creating a model based on historical data and applying it to new data. The output of the model, called a score, takes into account different dimensions. The function defined by weighted score tables is a linear combination of functions of a variable.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL( 
+	"ID" INTEGER,
+	"GENDER" VARCHAR(10),
+	"INCOME" INTEGER,
+	"HEIGHT" DOUBLE
+);
+INSERT INTO PAL_DATA_TBL VALUES (0, 'male', 5000, 1.73);
+INSERT INTO PAL_DATA_TBL VALUES (1, 'male', 9000, 1.80);
+INSERT INTO PAL_DATA_TBL VALUES (2, 'female', 6000, 1.55);
+INSERT INTO PAL_DATA_TBL VALUES (3, 'male', 15000, 1.65);
+INSERT INTO PAL_DATA_TBL VALUES (4, 'female', 2000, 1.70);
+INSERT INTO PAL_DATA_TBL VALUES (5, 'female', 12000, 1.65);
+INSERT INTO PAL_DATA_TBL VALUES (6, 'male', 1000, 1.65);
+INSERT INTO PAL_DATA_TBL VALUES (7, 'male', 8000, 1.60);
+INSERT INTO PAL_DATA_TBL VALUES (8, 'female', 5500, 1.85);
+INSERT INTO PAL_DATA_TBL VALUES (9, 'female', 9500, 1.85);
+
+DROP TABLE PAL_MAP_TBL;
+CREATE COLUMN TABLE PAL_MAP_TBL(
+	"GENDER" VARCHAR(10),
+	"VAL1" DOUBLE, 
+	"INCOME" INTEGER, 
+	"VAL2" DOUBLE, 
+	"HEIGHT" DOUBLE, 
+	"VAL3" DOUBLE
+);
+INSERT INTO PAL_MAP_TBL VALUES ('male', 2.0, 0, 0.0, 1.5, 0.0);
+INSERT INTO PAL_MAP_TBL VALUES ('female', 1.5, 5500, 1.0, 1.6, 1.0);
+INSERT INTO PAL_MAP_TBL VALUES (NULL, 0.0, 9000, 2.0, 1.71, 2.0);
+INSERT INTO PAL_MAP_TBL VALUES (NULL, 0.0, 12000, 3.0, 1.80, 3.0);
+
+DROP TABLE PAL_WEIGHTS_TBL;
+CREATE COLUMN TABLE PAL_WEIGHTS_TBL(
+	"WEIGHT" DOUBLE, 
+	"ISDIS" INTEGER, 
+	"ROWNUM" INTEGER
+);
+INSERT INTO PAL_WEIGHTS_TBL VALUES (0.5, 1,2);
+INSERT INTO PAL_WEIGHTS_TBL VALUES (2.0, -1,4);
+INSERT INTO PAL_WEIGHTS_TBL VALUES (1.0, -1,4);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL(
+	"PARAM_NAME" NVARCHAR(256), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" NVARCHAR(1000)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.3, NULL);
+
+CALL _SYS_AFL.PAL_WEIGHTED_TABLE(PAL_DATA_TBL, PAL_MAP_TBL, PAL_WEIGHTS_TBL, "#PAL_PARAMETER_TBL", ?);
+

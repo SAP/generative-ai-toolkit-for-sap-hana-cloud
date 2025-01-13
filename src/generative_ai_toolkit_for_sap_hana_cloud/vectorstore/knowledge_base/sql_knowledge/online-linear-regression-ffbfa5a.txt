@@ -1,0 +1,33 @@
+Online linear regression is a method used for training data that is obtained in multiple rounds. It adapts the linear model by combining the current computed model with the data obtained in each round to make more precise predictions. The process involves initializing an empty model and then inputting the intermediate model from the previous round or initialization into the online training algorithm. The algorithm outputs an updated intermediate model and the coefficients of the linear model after each round of training. The obtained linear model can then be used to predict future data.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_INTERMEDIATE_RESULT_TBL;
+CREATE COLUMN TABLE PAL_INTERMEDIATE_RESULT_TBL ("SEQUENCE" INTEGER, "INTERMEDIATE_MODEL" NVARCHAR(5000));
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" NVARCHAR(256),
+    "INT_VALUE" INTEGER, 
+    "DOUBLE_VALUE" DOUBLE, 
+    "STRING_VALUE" NVARCHAR (1000)
+);
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE")
+VALUES('ENET_LAMBDA', NULL, 0.1, NULL);
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE")
+VALUES('ENET_ALPHA', NULL, 0.5, NULL);
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE")
+VALUES('MAX_ITERATION', 1200, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL("PARAM_NAME", "INT_VALUE", "DOUBLE_VALUE", "STRING_VALUE")
+VALUES('THRESHOLD', NULL, 1E-6, NULL);
+
+DO BEGIN
+lt_para = SELECT * FROM PAL_PARAMETER_TBL;
+CALL _SYS_AFL.PAL_INIT_ONLINE_LINEAR_REGRESSION (:lt_para,lt_intermediate_result);
+INSERT INTO PAL_INTERMEDIATE_RESULT_TBL
+SELECT * FROM :lt_intermediate_result;
+END;
+
+SELECT * FROM PAL_INTERMEDIATE_RESULT_TBL;
+

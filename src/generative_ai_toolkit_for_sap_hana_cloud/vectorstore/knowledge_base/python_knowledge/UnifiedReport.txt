@@ -1,0 +1,45 @@
+The UnifiedReport class in the hana_ml.visualizers.unified_report module is a report generator for PAL/APL models, currently supporting only UnifiedClassification and UnifiedRegression, and provides methods to build, display, and customize the report.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.model_selection import GridSearchCV
+from hana_ml.algorithms.pal.unified_classification import UnifiedClassification
+from hana_ml.visualizers.unified_report import UnifiedReport
+
+# Initialize the UnifiedClassification model
+hgc = UnifiedClassification('HybridGradientBoostingTree')
+
+# Define the parameter grid for GridSearchCV
+param_grid = {'learning_rate': [0.1, 0.4, 0.7, 1],
+              'n_estimators': [4, 6, 8, 10],
+              'split_threshold': [0.1, 0.4, 0.7, 1]}
+
+# Initialize GridSearchCV
+gscv = GridSearchCV(estimator=hgc,
+                    param_grid=param_grid,
+                    train_control=dict(fold_num=5,
+                                       resampling_method='cv',
+                                       random_state=1,
+                                       ref_metric=['auc']),
+                    scoring='error_rate')
+
+# Fit the model
+gscv.fit(data=diabetes_train, key= 'ID',
+         label='CLASS',
+         partition_method='stratified',
+         partition_random_state=1,
+         stratified_column='CLASS',
+         build_report=True)
+
+# Build and display the report
+report = UnifiedReport(diabetes_train)
+report.build()
+report.display()
+
+# Display the model report
+model_report = UnifiedReport(gscv.estimator)
+model_report.display()
+```
+
+Please replace `diabetes_train` with your actual DataFrame.

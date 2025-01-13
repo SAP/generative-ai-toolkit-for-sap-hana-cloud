@@ -1,0 +1,25 @@
+The DBSCAN class in the hana_ml.algorithms.pal.clustering module is a density-based data clustering algorithm that identifies clusters based on the estimated density distribution of nodes, separating high-density regions from low-density ones and allowing for the discovery of clusters of arbitrary shape in data containing noise and outliers.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.clustering import DBSCAN
+
+# Create a DBSCAN instance
+dbscan = DBSCAN(minpts=5, eps=0.5, thread_ratio=0.2, metric='manhattan')
+
+# Assuming that `df` is your DataFrame
+dbscan.fit(data=df, key='ID')
+
+# Print the labels
+print(dbscan.labels_.collect())
+
+# Predict clusters for new data
+# Assuming that `new_data` is your new DataFrame
+predictions = dbscan.predict(data=new_data, key='ID')
+
+# Print the predictions
+print(predictions.collect())
+```
+
+Please replace `'ID'` with your actual column name that represents the ID of your data points. Also, replace `df` and `new_data` with your actual DataFrame names. The `minpts` and `eps` parameters in the `DBSCAN` instance creation are just placeholders, you should replace them with the actual values that make sense for your data.

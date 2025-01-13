@@ -1,0 +1,84 @@
+A multilayer perceptron (MLP) is a type of feed forward artificial neural network. It consists of at least three layers: an input layer, one or more hidden layers, and an output layer. Each layer is fully connected to its preceding and succeeding layers. The MLP is trained using a technique called back propagation.
+
+A single neuron in the MLP takes signals from outside and transforms them into a single output value using an activation function. The neuron has weights on each connection and a constant bias. The neural network structure is composed of input, hidden, and output layers, with signals being transmitted through connections and layers to produce the final output.
+
+There are two training styles available for the MLP: batch training and stochastic training. In batch training, weights are updated based on the error of the entire package of training patterns, while in stochastic training, weights are updated based on the error of a single training pattern.
+
+The MLP also supports categorical attributes. If an attribute is of category type, it is converted into a binary vector and used as numerical attributes. For example, if the "Gender" attribute has two distinct values (Female and Male), it will be converted into a binary vector with two dimensions (Gender_1 and Gender_2) in the input layer.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_TRAIN_MLP_CLS_DATA_TBL;
+CREATE COLUMN TABLE PAL_TRAIN_MLP_CLS_DATA_TBL(
+	"V000" INTEGER,
+	"V001" DOUBLE,
+	"V002" VARCHAR(10),
+	"V003" INTEGER,
+	"LABEL" VARCHAR(2)
+);
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (1, 1.71, 'AC', 0, 'AA');
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (10, 1.78, 'CA', 5, 'AB');
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (17, 2.36, 'AA', 6, 'AA');
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (12, 3.15, 'AA', 2, 'C');
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (7, 1.05, 'CA', 3, 'AB');
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (6, 1.50, 'CA', 2, 'AB');
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (9, 1.97, 'CA', 6, 'C');
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (5, 1.26, 'AA', 1, 'AA');
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (12, 2.13, 'AC', 4, 'C');
+INSERT INTO PAL_TRAIN_MLP_CLS_DATA_TBL VALUES (18, 1.87, 'AC', 6, 'AA');
+
+DROP TABLE PAL_MLP_CLS_MODEL_TBL;
+CREATE COLUMN TABLE PAL_MLP_CLS_MODEL_TBL(
+	"ROW_INDEX" INTEGER,
+	"MODEL_CONTENT" NVARCHAR(5000)
+);
+
+DROP TABLE PAL_MLP_LOG_TBL;
+CREATE COLUMN TABLE PAL_MLP_LOG_TBL (
+	"ITERATION" INTEGER, 
+	"ERROR" DOUBLE
+);
+
+DROP TABLE PAL_MLP_STAT_TBL;
+CREATE COLUMN TABLE PAL_MLP_STAT_TBL (
+	"STAT_NAME" NVARCHAR(256), 
+	"STAT_VALUE" NVARCHAR(1000)
+);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL(
+	"PARAM_NAME" NVARCHAR(256),
+	"INT_VALUE" INTEGER,
+	"DOUBLE_VALUE" DOUBLE,
+	"STRING_VALUE" NVARCHAR(1000)
+);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('HIDDEN_LAYER_SIZE', NULL, NULL, '10, 10');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('HIDDEN_LAYER_ACTIVE_FUNC', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('OUTPUT_LAYER_ACTIVE_FUNC', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('LEARNING_RATE', NULL, 0.001, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MOMENTUM_FACTOR', NULL, 0.00001, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTIONALITY', 0, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('TRAINING_STYLE', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE', NULL, NULL, 'V003');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('DEPENDENT_VARIABLE', NULL, NULL, 'LABEL');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_ITERATION', 100, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('NORMALIZATION', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('WEIGHT_INIT', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.3, NULL);
+
+-- call procedure
+drop procedure PAL_MLP_PROC;
+create procedure PAL_MLP_PROC() as
+BEGIN
+	lt_data = SELECT * FROM PAL_TRAIN_MLP_CLS_DATA_TBL;
+	lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_MULTILAYER_PERCEPTRON(:lt_data, :lt_param, lt_model, lt_log, lt_stat, lt_opt);
+	INSERT INTO PAL_MLP_CLS_MODEL_TBL SELECT * FROM :lt_model;
+	INSERT INTO PAL_MLP_LOG_TBL SELECT * FROM :lt_log;
+	INSERT INTO PAL_MLP_STAT_TBL SELECT * FROM :lt_stat;
+	SELECT * FROM PAL_MLP_CLS_MODEL_TBL;
+	SELECT * FROM PAL_MLP_LOG_TBL;
+	SELECT * FROM PAL_MLP_STAT_TBL;	
+END;
+call PAL_MLP_PROC();

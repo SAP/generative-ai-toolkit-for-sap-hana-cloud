@@ -1,0 +1,20 @@
+The function negative_binomial in the hana_ml.algorithms.pal.random module draws samples from a negative binomial distribution, with parameters for the database connection object, number of successes, successful fraction, number of random data to be generated, seed for the random number generator, and the proportion of available threads to use.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.random import negative_binomial
+from hana_ml import dataframe
+from hana_ml import ConnectionContext
+
+# Create a connection context
+cc = ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Draw samples from a negative_binomial distribution
+res = negative_binomial(conn_context=cc, n=1, p=0.5, num_random=10)
+
+# Collect the result
+print(res.collect())
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual HANA database connection details.

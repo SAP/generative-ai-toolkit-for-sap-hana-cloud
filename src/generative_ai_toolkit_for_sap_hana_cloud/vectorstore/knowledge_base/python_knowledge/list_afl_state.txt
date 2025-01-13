@@ -1,0 +1,18 @@
+The function list_afl_state in the hana_ml.algorithms.pal.utility module is used to list the Application Function Library (AFL) state in the given connection context.
+------
+Here is a Python code template for the function `list_afl_state` from the module `hana_ml.algorithms.pal.utility`:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal.utility import list_afl_state
+
+# Create a connection context
+# Please replace 'address', 'port', 'user', 'password' with your actual HANA DB credentials
+from hana_ml import dataframe
+connection_context = dataframe.ConnectionContext('address', 'port', 'user', 'password')
+
+# Use the function
+list_afl_state(connection_context)
+```
+
+Please replace `'address'`, `'port'`, `'user'`, `'password'` with your actual HANA DB credentials. The function `list_afl_state` lists the state of AFL (Application Function Library) in the connected HANA database.

@@ -1,0 +1,33 @@
+The KMedians class in the hana_ml.algorithms.pal.clustering module is a K-Medians clustering algorithm that partitions observations into clusters based on their nearest cluster center, using the medians of the points to define the center, making it more robust against outliers.
+------
+Here is a Python code template for the KMedians class:
+
+```python
+from hana_ml.algorithms.pal.clustering import KMedians
+
+# Define the parameters for the KMedians model
+n_clusters = 4
+init = 'first_k'
+max_iter = 100
+tol = 1.0E-6
+distance_level = 'Euclidean'
+thread_ratio = 0.3
+category_weights = 0.5
+
+# Create an instance of the KMedians model
+kmedians = KMedians(n_clusters=n_clusters, init=init, max_iter=max_iter, tol=tol, 
+                    distance_level=distance_level, thread_ratio=thread_ratio, 
+                    category_weights=category_weights)
+
+# Assume df is the input DataFrame for clustering and 'ID' is the key column
+# Fit the model to the data
+kmedians.fit(data=df, key='ID')
+
+# Print the coordinates of cluster centers
+print(kmedians.cluster_centers_.collect())
+
+# Perform fit_predict() and print the result
+print(kmedians.fit_predict(data=df, key='ID').collect())
+```
+
+Please replace `df` with your actual DataFrame and adjust the parameters as needed.

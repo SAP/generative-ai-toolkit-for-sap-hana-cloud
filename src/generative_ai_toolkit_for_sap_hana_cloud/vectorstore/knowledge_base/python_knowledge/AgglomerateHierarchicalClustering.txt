@@ -1,0 +1,30 @@
+The AgglomerateHierarchicalClustering class in the hana_ml.algorithms.pal.clustering module is a widely used clustering method that groups data into a hierarchy or binary tree of subgroups, using a bottom-up strategy where each data point is initially considered as its own cluster and then iteratively merges two clusters based on a dissimilarity measure.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.clustering import AgglomerateHierarchicalClustering
+
+# Create an instance of the AgglomerateHierarchicalClustering class
+hc = AgglomerateHierarchicalClustering(
+    n_clusters=4,
+    affinity='Gower',
+    linkage='weighted average',
+    thread_ratio=None,
+    distance_dimension=3,
+    normalization='no',
+    category_weights=0.1
+)
+
+# Assume that df is your input data in the form of a DataFrame
+# Fit the model on the given data
+hc.fit(data=df, key='POINT', categorical_variable=['X3'])
+
+# Print the combine process
+print(hc.combine_process_.collect().head(3))
+
+# Print the labels
+print(hc.labels_.collect().head(3))
+```
+
+Please replace `df` with your actual DataFrame. This code assumes that your DataFrame has a column named 'POINT' that serves as the ID column, and a column named 'X3' that should be treated as a categorical variable. Adjust these values according to your actual data.

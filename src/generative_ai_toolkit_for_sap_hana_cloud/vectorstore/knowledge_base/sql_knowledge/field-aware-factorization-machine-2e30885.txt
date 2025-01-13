@@ -1,0 +1,75 @@
+The content discusses the concept of Field-Aware Factorization Machine (FFM) in computational advertising. FFM is used to solve the problem of predicting click-through rate (CTR) and conversion rate (CVR) in advertisement traffic. It addresses the issue of sparse and huge feature space by adding a second polynomial degree to the regression model. FFM proposes matrix factorization to estimate the second-degree parameters, reducing the number of parameters and addressing the sparsity problem. FFM introduces the concept of fields to indicate that similar features belong to the same field. It can be applied to various prediction tasks such as binary classification, regression, and ranking. The loss functions for these tasks are defined based on logistic regression, linear regression, and cumulative logit model. The minimum of the loss function can be solved using stochastic gradient descent (SGD) algorithm, specifically AdaGrad. Early-stopping strategy is applied to prevent overfitting.
+------
+
+SET SCHEMA "DM_PAL";
+
+DROP TABLE PAL_FFM_DATA_TBL;
+CREATE COLUMN TABLE PAL_FFM_DATA_TBL ("USER" NVARCHAR(100), "MOVIE" NVARCHAR(100), "TIMESTAMP" INTEGER, "CTR" NVARCHAR(100));
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('A', 'Movie1', 3, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('A', 'Movie2', 3, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('A', 'Movie4', 1, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('A', 'Movie5', 2, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('A', 'Movie6', 3, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('A', 'Movie8', 2, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('A', 'Movie0, Movie3', 1, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('B', 'Movie2', 3, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('B', 'Movie3', 2, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('B', 'Movie4', 2, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('B',  null, 4, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('B', 'Movie7', 1, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('B', 'Movie8', 2, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('B', 'Movie0', 3, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('C', 'Movie1', 2, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('C', 'Movie2, Movie5, Movie7', 4, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('C', 'Movie4', 3, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('C', 'Movie5', 1, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('C', 'Movie6', null, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('C', 'Movie7', 3, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('C', 'Movie8', 1, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('C', 'Movie0', 2, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('D', 'Movie1', 3, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('D', 'Movie3', 2, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('D', 'Movie4, Movie7', 2, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('D', 'Movie6', 2, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('D', 'Movie7', 4, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('D', 'Movie8', 3, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('D', 'Movie0', 3, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('E', 'Movie1', 2, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('E', 'Movie2', 2, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('E', 'Movie3', 2, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('E', 'Movie4', 4, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('E', 'Movie5', 3, 'Click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('E', 'Movie6', 2, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('E', 'Movie7', 4, 'Not click');
+INSERT INTO PAL_FFM_DATA_TBL VALUES ('E', 'Movie8', 3, 'Not click');
+
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL ("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+INSERT INTO PAL_PARAMETER_TBL VALUES ('TASK', NULL, NULL, 'classification');
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('HAS_ID', 1, NULL, NULL); -- ignore the first column in DATA table
+INSERT INTO PAL_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE', NULL, NULL, 'TIMESTAMP'); -- column TIMESTAMP is categorical
+INSERT INTO PAL_PARAMETER_TBL VALUES ('DELIMITER', NULL, NULL, ',');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FACTOR_NUMBER', 4, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('EARLY_STOP', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('LEARNING_RATE', NULL, 0.2, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_ITERATION', 20, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('TRAIN_RATIO', NULL, 0.8, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('LINEAR_LAMBDA', NULL, 1e-5, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('POLY2_LAMBDA', NULL, 1e-6, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SEED', 1, NULL, NULL);
+
+DROP TABLE PAL_FFM_META_TBL;
+CREATE COLUMN TABLE PAL_FFM_META_TBL ("ROW_INDEX" INTEGER, "META_VALUE" NVARCHAR(5000));
+DROP TABLE PAL_FFM_COEFF_TBL;
+CREATE COLUMN TABLE PAL_FFM_COEFF_TBL ("ID" INTEGER, "FEATURE" NVARCHAR(1000), "FIELD" NVARCHAR(1000), "K" INTEGER, "COEFF" DOUBLE);
+
+DO BEGIN
+	lt_data = SELECT * FROM PAL_FFM_DATA_TBL;
+	lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_FFM (:lt_data, :lt_param, lt_meta, lt_coeff, lt_dummy1, lt_dummy2);
+	INSERT INTO PAL_FFM_META_TBL SELECT * FROM :lt_meta;
+	INSERT INTO PAL_FFM_COEFF_TBL SELECT * FROM :lt_coeff;
+END;
+
+CALL _SYS_AFL.PAL_FFM (PAL_FFM_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?, ?, ?);

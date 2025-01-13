@@ -1,0 +1,30 @@
+The QuantileTransform class in the hana_ml.algorithms.pal.preprocessing module is a Python wrapper for the PAL Quantile Transformer, which applies a quantile transformation to numerical features in a dataset, with options to specify the number of quantiles to be computed and the marginal distribution of the transformed data.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.preprocessing import QuantileTransform
+from hana_ml import DataFrame
+
+# Assuming that a connection context to HANA has already been established
+# and 'data' is a DataFrame object containing the input data
+
+# Create a quantile transformer
+qt = QuantileTransform(num_quantiles=200, output_distribution='uniform')
+
+# Fit the training data
+qt.fit(data=data, key='ID', features=['X2', 'X6'], categorical_variable='X5')
+
+# See the quantile-transformed training data w.r.t selected features
+result = qt.result_.collect()
+print(result)
+
+# Transform the test data using a fitted QuantileTransformer
+# Assuming 'test_data' is a DataFrame object containing the test data
+transformed_data = qt.transform(data=test_data, key='ID')
+
+# Print the transformed data
+print(transformed_data.collect())
+```
+
+Please replace `'ID'`, `'X2'`, `'X6'`, and `'X5'` with your actual column names. Also, replace `200` and `'uniform'` with your desired number of quantiles and output distribution. The `data` and `test_data` should be DataFrame objects containing your training and test data respectively.

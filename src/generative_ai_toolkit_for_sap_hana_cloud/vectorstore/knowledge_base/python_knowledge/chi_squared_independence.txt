@@ -1,0 +1,31 @@
+The function chi_squared_independence in the hana_ml.algorithms.pal.stats module performs the chi-squared test of independence on a DataFrame to determine if observations of two variables are independent, with options to specify observed data columns and apply Yates's correction for continuity.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+# Import required libraries
+from hana_ml import DataFrame
+from hana_ml.algorithms.pal import stats
+
+# Assuming a HANA dataframe 'df' is already created and contains the data
+
+# Define the key
+key = 'ID'
+
+# Define the observed data columns (optional)
+observed_data = ['X1', 'X2', 'X3', 'X4']  # replace with your column names
+
+# Define the correction (optional)
+correction = False
+
+# Perform the chi-squared test of independence
+res, stats = stats.chi_squared_independence(data=df, key=key, observed_data=observed_data, correction=correction)
+
+# Print the expected count table
+print(res.collect())
+
+# Print the statistical outputs
+print(stats.collect())
+```
+
+Please replace `'ID'` and `['X1', 'X2', 'X3', 'X4']` with your actual column names. Also, ensure that a HANA dataframe 'df' is already created and contains the data.

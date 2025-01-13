@@ -1,0 +1,43 @@
+The EDAVisualizer class in the hana_ml.visualizers.eda module provides methods for creating various Exploratory Data Analysis (EDA) visualizations such as bar plots, box plots, correlation plots, distribution plots, pie plots, and scatter plots, with options to customize the plot size, color map, and other parameters.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+import matplotlib.pyplot as plt
+from hana_ml.visualizers.eda import EDAVisualizer
+
+# Create a figure and axes
+f = plt.figure(figsize=(10,10))
+ax = f.add_subplot(111)
+
+# Initialize EDAVisualizer
+eda = EDAVisualizer(ax)
+
+# Assuming 'df' is your DataFrame
+
+# Bar plot
+ax, bar = eda.bar_plot(data=df, column="PCLASS", aggregation={'AGE':'avg'})
+plt.show()
+
+# Box plot
+ax, corr = eda.box_plot(data=df, column="AGE", vert=True, groupby="SEX")
+plt.show()
+
+# Correlation plot
+ax, corr = eda.correlation_plot(data=df, corr_cols=['PCLASS', 'AGE', 'SIBSP', 'PARCH', 'FARE'], cmap="Blues")
+plt.show()
+
+# Distribution plot
+ax, dist_data = eda.distribution_plot(data=df, column="FARE", bins=10, title="Distribution of FARE")
+plt.show()
+
+# Pie plot
+ax, pie_data = eda.pie_plot(data=df, column="PCLASS", title="% of passengers in each class")
+plt.show()
+
+# Scatter plot
+ax, corr = eda.scatter_plot(data=df, x="AGE", y="SIBSP", x_bins=5, y_bins=5)
+plt.show()
+```
+
+Please replace `'df'` with your actual DataFrame and adjust the column names and parameters according to your needs.

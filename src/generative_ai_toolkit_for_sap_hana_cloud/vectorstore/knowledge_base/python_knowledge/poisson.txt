@@ -1,0 +1,25 @@
+The function 'poisson' in the 'hana_ml.algorithms.pal.random' module draws samples from a Poisson distribution, given a database connection object, an optional average number of events in an interval, an optional number of random data to be generated, an optional seed for the random number generator, and an optional thread ratio.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml import ConnectionContext
+from hana_ml.algorithms.pal.random import poisson
+
+# Create a connection
+cc = ConnectionContext(address='myHanaHost', port=30015, user='myUsername', password='myPassword')
+
+# Set parameters
+theta = 1.0
+num_random = 100
+seed = None
+thread_ratio = None
+
+# Draw samples from a poisson distribution
+res = poisson(conn_context=cc, theta=theta, num_random=num_random, seed=seed, thread_ratio=thread_ratio)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `'myHanaHost'`, `'myUsername'`, and `'myPassword'` with your actual HANA host, username, and password. You can also adjust the parameters `theta`, `num_random`, `seed`, and `thread_ratio` as needed.

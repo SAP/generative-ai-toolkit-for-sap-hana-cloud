@@ -1,0 +1,19 @@
+The chi-squared test of independence is used to determine if two variables are independent from each other. It calculates a chi-squared value by comparing observed and expected frequencies. This value is then used to calculate a p-value, which is compared to a chi-squared distribution. The degree of freedom is determined by the number of rows and columns in the data.
+------
+
+SET SCHEMA DM_PAL;
+
+
+DROP TABLE PAL_CHISQTESTIND_DATA_TBL;
+CREATE COLUMN TABLE PAL_CHISQTESTIND_DATA_TBL ("ID" VARCHAR(100), "X1" INTEGER, "X2" DOUBLE, "X3" INTEGER, "X4" DOUBLE);
+INSERT INTO PAL_CHISQTESTIND_DATA_TBL VALUES ('male',25,23,11,14);
+INSERT INTO PAL_CHISQTESTIND_DATA_TBL VALUES ('female',41,20,18,6);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE 
+	#PAL_PARAMETER_TBL 
+	("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('CORRECTION_TYPE',0,NULL,NULL); //default value is 0, it can be {0,1}
+
+CALL _SYS_AFL.PAL_CHISQUARED_IND_TEST(PAL_CHISQTESTIND_DATA_TBL, #PAL_PARAMETER_TBL, ?, ?) ;
+

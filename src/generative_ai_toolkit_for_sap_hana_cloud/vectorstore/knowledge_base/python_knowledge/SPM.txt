@@ -1,0 +1,27 @@
+The Sequential Pattern Mining (SPM) class in the hana_ml.algorithms.pal.association module is a data mining method used to identify frequent patterns in sequential data, with various parameters to customize the mining process, and can be used in applications like market basket analysis and medical data analysis.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.association import SPM
+from hana_ml import DataFrame
+
+# Assuming that a connection context to HANA has already been established
+# df = DataFrame(connection_context, 'your_table_name')
+
+# Initialize a SPM object and set its parameters
+sp = SPM(min_support=0.5,
+         relational=False,
+         ubiquitous=1.0,
+         max_len=10,
+         min_len=1,
+         calc_lift=True)
+
+# Perform the fit() and obtain the result
+sp.fit(data=df, customer='CUSTID', transaction='TRANSID', item='ITEMS')
+
+# Print the result
+print(sp.result_.collect())
+```
+
+Please replace `'your_table_name'` with the actual name of your table in HANA. Also, this code assumes that a connection context (`connection_context`) to HANA has already been established.

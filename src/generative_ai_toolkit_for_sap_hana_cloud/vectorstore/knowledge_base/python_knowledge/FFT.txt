@@ -1,0 +1,22 @@
+The FFT class in the hana_ml.algorithms.pal.tsa.fft module is a Fast Fourier Transform that decomposes a function of time into the frequencies that make it up, with methods to apply the transform to input data and return the transformed data.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.fft import FFT
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection object to HANA Database
+# Assuming that df is the input data in the form of a HANA DataFrame
+
+# Create a FFT instance
+fft = FFT(conn_context)
+
+# Apply Fast-Fourier-Transform to the input data
+result = fft.apply(data=df, num_type='real', inverse=False, window='hamming', window_start=0, window_length=10, alpha=0.16, beta=8.6, attenuation=50.0, flattop_model='symmetric', flattop_precision='none', r=0.5, flattop_mode='symmetric')
+
+# Print the transformed sequence
+print(result.collect())
+```
+
+Please replace the placeholders with actual values before running the code.

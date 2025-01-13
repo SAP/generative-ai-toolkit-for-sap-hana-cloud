@@ -1,0 +1,62 @@
+[BASIC]
+
+# Suppress lint errors for too-short argument names.
+argument-rgx=[a-z_][a-zA-Z_]*$
+
+
+[SIMILARITIES]
+
+# Minimum lines number of a similarity.
+min-similarity-lines=200
+
+# Ignore comments when computing similarities.
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities.
+ignore-imports=yes
+
+[TYPECHECK]
+disable=bad-option-value,
+        useless-object-inheritance,
+        unnecessary-pass,
+        self-assigning-variable,
+        no-else-raise,
+        no-else-return,
+        c-extension-no-member,
+        super-with-arguments,
+        too-many-statements,
+        too-many-lines,
+        line-too-long,
+        too-many-branches,
+        too-many-locals,
+        too-many-arguments,
+        super-with-arguments,
+        raise-missing-from,
+        c-extension-no-member,
+        consider-using-with,
+        consider-using-dict-items,
+        inconsistent-return-statements,
+        consider-using-max-builtin,
+        consider-using-enumerate,
+        unused-private-member,
+        consider-using-from-import,
+        consider-using-min-builtin,
+        consider-using-generator,
+        use-a-generator,
+        simplifiable-condition,
+        unused-variable,
+        use-list-literal,
+        unspecified-encoding,
+        consider-using-f-string,
+        arguments-differ,
+        attribute-defined-outside-init,
+        import-outside-toplevel,
+        broad-exception-raised,
+        broad-except,
+        bare-except,
+        too-few-public-methods,
+        too-many-instance-attributes,
+        eval-used

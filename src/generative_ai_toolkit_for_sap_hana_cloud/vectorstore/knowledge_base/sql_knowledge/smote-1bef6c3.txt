@@ -1,0 +1,39 @@
+SMOTE is a technique used for over-sampling the minority class in imbalanced datasets. It creates synthetic examples by generating new samples along the line segments connecting the nearest neighbors of the minority class samples. The number of neighbors to consider and the amount of over-sampling can be adjusted. For numerical features, the synthetic samples are created by adding a random fraction of the difference between the feature vector of the sample and its nearest neighbor. For categorical features, the majority value among the nearest neighbors is assigned to the synthetic samples.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_SMOTE_DATA_TBL;
+CREATE COLUMN TABLE PAL_SMOTE_DATA_TBL (
+    "X1" INTEGER,
+    "X2" DOUBLE,
+    "X3" DOUBLE,
+    "TYPE" INTEGER
+);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (2, 1, 3.5, 1);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (3, 10, 7.6, 1);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (3, 10, 5.5, 2);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (3, 10, 4.7, 1);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (7, 1000, 8.5, 1);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (8, 1000, 9.4, 2);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (6, 1000, 0.34, 1);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (8, 999, 7.4, 2);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (7, 999, 3.5, 1);
+INSERT INTO PAL_SMOTE_DATA_TBL VALUES (6, 1000, 7, 1);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+    "PARAM_NAME" NVARCHAR(256),
+    "INT_VALUE" INTEGER, 
+    "DOUBLE_VALUE" DOUBLE, 
+    "STRING_VALUE" NVARCHAR (1000)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.1, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('RANDOM_SEED', 1, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('DEPENDENT_VARIABLE', NULL, NULL, 'TYPE');
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('MINORITY_CLASS', NULL, NULL, '2');
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('SMOTE_AMOUNT', 200, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('K_NEAREST_NEIGHBOURS', 2, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('METHOD', 1, NULL, NULL);
+
+CALL _SYS_AFL.PAL_SMOTE (PAL_SMOTE_DATA_TBL, "#PAL_PARAMETER_TBL", ?);

@@ -1,0 +1,19 @@
+The unique function in the enum module is a class decorator that ensures all member values in an enumeration are unique.
+------
+Here is a basic template for using the `unique` decorator from the `enum` module in Python:
+
+```python
+from enum import Enum, unique
+
+@unique
+class MyEnum(Enum):
+    VALUE1 = 1
+    VALUE2 = 2
+    # VALUE3 = 2  # This will raise an error because VALUE2 and VALUE3 have the same value
+
+print(MyEnum.VALUE1)
+print(MyEnum.VALUE2)
+# print(MyEnum.VALUE3)
+```
+
+In this template, `MyEnum` is an enumeration with unique member values. If you uncomment the line `VALUE3 = 2`, Python will raise a `ValueError` because `VALUE2` and `VALUE3` have the same value, which violates the uniqueness constraint imposed by the `unique` decorator.

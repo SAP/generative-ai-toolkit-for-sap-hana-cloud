@@ -1,0 +1,24 @@
+The FeatureValueAndEffect class in the hana_ml.visualizers.shap module is used to initialize feature value and reason code dataframes, with methods for instance variable dictionaries and weak references to the object.
+------
+Here is a Python code template for the `FeatureValueAndEffect` class:
+
+```python
+from hana_ml.dataframe import DataFrame
+
+class FeatureValueAndEffect(object):
+    def __init__(self, feature_value_df: DataFrame, reason_code_df: DataFrame):
+        """
+        Initialize self.
+        """
+        self.feature_value_df = feature_value_df
+        self.reason_code_df = reason_code_df
+        self.__dict__ = {}
+        self.__weakref__ = []
+
+# Usage:
+# feature_value_df = DataFrame(...)
+# reason_code_df = DataFrame(...)
+# fve = FeatureValueAndEffect(feature_value_df, reason_code_df)
+```
+
+Please replace `DataFrame(...)` with actual DataFrame instances. The `__dict__` and `__weakref__` are Python internal attributes and usually do not need to be manually set. They are included here for completeness based on the help doc.

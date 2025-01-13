@@ -1,0 +1,24 @@
+The white_noise_test function in the hana_ml.algorithms.pal.tsa.white_noise_test module is used to determine if a time series is a white noise series, returning 1 if it is and 0 if it isn't, and it takes parameters for data, key, endog, lag, probability, thread_ratio, and model_df.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal.tsa import white_noise_test
+
+# Assuming that 'df' is your DataFrame
+print(df.head(3))
+
+# Perform white_noise_test
+stats = white_noise_test(data=df,
+                         endog='SERIES',
+                         model_df=1,
+                         lag=3,
+                         probability=0.9,
+                         thread_ratio=0.2)
+
+# Print the output
+print(stats.collect())
+```
+
+Please replace 'df' with your actual DataFrame. Also, adjust the parameters of the `white_noise_test` function as per your requirements.

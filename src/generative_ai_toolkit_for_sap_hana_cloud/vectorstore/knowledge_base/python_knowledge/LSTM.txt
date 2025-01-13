@@ -1,0 +1,38 @@
+The LSTM class in the hana_ml.algorithms.pal.tsa.lstm module is a Long Short-Term Memory model, a type of Recurrent Neural Network, used for time series prediction, with parameters for learning rate, GRU or LSTM selection, batch size, time dimension, hidden dimension, number of layers, maximum iterations, interval, optimizer type, statefulness, and bidirectionality.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsa.lstm import LSTM
+
+
+# Assuming that connection_context is the connection to the HANA system
+
+# Create DataFrame from existing HANA table
+
+# Initialize LSTM model
+lstm = LSTM(
+    gru='lstm',
+    bidirectional=False,
+    time_dim=16,
+    max_iter=1000,
+    learning_rate=0.01,
+    batch_size=32,
+    hidden_dim=128,
+    num_layers=1,
+    interval=1,
+    stateful=False,
+    optimizer_type='Adam'
+)
+
+# Fit the model
+lstm.fit(data=df)
+
+# Predict
+res = lstm.predict(data=df_predict)
+
+# Print the prediction result
+print(res.collect())
+```
+
+Please replace `'SELECT * FROM YOUR_TIME_SERIES_TABLE'` and `'SELECT * FROM YOUR_PREDICTION_TABLE'` with your actual SQL queries or table names. Also, `connection_context` should be the connection to your HANA system.

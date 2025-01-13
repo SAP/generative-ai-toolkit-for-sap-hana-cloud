@@ -1,0 +1,40 @@
+The Discretize class in the hana_ml.algorithms.pal.preprocessing module is an enhanced version of the binning function that partitions table rows into multiple segments called bins and applies smoothing methods in each bin of each column, with various strategies and parameters for customization.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.preprocessing import Discretize
+
+# Define the discretization strategy and parameters
+strategy = 'uniform_number'
+n_bins = 3
+smoothing = 'bin_medians'
+
+# Create a Discretize instance
+bin = Discretize(strategy=strategy, n_bins=n_bins, smoothing=smoothing)
+
+# Define the training data
+# df = ...
+
+# Define the binning variable and other parameters
+binning_variable = 'ATT1'
+col_smoothing = [('ATT2', 'bin_means')]
+categorical_variable = 'ATT3'
+
+# Train the model with the training data
+bin.fit(data=df, binning_variable=binning_variable, col_smoothing=col_smoothing, categorical_variable=categorical_variable)
+
+# Print the bin assignment
+print(bin.assign_.collect())
+
+# Define the prediction data
+# predict_data = ...
+
+# Apply the model to the new data
+bin.predict(data=predict_data)
+
+# Print the prediction result
+# print(res.collect())
+```
+
+Please replace the `df` and `predict_data` with your actual DataFrame.

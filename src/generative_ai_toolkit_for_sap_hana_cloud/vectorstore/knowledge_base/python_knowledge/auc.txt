@@ -1,0 +1,27 @@
+The auc function in the hana_ml.algorithms.pal.metrics module computes the area under the curve (AUC) to evaluate the performance of binary-class classification algorithms, taking in a DataFrame of data, an optional positive label, and an optional output threshold, and returns a float representing the AUC and a DataFrame of the false positive rate and true positive rate.
+------
+Here is a Python code template based on the provided help documentation:
+
+```python
+# Import required module
+from hana_ml.algorithms.pal.metrics import auc
+
+# Define your DataFrame
+# This is just a placeholder. Replace it with your actual DataFrame
+df = ...
+
+# Define positive_label and output_threshold if needed
+positive_label = ...
+output_threshold = ...
+
+# Compute Area Under Curve
+auc_value, roc = auc(data=df, positive_label=positive_label, output_threshold=output_threshold)
+
+# Print the AUC value
+print(auc_value)
+
+# Print the ROC DataFrame
+print(roc.collect())
+```
+
+Please replace the `df`, `positive_label`, and `output_threshold` with your actual data and parameters.

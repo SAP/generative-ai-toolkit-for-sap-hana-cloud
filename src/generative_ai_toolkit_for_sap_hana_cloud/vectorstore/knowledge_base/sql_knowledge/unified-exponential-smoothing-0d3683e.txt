@@ -1,0 +1,39 @@
+Unified exponential smoothing is a tool that allows users to call various exponential smoothing algorithms using unpivot data format. The algorithms include single, double, triple, Brown, and auto exponential smoothing, as well as massive versions of each. The tool offers two modes: single mode for processing a single dataset and parameter, and massive mode for processing multiple datasets and parameters using a group ID column. Users can refer to specific topics for more information on each exponential smoothing method.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL(
+    "ID" INTEGER,
+    "VALUE" DOUBLE
+);
+
+INSERT INTO PAL_DATA_TBL VALUES (0,    200.0);
+INSERT INTO PAL_DATA_TBL VALUES (1,    135.0);
+INSERT INTO PAL_DATA_TBL VALUES (2,    195.0);
+INSERT INTO PAL_DATA_TBL VALUES (3,    197.5);
+INSERT INTO PAL_DATA_TBL VALUES (4,    310.0);
+INSERT INTO PAL_DATA_TBL VALUES (5,    175.0);
+INSERT INTO PAL_DATA_TBL VALUES (6,    155.0);
+INSERT INTO PAL_DATA_TBL VALUES (7,    130.0);
+INSERT INTO PAL_DATA_TBL VALUES (8,    220.0);
+INSERT INTO PAL_DATA_TBL VALUES (9,    277.5);
+INSERT INTO PAL_DATA_TBL VALUES (10,   235.0);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION',null,null,'SESM'); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('ADAPTIVE_METHOD',0,null,null); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MEASURE_NAME',null,null,'MSE'); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('ALPHA', null,0.1,null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FORECAST_NUM', 12,null,null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('EXPOST_FLAG', 1,null,null);
+
+CALL _SYS_AFL.PAL_UNIFIED_EXPONENTIALSMOOTHING(PAL_DATA_TBL, PAL_PARAMETER_TBL, ?, ?, ?, ?, ?); 

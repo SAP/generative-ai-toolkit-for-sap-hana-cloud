@@ -1,0 +1,99 @@
+The content explains how to run selected PAL procedures in parallel using the `WITH HINT (PARALLEL_BY_PARAMETER_PARTITIONS ())` clause in SAP HANA SQLScript. This feature allows for parallel execution of scoring procedures with a trained model from PAL supervised learning algorithms. The scoring procedure is initiated on each data partition of a partitioned data table, sharing the same trained model and other procedure parameters. This feature works in both single-node and multiple-node SAP HANA environments.
+
+The content also provides an example of using the hint to perform scoring for various PAL procedures, such as decision trees, random decision trees, logistic regression, support vector machine, etc. The example includes sample code for creating tables, inserting data, and calling the PAL procedures with the hint.
+
+The expected result of the example is not provided in the content.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TYPE PAL_SINGLESMOOTH_DATA_T;
+CREATE TYPE PAL_SINGLESMOOTH_DATA_T AS TABLE(
+    "GROUP_ID" VARCHAR (100),
+    "ID" INT,
+    "RAWDATA" DOUBLE
+);
+
+DROP TYPE PAL_PARAMETER_T;
+CREATE TYPE PAL_PARAMETER_T AS TABLE (
+    "GROUP_ID" VARCHAR (100),
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+DROP TYPE PAL_SINGLE_RESULT_T;
+CREATE TYPE PAL_SINGLE_RESULT_T AS TABLE (
+    "TIMESTAMP" INT, 
+    "VALUE" DOUBLE,
+    "PI1_LOWER" DOUBLE, 
+    "PI1_UPPER" DOUBLE, 
+    "PI2_LOWER" DOUBLE, 
+    "PI2_UPPER" DOUBLE
+);
+
+DROP TYPE PAL_MULTIPLE_RESULT_T;
+CREATE TYPE PAL_MULTIPLE_RESULT_T AS TABLE (
+    "GROUP_ID" VARCHAR(100), 
+    "TIMESTAMP" INT, 
+    "VALUE" DOUBLE,
+    "PI1_LOWER" DOUBLE, 
+    "PI1_UPPER" DOUBLE, 
+    "PI2_LOWER" DOUBLE, 
+    "PI2_UPPER" DOUBLE
+);
+
+DROP FUNCTION SES_SINGLE_THREAD;
+CREATE FUNCTION SES_SINGLE_THREAD(
+    IN i_group_id VARCHAR(100),
+    IN it_data    PAL_SINGLESMOOTH_DATA_T,
+    IN it_param   PAL_PARAMETER_T
+) RETURNS PAL_MULTIPLE_RESULT_T AS
+BEGIN
+    lt_data  = SELECT ID, RAWDATA FROM :it_data WHERE group_id = :i_group_id;
+    lt_param = SELECT PARAM_NAME, INT_VALUE, DOUBLE_VALUE, STRING_VALUE FROM :it_param WHERE group_id = :i_group_id;
+    CALL "_SYS_AFL"."PAL_SINGLE_EXPSMOOTH"(:lt_data, :lt_param, lt_result_temp, lt_stat);
+    lt_result = SELECT "TIMESTAMP", "VALUE", "PI1_LOWER", "PI1_UPPER", "PI2_LOWER", "PI2_UPPER" FROM :lt_result_temp;
+
+    RETURN SELECT i_group_id AS GROUP_ID, * FROM :lt_result;
+END;
+
+DROP PROCEDURE SES_PARALLEL_WRAPPER;
+CREATE PROCEDURE SES_PARALLEL_WRAPPER(
+    IN it_data    PAL_SINGLESMOOTH_DATA_T,
+    IN it_param   PAL_PARAMETER_T,
+    OUT et_result PAL_MULTIPLE_RESULT_T
+) AS
+BEGIN
+  lt_groups = SELECT DISTINCT group_id AS group_id FROM :it_data;
+  et_result = MAP_MERGE(:lt_groups, SES_SINGLE_THREAD(:lt_groups.group_id, :it_data, :it_param));
+END;
+
+DROP TABLE PAL_SINGLESMOOTH_DATA_TBL;
+CREATE COLUMN TABLE PAL_SINGLESMOOTH_DATA_TBL LIKE PAL_SINGLESMOOTH_DATA_T;
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES ('A', 1,  200.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES ('A', 2,  135.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES ('B', 1,  200.0);
+INSERT INTO PAL_SINGLESMOOTH_DATA_TBL VALUES ('B', 2,  135.0);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL LIKE PAL_PARAMETER_T;
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('A', 'ADAPTIVE_METHOD',            0, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('A', 'MEASURE_NAME',            NULL, NULL, 'MSE');
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('A', 'ALPHA',                   NULL,  0.1, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('A', 'DELTA',                   NULL,  0.2, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('A', 'FORECAST_NUM',               6, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('A', 'EXPOST_FLAG',                1, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('A', 'PREDICTION_CONFIDENCE_1', NULL,  0.8, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('A', 'PREDICTION_CONFIDENCE_2', NULL, 0.95, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('B', 'ADAPTIVE_METHOD',            0, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('B', 'MEASURE_NAME',            NULL, NULL, 'MSE');
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('B', 'ALPHA',                   NULL,  0.1, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('B', 'DELTA',                   NULL,  0.2, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('B', 'FORECAST_NUM',               6, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('B', 'EXPOST_FLAG',                0, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('B', 'PREDICTION_CONFIDENCE_1', NULL,  0.8, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('B', 'PREDICTION_CONFIDENCE_2', NULL, 0.95, NULL);
+
+CALL SES_PARALLEL_WRAPPER(PAL_SINGLESMOOTH_DATA_TBL, #PAL_PARAMETER_TBL, ?);

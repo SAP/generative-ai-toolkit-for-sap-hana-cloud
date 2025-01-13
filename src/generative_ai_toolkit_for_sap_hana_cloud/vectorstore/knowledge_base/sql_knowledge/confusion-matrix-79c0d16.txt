@@ -1,0 +1,33 @@
+A confusion matrix is a method used to evaluate the performance of classification algorithms, particularly for multiple-class conditions. It shows the original labels and the predicted labels in a table format. The values in the table represent the number of samples classified correctly or incorrectly for each class. From the confusion matrix, you can calculate metrics such as precision, recall, and F1-score for each class. Precision measures the accuracy of positive predictions, recall measures the ability to find all positive instances, and F1-score is a combination of precision and recall. Additionally, you can calculate the Fβ-score, which allows you to weigh precision and recall differently.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_CM_DATA_TBL;
+CREATE COLUMN TABLE PAL_CM_DATA_TBL(
+    ID INTEGER, 
+    ORIGINAL INTEGER,
+    PREDICT INTEGER
+);
+INSERT INTO PAL_CM_DATA_TBL VALUES(1,1,1);
+INSERT INTO PAL_CM_DATA_TBL VALUES(2,1,1);
+INSERT INTO PAL_CM_DATA_TBL VALUES(3,1,1);
+INSERT INTO PAL_CM_DATA_TBL VALUES(4,1,2);
+INSERT INTO PAL_CM_DATA_TBL VALUES(5,1,1);
+INSERT INTO PAL_CM_DATA_TBL VALUES(6,2,2);
+INSERT INTO PAL_CM_DATA_TBL VALUES(7,2,1);
+INSERT INTO PAL_CM_DATA_TBL VALUES(8,2,2);
+INSERT INTO PAL_CM_DATA_TBL VALUES(9,2,2);
+INSERT INTO PAL_CM_DATA_TBL VALUES(10,2,2);
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL(
+    "PARAM_NAME" NVARCHAR(256),
+    "INT_VALUE" INTEGER, 
+    "DOUBLE_VALUE" DOUBLE, 
+    "STRING_VALUE" NVARCHAR (1000)
+);
+INSERT INTO #PAL_PARAMETER_TBL VALUES('BETA',NULL,1,null);
+
+CALL _SYS_AFL.PAL_CONFUSION_MATRIX(PAL_CM_DATA_TBL,#PAL_PARAMETER_TBL,?,?);
+

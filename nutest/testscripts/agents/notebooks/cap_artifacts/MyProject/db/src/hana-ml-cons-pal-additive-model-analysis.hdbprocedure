@@ -1,0 +1,11 @@
+PROCEDURE hana_ml_cons_pal_additive_model_analysis(
+out out_0_hana_ml_cons_pal_additive_model_analysis TABLE("ROW_INDEX" INT, "MODEL_CONTENT" NCLOB))
+LANGUAGE SQLSCRIPT
+SQL SECURITY INVOKER
+AS
+BEGIN
+in_0_hana_ml_cons_pal_additive_model_analysis = SELECT * FROM HANA_ML_FIT_INPUT0PALADDITIVEMODELANALYSIS;
+CALL hana_ml_base_pal_additive_model_analysis(:in_0_hana_ml_cons_pal_additive_model_analysis, out_0_hana_ml_cons_pal_additive_model_analysis);
+TRUNCATE TABLE HANA_ML_FIT_MODELHANAMLCONSPALADDITIVEMODELANALYSIS;
+INSERT INTO HANA_ML_FIT_MODELHANAMLCONSPALADDITIVEMODELANALYSIS SELECT * FROM :out_0_hana_ml_cons_pal_additive_model_analysis;
+END

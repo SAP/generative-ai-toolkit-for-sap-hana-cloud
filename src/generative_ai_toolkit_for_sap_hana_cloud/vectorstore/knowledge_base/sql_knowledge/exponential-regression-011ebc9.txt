@@ -1,0 +1,26 @@
+Exponential regression is a method used to model the relationship between a dependent variable and one or more independent variables. It involves using exponential functions to model the data and estimating the unknown parameters from the data. In the implementation of exponential regression in PAL, the approach is to transform the exponential regression equation into a linear regression equation by taking the natural logarithm of both sides. This allows the relationship between the dependent variable and the independent variables to be solved using linear regression. The implementation also includes calculating the F value and R^2 to determine the statistical significance of the model.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE 
+	#PAL_PARAMETER_TBL 
+	("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('PMML_EXPORT',2,NULL,NULL);
+
+DROP TABLE PAL_ER_DATA_TBL;
+CREATE COLUMN TABLE PAL_ER_DATA_TBL ( "ID" INT,"Y" DOUBLE,"X1" DOUBLE, "X2" DOUBLE);
+INSERT INTO PAL_ER_DATA_TBL VALUES (0,0.5,0.13,0.33);
+INSERT INTO PAL_ER_DATA_TBL VALUES (1,0.15,0.14,0.34);
+INSERT INTO PAL_ER_DATA_TBL VALUES (2,0.25,0.15,0.36);
+INSERT INTO PAL_ER_DATA_TBL VALUES (3,0.35,0.16,0.35);
+INSERT INTO PAL_ER_DATA_TBL VALUES (4,0.45,0.17,0.37);
+INSERT INTO PAL_ER_DATA_TBL VALUES (5,0.55,0.18,0.38);
+INSERT INTO PAL_ER_DATA_TBL VALUES (6,0.65,0.19,0.39);
+INSERT INTO PAL_ER_DATA_TBL VALUES (7,0.75,0.19,0.31);
+INSERT INTO PAL_ER_DATA_TBL VALUES (8,0.85,0.11,0.32);
+INSERT INTO PAL_ER_DATA_TBL VALUES (9,0.95,0.12,0.33);
+
+CALL _SYS_AFL.PAL_EXPONENTIAL_REGRESSION(PAL_ER_DATA_TBL, "#PAL_PARAMETER_TBL", ?, ?, ?, ?);
+

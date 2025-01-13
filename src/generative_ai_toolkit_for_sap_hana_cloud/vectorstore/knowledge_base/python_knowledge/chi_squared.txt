@@ -1,0 +1,25 @@
+The chi_squared function in the hana_ml.algorithms.pal.random module draws samples from a chi_squared distribution, with parameters for database connection, degrees of freedom, number of random data to be generated, seed for the random number generator, and thread ratio.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.algorithms.pal.random import chi_squared
+from hana_ml import dataframe as df
+
+# Create a connection context
+cc = df.ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Set parameters
+dof = 1
+num_random = 100
+seed = None
+thread_ratio = None
+
+# Draw samples from a chi_squared distribution
+res = chi_squared(conn_context=cc, dof=dof, num_random=num_random, seed=seed, thread_ratio=thread_ratio)
+
+# Print the result
+print(res.collect())
+```
+
+Please replace `<address>`, `<port>`, `<user>`, and `<password>` with your actual database connection details. You can also adjust the parameters `dof`, `num_random`, `seed`, and `thread_ratio` according to your needs.

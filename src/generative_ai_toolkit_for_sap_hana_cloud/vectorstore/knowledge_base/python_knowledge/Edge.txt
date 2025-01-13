@@ -1,0 +1,16 @@
+The Edge class in the hana_ml.visualizers.digraph module is an entity class that represents a connection between the output port of one node and the input port of another node in a digraph framework.
+------
+Here is a Python code template for the `Edge` class in the `hana_ml.visualizers.digraph` module:
+
+```python
+from hana_ml.visualizers.digraph import Edge, OutPort, InPort
+
+# Create OutPort and InPort instances
+source_port = OutPort()
+target_port = InPort()
+
+# Create an Edge instance
+edge = Edge(source_port=source_port, target_port=target_port)
+```
+
+Please replace the `OutPort` and `InPort` instance creation with your actual code. This is just a placeholder as the creation of `OutPort` and `InPort` instances would depend on your specific use case.

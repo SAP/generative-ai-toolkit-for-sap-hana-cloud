@@ -1,0 +1,51 @@
+The content describes the data partition process in the train procedure implementation. It explains that the input data can be divided into a train set and a validation set. The train set is used to generate the training model, while the validation set is used to evaluate the quality of the model. The content also provides information on the parameters that can be set to execute the data partition process, such as the partition method, training percentage, random seed, output partition result, and ignore zero values. Two examples are given to demonstrate how to perform data set partition with specific flag and random partition method.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL(
+	"ID" INTEGER,
+	"OUTLOOK" VARCHAR(20),
+	"TEMP" INTEGER,
+	"HUMIDITY" DOUBLE,
+	"WINDY" VARCHAR(10),
+	"CLASS" INTEGER, -- for regression
+	"Purpose" INTEGER
+);
+INSERT INTO PAL_DATA_TBL VALUES (1, 'Sunny', 75, 70, 'Yes', 1, 1);
+INSERT INTO PAL_DATA_TBL VALUES (2, 'Sunny', 80, 90, 'Yes', 0, 1);
+INSERT INTO PAL_DATA_TBL VALUES (3, 'Sunny', 85, 85, 'No', 0, 2);
+INSERT INTO PAL_DATA_TBL VALUES (4, 'Sunny', 72, 95, 'No', 0, 1);
+INSERT INTO PAL_DATA_TBL VALUES (5, 'Sunny', 69, 70, 'No', 1, 1);
+
+INSERT INTO PAL_DATA_TBL VALUES (6, 'Overcast', 72, 90, 'Yes', 1, 2);
+INSERT INTO PAL_DATA_TBL VALUES (7, 'Overcast', 83, 78, 'No', 0, 2);
+INSERT INTO PAL_DATA_TBL VALUES (8, 'Overcast', 64, 65, 'Yes', 1, 1);
+INSERT INTO PAL_DATA_TBL VALUES (9, 'Overcast', 81, 75, 'No', 1, 1);
+
+INSERT INTO PAL_DATA_TBL VALUES (10, 'Rain', 71, 80, 'Yes', 0, 1);
+INSERT INTO PAL_DATA_TBL VALUES (11, 'Rain', 65, 70, 'Yes', 0, 1);
+INSERT INTO PAL_DATA_TBL VALUES (12, 'Rain', 75, 80, 'No', 1, 2);
+INSERT INTO PAL_DATA_TBL VALUES (13, 'Rain', 68, 80, 'No', 1, 1);
+INSERT INTO PAL_DATA_TBL VALUES (14, 'Rain', 70, 96, 'No', 0, 1);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION',null,null,'DT'); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('KEY',1,null,null); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MODEL_FORMAT', 2, NULL, NULL); -- PMML
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SPLIT_THRESHOLD', NULL, 1e-5, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MIN_RECORDS_PARENT', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MIN_RECORDS_LEAF', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PARTITION_METHOD',1,null,null); 
+INSERT INTO PAL_PARAMETER_TBL VALUES ('OUTPUT_PARTITION_RESULT', 1,null, null);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', null,0.5,null);
+
+CALL _SYS_AFL.PAL_UNIFIED_REGRESSION(PAL_DATA_TBL, PAL_PARAMETER_TBL, ?, ?, ?, ?, ?, ?);  

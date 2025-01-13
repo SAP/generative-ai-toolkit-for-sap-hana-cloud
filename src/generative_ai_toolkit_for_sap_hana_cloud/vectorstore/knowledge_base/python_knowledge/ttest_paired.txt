@@ -1,0 +1,25 @@
+The ttest_paired function in the hana_ml.algorithms.pal.stats module performs a t-test for the mean difference of two sets of paired samples, taking in parameters for data, sample columns, hypothesized mean difference, test type, and confidence level, and returns a DataFrame with the statistical results.
+------
+Here is a Python code template for the `ttest_paired` function:
+
+```python
+from hana_ml.algorithms.pal.stats import ttest_paired
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA database
+
+# Create DataFrame from existing HANA table
+data = DataFrame(connection_context, 'TABLE_NAME')  # replace 'TABLE_NAME' with your HANA table name
+
+# Specify the column names if they are not the first two columns in the table
+col1 = 'COLUMN_NAME_1'  # replace 'COLUMN_NAME_1' with your column name for sample1
+col2 = 'COLUMN_NAME_2'  # replace 'COLUMN_NAME_2' with your column name for sample2
+
+# Perform the t-test for the mean difference of two sets of paired samples
+result = ttest_paired(data, col1=col1, col2=col2, mu=0, test_type='two_sides', conf_level=0.95)
+
+# Print the result
+print(result.collect())
+```
+
+Please replace `'TABLE_NAME'`, `'COLUMN_NAME_1'`, and `'COLUMN_NAME_2'` with your actual table name and column names. Also, ensure that `connection_context` is the connection to your HANA database.

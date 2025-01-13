@@ -1,0 +1,40 @@
+The Isolation Forest algorithm is used to generate anomaly scores for each sample. Anomalies are instances that are different from normal instances and are in the minority. The algorithm uses a binary tree structure called an isolation tree to separate instances. Anomalies are more likely to be isolated closer to the root of the tree, while normal points are more likely to be isolated at the deeper end. The Isolation Forest builds an ensemble of isolation trees for a given dataset. The anomaly score is used to assess whether an instance is an anomaly or not. If the score is close to 1, it is definitely an anomaly. If the score is much smaller than 0.5, it is considered a normal instance. If all instances have a score of approximately 0.5, then there are no distinct anomalies in the sample. The algorithm assumes that the proportions of outliers in the training and scoring datasets are the same. The contamination parameter is used to determine the threshold for classifying a sample as an outlier.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_IF_DATA_TBL;
+CREATE COLUMN TABLE PAL_IF_DATA_TBL (
+	"X1" DOUBLE,
+	"X2" DOUBLE
+);
+INSERT INTO PAL_IF_DATA_TBL VALUES (-2, -1);
+INSERT INTO PAL_IF_DATA_TBL VALUES (-1, -1);
+INSERT INTO PAL_IF_DATA_TBL VALUES (-1, -2);
+INSERT INTO PAL_IF_DATA_TBL VALUES (1, 1);
+INSERT INTO PAL_IF_DATA_TBL VALUES (1, 2);
+INSERT INTO PAL_IF_DATA_TBL VALUES (2, 1);
+INSERT INTO PAL_IF_DATA_TBL VALUES (6, 3);
+INSERT INTO PAL_IF_DATA_TBL VALUES (-4, 7);
+
+DROP TABLE PAL_IF_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_IF_PARAMETER_TBL (
+        "PARAM_NAME" VARCHAR(256),
+        "INT_VALUE" INTEGER,
+        "DOUBLE_VALUE" DOUBLE,
+        "STRING_VALUE" VARCHAR(100)
+);
+INSERT INTO PAL_IF_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0, NULL);
+INSERT INTO PAL_IF_PARAMETER_TBL VALUES ('SEED', 2, NULL, NULL);
+
+DROP TABLE PAL_IF_MODEL_TBL;
+CREATE COLUMN TABLE PAL_IF_MODEL_TBL ("TREE_INDEX" INTEGER, "MODEL_CONTENT" NCLOB);
+
+DO BEGIN
+  lt_data = SELECT * FROM PAL_IF_DATA_TBL;
+  lt_param = SELECT * FROM PAL_IF_PARAMETER_TBL;
+  CALL _SYS_AFL.PAL_ISOLATION_FOREST (:lt_data, :lt_param, lt_model);
+  INSERT INTO PAL_IF_MODEL_TBL SELECT * FROM :lt_model;
+END;
+
+SELECT * FROM PAL_IF_MODEL_TBL;

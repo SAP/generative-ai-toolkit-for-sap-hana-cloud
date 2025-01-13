@@ -1,0 +1,24 @@
+The TSNE class in the hana_ml.algorithms.pal.tsne module is used for T-distributed Stochastic Neighbour Embedding, with various parameters to control the algorithm's behavior, such as the number of iterations, learning rate, thread ratio, and more.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.tsne import TSNE
+from hana_ml import DataFrame
+
+# Assuming that connection_context is the connection to the HANA system
+df_train = DataFrame(connection_context, 'TRAIN_DATA')  # Assuming 'TRAIN_DATA' is the table in HANA system
+
+# Create a TSNE instance
+tsne = TSNE(n_iter=500, n_components=3, angle=0, object_frequency=50, random_state=30)
+
+# Perform fit_predict() on given dataframe
+res, stats, obj = tsne.fit_predict(data=df_train, key='ID', perplexity=1.0)
+
+# Collect the results
+print(res.collect())
+print(stats.collect())
+print(obj.collect())
+```
+
+Please replace `'TRAIN_DATA'` with your actual table name in the HANA system. Also, ensure that `connection_context` is the connection to the HANA system.

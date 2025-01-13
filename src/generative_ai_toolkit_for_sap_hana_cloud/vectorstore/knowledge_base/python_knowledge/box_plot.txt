@@ -1,0 +1,26 @@
+The box_plot function in the hana_ml.visualizers.eda_plotly module displays a box plot for a specified column in a SAP HANA DataFrame, with options to plot outliers, set a title, group by another column, set outlier fence factors, change title font properties, create a new graph object, make a vertical box plot, and set a multiplier for the IQR test.
+------
+Here is the executable code template based on the provided help doc:
+
+```python
+# Import necessary libraries
+from hana_ml.visualizers.eda_plotly import box_plot
+
+# Specify the column for the box plot
+column = "your_column"
+
+# Create a box plot
+fig, corr = box_plot(data=df, column=column)
+
+# Display the plot
+fig.show()
+
+# If you want to group by another column
+groupby_column = "your_groupby_column"
+fig, corr = box_plot(data=df, column=column, groupby=groupby_column)
+
+# Display the plot
+fig.show()
+```
+
+Please replace `"your_column"` and `"your_groupby_column"` with the actual column names in your DataFrame.

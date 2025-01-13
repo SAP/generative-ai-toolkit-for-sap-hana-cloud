@@ -1,0 +1,19 @@
+The function delete_afl_state in the hana_ml.algorithms.pal.utility module is used to delete a specific AFL (Application Function Library) state in the given connection context using the provided state_id.
+------
+Here is a Python code template for the `delete_afl_state` function in the `hana_ml.algorithms.pal.utility` module:
+
+```python
+from hana_ml.algorithms.pal.utility import delete_afl_state
+from hana_ml import dataframe as df
+
+# Create a connection
+cc = df.ConnectionContext(address='<address>', port='<port>', user='<user>', password='<password>')
+
+# Specify the state_id
+state_id = '<state_id>'
+
+# Call the function
+delete_afl_state(cc, state_id)
+```
+
+Please replace `<address>`, `<port>`, `<user>`, `<password>` and `<state_id>` with your actual values.

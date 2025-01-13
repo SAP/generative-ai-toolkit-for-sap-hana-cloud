@@ -1,0 +1,38 @@
+The PipelineProgressStatusMonitor class in the hana_ml.visualizers.automl_progress module allows monitoring the progress of AutoML execution in different runtime environments, such as Jupyter, SAP Business Application Studio, VSCode, and console, by fetching the pipeline progress table at specified intervals.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml.dataframe import ConnectionContext
+from hana_ml.algorithms.pal.auto_ml import AutomaticClassification
+from hana_ml.visualizers.automl_progress import PipelineProgressStatusMonitor
+import uuid
+
+# Define connection parameters
+url = 'your_hana_url'
+port = 'your_hana_port'
+user = 'your_hana_user'
+pwd = 'your_hana_password'
+
+# Create a connection context
+cc = ConnectionContext(url, port, user, pwd)
+
+# Create an AutomaticClassification instance
+progress_id = "automl_{}".format(uuid.uuid1())
+auto_c = AutomaticClassification(generations=2,
+                                 population_size=5,
+                                 offspring_size=5,
+                                 progress_indicator_id=progress_id)
+auto_c.enable_workload_class("MY_WORKLOAD")
+
+# Invoke a PipelineProgressStatusMonitor
+progress_status_monitor = PipelineProgressStatusMonitor(connection_context=cc,
+                                                        automatic_obj=auto_c)
+progress_status_monitor.start()
+
+# Fit the model
+# Note: You need to define df_train before fitting the model
+# auto_c.fit(data=df_train)
+```
+
+Please replace `'your_hana_url'`, `'your_hana_port'`, `'your_hana_user'`, and `'your_hana_password'` with your actual SAP HANA connection parameters. Also, you need to define `df_train` before fitting the model.

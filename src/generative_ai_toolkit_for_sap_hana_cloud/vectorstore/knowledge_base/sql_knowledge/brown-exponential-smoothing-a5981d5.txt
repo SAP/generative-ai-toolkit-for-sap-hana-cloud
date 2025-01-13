@@ -1,0 +1,37 @@
+The brown exponential smoothing model is used to forecast time series data with a trend but without seasonality. It can be implemented in both non-adaptive and adaptive forms. 
+
+For non-adaptive brown exponential smoothing, the procedure involves initializing values for S and T, as well as the intercept and slope. Then, calculations are performed to update the values of S, T, a, and F.
+
+For adaptive brown exponential smoothing, the parameter α is updated for each forecast. Initialization involves setting values for S, T, a, F, A, M, and δ. Calculations are then performed to update the values of E, A, M, S, T, a, and F.
+
+Both forms of the model involve using α and δ as user-specified parameters. The forecast can be made using the equation F(T+m) = aT + mbT.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_PARAMETER_TBL (
+	"PARAM_NAME " VARCHAR(100),
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ALPHA', NULL,0.1, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('DELTA',NULL, 0.2, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('FORECAST_NUM',6, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('EXPOST_FLAG',1, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('ADAPTIVE_METHOD',0, NULL, NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('MEASURE_NAME', NULL, NULL, 'MSE');
+
+DROP TABLE PAL_BROWNSMOOTH_DATA_TBL;
+CREATE COLUMN TABLE PAL_BROWNSMOOTH_DATA_TBL ("ID" INT, "RAWDATA" DOUBLE);
+
+INSERT INTO PAL_BROWNSMOOTH_DATA_TBL VALUES (1,143.0);
+INSERT INTO PAL_BROWNSMOOTH_DATA_TBL VALUES (2,152.0);
+INSERT INTO PAL_BROWNSMOOTH_DATA_TBL VALUES (3,161.0);
+INSERT INTO PAL_BROWNSMOOTH_DATA_TBL VALUES (4,139.0);
+INSERT INTO PAL_BROWNSMOOTH_DATA_TBL VALUES (5,137.0);
+INSERT INTO PAL_BROWNSMOOTH_DATA_TBL VALUES (6,174.0);
+
+CALL _SYS_AFL.PAL_BROWN_EXPSMOOTH_INTERVAL(PAL_BROWNSMOOTH_DATA_TBL, #PAL_PARAMETER_TBL, ?,?);

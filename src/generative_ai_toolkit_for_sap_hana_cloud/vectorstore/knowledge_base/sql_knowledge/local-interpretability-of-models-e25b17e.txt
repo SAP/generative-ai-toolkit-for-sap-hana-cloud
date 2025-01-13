@@ -1,0 +1,129 @@
+The content discusses the concept of local interpretability of machine learning models. It introduces the Shapley Values in game theory and how they can be used to explain individual predictions. The content then explains the different implementations of SHAP values for different types of machine learning models.
+
+For tree-based models, there are two explainers: tree SHAP and Saabas. Tree SHAP can compute the Shapley values exactly and is interpretation consistent. Saabas, on the other hand, considers only the single decision path and can run in logarithmic time.
+
+For linear-based models, a linear SHAP explainer is provided. It uses samplings from the training dataset to estimate the SHAP values.
+
+For nonlinear and non-tree based models, a kernel SHAP explainer is provided. It also uses sampling from the training dataset to estimate the SHAP values.
+
+The content also mentions that the interpretation of the output may differ for certain models. For example, in exponential regression and generalized linear models, the linear SHAP explainer is used to explain the linear predictor instead of the original output.
+
+Finally, a table is provided that summarizes the supported SHAP versions for different methods.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE META_DATA_TAB;
+CREATE COLUMN TABLE META_DATA_TAB(
+    "VARIABLE_NAME" NVARCHAR(50),
+    "VARIABLE_TYPE" NVARCHAR(50)
+);
+
+INSERT INTO META_DATA_TAB VALUES ('OUTLOOK',  'CATEGORICAL');
+INSERT INTO META_DATA_TAB VALUES ('CLASS',    'TARGET');
+INSERT INTO META_DATA_TAB VALUES ('TEMP',     'CONTINUOUS');
+INSERT INTO META_DATA_TAB VALUES ('HUMIDITY', 'CONTINUOUS');
+INSERT INTO META_DATA_TAB VALUES ('WINDY',    'CATEGORICAL');
+
+DROP TABLE PAL_DATA_TBL;
+CREATE COLUMN TABLE PAL_DATA_TBL(
+    "ID" INT,
+    "VARIABLE_NAME" NVARCHAR(50),
+    "VALUE" NVARCHAR(50), 
+    "PURPOSE" INT
+);
+INSERT INTO PAL_DATA_TBL VALUES (0,     'OUTLOOK',      'Sunny',    1);
+INSERT INTO PAL_DATA_TBL VALUES (0,     'TEMP',         '75',       1);
+INSERT INTO PAL_DATA_TBL VALUES (0,     'HUMIDITY',     '70',       1);
+INSERT INTO PAL_DATA_TBL VALUES (0,     'WINDY',        'Yes',      1);
+INSERT INTO PAL_DATA_TBL VALUES (0,     'CLASS',        '1',        1);
+INSERT INTO PAL_DATA_TBL VALUES (1,     'OUTLOOK',      'Sunny',    1);
+INSERT INTO PAL_DATA_TBL VALUES (1,     'TEMP',         '80',       1);
+INSERT INTO PAL_DATA_TBL VALUES (1,     'HUMIDITY',     '90',       1);
+INSERT INTO PAL_DATA_TBL VALUES (1,     'WINDY',        'Yes',      1);
+INSERT INTO PAL_DATA_TBL VALUES (1,     'CLASS',        '0',        1);
+INSERT INTO PAL_DATA_TBL VALUES (2,     'OUTLOOK',      'Sunny',  	1);
+INSERT INTO PAL_DATA_TBL VALUES (2,     'TEMP',         '85',    	1);
+INSERT INTO PAL_DATA_TBL VALUES (2,     'HUMIDITY',     '85',    	1);
+INSERT INTO PAL_DATA_TBL VALUES (2,     'WINDY',        'No',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (2,     'CLASS',        '0',    	1);
+INSERT INTO PAL_DATA_TBL VALUES (3,     'OUTLOOK',      'Sunny',    2);
+INSERT INTO PAL_DATA_TBL VALUES (3,     'TEMP',         '72',  	    2);
+INSERT INTO PAL_DATA_TBL VALUES (3,     'HUMIDITY',     '95',  	    2);
+INSERT INTO PAL_DATA_TBL VALUES (3,     'WINDY',        'No',  	    2);
+INSERT INTO PAL_DATA_TBL VALUES (3,     'CLASS',        '0',   	    2);
+INSERT INTO PAL_DATA_TBL VALUES (4,     'OUTLOOK',      'Sunny',  	1);
+INSERT INTO PAL_DATA_TBL VALUES (4,     'TEMP',         '69',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (4,     'HUMIDITY',     '70',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (4,     'WINDY',        'No',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (4,     'CLASS',        '1',    	1);
+INSERT INTO PAL_DATA_TBL VALUES (5,     'OUTLOOK',      'Overcast', 1);
+INSERT INTO PAL_DATA_TBL VALUES (5,     'TEMP',         '72',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (5,     'HUMIDITY',     '90',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (5,     'WINDY',        'Yes',  	1);
+INSERT INTO PAL_DATA_TBL VALUES (5,     'CLASS',        '1',    	1);
+INSERT INTO PAL_DATA_TBL VALUES (6,     'OUTLOOK',      'Overcast',	1);
+INSERT INTO PAL_DATA_TBL VALUES (6,     'TEMP',         '83',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (6,     'HUMIDITY',     '78',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (6,     'WINDY',        'No',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (6,     'CLASS',        '0',    	1);
+INSERT INTO PAL_DATA_TBL VALUES (7,     'OUTLOOK',      'Overcast',	1);
+INSERT INTO PAL_DATA_TBL VALUES (7,     'TEMP',         '64',      	1);
+INSERT INTO PAL_DATA_TBL VALUES (7,     'HUMIDITY',     '65',      	1);
+INSERT INTO PAL_DATA_TBL VALUES (7,     'WINDY',        'Yes',     	1);
+INSERT INTO PAL_DATA_TBL VALUES (7,     'CLASS',        '1',       	1);
+INSERT INTO PAL_DATA_TBL VALUES (8,		'OUTLOOK',       'Overcast',1);
+INSERT INTO PAL_DATA_TBL VALUES (8,     'TEMP',          '81',  	1);
+INSERT INTO PAL_DATA_TBL VALUES (8,     'HUMIDITY',      '75',  	1);
+INSERT INTO PAL_DATA_TBL VALUES (8,     'WINDY',         'No',  	1);
+INSERT INTO PAL_DATA_TBL VALUES (8,     'CLASS',         '1',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (9,     'OUTLOOK',      'Rain', 	2);
+INSERT INTO PAL_DATA_TBL VALUES (9,     'TEMP',         '71',   	2);
+INSERT INTO PAL_DATA_TBL VALUES (9,     'HUMIDITY',     '80',   	2);
+INSERT INTO PAL_DATA_TBL VALUES (9,     'WINDY',        'Yes',  	2);
+INSERT INTO PAL_DATA_TBL VALUES (9,     'CLASS',        '0',    	2);
+INSERT INTO PAL_DATA_TBL VALUES (10,    'OUTLOOK',      'Rain', 	1);
+INSERT INTO PAL_DATA_TBL VALUES (10,    'TEMP',         '65',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (10,    'HUMIDITY',     '70',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (10,    'WINDY',        'Yes',  	1);
+INSERT INTO PAL_DATA_TBL VALUES (10,    'CLASS',        '0'	,       1);
+INSERT INTO PAL_DATA_TBL VALUES (11,    'OUTLOOK',      'Rain', 	1);
+INSERT INTO PAL_DATA_TBL VALUES (11,    'TEMP',         '75',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (11,    'HUMIDITY',     '80',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (11,    'WINDY',        'No',   	1);
+INSERT INTO PAL_DATA_TBL VALUES (11,    'CLASS',        '1',    	1);
+INSERT INTO PAL_DATA_TBL VALUES (12,    'OUTLOOK',      'Rain', 	2);
+INSERT INTO PAL_DATA_TBL VALUES (12,    'TEMP',         '68',   	2);
+INSERT INTO PAL_DATA_TBL VALUES (12,    'HUMIDITY',     '80',   	2);
+INSERT INTO PAL_DATA_TBL VALUES (12,    'WINDY',        'No',   	2);
+INSERT INTO PAL_DATA_TBL VALUES (12,    'CLASS',        '1',    	2);
+INSERT INTO PAL_DATA_TBL VALUES (13,    'OUTLOOK',      'Rain', 	2);
+INSERT INTO PAL_DATA_TBL VALUES (13,    'TEMP',         '70',   	2);
+INSERT INTO PAL_DATA_TBL VALUES (13,    'HUMIDITY',     '96',   	2);
+INSERT INTO PAL_DATA_TBL VALUES (13,    'WINDY',        'No',   	2);
+INSERT INTO PAL_DATA_TBL VALUES (13,    'CLASS',        '0',    	2);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+    "PARAM_NAME" VARCHAR (256),
+    "INT_VALUE" INTEGER,
+    "DOUBLE_VALUE" DOUBLE,
+    "STRING_VALUE" VARCHAR (1000)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION',null,null,'DT'); 
+
+DROP TABLE PAL_DATA_MODEL_TBL;
+CREATE COLUMN TABLE PAL_DATA_MODEL_TBL(
+     "ROW_INDEX" INTEGER,
+     "PART_INDEX" INTEGER,
+     "MODEL_CONTENT" VARCHAR (5000)
+);
+
+DO BEGIN
+  meta_data_tab = SELECT * FROM META_DATA_TAB;
+  data_tab = SELECT * FROM PAL_DATA_TBL; 
+  control_tab = SELECT * FROM PAL_PARAMETER_TBL; 
+  CALL _SYS_AFL.PAL_UNIFIED_REGRESSION_PIVOT(:meta_data_tab, :data_tab, :control_tab, model_tab, fit_tab, stats_tab, optimal_parameter_tab, place_holder_1_tab, place_holder_2_tab); 
+  INSERT into PAL_DATA_MODEL_TBL SELECT * FROM :model_tab; 
+END

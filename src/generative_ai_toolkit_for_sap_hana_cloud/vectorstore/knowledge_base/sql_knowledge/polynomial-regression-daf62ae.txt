@@ -1,0 +1,25 @@
+Polynomial regression is a method used to model the relationship between a dependent variable and an independent variable. It involves using polynomial functions to represent the data and estimating the model parameters from the data. In the implementation of polynomial regression, the problem is transformed into a linear regression problem and solved using linear regression methods. The implementation also includes calculating the F value and R-squared to determine the statistical significance of the model.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE #PAL_PARAMETER_TBL;
+CREATE LOCAL TEMPORARY COLUMN TABLE 
+	#PAL_PARAMETER_TBL 
+	("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('POLYNOMIAL_NUM',3,NULL,NULL);
+INSERT INTO #PAL_PARAMETER_TBL VALUES ('PMML_EXPORT',2,NULL,NULL);
+
+DROP TABLE PAL_PR_DATA_TBL;
+CREATE COLUMN TABLE PAL_PR_DATA_TBL ( "ID" INT,"Y" DOUBLE,"X1" DOUBLE);
+INSERT INTO PAL_PR_DATA_TBL VALUES (0,5,1);
+INSERT INTO PAL_PR_DATA_TBL VALUES (1,20,2);
+INSERT INTO PAL_PR_DATA_TBL VALUES (2,43,3);
+INSERT INTO PAL_PR_DATA_TBL VALUES (3,89,4);
+INSERT INTO PAL_PR_DATA_TBL VALUES (4,166,5);
+INSERT INTO PAL_PR_DATA_TBL VALUES (5,247,6);
+INSERT INTO PAL_PR_DATA_TBL VALUES (6,403,7);
+
+CALL _SYS_AFL.PAL_POLYNOMIAL_REGRESSION(PAL_PR_DATA_TBL, "#PAL_PARAMETER_TBL", ?, ?, ?, ?,?);
+

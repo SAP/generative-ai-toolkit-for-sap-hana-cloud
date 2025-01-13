@@ -1,0 +1,86 @@
+This content discusses text classification with a model for prediction. The function extracts token data from the input text and combines it with TFIDF (Term Frequency-Inverse Document Frequency) trained by \_SYS\_AFL.PAL\_TEXT\_CLASSIFICATION\_TRAIN. It then uses a machine learning model, such as random decision trees (RDT), trained by \_SYS\_AFL.PAL\_TEXT\_CLASSIFICATION\_TRAIN to make predictions. TFIDF is calculated by considering the frequency of a word in a document and its inverse document frequency across a set of documents. The function supports multiple languages including English, German, Spanish, French, Russian, and Portuguese.
+------
+
+drop schema DM_PAL CASCADE;
+create schema DM_PAL;
+
+set schema DM_PAL;
+
+----------------TextClassification Train----------------
+create column table PAL_TFIDF_DATA_TAB (
+    "ID" nvarchar(1000),
+    "CONTENT" nvarchar(1000),
+    "CATEGORY" nvarchar(1000)
+);
+
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc1','term1 term2 term2 term3 term3 term3','CATEGORY_1');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc2','term2 term3 term3 term4 term4 term4','CATEGORY_1');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc3','term3 term4 term4 term5 term5 term5','CATEGORY_2');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc5','term3 term4 term4 term5 term5 term5 term5 term5 term5','CATEGORY_2');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc4','term4 term6','CATEGORY_3');
+INSERT INTO PAL_TFIDF_DATA_TAB VALUES('doc6','term4 term6 term6 term6','CATEGORY_3');
+
+create column table PAL_PARAMETER_TAB (
+    "PARAM_NAME" nvarchar(256),
+    "INT_VALUE" integer, 
+    "DOUBLE_VALUE" double, 
+    "STRING_VALUE" nvarchar(1000)
+);
+
+INSERT INTO PAL_PARAMETER_TAB values('SEED', 10, null, null);
+
+create column table PAL_TM_TERM_TAB (
+    "TM_TERMS" nvarchar(1000),
+    "TM_TERM_FREQUENCY" integer,
+    "TM_IDF_FREQUENCY" integer,
+    "TF_VALUE" double,
+    "IDF_VALUE" double
+);
+
+create column table PAL_TM_DOC_TERM_FREQ_TAB (
+    "ID" nvarchar(1000),
+    "TM_TERMS" nvarchar(1000),
+    "TM_TERM_FREQUENCY" integer
+);
+
+create column table PAL_TM_CATE_TAB (
+    "ID" nvarchar(1000),
+    "CATEGORY" nvarchar(1000)
+);
+
+create column table Model_TAB (
+    "TreeID" int,
+    "PartID" int,
+    "Content" nvarchar(5000)
+);
+
+create column table Extra_TAB (
+    "ID" int,
+    "Content" nvarchar(1000)
+);
+
+call _SYS_AFL.PAL_TEXT_CLASSIFICATION_TRAIN(PAL_TFIDF_DATA_TAB, PAL_PARAMETER_TAB, PAL_TM_TERM_TAB, PAL_TM_DOC_TERM_FREQ_TAB, PAL_TM_CATE_TAB, Model_TAB, Extra_TAB);
+
+----------------TextClassification Predict----------------
+
+drop table PAL_PARAMETER_TAB;
+create column table PAL_PARAMETER_TAB (
+    "PARAM_NAME" nvarchar(256),
+    "INT_VALUE" integer, 
+    "DOUBLE_VALUE" double, 
+    "STRING_VALUE" nvarchar(1000)
+);
+
+
+INSERT INTO PAL_PARAMETER_TAB values('RDT_TOP_N', 2, null, null);
+
+create column table PAL_TM_PRED_TAB (
+    "ID" nvarchar(1000),
+    "CONTENT" nvarchar(1000)
+);
+
+INSERT INTO PAL_TM_PRED_TAB VALUES('doc10','term2 term2 term3 term3');
+INSERT INTO PAL_TM_PRED_TAB VALUES('doc11','term4 term4 term4 term5');
+
+call _SYS_AFL.PAL_TEXT_CLASSIFICATION_PREDICT(PAL_TM_TERM_TAB, PAL_TM_DOC_TERM_FREQ_TAB, PAL_TM_CATE_TAB, PAL_TM_PRED_TAB, Model_TAB, PAL_PARAMETER_TAB, ?, ?);
+

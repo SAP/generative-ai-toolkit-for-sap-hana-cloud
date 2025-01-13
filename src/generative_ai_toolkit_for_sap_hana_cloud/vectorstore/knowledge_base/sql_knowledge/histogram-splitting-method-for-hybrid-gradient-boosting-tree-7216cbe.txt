@@ -1,0 +1,61 @@
+The Histogram Splitting Method for Hybrid Gradient Boosting Tree (HGBT) is an optimization technique that uses histograms to speed up the training process. This method reduces both the time and memory costs associated with splitting nodes in the tree. 
+
+Specifically, when HGBT tries to split a node, it first creates a histogram of that node by grouping feature values into bins. It then evaluates potential splitting points based on these bins. Since the number of bins is typically much smaller than the number of data points in the node, this method significantly speeds up the splitting process. 
+
+Building the histogram still requires visiting all the data in the node, but it is faster because it only involves scanning and adding up values. Additionally, an optimization is made in building the histogram by using subtraction. The histogram of one node can always be built by subtracting the histogram of its sibling from the histogram of its parent. This allows for choosing to build the histogram of the node with less data, which saves time.
+------
+
+set schema DM_PAL;
+
+drop table PAL_HGBT_DATA_TAB;
+create column table PAL_HGBT_DATA_TAB (
+	"ATT1" double,
+	"ATT2" double,
+	"ATT3" double,
+	"ATT4" double,
+	"LABEL" nvarchar(50)
+);
+insert into PAL_HGBT_DATA_TAB values (1.0, 10.0, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.1, 10.1, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.2, 10.2, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.3, 10.4, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (1.2, 10.3, 100, 1.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (4.0, 40.0, 400, 4.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.1, 40.1, 400, 4.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.2, 40.2, 400, 4.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.3, 40.4, 400, 4.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (4.2, 40.3, 400, 4.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (9.0, 90.0, 900, 2.0, 'A');
+insert into PAL_HGBT_DATA_TAB values (9.1, 90.1, 900, 1.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (9.2, 90.2, 900, 2.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (9.3, 90.4, 900, 1.0, 'B');
+insert into PAL_HGBT_DATA_TAB values (9.2, 90.3, 900, 1.0, 'B');
+
+drop table PAL_PARAMETER_TAB;
+create column table PAL_PARAMETER_TAB (
+	"PARAM_NAME" nvarchar(100),
+	"INT_VALUE" integer,
+	"DOUBLE_VALUE" double,
+	"STRING_VALUE" nvarchar(100)
+);
+insert into PAL_PARAMETER_TAB values ('SPLIT_METHOD', null, null, 'histogram'); -- set splitting method
+insert into PAL_PARAMETER_TAB values ('MAX_BIN_NUM', 256, null, null); -- the same value as default, can be omitted
+
+drop table PAL_HGBT_MODEL_TAB; -- for predict followed
+create column table PAL_HGBT_MODEL_TAB (
+	"ROW_INDEX" integer,
+	"TREE_INDEX" integer,
+	"MODEL_CONTENT" nclob
+);
+
+do begin
+	LT_DATA_TAB = select * from PAL_HGBT_DATA_TAB;
+	LT_PARAM_TAB = select * from PAL_PARAMETER_TAB;
+	call _SYS_AFL.PAL_HGBT(:LT_DATA_TAB, :LT_PARAM_TAB, LT_MODEL_TAB, LT_IMP_TAB, LT_CONFUSE_TAB, LT_STAT_TAB, LT_CV_TAB);
+	select * from :LT_MODEL_TAB;
+	select * from :LT_IMP_TAB;
+	select * from :LT_CONFUSE_TAB;
+	select * from :LT_STAT_TAB;
+	select * from :LT_CV_TAB;
+	insert into PAL_HGBT_MODEL_TAB select * from :LT_MODEL_TAB;
+end;

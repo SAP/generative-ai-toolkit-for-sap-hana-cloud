@@ -1,0 +1,26 @@
+The FFMRanker class in the hana_ml.algorithms.pal.recommender module is a Field-Aware Factorization Machine used for ranking tasks using ordinal regression, with various parameters for customization such as factorization dimensionality, seed for random number generator, proportion of data used for training, maximum number of iterations for the ALS algorithm, and more.
+------
+Here is the executable code template for the FFMRanker class:
+
+```python
+from hana_ml.algorithms.pal.recommender import FFMRanker
+
+# Create a FFMRanker instance
+ffm = FFMRanker(ordering=['too low', 'low', 'medium', 'high', 'too high'],
+                factor_num=4, early_stop=True, learning_rate=0.2, max_iter=20, train_size=0.8,
+                linear_lamb=1e-5, poly2_lamb=1e-6, random_state=1)
+
+# Assume that df_train_rank is the training data DataFrame
+# Perform fit() on given dataframe
+ffm.fit(data=df_train_rank, categorical_variable='TIMESTAMP')
+
+# Print the statistics
+print(ffm.stats_.collect())
+
+# Assume that df_predict is the DataFrame for prediction
+# Perform predict()
+res = ffm.predict(data=df_predict, key='ID', thread_ratio=1)
+
+# Print the prediction result
+print(res.collect())
+```

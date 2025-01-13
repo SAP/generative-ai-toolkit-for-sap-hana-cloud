@@ -1,0 +1,38 @@
+{
+    "ServiceName_1": {
+        "object_owner": {
+            "global_roles": [
+                {
+                    "roles": [
+                        "AFL__SYS_AFL_AFLPAL_EXECUTE"
+                    ]
+                }
+            ],
+            "schema_privileges": [
+                {
+                    "reference": "PAL_TEST",
+                    "privileges_with_grant_option": [
+                        "SELECT"
+                    ]
+                }
+            ]
+        },
+        "application_user": {
+            "global_roles": [
+                {
+                    "roles": [
+                        "AFL__SYS_AFL_AFLPAL_EXECUTE"
+                    ]
+                }
+            ],
+            "schema_privileges": [
+                {
+                    "reference": "PAL_TEST",
+                    "privileges_with_grant_option": [
+                        "SELECT"
+                    ]
+                }
+            ]
+        }
+    }
+}

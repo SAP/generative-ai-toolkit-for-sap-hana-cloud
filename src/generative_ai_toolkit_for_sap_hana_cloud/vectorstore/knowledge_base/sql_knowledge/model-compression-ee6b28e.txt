@@ -1,0 +1,65 @@
+Model compression is a technique used to reduce the size of a random decision tree model without sacrificing accuracy. This is important because larger datasets often require more sub-learners, resulting in larger and more complex models. By compressing the model, it is possible to achieve better predictive performance while minimizing the size of the model.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE  PAL_RDT_DATA_TBL;
+CREATE COLUMN TABLE PAL_RDT_DATA_TBL (
+	"OUTLOOK" VARCHAR(20),
+	"TEMP" INTEGER,
+	"HUMIDITY" DOUBLE,
+	"WINDY" VARCHAR(10),
+	"CLASS" VARCHAR(20)
+);
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Sunny', 75, 70.0, 'Yes', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Sunny', NULL, 90.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Sunny', 85, NULL, 'No', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Sunny', 72, 95.0, 'No', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES (NULL, NULL, 70.0, NULL, 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Overcast', 72.0, 90, 'Yes', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Overcast', 83.0, 78, 'No', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Overcast', 64.0, 65, 'Yes', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Overcast', 81.0, 75, 'No', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES (NULL, 71, 80.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Rain', 65, 70.0, 'Yes', 'Do not Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Rain', 75, 80.0, 'No', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Rain', 68, 80.0, 'No', 'Play');
+INSERT INTO PAL_RDT_DATA_TBL VALUES ('Rain', 70, 96.0, 'No', 'Play');
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+	"PARAM_NAME" VARCHAR (100), 
+	"INT_VALUE" INTEGER, 
+	"DOUBLE_VALUE" DOUBLE, 
+	"STRING_VALUE" VARCHAR (100)
+);
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('TREES_NUM', 300, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('TRY_NUM', 3, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SEED', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SPLIT_THRESHOLD', NULL, 1e-5, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('CALCULATE_OOB', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('NODE_SIZE', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 1.0, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('COMPRESSION', 1, NULL, NULL);
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_BITS', 12, NULL, NULL);
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('QUANTIZE_RATE', NULL, 0.005, NULL);
+--INSERT INTO PAL_PARAMETER_TBL VALUES ('FITTINGS_QUANTIZATION', 12, NULL, NULL);
+
+DROP TABLE PAL_RDT_MODEL_TBL;  -- for predict followed
+CREATE COLUMN TABLE PAL_RDT_MODEL_TBL (
+	"ROW_INDEX" INTEGER,
+	"TREE_INDEX" INTEGER,
+	"MODEL_CONTENT" NVARCHAR(5000)
+);
+
+do begin
+	lt_data_train = select * from PAL_RDT_DATA_TBL;
+
+	param_table =   select * from PAL_PARAMETER_TBL;
+	
+	CALL _SYS_AFL.PAL_RANDOM_DECISION_TREES (:lt_data_train, :param_table, model_table, var_imp, out_of_bag, confusion);
+	TRUNCATE TABLE PAL_RDT_MODEL_TBL;
+	insert into PAL_RDT_MODEL_TBL select * from :model_table;
+	select * from PAL_RDT_MODEL_TBL;
+end;

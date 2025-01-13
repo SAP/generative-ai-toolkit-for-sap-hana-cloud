@@ -1,0 +1,45 @@
+The ARIMAExplainer class in the hana_ml.visualizers.time_series_report module is a subclass of TimeSeriesExplainer that provides methods for initializing the explainer, adding lines to comparison items, getting comparison items, decomposition items, force plot items, summary plot items from forecasted results, and setting fitted results, forecasted data, forecasted results, forecasted result explainer, and training data.
+------
+Here is a Python code template for the ARIMAExplainer class:
+
+```python
+from hana_ml.visualizers.time_series_report import ARIMAExplainer
+
+# Initialize ARIMAExplainer
+explainer = ARIMAExplainer(key, endog, exog)
+
+# Set training data
+explainer.set_training_data(training_data)
+
+# Set fitted result
+explainer.set_fitted_result(fitted_result)
+
+# Set forecasted data
+explainer.set_forecasted_data(forecasted_data)
+
+# Set forecasted result
+explainer.set_forecasted_result(forecasted_result)
+
+# Set forecasted result explainer
+explainer.set_forecasted_result_explainer(forecasted_result_explainer, reason_code_name='EXOGENOUS')
+
+# Add line to comparison item
+explainer.add_line_to_comparison_item(title, data, x_name, y_name=None, confidence_interval_names=None, color=None)
+
+# Get comparison item
+explainer.get_comparison_item(title='Comparison')
+
+# Get decomposition items from forecasted result
+explainer.get_decomposition_items_from_forecasted_result()
+
+# Get force plot item from forecasted result
+explainer.get_force_plot_item_from_forecasted_result()
+
+# Get summary plot items from forecasted result
+explainer.get_summary_plot_items_from_forecasted_result()
+
+# Get items from best pipeline
+ARIMAExplainer.get_items_from_best_pipeline(best_pipeline, highlighted_metric_name)
+```
+
+Please replace the placeholders with your actual data.

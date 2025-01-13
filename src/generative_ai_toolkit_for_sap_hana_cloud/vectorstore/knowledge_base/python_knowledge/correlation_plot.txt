@@ -1,0 +1,21 @@
+The function correlation_plot in the module hana_ml.visualizers.eda_plotly displays a correlation plot for specified columns of a SAP HANA DataFrame, with options to customize the ID column, columns to be plotted, color scale, and title of the plot.
+------
+Here is the executable code template for the `correlation_plot` function:
+
+```python
+from hana_ml.visualizers.eda_plotly import correlation_plot
+
+# Assuming `data` is your DataFrame
+data = ...
+
+# Specify the columns you want to plot
+corr_cols = ['PCLASS', 'AGE', 'SIBSP', 'PARCH', 'FARE']
+
+# Call the function
+fig, corr = correlation_plot(data=data, corr_cols=corr_cols)
+
+# Display the plot
+fig.show()
+```
+
+Please replace `...` with your actual DataFrame. If you want to use different columns, replace the list assigned to `corr_cols`. You can also customize the color scale and title by providing values for `cmap` and `title` parameters respectively.

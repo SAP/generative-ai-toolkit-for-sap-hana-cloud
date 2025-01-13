@@ -1,0 +1,52 @@
+This content describes a function that handles missing values in a time series table. It provides various imputation types to fill the missing values, such as using the mode, mean, median, specified values, moving averages, interpolation methods, seasonally decomposed imputation, and carrying forward or backward the last or next observed values. The function distinguishes between categorical and numerical variables and treats integer columns as numerical by default, but they can be explicitly set as categorical. The output statistics table can be used as a model to handle missing values in new tables with the same column structure.
+------
+
+SET SCHEMA DM_PAL;
+DROP TABLE PAL_TS_DATA_TBL;
+CREATE COLUMN TABLE PAL_TS_DATA_TBL (
+	"TIME_STAMP" INTEGER, 
+	"TS0" INTEGER, 
+	"TS1" INTEGER, 
+	"TS2" DOUBLE
+);
+
+INSERT INTO PAL_TS_DATA_TBL VALUES (0, 10, 0, 23.6);
+INSERT INTO PAL_TS_DATA_TBL VALUES (1, 20, 1, 21.8);
+INSERT INTO PAL_TS_DATA_TBL VALUES (2, 50, 1, 21.9);
+INSERT INTO PAL_TS_DATA_TBL VALUES (3, 30, NULL, 22.6);
+INSERT INTO PAL_TS_DATA_TBL VALUES (4, 10, 0, NULL);
+INSERT INTO PAL_TS_DATA_TBL VALUES (5, 10, 0, 19.7);
+INSERT INTO PAL_TS_DATA_TBL VALUES (6, NULL, 0, 17.8);
+INSERT INTO PAL_TS_DATA_TBL VALUES (7, 10, 1, 24.9);
+INSERT INTO PAL_TS_DATA_TBL VALUES (8, 20, NULL, 22.2);
+INSERT INTO PAL_TS_DATA_TBL VALUES (9, 30, 1, NULL);
+INSERT INTO PAL_TS_DATA_TBL VALUES (10, 50, 1, 16.4);
+INSERT INTO PAL_TS_DATA_TBL VALUES (11, NULL, 1, 19.3);
+INSERT INTO PAL_TS_DATA_TBL VALUES (12, 30, 0, 21.7);
+INSERT INTO PAL_TS_DATA_TBL VALUES (13, 30, 1, NULL);
+INSERT INTO PAL_TS_DATA_TBL VALUES (14, NULL, 0, 18.6);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+"PARAM_NAME" VARCHAR (256), 
+"INT_VALUE" INTEGER, 
+"DOUBLE_VALUE" DOUBLE, 
+"STRING_VALUE" VARCHAR (1000));
+
+INSERT INTO PAL_PARAMETER_TBL VALUES('IMPUTATION_TYPE', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES('CATEGORICAL_VARIABLE', NULL, NULL, 'TS1');
+--INSERT INTO PAL_PARAMETER_TBL VALUES('TS1_IMPUTATION_TYPE', 5, NULL, '2');
+--INSERT INTO PAL_PARAMETER_TBL VALUES('TS2_IMPUTATION_TYPE', 6, 20.0, NULL);
+
+DROP TABLE PAL_IMPUTE_TS_STATISTICS_TBL;
+CREATE COLUMN TABLE PAL_IMPUTE_TS_STATISTICS_TBL ("STAT_NAME" NVARCHAR(256), "STAT_VALUE" NVARCHAR(5000));
+
+
+do begin 
+	lt_data = select * from PAL_TS_DATA_TBL;
+	lt_control = select * from PAL_PARAMETER_TBL;
+	CALL _SYS_AFL.PAL_IMPUTE_TIME_SERIES(:lt_data, :lt_control, lt_res, lt_stats);
+	INSERT INTO PAL_IMPUTE_TS_STATISTICS_TBL SELECT * FROM :lt_stats;
+	SELECT * FROM :lt_res;
+	SELECT * FROM PAL_IMPUTE_TS_STATISTICS_TBL;
+end;

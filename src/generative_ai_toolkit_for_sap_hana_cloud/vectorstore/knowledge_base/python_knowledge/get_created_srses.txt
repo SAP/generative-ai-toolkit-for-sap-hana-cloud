@@ -1,0 +1,20 @@
+The function get_created_srses in the hana_ml.spatial.srs module creates a pandas dataframe containing all created SRSes in the SAP HANA system, using a provided connection context.
+------
+Here is a Python code template for the function `get_created_srses`:
+
+```python
+# Import necessary modules
+from hana_ml import ConnectionContext
+import pandas as pd
+
+# Define the connection context
+connection_context = ConnectionContext(address='myHanaHost', port='myHanaPort', user='myHanaUser', password='myHanaPassword')
+
+# Call the function
+df = hana_ml.spatial.srs.get_created_srses(connection_context)
+
+# Print the dataframe
+print(df)
+```
+
+Please replace `'myHanaHost'`, `'myHanaPort'`, `'myHanaUser'`, and `'myHanaPassword'` with your actual SAP HANA host, port, user, and password.

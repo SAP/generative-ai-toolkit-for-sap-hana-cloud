@@ -1,0 +1,20 @@
+The function delete_afl_state_by_description in the hana_ml.algorithms.pal.utility module allows you to delete an AFL state in a HANA database based on its description.
+------
+Here is a Python code template for the function `delete_afl_state_by_description` from the `hana_ml.algorithms.pal.utility` module:
+
+```python
+from hana_ml.algorithms.pal.utility import delete_afl_state_by_description
+
+# Create a connection context
+# Please replace <HDB_USER>, <HDB_PASSWORD>, <HDB_HOST>, <HDB_PORT> with your actual HANA DB credentials
+from hana_ml import dataframe
+connection_context = dataframe.ConnectionContext('<HDB_HOST>', <HDB_PORT>, '<HDB_USER>', '<HDB_PASSWORD>')
+
+# Specify the description of the AFL state to be deleted
+description = "<description>"
+
+# Call the function
+delete_afl_state_by_description(connection_context, description)
+```
+
+Please replace `<description>` with the actual description of the AFL state you want to delete.

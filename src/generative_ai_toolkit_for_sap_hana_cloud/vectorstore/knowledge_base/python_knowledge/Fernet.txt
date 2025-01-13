@@ -1,0 +1,36 @@
+The Fernet class in the cryptography.fernet module provides methods for encryption and decryption of data, generating keys, and extracting timestamps, with the key and data being bytes or strings, and the backend being any type.
+------
+Here is a Python code template for the Fernet class in the cryptography.fernet module:
+
+```python
+from cryptography.fernet import Fernet
+
+# Generate a key
+key = Fernet.generate_key()
+
+# Create a Fernet object
+f = Fernet(key)
+
+# Encrypt some data
+data = b"my secret data"
+encrypted = f.encrypt(data)
+print("Encrypted:", encrypted)
+
+# Decrypt the data
+decrypted = f.decrypt(encrypted)
+print("Decrypted:", decrypted)
+
+# Extract timestamp
+timestamp = f.extract_timestamp(encrypted)
+print("Timestamp:", timestamp)
+
+# Encrypt data at a specific time
+encrypted_at_time = f.encrypt_at_time(data, timestamp)
+print("Encrypted at time:", encrypted_at_time)
+
+# Decrypt data at a specific time
+decrypted_at_time = f.decrypt_at_time(encrypted_at_time, ttl=60, current_time=timestamp)
+print("Decrypted at time:", decrypted_at_time)
+```
+
+Please replace `"my secret data"` with your actual data. The `ttl` parameter in `decrypt_at_time` is the maximum age of the token (in seconds). If the token is older than `ttl`, an exception will be raised. If `ttl` is not provided, the token will never expire. The `current_time` parameter is the assumed current time (in seconds since the Unix epoch). If not provided, the current time will be used.

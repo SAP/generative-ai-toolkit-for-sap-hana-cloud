@@ -1,0 +1,113 @@
+Categorical Principal Component Analysis (PCA) is a dimension reduction technique that aims to reduce the dimensionality of multivariate data while accounting for as much of the variation in the original data set as possible. It assumes a linear relationship between different variables, large variances of variables imply important or interesting structure, and that principal components are orthogonal.
+
+The method involves transforming the data to diagonalize the covariance/correlation matrix, with the eigenvalues representing the variances for each component. The transformed data is represented in a linear space spanned by the principal components, called component scores.
+
+The method can be formalized as an optimization problem to minimize a loss function. It is non-parametric, efficient, and applicable to any dataset. The percentage of information retained after dimension reduction can be calculated by dividing the total variance after dimension reduction by the original total variance.
+
+The method also supports datasets with categorical variables. Category quantification assigns numeric values to each category in the principal component vector space. The current implementation uses single nominal quantification, where each category is assigned a single value. The optimization problem for single nominal quantification is also formalized.
+
+The current implementation uses the Alternating Least Square algorithm to find the optimal scaling quantification for categorical data.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_PCA_DATA_TBL;
+CREATE COLUMN TABLE PAL_PCA_DATA_TBL ("ID" INTEGER, "X1" DOUBLE, "X2" NVARCHAR(5), "X3" DOUBLE, "X4" INTEGER, "X5" DOUBLE, "X6" DOUBLE);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (1, 12, 'A', 20, 44, 48, 16);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (2, 12, 'B', 25, 45, 50, 16);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (3, 12, 'C', 21, 45, 50, 16);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (4, 13, 'A', 21, 46, 51, 17);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (5, 14, 'C', 24, 46, 51, 17);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (6, 22, 'A', 25, 54, 58, 26);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (7, 22, 'D', 26, 55, 58, 27);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (8, 17, 'A', 21, 45, 52, 17);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (9, 15, 'D', 24, 45, 53, 18);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (10, 23, 'C', 23, 53, 57, 24);
+INSERT INTO PAL_PCA_DATA_TBL VALUES (11, 25, 'B', 23, 55, 58, 25);
+
+DROP TABLE PAL_PARAMETER_TBL;
+CREATE COLUMN TABLE PAL_PARAMETER_TBL ("PARAM_NAME" VARCHAR(256), "INT_VALUE" INTEGER, "DOUBLE_VALUE" DOUBLE, "STRING_VALUE" VARCHAR(1000));
+--SCALING: 0 means use covariance matrix to compute PCA, 1 means use correlation matrix to compute PCA. Default is 0.
+--When coping with categorical data, it is forced to set SCALING to 1.
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SCALING', 1, NULL, NULL);
+-- Whether output componnet score data. 0 means no output score data; 1 means output score data. Default is 0.
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SCORES', 1, NULL, NULL);
+-- Proportion of CPU resources to use in current computation. Value should be between 0 and 1. Default is 1
+INSERT INTO PAL_PARAMETER_TBL VALUES ('THREAD_RATIO', NULL, 0.0, NULL);
+-- This is a mandatory parameter. It indicates number of components to extract. Value should be between 1 and the minimum of data num and feature dimensions
+INSERT INTO PAL_PARAMETER_TBL VALUES ('N_COMPONENTS', 2, NULL, NULL);
+-- Determine the threshold to neglect component whose singular value is too small. The valid value is [0, 1)
+-- If this parameter is not specified, then all required components are output.
+-- When the singular value of some component divide with largest singular value is less than this threshold, the component will be dropped
+INSERT INTO PAL_PARAMETER_TBL VALUES ('COMPONENT_TOL', NULL, 1E-5, NULL);
+-- Specify the list of categorical variable names. It can be specified multiple times, once for each categorical variable
+-- Only Integer Variable needs to be specified. VARCHAR/NVARCHAR variable will always be treated as categorical variable
+INSERT INTO PAL_PARAMETER_TBL VALUES ('CATEGORICAL_VARIABLE', NULL, NULL, 'X4');
+-- SEED is used to generate initial quantification for categorical variable; Valid value is [0, Infinity).
+-- Default value is 0, which means the initial quantification will be different for each run; Otherwise the initial quantification will be deterministic
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SEED', 2021, NULL, NULL);
+-- Used to compute quantification for categorical variable. The algorithm is an iterative method. This parameter specify the maximum allowed iterations
+-- Default value is 100. Valid value range is (0, Infinity)
+INSERT INTO PAL_PARAMETER_TBL VALUES ('MAX_ITERATION', 550, NULL, NULL);
+-- Used as threshold to determine when the iterative quantification process can be stopped
+-- When the improvement of loss value is less than this threshold, the iterative process will terminate and regard as converged
+-- Default value is 1E-5. Valid range is (0, 1)
+INSERT INTO PAL_PARAMETER_TBL VALUES ('CONVERGE_TOL', NULL, 1E-5, NULL);
+-- Only valid when SVD_CALCULATOR is 0. This parameter specify the maximum allowed iteration when computing SVD using the LANCZOS algorithm
+-- Default value is 1000. Valid range is (0, Infinity). Note if this value is too small, algorithm will raised error as the computation result doesn't converge
+INSERT INTO PAL_PARAMETER_TBL VALUES ('LANCZOS_ITERATION', 100, NULL, NULL);
+-- Choose the SVD Algorithm to compute SVD: 0 means LANCZOS algorithm; 1 means divide and conquer with Jacobi Algorithm
+-- Note when extracting full components(minimum of data num and feature dimension), algorithm will force as if this parameter is 1, since LANCZOS algorithm can't cope with this case
+INSERT INTO PAL_PARAMETER_TBL VALUES ('SVD_CALCULATOR', 0, NULL, NULL);
+
+
+DROP TABLE PAL_PCA_LOADINGS_TBL;
+-- Specify component loading for each variable and component; component is represent as integer starting from 1 with decreasing order of singular values
+CREATE COLUMN TABLE PAL_PCA_LOADINGS_TBL ("VARIABLE_NAME" NVARCHAR(100), "COMPONENT_ID" INTEGER, "COMPONENT_LOADING" DOUBLE);
+
+DROP TABLE PAL_PCA_LOADINGS_INFORMATION;
+-- Specify some metrics for each component, currently supported are SD: standard deviation; VAR_PROP: proportion of variance; CUM_VAR_PROP: proportion of cumulative variance
+CREATE COLUMN TABLE PAL_PCA_LOADINGS_INFORMATION ("COMPONENT_ID" INTEGER, "METRIC_NAME" NVARCHAR(128), "METRIC_VALUE" DOUBLE);
+
+DROP TABLE PAL_PCA_SCORES;
+-- Specify component score for each data instance
+CREATE COLUMN TABLE PAL_PCA_SCORES ("ID" INTEGER, "COMPONENT_ID" INTEGER, "COMPONENT_SCORE" DOUBLE);
+
+DROP TABLE PAL_PCA_SCALING_INFORMATION_TBL;
+-- Specify the mean and scale info for each variable
+CREATE COLUMN TABLE PAL_PCA_SCALING_INFORMATION_TBL ("VARIABLE_NAME" NVARCHAR(100), "MEAN" DOUBLE, "SCALE" DOUBLE);
+
+DROP TABLE PAL_PCA_QUANTIFICATION_TBL;
+-- Specify the quantification info for each variable. For each category value there is one quantification
+-- Note current algorithm only support single nominal variable quantification, which impose rank-one restriction, so COMPONENT_ID is set 0 to indicate this case
+CREATE COLUMN TABLE PAL_PCA_QUANTIFICATION_TBL ("VARIABLE_NAME" NVARCHAR(100), "CATEGORY_VALUE" NVARCHAR(1000), "COMPONENT_ID" INTEGER, "QUANTIFICATION" DOUBLE);
+
+DROP TABLE PAL_PCA_STAT_TBL;
+-- Statistics info about current run result. Thhis is only meaningful when categorical variable exists.
+CREATE COLUMN TABLE PAL_PCA_STAT_TBL ("STAT_NAME" NVARCHAR(100), "STAT_VALUE" NVARCHAR(1000));
+
+DO BEGIN
+lt_data = SELECT * FROM PAL_PCA_DATA_TBL;
+lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+CALL _SYS_AFL.PAL_CATPCA (:lt_data, :lt_param, lt_loadings, lt_loadings_info, lt_scores, lt_scaling_info, lt_quantification, lt_stat);
+INSERT INTO PAL_PCA_LOADINGS_TBL
+SELECT * FROM :lt_loadings;
+INSERT INTO PAL_PCA_LOADINGS_INFORMATION
+SELECT * FROM :lt_loadings_info;
+INSERT INTO PAL_PCA_SCORES
+SELECT * FROM :lt_scores;
+INSERT INTO PAL_PCA_SCALING_INFORMATION_TBL
+SELECT * FROM :lt_scaling_info;
+INSERT INTO PAL_PCA_QUANTIFICATION_TBL
+SELECT * FROM :lt_quantification;
+INSERT INTO PAL_PCA_STAT_TBL
+SELECT * FROM :lt_stat;
+END;
+
+SELECT * FROM PAL_PCA_LOADINGS_TBL;
+SELECT * FROM PAL_PCA_LOADINGS_INFORMATION;
+SELECT * FROM PAL_PCA_SCORES;
+SELECT * FROM PAL_PCA_SCALING_INFORMATION_TBL;
+SELECT * FROM PAL_PCA_QUANTIFICATION_TBL;
+SELECT * FROM PAL_PCA_STAT_TBL;
+      

@@ -1,0 +1,28 @@
+The function import_csv_from in the hana_ml.dataframe module allows users to import a CSV file into the SAP HANA system, specifying parameters such as the connection context, directory, table, schema, number of threads, record delimiter, field delimiter, escape character, whether the column list is in the first row, and credentials.
+------
+Here is a Python code template based on the provided documentation:
+
+```python
+from hana_ml import dataframe
+
+# Create a connection to the SAP HANA database instance
+# This is just a placeholder, replace with your actual connection code
+conn = dataframe.ConnectionContext('address', 'port', 'user', 'password')
+
+# Specify the parameters for the import_csv_from function
+directory = 'hdlfs://XXXXXXXX.com/test.csv'  # replace with your actual directory
+table = "Test"  # replace with your actual table name
+threads = 10  # adjust as needed
+column_list_first_row = True  # adjust as needed
+credential = 'XXXCredential'  # replace with your actual credential
+
+# Call the import_csv_from function
+dataframe.import_csv_from(connection_context=conn,
+                          directory=directory,
+                          table=table,
+                          threads=threads,
+                          column_list_first_row=column_list_first_row,
+                          credential=credential)
+```
+
+Please replace the placeholders with your actual values. You may also need to specify other optional parameters (`schema`, `record_delimiter`, `field_delimiter`, `escape_character`) depending on your specific requirements.

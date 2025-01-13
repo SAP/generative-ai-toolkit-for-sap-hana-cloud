@@ -1,0 +1,48 @@
+The content explains that precomputed distance matrices can be used as input data for clustering algorithms. The input data must be in either upper or lower triangular format, with unique distance values for each pair of samples. Currently, the supported clustering algorithms for precomputed distance matrices are K-Medoids, AHC, and SP. The format of the input data table for precomputed distance matrices is different from the format of the feature columns in the input data table. Additionally, for the SP algorithm, a 0 value indicates disconnected points, while for other algorithms, it indicates very close points.
+------
+
+SET SCHEMA DM_PAL;
+
+DROP TABLE PAL_PRECALCULATED_DISTANCE;
+CREATE COLUMN TABLE PAL_PRECALCULATED_DISTANCE (
+    "LEFT_POINT"  NVARCHAR(5),
+    "RIGHT_POINT" NVARCHAR(5),
+    "DISTANCE"    DOUBLE
+);
+
+--Define the pair of points and the distance between them.
+--The type of point could be int or string.
+INSERT INTO PAL_PRECALCULATED_DISTANCE VALUES('0', '1',  0.707106781);
+INSERT INTO PAL_PRECALCULATED_DISTANCE VALUES('0', '2',  12.74754878);
+INSERT INTO PAL_PRECALCULATED_DISTANCE VALUES('0', '3',  12.72792206);
+INSERT INTO PAL_PRECALCULATED_DISTANCE VALUES('1', '2',  12.72792206);
+INSERT INTO PAL_PRECALCULATED_DISTANCE VALUES('1', '3',  12.74754878);
+INSERT INTO PAL_PRECALCULATED_DISTANCE VALUES('2', '3',  0.707106781);
+
+DROP TABLE PAL_PARAMETER_TBL; 
+CREATE COLUMN TABLE PAL_PARAMETER_TBL (
+"NAME" VARCHAR (50),
+"INT_VALUE" INTEGER,
+"DOUBLE_VALUE" DOUBLE,
+"STRING_VALUE" VARCHAR (100)
+); 
+
+INSERT INTO PAL_PARAMETER_TBL VALUES ('FUNCTION', NULL, NULL, 'KMEDOIDS');
+INSERT INTO PAL_PARAMETER_TBL VALUES ('N_CLUSTERS', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('INIT', 2, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('PRECALCULATED_DISTANCE', 1, NULL, NULL);
+INSERT INTO PAL_PARAMETER_TBL VALUES ('RANDOM_SEED', 10, NULL, NULL);
+
+DROP TABLE PAL_CLUSTERING_MODEL_TBL; 
+CREATE COLUMN TABLE PAL_CLUSTERING_MODEL_TBL (
+"ROW_INDEX" INTEGER,
+"PART_INDEX" INTEGER,
+"MODEL_CONTENT" VARCHAR (5000)
+); 
+
+DO BEGIN
+lt_data = SELECT * FROM PAL_PRECALCULATED_DISTANCE;
+lt_param = SELECT * FROM PAL_PARAMETER_TBL;
+CALL "_SYS_AFL"."PAL_UNIFIED_CLUSTERING"(:lt_data, :lt_param, lt_result, lt_centers, lt_model, lt_stat, lt_optimal_parameter, lt_place1, lt_place2);
+INSERT INTO PAL_CLUSTERING_MODEL_TBL SELECT * FROM :lt_model;
+END;

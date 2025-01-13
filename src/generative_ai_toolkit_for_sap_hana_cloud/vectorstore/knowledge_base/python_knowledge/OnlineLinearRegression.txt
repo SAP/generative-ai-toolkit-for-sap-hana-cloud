@@ -1,0 +1,34 @@
+The OnlineLinearRegression class in the hana_ml.algorithms.pal.linear_model module is an online version of linear regression that adapts the linear model to make the prediction as precise as possible by using the current computed linear model and combining with the obtained data in each round of training.
+------
+Here is a Python code template based on the provided help doc:
+
+```python
+from hana_ml.algorithms.pal.linear_model import OnlineLinearRegression
+
+# Initialize an OnlineLinearRegression instance
+onlinelr = OnlineLinearRegression(enet_lambda=0.1,
+                                  enet_alpha=0.5,
+                                  max_iter=1200,
+                                  tol=1E-6)
+
+# Assume df_1, df_2, df_3 are your training data DataFrames
+
+# Round 1, invoke partial_fit() for training the model with df_1
+onlinelr.partial_fit(data=df_1, key='ID', label='Y', features=['X1', 'X2'])
+
+# Round 2, invoke partial_fit() for training the model with df_2
+onlinelr.partial_fit(data=df_2, key='ID', label='Y', features=['X1', 'X2'])
+
+# Round 3, invoke partial_fit() for training the model with df_3
+onlinelr.partial_fit(data=df_3, key='ID', label='Y', features=['X1', 'X2'])
+
+# Assume df_predict is your prediction data DataFrame
+
+# Invoke predict()
+fitted = onlinelr.predict(data=df_predict, key='ID', features=['X1', 'X2'])
+
+# Call score()
+score = onlinelr.score(data=df_2, key='ID', label='Y', features=['X1', 'X2'])
+```
+
+Please replace `df_1`, `df_2`, `df_3`, and `df_predict` with your actual data.

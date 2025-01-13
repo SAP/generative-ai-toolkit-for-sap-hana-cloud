@@ -1,0 +1,37 @@
+The function candlestick_plot in the module hana_ml.visualizers.eda_plotly displays a candlestick plot for the SAP HANA DataFrame using specified column names for open, high, low, and closing prices, and optionally uses an existing plotly graph object.
+------
+Here is a Python code template for the `candlestick_plot` function:
+
+```python
+from hana_ml.visualizers.eda_plotly import candlestick_plot
+
+# Assuming you have a DataFrame 'df' with columns 'open_price', 'high_price', 'low_price', 'close_price'
+open_price = 'open_price'
+high_price = 'high_price'
+low_price = 'low_price'
+close_price = 'close_price'
+
+# Call the function
+candlestick_plot(data=df, open=open_price, high=high_price, low=low_price, close=close_price)
+```
+
+This code will create a new plotly graph object and display a candlestick plot for the given DataFrame. If you want to use an existing plotly graph object, you can pass it as the `fig` parameter:
+
+```python
+from hana_ml.visualizers.eda_plotly import candlestick_plot
+import plotly.graph_objects as go
+
+# Assuming you have a DataFrame 'df' with columns 'open_price', 'high_price', 'low_price', 'close_price'
+open_price = 'open_price'
+high_price = 'high_price'
+low_price = 'low_price'
+close_price = 'close_price'
+
+# Create a new plotly graph object
+fig = go.Figure()
+
+# Call the function
+candlestick_plot(data=df, open=open_price, high=high_price, low=low_price, close=close_price, fig=fig)
+```
+
+This code will add the candlestick plot to the existing plotly graph object.
