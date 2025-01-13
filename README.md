@@ -8,7 +8,10 @@ Generative AI Client for SAP HANA Cloud is an extension of the existing HANA ML 
 
 ## Requirements and Setup
 
-*Insert a short description what is required to get your project running...*
+You have installed the required Python packages pip install -U hana-ml.
+You have installed the required Python packages pip install "generative-ai-hub-sdk[all]".
+You have created a deployment for a Generative AI model in the SAP BTP:
+https://help.sap.com/docs/sap-ai-core/sap-ai-core-service-guide/create-deployment-for-generative-ai-model-in-sap-ai-core.
 
 ## Support, Feedback, Contributing
 
