@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>get_fields_by_llm &mdash; hana.ai 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=56c4699f" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="execute_code_with_fields" href="hana_ai.agents.scenario_utility.execute_code_with_fields.html" />
+    <link rel="prev" title="find_all_substrings_bracketed_by_tag" href="hana_ai.agents.scenario_utility.find_all_substrings_bracketed_by_tag.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            hana.ai
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../agents.html">hana_ai.agents package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#hana-dataframe-agent">HANA Dataframe Agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html">create_hana_dataframe_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html#hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_dataframe_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#hana-sql-agent">HANA SQL Agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#scenario-agents">Scenario Agents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.scenario_agents.HANAChatAgent.html">HANAChatAgent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.scenario_agents.HANAChatAgent.html#hana_ai.agents.scenario_agents.HANAChatAgent"><code class="docutils literal notranslate"><span class="pre">HANAChatAgent</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../agents.html#scenario-utility">Scenario Utility</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.scenario_utility.find_substring_bracketed_by_tag.html">find_substring_bracketed_by_tag</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.scenario_utility.find_substring_bracketed_by_tag.html#hana_ai.agents.scenario_utility.find_substring_bracketed_by_tag"><code class="docutils literal notranslate"><span class="pre">find_substring_bracketed_by_tag()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.scenario_utility.find_all_substrings_bracketed_by_tag.html">find_all_substrings_bracketed_by_tag</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.scenario_utility.find_all_substrings_bracketed_by_tag.html#hana_ai.agents.scenario_utility.find_all_substrings_bracketed_by_tag"><code class="docutils literal notranslate"><span class="pre">find_all_substrings_bracketed_by_tag()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">get_fields_by_llm</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hana_ai.agents.scenario_utility.get_fields_by_llm"><code class="docutils literal notranslate"><span class="pre">get_fields_by_llm()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.scenario_utility.execute_code_with_fields.html">execute_code_with_fields</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.scenario_utility.execute_code_with_fields.html#hana_ai.agents.scenario_utility.execute_code_with_fields"><code class="docutils literal notranslate"><span class="pre">execute_code_with_fields()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.scenario_utility.llm_invoke_wait_for_ratelimit.html">llm_invoke_wait_for_ratelimit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.scenario_utility.llm_invoke_wait_for_ratelimit.html#hana_ai.agents.scenario_utility.llm_invoke_wait_for_ratelimit"><code class="docutils literal notranslate"><span class="pre">llm_invoke_wait_for_ratelimit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.scenario_utility.agent_invoke_wait_for_ratelimit.html">agent_invoke_wait_for_ratelimit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.scenario_utility.agent_invoke_wait_for_ratelimit.html#hana_ai.agents.scenario_utility.agent_invoke_wait_for_ratelimit"><code class="docutils literal notranslate"><span class="pre">agent_invoke_wait_for_ratelimit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hana.ai</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../agents.html">hana_ai.agents package</a></li>
+      <li class="breadcrumb-item active">get_fields_by_llm</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/agents/hana_ai.agents.scenario_utility.get_fields_by_llm.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="hana_ai.agents.scenario_utility.find_all_substrings_bracketed_by_tag.html" class="btn btn-neutral float-left" title="find_all_substrings_bracketed_by_tag" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hana_ai.agents.scenario_utility.execute_code_with_fields.html" class="btn btn-neutral float-right" title="execute_code_with_fields" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="get-fields-by-llm">
+<h1>get_fields_by_llm<a class="headerlink" href="#get-fields-by-llm" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.agents.scenario_utility.get_fields_by_llm">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.agents.scenario_utility.</span></span><span class="sig-name descname"><span class="pre">get_fields_by_llm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_wait_for_rate_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_prompt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.agents.scenario_utility.get_fields_by_llm" title="Link to this definition"></a></dt>
+<dd><p>Get fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>query</strong><span class="classifier">str</span></dt><dd><p>Query.</p>
+</dd>
+<dt><strong>fields_description</strong><span class="classifier">dict</span></dt><dd><p>Fields description. The key is the field name, and the value is the field description.</p>
+</dd>
+<dt><strong>llm</strong><span class="classifier">BaseLLM</span></dt><dd><p>LLM.</p>
+</dd>
+<dt><strong>is_wait_for_rate_limit</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to wait for rate limit, by default True</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to show verbose, by default False</p>
+</dd>
+<dt><strong>show_prompt</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to show prompt, by default False</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>Fields.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="clearer"></div></section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, SAP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-XXXXXXX-1', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HANAMLToolkit &mdash; hana.ai 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=56c4699f" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="hana_ai.vectorstore module" href="../vectorstore.html" />
+    <link rel="prev" title="GetCodeTemplateFromVectorDB" href="hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            hana.ai
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents.html">hana_ai.agents module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#hana-dataframe-agent">HANA Dataframe Agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html">create_hana_dataframe_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html#hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_dataframe_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#hana-sql-agent">HANA SQL Agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#scenario-agents">Scenario Agents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.scenario_agents.HANAChatAgent.html">HANAChatAgent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.scenario_agents.HANAChatAgent.html#hana_ai.agents.scenario_agents.HANAChatAgent"><code class="docutils literal notranslate"><span class="pre">HANAChatAgent</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#scenario-utility">Scenario Utility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.find_substring_bracketed_by_tag.html">find_substring_bracketed_by_tag</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.find_substring_bracketed_by_tag.html#hana_ai.agents.scenario_utility.find_substring_bracketed_by_tag"><code class="docutils literal notranslate"><span class="pre">find_substring_bracketed_by_tag()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.find_all_substrings_bracketed_by_tag.html">find_all_substrings_bracketed_by_tag</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.find_all_substrings_bracketed_by_tag.html#hana_ai.agents.scenario_utility.find_all_substrings_bracketed_by_tag"><code class="docutils literal notranslate"><span class="pre">find_all_substrings_bracketed_by_tag()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.get_fields_by_llm.html">get_fields_by_llm</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.get_fields_by_llm.html#hana_ai.agents.scenario_utility.get_fields_by_llm"><code class="docutils literal notranslate"><span class="pre">get_fields_by_llm()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.execute_code_with_fields.html">execute_code_with_fields</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.execute_code_with_fields.html#hana_ai.agents.scenario_utility.execute_code_with_fields"><code class="docutils literal notranslate"><span class="pre">execute_code_with_fields()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.llm_invoke_wait_for_ratelimit.html">llm_invoke_wait_for_ratelimit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.llm_invoke_wait_for_ratelimit.html#hana_ai.agents.scenario_utility.llm_invoke_wait_for_ratelimit"><code class="docutils literal notranslate"><span class="pre">llm_invoke_wait_for_ratelimit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.agent_invoke_wait_for_ratelimit.html">agent_invoke_wait_for_ratelimit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.scenario_utility.agent_invoke_wait_for_ratelimit.html#hana_ai.agents.scenario_utility.agent_invoke_wait_for_ratelimit"><code class="docutils literal notranslate"><span class="pre">agent_invoke_wait_for_ratelimit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tools.html">hana_ai.tools module</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tools.html#agent-as-a-tool">Agent As A Tool</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.agent_as_a_tool.AgentAsATool.html">AgentAsATool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.agent_as_a_tool.AgentAsATool.html#hana_ai.tools.agent_as_a_tool.AgentAsATool"><code class="docutils literal notranslate"><span class="pre">AgentAsATool</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html#code-template-tools">Code Template Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html">GetCodeTemplateFromVectorDB</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html#hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB"><code class="docutils literal notranslate"><span class="pre">GetCodeTemplateFromVectorDB</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../tools.html#toolkit">Toolkit</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">HANAMLToolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit"><code class="docutils literal notranslate"><span class="pre">HANAMLToolkit</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../vectorstore.html">hana_ai.vectorstore module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../vectorstore.html#get-code-templates">Get Code Templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html">get_code_templates</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html#hana_ai.vectorstore.code_templates.get_code_templates"><code class="docutils literal notranslate"><span class="pre">get_code_templates()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../vectorstore.html#embedding-service">Embedding Service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html">PALModelEmbeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html#hana_ai.vectorstore.embedding_service.PALModelEmbeddings"><code class="docutils literal notranslate"><span class="pre">PALModelEmbeddings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.html">HANAVectorEmbeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.html#hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings"><code class="docutils literal notranslate"><span class="pre">HANAVectorEmbeddings</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../vectorstore.html#hana-vector-engine">HANA Vector Engine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html">HANAMLinVectorEngine</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine"><code class="docutils literal notranslate"><span class="pre">HANAMLinVectorEngine</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../vectorstore.html#union-vector-stores">Union Vector Stores</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html">UnionVectorStores</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html#hana_ai.vectorstore.union_vector_stores.UnionVectorStores"><code class="docutils literal notranslate"><span class="pre">UnionVectorStores</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../vectorstore.html#corrective-retriever">Corrective Retriever</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.corrective_retriever.CorrectiveRetriever.html">CorrectiveRetriever</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.corrective_retriever.CorrectiveRetriever.html#hana_ai.vectorstore.corrective_retriever.CorrectiveRetriever"><code class="docutils literal notranslate"><span class="pre">CorrectiveRetriever</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../smart_dataframe.html">hana_ai.smart_dataframe module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../smart_dataframe.html#hana-smart-dataframe">HANA Smart Dataframe</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hana.ai</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tools.html">hana_ai.tools module</a></li>
+      <li class="breadcrumb-item active">HANAMLToolkit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tools/hana_ai.tools.toolkit.HANAMLToolkit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html" class="btn btn-neutral float-left" title="GetCodeTemplateFromVectorDB" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../vectorstore.html" class="btn btn-neutral float-right" title="hana_ai.vectorstore module" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hanamltoolkit">
+<h1>HANAMLToolkit<a class="headerlink" href="#hanamltoolkit" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.toolkit.</span></span><span class="sig-name descname"><span class="pre">HANAMLToolkit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectordb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine" title="hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine"><span class="pre">HANAMLinVectorEngine</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.corrective_retriever.CorrectiveRetriever.html#hana_ai.vectorstore.corrective_retriever.CorrectiveRetriever" title="hana_ai.vectorstore.corrective_retriever.CorrectiveRetriever"><span class="pre">CorrectiveRetriever</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit" title="Link to this definition"></a></dt>
+<dd><p>Toolkit for interacting with HANA SQL.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code>()</p></td>
+<td><p>Configuration for this pydantic object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">construct</span></code>([_fields_set])</p></td>
+<td><p>Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
+<td><p>Duplicate a model, optionally choose which fields to include, exclude and change.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>(*[, include, exclude, by_alias, ...])</p></td>
+<td><p>Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tools</span></code>()</p></td>
+<td><p>Get the tools in the toolkit.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">json</span></code>(*[, include, exclude, by_alias, ...])</p></td>
+<td><p>Generate a JSON representation of the model, <cite>include</cite> and <cite>exclude</cite> arguments as per <cite>dict()</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vectordb</span></code>(vectordb)</p></td>
+<td><p>Set the vector database.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
+<td><p>Try to update ForwardRefs on fields based on this Model, globalns and localns.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>from_orm</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>parse_file</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>parse_obj</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>parse_raw</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>schema</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>schema_json</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>validate</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="clearer"></div></section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, SAP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-XXXXXXX-1', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>
