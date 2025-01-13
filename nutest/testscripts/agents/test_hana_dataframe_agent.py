@@ -17,8 +17,7 @@ class TestHanaDataframeAgent(unittest.TestCase):
         url = "8e5882ff-9a6f-4b50-b479-9cf8f0060f1d.hana.demo-hc-3-haas-hc-dev.dev-aws.hanacloud.ondemand.com"
         port = 443
         user = "PAL_TEAM"
-        pwd = "2Sz7Id7yrwOF1A"
-        cc = dataframe.ConnectionContext(url, port, user, pwd, encrypt=True, sslValidateCertificate=False)
+        cc = dataframe.ConnectionContext(url, port, user, encrypt=True, sslValidateCertificate=False)
         data = DataSets.load_covid_data(cc)
         data = data.to_head("Date")
         hanavec = HANAMLinVectorEngine(cc, "test_table")
