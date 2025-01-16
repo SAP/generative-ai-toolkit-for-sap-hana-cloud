@@ -24,8 +24,8 @@ class GetCodeTemplateFromVectorDB(BaseTool):
     """
     Get code template from vector database.
     """
-    name = "CodeTemplatesFromVectorDB"
-    description = "useful for when you need to create hana-ml code templates."
+    name: str = "CodeTemplatesFromVectorDB"
+    description: str = "useful for when you need to create hana-ml code templates."
     args_schema: Type[BaseModel] = None
     vectordb: Union[HANAMLinVectorEngine, CorrectiveRetriever] = None
 
