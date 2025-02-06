@@ -27,7 +27,7 @@ from langchain_core.callbacks import BaseCallbackManager
 from langchain_core.tools import BaseTool
 
 from hana_ml.dataframe import ConnectionContext
-from generative_ai_toolkit_for_sap_hana_cloud.tools.toolkit import HANAMLToolkit
+from hana_ai.tools.toolkit import HANAMLToolkit
 
 class _sql_toolkit(object):
     def __init__(self, llm, db, hanaml_toolkit=None):

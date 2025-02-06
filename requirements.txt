@@ -10,5 +10,4 @@ langgraph
 langsmith
 pydantic
 pydantic-core
-crewai
 generative-ai-hub-sdk[all]

@@ -13,7 +13,7 @@ import logging
 import pandas as pd
 from hana_ml import ConnectionContext, dataframe
 
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.code_templates import get_code_templates
+from hana_ai.vectorstore.code_templates import get_code_templates
 
 logger = logging.getLogger(__name__) #pylint: disable=invalid-name
 

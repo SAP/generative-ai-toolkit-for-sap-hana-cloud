@@ -10,7 +10,7 @@ The following class is available:
 
 import uuid
 import numpy as np
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.hana_vector_engine import HANAMLinVectorEngine
+from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 
 def _is_all_hana_vector_stores(vector_stores):
     """

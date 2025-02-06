@@ -16,8 +16,8 @@ try:
     from langchain.tools.python.tool import PythonAstREPLTool
 except:
     from langchain_experimental.tools.python.tool import PythonAstREPLTool
-from generative_ai_toolkit_for_sap_hana_cloud.agents.hana_dataframe_prompt import PREFIX, SUFFIX
-from generative_ai_toolkit_for_sap_hana_cloud.tools.toolkit import HANAMLToolkit
+from hana_ai.agents.hana_dataframe_prompt import PREFIX, SUFFIX
+from hana_ai.tools.toolkit import HANAMLToolkit
 
 def _validate_hana_df(df: Any) -> bool:
     try:

@@ -1,7 +1,7 @@
 #this is unittest to test the code template for prediction
 #
 import unittest
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.code_templates import get_code_templates
+from hana_ai.vectorstore.code_templates import get_code_templates
 #test get_code_templates_for_prediction
 
 class TestCodeTemplateForPrediction(unittest.TestCase):

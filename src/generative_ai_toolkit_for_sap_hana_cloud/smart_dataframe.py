@@ -8,8 +8,8 @@ The following class is available:
 from langchain.agents.agent import AgentExecutor
 from langchain.llms.base import BaseLLM
 from hana_ml.dataframe import DataFrame
-from generative_ai_toolkit_for_sap_hana_cloud.agents.hana_dataframe_agent import create_hana_dataframe_agent
-from generative_ai_toolkit_for_sap_hana_cloud.tools.toolkit import HANAMLToolkit
+from hana_ai.agents.hana_dataframe_agent import create_hana_dataframe_agent
+from hana_ai.tools.toolkit import HANAMLToolkit
 
 class SmartDataFrame(DataFrame):
     """

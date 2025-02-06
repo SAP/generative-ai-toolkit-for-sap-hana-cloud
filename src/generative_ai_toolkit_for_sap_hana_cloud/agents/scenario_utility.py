@@ -20,7 +20,7 @@ import time
 from openai import RateLimitError
 from termcolor import colored
 from langchain_core.prompts import PromptTemplate
-from generative_ai_toolkit_for_sap_hana_cloud.agents.scenario_prompts import EXECUTE_CODE_GENERIC, GET_FIELDS
+from hana_ai.agents.scenario_prompts import EXECUTE_CODE_GENERIC, GET_FIELDS
 
 def find_substring_bracketed_by_tag(string, start_tag='<tag>', end_tag='</tag>'):
     """

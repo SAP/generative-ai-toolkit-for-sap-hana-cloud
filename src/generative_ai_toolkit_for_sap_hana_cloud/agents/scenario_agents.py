@@ -10,6 +10,7 @@ import json
 import os
 import time
 import ctypes
+import logging
 
 from openai import RateLimitError
 from termcolor import colored
@@ -20,19 +21,21 @@ from langchain.llms.base import BaseLLM
 from hana_ml.dataframe import ConnectionContext, DataFrame, quotename
 from hana_ml.artifacts.generators.hana import HANAGeneratorForCAP
 
-from generative_ai_toolkit_for_sap_hana_cloud.agents.hana_dataframe_agent import create_hana_dataframe_agent
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.hana_vector_engine import HANAMLinVectorEngine
-from generative_ai_toolkit_for_sap_hana_cloud.agents.scenario_prompts import *
-from generative_ai_toolkit_for_sap_hana_cloud.agents.scenario_utility import (
+from hana_ai.agents.hana_dataframe_agent import create_hana_dataframe_agent
+from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
+from hana_ai.agents.scenario_prompts import *
+from hana_ai.agents.scenario_utility import (
     find_substring_bracketed_by_tag,
     find_all_substrings_bracketed_by_tag
 )
-from generative_ai_toolkit_for_sap_hana_cloud.agents.scenario_scope import SCENARIO_DESCRIPTION
+from hana_ai.agents.scenario_scope import SCENARIO_DESCRIPTION
 #to-dos:
 # 1. handle multiple scenarios in one query "train & predict", "predict & analysis"
 # 2. write a utility function for user to fulfill the mandatory/optional fields
 
-def _code_llm_invoke(code_llm, prompt, is_wait_for_rate_limit=False):
+logging.disable(logging.CRITICAL)
+
+def _code_llm_invoke(code_llm, prompt, is_wait_for_rate_limit=True):
     """
     Code LLM invoke.
     """
@@ -45,10 +48,10 @@ def _code_llm_invoke(code_llm, prompt, is_wait_for_rate_limit=False):
             retry_seconds = int(find_substring_bracketed_by_tag(e.message, start_tag="Please retry after ", end_tag=" seconds.").strip())
             print(f"Retry after {retry_seconds} seconds.")
             time.sleep(retry_seconds + 1)
-            return _code_llm_invoke(code_llm, prompt, is_wait_for_rate_limit=False)
+            return _code_llm_invoke(code_llm, prompt, is_wait_for_rate_limit=is_wait_for_rate_limit)
     return code_llm.invoke(prompt)
 
-def _get_fields(query, fields_description, fields_key, code_llm, is_wait_for_rate_limit=False, verbose=False, show_prompt=False):
+def _get_fields(query, fields_description, fields_key, code_llm, is_wait_for_rate_limit=True, verbose=False, show_prompt=False):
     """
     Get fields.
     """
@@ -158,7 +161,7 @@ def _select_scenario(llm, query, scenario_scope, scenario_description, scenario,
     for kk, vv in scenario_description.items():
         scenario_desc += f"\"{kk}\" represents that {vv}. "
     prompt = PromptTemplate.from_template(SCENARIO_ROUTER).format(query=query, scenario_scope=", ".join(list(map(quotename, scenario_scope))), scenario_description=scenario_desc, scenario=scenario)
-    result = llm.invoke(prompt)
+    result = _code_llm_invoke(llm, prompt, is_wait_for_rate_limit=True)
     if verbose:
         if show_prompt:
             print(colored(f"[Prompt] {prompt}", "light_blue"))
@@ -184,7 +187,7 @@ class HANAChatAgent(object):
     scenario_scope : list
         Scenario scope.
 
-        Default value is ["training", "prediction", "scoring", "result_analysis", "cap_artifacts", "sql"].
+        Default value is ["training", "prediction", "scoring", "result_analysis", "cap_artifacts"].
     scenario_types_scope : list
         Scenario types scope.
 
@@ -216,7 +219,7 @@ class HANAChatAgent(object):
                  chat_llm: BaseLLM,
                  code_llm: BaseLLM,
                  connection_context: ConnectionContext,
-                 scenario_scope : list = ["training", "prediction", "scoring", "result_analysis", "cap_artifacts", "sql"],
+                 scenario_scope : list = ["training", "prediction", "scoring", "result_analysis", "cap_artifacts"],
                  scenario_types_scope : list = ["classification", "regression", "timeseries", "clustering"],
                  scenario_description = SCENARIO_DESCRIPTION,
                  force=False,
@@ -251,7 +254,7 @@ class HANAChatAgent(object):
         self.outputs = {}
         self.inputs = {}
         self.show_prompt = show_prompt
-        self.is_wait_for_rate_limit = False
+        self.is_wait_for_rate_limit = True
         self.cap_fields = {"project_name": "MyProject", "output_dir": "cap_artifacts", "namespace": "hana.ml"}
 
     def _generate_cap_artifacts(self, scenario, project_name, output_dir, namespace=None, archive=False):
@@ -377,8 +380,6 @@ class HANAChatAgent(object):
                     self.cap_fields["namespace"] = fields["namespace"]
                 self._generate_cap_artifacts_all(project_name=self.cap_fields["project_name"], output_dir=self.cap_fields["output_dir"], namespace=self.cap_fields["namespace"], archive=False)
                 return "CAP artifacts have been generated."
-            if current_scenario == "sql":
-                return self.sql_agent.invoke(query)['output']
             if self.current_agent is not None:
                 if self.current_agent.scenario != current_scenario:
                     self.base_agent[current_scenario].agent = None
@@ -451,7 +452,7 @@ class HANABaseChatAgent(object):
         self.connection_context = connection_context
         for ss in scenario_scope:
             if scenario == ss:
-                knowledge_table = f"generative_ai_toolkit_for_sap_hana_cloud_{ss.upper()}_KNOWLEDGE_BASE"
+                knowledge_table = f"HANA_AI_{ss.upper()}_KNOWLEDGE_BASE"
                 break
         self.scenario_types_scope = scenario_types_scope
         self.scenario_scope = scenario_scope
@@ -487,7 +488,7 @@ class HANABaseChatAgent(object):
         self.show_prompt = show_prompt
         self.effective_query = []
         self.scenario_description = scenario_description
-        self.is_wait_for_rate_limit = False
+        self.is_wait_for_rate_limit = True
 
     def enable_wait_for_rate_limit(self):
         """
@@ -516,8 +517,13 @@ class HANABaseChatAgent(object):
             except RateLimitError as e:
                 print(f"Rate limit error: {e}")
                 # Please retry after 2 seconds.
-                retry_seconds = int(find_substring_bracketed_by_tag(e.message, start_tag="Please retry after ", end_tag=" seconds.").strip())
-                print(f"Retry after {retry_seconds} seconds.")
+                retry_seconds = find_substring_bracketed_by_tag(e.message, start_tag="Please retry after ", end_tag=" seconds.")
+                if retry_seconds is None:
+                    retry_seconds = 1
+                    print(f"Retry after {retry_seconds} second.")
+                else:
+                    retry_seconds = int(retry_seconds.strip())
+                    print(f"Retry after {retry_seconds} seconds.")
                 time.sleep(retry_seconds + 1)
                 return self.code_llm_invoke(prompt)
         return self.code_llm.invoke(prompt)
@@ -677,7 +683,7 @@ class HANABaseChatAgent(object):
                     self.df = self.connection_context.table(table)
                 self.data_table = table
                 self.data_schema = schema
-                self.agent = create_hana_dataframe_agent(llm=self.code_llm, df=self.df, verbose=self.verbose)
+                self.agent = create_hana_dataframe_agent(llm=self.code_llm, df=self.df, verbose=self.verbose, handle_parsing_errors=True)
                 return self.agent
         schema_list = self.connection_context.sql("SELECT SCHEMA_NAME FROM SCHEMAS").collect()['SCHEMA_NAME'].tolist()
         prompt = PromptTemplate.from_template(GET_TARGET_SCHEMA).format(query=query, schema_list=schema_list)
@@ -710,7 +716,7 @@ class HANABaseChatAgent(object):
                 self.df = self.connection_context.table(working)
             self.data_table = working
             self.data_schema = schema
-            self.agent = create_hana_dataframe_agent(llm=self.code_llm, df=self.df, verbose=self.verbose)
+            self.agent = create_hana_dataframe_agent(llm=self.code_llm, df=self.df, verbose=self.verbose, handle_parsing_errors=True)
             return self.agent
         return result.content
 

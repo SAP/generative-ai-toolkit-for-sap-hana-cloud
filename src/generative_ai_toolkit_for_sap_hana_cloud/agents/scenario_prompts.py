@@ -2,7 +2,7 @@
 Scenario prompts for the scenario agent
 """
 
-REFINE_RESPONSE = "You are an friendly AI chatbot. Please summarize the system response \"{system_response}\" and refine it in a human readable way to answer the user question \"{query}\"."
+REFINE_RESPONSE = "You are an friendly AI chatbot. Please answer the user question \"{query}\" based on the context \"{system_response}\" and refine it in a human readable way."
 GET_TARGET_SCHEMA = "The schemas are listed: {schema_list}. Please find the schema of the table wrapped by opening and closing tag with the tag name schema from the user question: \"{query}\". otherwise, return <schema></schema>."
 GET_TARGET_TABLE = "The table names are listed: {table_list}. The user question is \"{query}\". Please find the corresponding table name according to this user question and wrapped by opening and closing tag with the tag name table for {scenario} data. Otherwise, return <table></table>."
 GET_DATA_SOURCE_FROM_RESULT = "The calculated results/outputs are listed: {calculated_result}. Please find the table name and the schema name according to the user question \"{query}\". If so, return the table name and the schema name wrapped by opening and closing tag with the tag name schema and table respectively. Otherwise, return <schema></schema> and <table></table>."

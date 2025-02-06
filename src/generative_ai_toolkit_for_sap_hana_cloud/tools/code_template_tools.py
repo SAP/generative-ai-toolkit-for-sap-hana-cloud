@@ -17,8 +17,8 @@ from langchain.callbacks.manager import (
     CallbackManagerForToolRun,
 )
 
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.corrective_retriever import CorrectiveRetriever
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.hana_vector_engine import HANAMLinVectorEngine
+from hana_ai.vectorstore.corrective_retriever import CorrectiveRetriever
+from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 
 class GetCodeTemplateFromVectorDB(BaseTool):
     """

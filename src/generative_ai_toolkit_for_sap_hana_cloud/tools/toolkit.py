@@ -9,9 +9,9 @@ from typing import List, Union
 from langchain.agents.agent_toolkits.base import BaseToolkit
 from langchain.tools import BaseTool
 
-from generative_ai_toolkit_for_sap_hana_cloud.tools.code_template_tools import GetCodeTemplateFromVectorDB
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.corrective_retriever import CorrectiveRetriever
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.hana_vector_engine import HANAMLinVectorEngine
+from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
+from hana_ai.vectorstore.corrective_retriever import CorrectiveRetriever
+from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 
 class HANAMLToolkit(BaseToolkit):
     """Toolkit for interacting with HANA SQL."""

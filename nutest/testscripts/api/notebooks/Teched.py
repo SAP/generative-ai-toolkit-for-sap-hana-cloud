@@ -15,11 +15,11 @@ set_proxy_version('gen-ai-hub')
 
 # %%
 from gen_ai_hub.proxy.langchain import init_llm
-from generative_ai_toolkit_for_sap_hana_cloud.agents.hana_dataframe_agent import create_hana_dataframe_agent
-from generative_ai_toolkit_for_sap_hana_cloud.tools.toolkit import HANAMLToolkit
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.embedding_service import GenAIHubEmbeddings
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.hana_vector_engine import HANAMLinVectorEngine
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.code_templates import get_code_templates
+from hana_ai.agents.hana_dataframe_agent import create_hana_dataframe_agent
+from hana_ai.tools.toolkit import HANAMLToolkit
+from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
+from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
+from hana_ai.vectorstore.code_templates import get_code_templates
 #llm = init_llm('gpt-35-turbo', temperature=0.0, max_tokens=512)
 llm = init_llm('gpt-4', temperature=0.0, max_tokens=512)
 
