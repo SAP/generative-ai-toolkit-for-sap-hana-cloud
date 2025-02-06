@@ -1,7 +1,7 @@
 execute_code_with_fields
 ======================================================================
 
-.. currentmodule:: generative_ai_toolkit_for_sap_hana_cloud.agents.scenario_utility
+.. currentmodule:: hana_ai.agents.scenario_utility
 
 .. autofunction:: execute_code_with_fields
 

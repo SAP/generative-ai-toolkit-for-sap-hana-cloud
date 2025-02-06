@@ -1,7 +1,7 @@
-generative_ai_toolkit_for_sap_hana_cloud.tools
+hana_ai.tools
 =============
 
-.. automodule:: generative_ai_toolkit_for_sap_hana_cloud.tools
+.. automodule:: hana_ai.tools
    :no-members:
    :no-inherited-members:
 

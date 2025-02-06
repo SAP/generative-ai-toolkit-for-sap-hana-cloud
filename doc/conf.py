@@ -158,7 +158,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'generative_ai_toolkit_for_sap_hana_clouddoc'
+htmlhelp_basename = 'hana_aidoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -185,7 +185,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'generative_ai_toolkit_for_sap_hana_cloud.tex', 'hana\\_ml Documentation',
+    (master_doc, 'hana_ai.tex', 'hana\\_ml Documentation',
      'SAP', 'manual'),
 ]
 
@@ -195,7 +195,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'generative_ai_toolkit_for_sap_hana_cloud', 'generative_ai_toolkit_for_sap_hana_cloud Documentation',
+    (master_doc, 'hana_ai', 'hana_ai Documentation',
      [author], 1)
 ]
 
@@ -211,7 +211,7 @@ spelling_config = {
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'generative_ai_toolkit_for_sap_hana_cloud', 'generative_ai_toolkit_for_sap_hana_cloud Documentation',
-     author, 'generative_ai_toolkit_for_sap_hana_cloud', 'One line description of project.',
+    (master_doc, 'hana_ai', 'hana_ai Documentation',
+     author, 'hana_ai', 'One line description of project.',
      'Miscellaneous'),
 ]

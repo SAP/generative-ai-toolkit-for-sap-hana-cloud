@@ -1,7 +1,7 @@
-generative_ai_toolkit_for_sap_hana_cloud.vectorstore
+hana_ai.vectorstore
 ===================
 
-.. automodule:: generative_ai_toolkit_for_sap_hana_cloud.vectorstore
+.. automodule:: hana_ai.vectorstore
    :no-members:
    :no-inherited-members:
 

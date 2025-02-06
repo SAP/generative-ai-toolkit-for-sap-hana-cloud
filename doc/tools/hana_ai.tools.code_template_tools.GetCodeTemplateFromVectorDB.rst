@@ -1,7 +1,7 @@
 GetCodeTemplateFromVectorDB
 ===========================================================================
 
-.. currentmodule:: generative_ai_toolkit_for_sap_hana_cloud.tools.code_template_tools
+.. currentmodule:: hana_ai.tools.code_template_tools
 
 .. autoclass:: GetCodeTemplateFromVectorDB
 

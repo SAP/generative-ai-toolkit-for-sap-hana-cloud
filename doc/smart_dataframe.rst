@@ -1,7 +1,7 @@
-generative_ai_toolkit_for_sap_hana_cloud.smart_dataframe
+hana_ai.smart_dataframe
 =======================
 
-.. automodule:: generative_ai_toolkit_for_sap_hana_cloud.smart_dataframe
+.. automodule:: hana_ai.smart_dataframe
    :members: SmartDataFrame
    :no-members:
    :no-inherited-members:

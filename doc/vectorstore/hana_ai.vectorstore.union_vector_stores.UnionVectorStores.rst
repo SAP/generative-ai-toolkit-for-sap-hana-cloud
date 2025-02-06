@@ -1,7 +1,7 @@
 UnionVectorStores
 =======================================================================
 
-.. currentmodule:: generative_ai_toolkit_for_sap_hana_cloud.vectorstore.union_vector_stores
+.. currentmodule:: hana_ai.vectorstore.union_vector_stores
 
 .. autoclass:: UnionVectorStores
 

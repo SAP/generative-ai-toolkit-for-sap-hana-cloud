@@ -1,7 +1,7 @@
 HANAMLToolkit
 =================================================
 
-.. currentmodule:: generative_ai_toolkit_for_sap_hana_cloud.tools.toolkit
+.. currentmodule:: hana_ai.tools.toolkit
 
 .. autoclass:: HANAMLToolkit
 

@@ -1,7 +1,7 @@
 HANAVectorEmbeddings
 ========================================================================
 
-.. currentmodule:: generative_ai_toolkit_for_sap_hana_cloud.vectorstore.embedding_service
+.. currentmodule:: hana_ai.vectorstore.embedding_service
 
 .. autoclass:: HANAVectorEmbeddings
 

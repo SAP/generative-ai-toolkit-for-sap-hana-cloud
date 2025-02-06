@@ -13,7 +13,7 @@ This project provides a HANA dataframe agent for users to utilize.
 
 ## Embedding Service API
 ```python
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.embedding_service import GenAIHubEmbeddings
+from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
 
 model = GenAIHubEmbeddings()
 model('hello')
@@ -21,7 +21,7 @@ model('hello')
 <img src="./img/embeddings.png" alt="image" width="400" height="auto">
 
 ```python
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.embedding_service import PALModelEmbeddings
+from hana_ai.vectorstore.embedding_service import PALModelEmbeddings
 
 model = PALModelEmbeddings(connection_context)
 model(['hello', 'world'])
@@ -29,7 +29,7 @@ model(['hello', 'world'])
 <img src="./img/embeddings_pal.png" alt="image" width="400" height="auto">
 
 ```python
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.embedding_service import HANAVectorEmbeddings
+from hana_ai.vectorstore.embedding_service import HANAVectorEmbeddings
 
 model = HANAVectorEmbeddings(connection_context)
 model(['hello', 'world'])
@@ -41,7 +41,7 @@ model(['hello', 'world'])
 ![alt](./img/crag.png)
 
 ```python
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.corrective_retriever import CorrectiveRetriever
+from hana_ai.vectorstore.corrective_retriever import CorrectiveRetriever
 
 cr = CorrectiveRetriever(hana_vec, llm, max_iter=3, recursion_limit=10)
 result = cr.query("Automatic classification code?")
@@ -51,7 +51,7 @@ print(result)
 
 ## Union Vector Stores
 ```python
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.union_vector_stores import UnionVectorStores
+from hana_ai.vectorstore.union_vector_stores import UnionVectorStores
 
 uvs = UnionVectorStores([hana_vec, hana_kg])
 uvs.query("AutoML classification", top_n=2)
@@ -84,10 +84,10 @@ print(pe.query("Automatic classification code?"))
 ```python
 from hana_ml import dataframe
 from hana_ml.algorithms.pal.utility import DataSets
-from generative_ai_toolkit_for_sap_hana_cloud.agents.hana_dataframe_agent import create_hana_dataframe_agent
-from generative_ai_toolkit_for_sap_hana_cloud.tools.toolkit import HANAMLToolkit
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.embedding_service import GenAIHubEmbeddings
-from generative_ai_toolkit_for_sap_hana_cloud.vectorstore.hana_vector_engine import HANAMLinVectorEngine
+from hana_ai.agents.hana_dataframe_agent import create_hana_dataframe_agent
+from hana_ai.tools.toolkit import HANAMLToolkit
+from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
+from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 ```
 
 ### Load Data
@@ -133,7 +133,7 @@ agent.invoke("create a dataset report.")
 ### Smart DataFrame
 
 ```python
-from generative_ai_toolkit_for_sap_hana_cloud.smart_dataframe import SmartDataFrame
+from hana_ai.smart_dataframe import SmartDataFrame
 
 sdf = SmartDataFrame(hana_df)
 sdf.configure(toolkit=toolkit, llm=llm)
