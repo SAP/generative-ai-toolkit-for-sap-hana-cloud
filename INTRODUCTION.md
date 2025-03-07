@@ -7,9 +7,38 @@ This project provides a HANA dataframe agent for users to utilize.
 * Corrective Retriever
 * Union Vector Stores
 * Local Embeddings Procedure API
-* DataFrame Agent with HANA-ML Toolkit
+* DataFrame Agent with HANA-ML Code Knowledge Base
 * Smart DataFrame
 * Chatbot Agent
+* AI Toolkit for HANA-ML
+
+## Supported AI Tools for HANA-ML in HANAML toolkit (in progress)
+| Tool Name | Description |
+|-----------|-------------|
+| additive_model_forecast_fit_and_save | To fit an AutomaticTimeseries model and save it in the model storage. |
+| additive_model_forecast_load_model_and_predict | To load an AutomaticTimeseries model and predict the future values. |
+| automatic_timeseries_fit_and_save | To fit an AutomaticTimeseries model and save it in the model storage. |
+| automatic_timeseries_load_model_and_predict | To load an AutomaticTimeseries model and predict the future values. |
+| automatic_timeseries_load_model_and_score | To load an AutomaticTimeseries model and score the model. |
+| ts_check | To check the time series data for stationarity, intermittent, trend and seasonality. |
+| stationarity_test | To check the stationarity of the time series data. |
+| trend_test | To check the trend of the time series data. |
+| seasonality_test | To check the seasonality of the time series data. |
+| white_noise_test | To check the white noise of the time series data. |
+| ts_dataset_report | To generate a report for the time series data. |
+| forecast_line_plot | To generate line plot for the forecasted result. |
+| cap_artifacts | To generate CAP artifacts from the model in the model storage. |
+| intermittent_forecast | To forecast the intermittent time series data. |
+| ts_outlier_detection | To detect the outliers in the time series data. |
+
+## Langchain Agent with HANAML Toolkit
+```python
+from hana_ai.agents.chatbot_with_memory import ChatbotWithMemory
+
+tools = HANAMLToolkit(cc, used_tools='all').get_tools()
+chatbot = ChatbotWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
+```
+<img src="./img/chatbotwithtoolkit.png" alt="image" width="800" height="auto">
 
 ## Embedding Service API
 ```python
@@ -23,7 +52,7 @@ model('hello')
 ```python
 from hana_ai.vectorstore.embedding_service import PALModelEmbeddings
 
-model = PALModelEmbeddings(connection_context)
+model = PALModelEmbeddings(cc)
 model(['hello', 'world'])
 ```
 <img src="./img/embeddings_pal.png" alt="image" width="400" height="auto">
@@ -31,7 +60,7 @@ model(['hello', 'world'])
 ```python
 from hana_ai.vectorstore.embedding_service import HANAVectorEmbeddings
 
-model = HANAVectorEmbeddings(connection_context)
+model = HANAVectorEmbeddings(cc)
 model(['hello', 'world'])
 ```
 <img src="./img/hana_embeddings.png" alt="image" width="400" height="auto">
@@ -113,7 +142,7 @@ hana_vec.create_knowledge()
 ### Create HANAML Toolkits and Add Knowledge Bases to It
 
 ```python
-toolkit = HANAMLToolkit()
+toolkit = HANAMLToolkit(cc)
 toolkit.set_vectordb(hanavec)
 ```
 
