@@ -1,0 +1,9 @@
+Model_type: AutomaticTimeSeries. Useful for when you need to get example to perform AutoML TimeSeries/AutomaticTimeSeries prediction.
+------
+Strictly use the Examples to create AutoML prediction instance.
+Do prediction:
+>>> from hana_ml.algorithms.pal.auto_ml import AutomaticTimeSeries
+>>> model_predict = AutomaticTimeSeries()
+>>> model_df = df.connection_context.table(<model_table>)
+>>> model_predict.predict(data=df, key=<key>, exog=<exog>, model=model_df)
+>>> print({"output table names": model_predict._predict_output_table_names, "Python object address": id(model_predict)})

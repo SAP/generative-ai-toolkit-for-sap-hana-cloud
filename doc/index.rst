@@ -1,9 +1,9 @@
-.. generative-ai-toolkit-for-sap-hana-cloud documentation master file, created by
+.. hana.ai documentation master file, created by
    sphinx-quickstart on Sun Jan 12 11:44:36 2025.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to generative-ai-toolkit-for-sap-hana-cloud's documentation!
+Welcome to hana.ai's documentation!
 ===================================
 
 .. toctree::

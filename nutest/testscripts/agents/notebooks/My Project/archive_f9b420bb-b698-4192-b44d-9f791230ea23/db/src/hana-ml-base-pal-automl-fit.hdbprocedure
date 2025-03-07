@@ -1,0 +1,40 @@
+PROCEDURE hana_ml_base_pal_automl_fit(
+in in_0_hana_ml_base_pal_automl_fit TABLE("ID" INT, "SALES" DOUBLE),
+out out_0_hana_ml_base_pal_automl_fit TABLE("ID" INT, "PIPELINE" NVARCHAR(5000), "SCORES" NCLOB),
+out out_1_hana_ml_base_pal_automl_fit TABLE("ROW_INDEX" INT, "MODEL_CONTENT" NVARCHAR(5000)),
+out out_2_hana_ml_base_pal_automl_fit TABLE("STAT_NAME" NVARCHAR(256), "STAT_VALUE" NCLOB))
+LANGUAGE SQLSCRIPT
+SQL SECURITY INVOKER
+AS
+BEGIN
+DECLARE param_name VARCHAR(5000) ARRAY;
+DECLARE int_value INTEGER ARRAY;
+DECLARE double_value DOUBLE ARRAY;
+DECLARE string_value VARCHAR(5000) ARRAY;
+param_name[1] := N'CONFIG_DICT';
+int_value[1] := NULL;
+double_value[1] := NULL;
+string_value[1] := N'{"Outlier": {"DETECT_SEASONALITY": [0, 1], "ALPHA": [0.2], "WINDOW_SIZE": [1, 3], "OUTLIER_METHOD": [0, 1, 2, 3, 4, 5], "THRESHOLD": [2.0, 3.0, 4.0, 5.0], "RADIUS": [0.4, 0.5, 0.6]}, "ImputeTS": {"IMPUTATION_TYPE": [9], "ALPHA": [0.2, 0.3], "EXTRAPOLATION": [0, 1], "SMOOTH_WIDTH": [0, 1, 2], "AUXILIARY_NORMALITYTEST": [0, 1]}, "BSTS": {"BURN_IN": [0.1, 0.2, 0.3, 0.4, 0.5], "SEASONAL_PERIOD": [-1]}, "ARIMA": {"SEASONAL_PERIOD": [-1], "SEASONALITY_CRITERION": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], "D": [-1], "KPSS_SIGNIFICANCE_LEVEL": [0.01, 0.025, 0.05, 0.1], "MAX_D": [2, 3, 4], "SEASONAL_D": [-1], "CH_SIGNIFICANCE_LEVEL": [0.01, 0.025, 0.05, 0.1, 0.2], "MAX_SEASONAL_D": [1, 2], "INFORMATION_CRITERION": [0, 1, 2]}, "AMTSA": {"GROWTH": ["linear"], "NUM_CHANGEPOINTS": [0, 5, 10, 20, 25, 30]}, "AutoExpSm": {"MODELSELECTION": [1], "MAX_ITERATION": [100, 1000], "SEASONALITY_CRITERION": [0.25, 0.5, 0.75], "TREND_TEST_METHOD": [1, 2], "TREND_TEST_ALPHA": [0.01, 0.05, 0.1, 0.3], "ALPHA": [0.1, 0.3, 0.6, 0.9, null], "PHI": [0.1, 0.3, 0.6, 0.9, null], "BETA": [0.1, 0.3, 0.6, 0.9, null], "GAMMA": [0.1, 0.3, 0.6, 0.9, null]}, "BrownExpSm": {"ALPHA": [0.1, 0.3, 0.6, 0.9]}, "HGBT_TimeSeries": {"ITER_NUM": [100], "OBJ_FUNC": [0, 1, 2], "ETA": [0.001, 0.01, 0.1, 0.5, 1.0], "MAX_DEPTH": {"range": [1, 1, 11]}, "MIN_CHILD_HESSIAN": {"range": [1.0, 1.0, 21.0]}}, "MLR_TimeSeries": {"ALG": [2, 4], "MAX_ITERATION": [100000], "THRESHOLD": [1e-07, 1e-05, 0.001], "ENET_LAMBDA": [0.001, 0.01, 0.1, 1.0, 5.0, 10.0], "ENET_ALPHA": {"range": [0.0, 0.05, 1.0]}}}';
+param_name[2] := N'PIPELINE_TYPE';
+int_value[2] := NULL;
+double_value[2] := NULL;
+string_value[2] := N'timeseries';
+param_name[3] := N'SUCCESSIVE_HALVING';
+int_value[3] := 0;
+double_value[3] := NULL;
+string_value[3] := NULL;
+param_name[4] := N'RETENTION_PERIOD';
+int_value[4] := 0;
+double_value[4] := NULL;
+string_value[4] := NULL;
+param_name[5] := N'HAS_ID';
+int_value[5] := 1;
+double_value[5] := NULL;
+string_value[5] := NULL;
+params = UNNEST(:param_name, :int_value, :double_value, :string_value);
+in_0 = SELECT * FROM :in_0_hana_ml_base_pal_automl_fit;
+CALL "SYSAFL::PALAUTOMLFIT"(:in_0, :params, out_0, out_1, out_2);
+out_0_hana_ml_base_pal_automl_fit = SELECT * FROM :out_0;
+out_1_hana_ml_base_pal_automl_fit = SELECT * FROM :out_1;
+out_2_hana_ml_base_pal_automl_fit = SELECT * FROM :out_2;
+END

@@ -1,0 +1,11 @@
+Model Type: AutoARIMA. Useful for when you need to get example to perform ARIMA or AutoARIMA prediction.
+------
+Strictly use the Examples to create ARIMA prediction instance.
+Do prediction:
+>>> from hana_ml.algorithms.pal.tsa.auto_arima import AutoARIMA
+>>> model_predict = AutoARIMA()
+>>> model_df = df.connection_context.table(<model_table>)
+>>> model_predict.load_model(model_df)
+>>> model_predict.conn_context = df.connection_context
+>>> model_predict.predict(forecast_length=<forecast_length>)
+>>> print({"output table names": model_predict._predict_output_table_names, "Python object address": id(model_predict)})

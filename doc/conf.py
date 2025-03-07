@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# generative-ai-toolkit-for-sap-hana-cloud documentation build configuration file, created by
+# hana.ai documentation build configuration file, created by
 # sphinx-quickstart on Wed Dec 27 15:27:13 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -66,7 +66,7 @@ source_encoding = 'utf-8'
 master_doc = 'index'
 
 # General information about the project.
-project = 'generative-ai-toolkit-for-sap-hana-cloud'
+project = 'hana.ai'
 copyright = '2025, SAP'
 author = 'SAP'
 

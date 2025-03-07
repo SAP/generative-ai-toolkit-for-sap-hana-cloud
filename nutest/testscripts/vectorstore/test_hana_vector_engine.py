@@ -3,13 +3,18 @@ import unittest
 from hana_ml.dataframe import ConnectionContext
 from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 from hana_ai.vectorstore.code_templates import get_code_templates
+from nutest.testscripts.testML_BaseTestClass import TestML_BaseTestClass
 "create unittest for HANAMLinVectorEngine"
-class TestHANAMLinVectorEngine(unittest.TestCase):
+class TestHANAMLinVectorEngine(TestML_BaseTestClass):
+
+    def setUp(self):
+        super(TestHANAMLinVectorEngine, self).setUp()
+
+    def tearDown(self):
+        super(TestHANAMLinVectorEngine, self).tearDown()
+
     def test_HANAMLinVectorEngine(self):
-        url, port, user = "hana-ml-api.hana-ml.c.ap-cn-1.cloud.sap", 30115, "PAL_TEST"
-        pwd = "Init1234"
-        cc = ConnectionContext(url, port, user, pwd)
-        cc.drop_table("test_table")
+        cc = self.conn
         result = HANAMLinVectorEngine(cc, "test_table")
         self.assertEqual(result.table_name, "test_table")
         result.upsert_knowledge(get_code_templates())
