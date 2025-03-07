@@ -2,7 +2,7 @@ langchain==0.1.14
 numpy==1.25.2
 pandas==2.1.4
 hana-ml>=2.21.24061801
-langchain-community==0.0.31
+langchain-community==0.2.19
 langchain-core==0.1.52
 langchain-experimental==0.0.49
 langchain-text-splitters==0.0.1
