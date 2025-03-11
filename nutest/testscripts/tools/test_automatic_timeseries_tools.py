@@ -1,6 +1,6 @@
 #unittest for Automatic timeseries tools
 import json
-from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelandScore
+from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
 from testML_BaseTestClass import TestML_BaseTestClass
 from hana_ml.model_storage import ModelStorage
 
@@ -31,8 +31,6 @@ class TestAutomaticTimeSeriesTools(TestML_BaseTestClass):
         self.conn.table("#HANAI_DATA_TBL_SCORE_RAW").drop("VALUE").save("#HANAI_DATA_TBL_PREDICT_RAW")
 
     def tearDown(self):
-        ms = ModelStorage(self.conn)
-        ms.delete_model("AUTOML_MODEL", 1)
         self._dropTableIgnoreError('#HANAI_DATA_TBL_RAW')
         self._dropTableIgnoreError('#HANAI_DATA_TBL_PREDICT_RAW')
         self._dropTableIgnoreError('#HANAI_DATA_TBL_SCORE_RAW')
@@ -53,7 +51,7 @@ class TestAutomaticTimeSeriesTools(TestML_BaseTestClass):
         self.conn.drop_table('AUTOML_MODEL_1_PREDICTED_RESULTS')
 
     def test_load_model_and_score(self):
-        tool = AutomaticTimeseriesLoadModelandScore(connection_context=self.conn)
+        tool = AutomaticTimeseriesLoadModelAndScore(connection_context=self.conn)
         result = json.loads(tool.run({"score_table": "#HANAI_DATA_TBL_SCORE_RAW", "key": "TIMESTAMP", "endog": "VALUE", "name": "AUTOML_MODEL", "version": 1}))
         print(result)
         self.assertTrue(result['scored_results_table']=="AUTOML_MODEL_1_SCORED_RESULTS")

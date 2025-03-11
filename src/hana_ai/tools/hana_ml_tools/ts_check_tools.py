@@ -75,56 +75,98 @@ def ts_char(df, key, endog):
     analysis_result += "Seasonality Test: "
     for _, row in result.iterrows():
         analysis_result += f"The {row['STAT_NAME']} is {row['STAT_VALUE']}."
-    
+
     return analysis_result
 
 class TSCheckInput(BaseModel):
+    """
+    The input schema for the TimeSeriesCheckTool.
+    """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
 
 class StationarityTestInput(BaseModel):
+    """
+    The input schema for the StationarityTestTool.
+    """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
-    method: Optional[str] = Field(description="the method of the stationarity test chosen from {'kpss', 'adf'}, it is optional")
-    mode: Optional[str] = Field(description="the mode of the stationarity test chosen from {'level', 'trend', 'no'}, it is optional")
-    lag: Optional[int] = Field(description="the lag of the stationarity test, it is optional")
-    probability: Optional[float] = Field(description="the confidence level for confirming stationarity, it is optional")
+    method: Optional[str] = Field(description="the method of the stationarity test chosen from {'kpss', 'adf'}, it is optional", default=None)
+    mode: Optional[str] = Field(description="the mode of the stationarity test chosen from {'level', 'trend', 'no'}, it is optional", default=None)
+    lag: Optional[int] = Field(description="the lag of the stationarity test, it is optional", default=None)
+    probability: Optional[float] = Field(description="the confidence level for confirming stationarity, it is optional", default=None)
 
 class TrendTestInput(BaseModel):
+    """
+    The input schema for the TrendTestTool.
+    """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
-    method: Optional[str] = Field(description="the method of the trend test chosen from {'mk', 'difference-sign'}, it is optional")
-    alpha: Optional[float] = Field(description="the significance level for the trend test, it is optional")
+    method: Optional[str] = Field(description="the method of the trend test chosen from {'mk', 'difference-sign'}, it is optional", default=None)
+    alpha: Optional[float] = Field(description="the significance level for the trend test, it is optional", default=None)
 
 class SeasonalityTestInput(BaseModel):
+    """
+    The input schema for the SeasonalityTestTool.
+    """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
-    alpha: Optional[float] = Field(description="the criterion for the autocorrelation coefficient, it is optional")
-    decompose_type: Optional[str] = Field(description="the type of decomposition chosen from {'additive', 'multiplicative', 'auto'}, it is optional")
-    extrapolation: Optional[bool] = Field(description="whether to extrapolate the endpoints or not, it is optional")
-    smooth_width: Optional[int] = Field(description="the width of the smoothing window, it is optional")
-    auxiliary_normalitytest: Optional[bool] = Field(description="specifies whether to use normality test to identify model types, it is optional")
-    periods: Optional[int] = Field(description="the length of the periods, it is optional")
-    decompose_method: Optional[str] = Field(description="the method of decomposition chosen from {'stl', 'traditional'}, it is optional")
-    stl_robust: Optional[bool] = Field(description="whether to use robust decomposition or not only valid for 'stl' decompose method, it is optional")
-    stl_seasonal_average: Optional[bool] = Field(description="whether to use seasonal average or not only valid for 'stl' decompose method, it is optional")
-    smooth_method_non_seasonal: Optional[str] = Field(description="the method of smoothing for non-seasonal component chosen from {'moving_average', 'super_smoother'}, it is optional")
+    alpha: Optional[float] = Field(description="the criterion for the autocorrelation coefficient, it is optional", default=None)
+    decompose_type: Optional[str] = Field(description="the type of decomposition chosen from {'additive', 'multiplicative', 'auto'}, it is optional", default=None)
+    extrapolation: Optional[bool] = Field(description="whether to extrapolate the endpoints or not, it is optional", default=None)
+    smooth_width: Optional[int] = Field(description="the width of the smoothing window, it is optional", default=None)
+    auxiliary_normalitytest: Optional[bool] = Field(description="specifies whether to use normality test to identify model types, it is optional", default=None)
+    periods: Optional[int] = Field(description="the length of the periods, it is optional", default=None)
+    decompose_method: Optional[str] = Field(description="the method of decomposition chosen from {'stl', 'traditional'}, it is optional", default=None)
+    stl_robust: Optional[bool] = Field(description="whether to use robust decomposition or not only valid for 'stl' decompose method, it is optional", default=None)
+    stl_seasonal_average: Optional[bool] = Field(description="whether to use seasonal average or not only valid for 'stl' decompose method, it is optional", default=None)
+    smooth_method_non_seasonal: Optional[str] = Field(description="the method of smoothing for non-seasonal component chosen from {'moving_average', 'super_smoother'}, it is optional", default=None)
 
 class WhiteNoiseTestInput(BaseModel):
+    """
+    The input schema for the WhiteNoiseTestTool.
+    """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
-    lag: Optional[int] = Field(description="specifies the lag autocorrelation coefficient that the statistic will be based on, it is optional")
-    probability: Optional[float] = Field(description="the confidence level used for chi-square distribution., it is optional")
-    model_df: Optional[int] = Field(description="the degree of freedom of the model, it is optional")
+    lag: Optional[int] = Field(description="specifies the lag autocorrelation coefficient that the statistic will be based on, it is optional", default=None)
+    probability: Optional[float] = Field(description="the confidence level used for chi-square distribution., it is optional", default=None)
+    model_df: Optional[int] = Field(description="the degree of freedom of the model, it is optional", default=None)
 
 class TimeSeriesCheck(BaseTool):
     """
     This tool calls stationarity test, intermittent check, trend test and seasonality test for the given time series data.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The characteristics of the time series data.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - table_name
+                  - the name of the table. If not provided, ask the user. Do not guess.
+                * - key
+                  - the key of the dataset. If not provided, ask the user. Do not guess.
+                * - endog
+                  - the endog of the dataset. If not provided, ask the user. Do not guess
     """
     name: str = "ts_check"
     """Name of the tool."""
@@ -159,6 +201,41 @@ class TimeSeriesCheck(BaseTool):
 class StationarityTest(BaseTool):
     """
     This tool calls stationarity test for the given time series data.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The stationarity statistics of the time series data.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - table_name
+                  - the name of the table. If not provided, ask the user. Do not guess.
+                * - key
+                  - the key of the dataset. If not provided, ask the user. Do not guess.
+                * - endog
+                  - the endog of the dataset. If not provided, ask the user. Do not guess
+                * - method
+                  - the method of the stationarity test chosen from {'kpss', 'adf'}, it is optional
+                * - mode
+                  - the mode of the stationarity test chosen from {'level', 'trend', 'no'}, it is optional
+                * - lag
+                  - the lag of the stationarity test, it is optional
+                * - probability
+                  - the confidence level for confirming stationarity, it is optional
     """
     name: str = "stationarity_test"
     """Name of the tool."""
@@ -219,6 +296,37 @@ class StationarityTest(BaseTool):
 class TrendTest(BaseTool):
     """
     This tool calls trend test for the given time series data.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The trend statistics of the time series data.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - table_name
+                  - the name of the table. If not provided, ask the user. Do not guess.
+                * - key
+                  - the key of the dataset. If not provided, ask the user. Do not guess.
+                * - endog
+                  - the endog of the dataset. If not provided, ask the user. Do not guess
+                * - method
+                  - the method of the trend test chosen from {'mk', 'difference-sign'}, it is optional
+                * - alpha
+                  - the significance level for the trend test, it is optional
     """
     name: str = "trend_test"
     """Name of the tool."""
@@ -279,6 +387,53 @@ class TrendTest(BaseTool):
 class SeasonalityTest(BaseTool):
     """
     This tool calls seasonality test for the given time series data.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The seasonality of the time series data.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - table_name
+                  - the name of the table. If not provided, ask the user. Do not guess.
+                * - key
+                  - the key of the dataset. If not provided, ask the user. Do not guess.
+                * - endog
+                  - the endog of the dataset. If not provided, ask the user. Do not guess
+                * - alpha
+                  - the criterion for the autocorrelation coefficient, it is optional
+                * - decompose_type
+                  - the type of decomposition chosen from {'additive', 'multiplicative', 'auto'}, it is optional
+                * - extrapolation
+                  - whether to extrapolate the endpoints or not, it is optional
+                * - smooth_width
+                  - the width of the smoothing window, it is optional
+                * - auxiliary_normalitytest
+                  - specifies whether to use normality test to identify model types, it is optional
+                * - periods
+                  - the length of the periods, it is optional
+                * - decompose_method
+                  - the method of decomposition chosen from {'stl', 'traditional'}, it is optional
+                * - stl_robust
+                  - whether to use robust decomposition or not only valid for 'stl' decompose method, it is optional
+                * - stl_seasonal_average
+                  - whether to use seasonal average or not only valid for 'stl' decompose method, it is optional
+                * - smooth_method_non_seasonal
+                  - the method of smoothing for non-seasonal component chosen from {'moving_average', 'super_smoother'}, it is optional
     """
     name: str = "seasonality_test"
     """Name of the tool."""
@@ -357,6 +512,39 @@ class SeasonalityTest(BaseTool):
 class WhiteNoiseTest(BaseTool):
     """
     This tool calls white noise test for the given time series data.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The white noise statistics of the time series data.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - table_name
+                  - the name of the table. If not provided, ask the user. Do not guess.
+                * - key
+                  - the key of the dataset. If not provided, ask the user. Do not guess.
+                * - endog
+                  - the endog of the dataset. If not provided, ask the user. Do not guess
+                * - lag
+                  - specifies the lag autocorrelation coefficient that the statistic will be based on, it is optional
+                * - probability
+                  - the confidence level used for chi-square distribution., it is optional
+                * - model_df
+                  - the degree of freedom of the model, it is optional
     """
     name: str = "white_noise_test"
     """Name of the tool."""

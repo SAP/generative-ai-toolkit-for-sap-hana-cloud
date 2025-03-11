@@ -1,7 +1,0 @@
-useful for when you need to get example for visualizing the forecasted values.
-------
->>> from hana_ml.visualizers.visualizer_base import forecast_line_plot
->>> actual_df = df.connection_context.table(<actual_table>)
->>> fig = forecast_line_plot(pred_data=df,
-                             actual_data=actual_df)
->>> fig.show()

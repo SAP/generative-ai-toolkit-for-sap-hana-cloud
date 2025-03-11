@@ -19,39 +19,121 @@ from hana_ml.algorithms.pal.tsa.outlier_detection import OutlierDetectionTS
 logger = logging.getLogger(__name__)
 
 class TSOutlierDetectionInput(BaseModel):
+    """
+    The input schema for the TSOutlierDetection tool.
+    """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
-    auto: Optional[bool] = Field(description="whether to use auto outlier detection, it is optional")
-    detect_intermittent_ts: Optional[bool] = Field(description="whether to detect intermittent time series, it is optional")
-    smooth_method: Optional[str] = Field(description="the smoothing method for the time series chosen from {'no', 'median', 'loess'}, it is optional")
-    window_size: Optional[int] = Field(description="odd number, the window size for median filter, not less than 3, it is optional")
-    loess_lag: Optional[int] = Field(description="odd number, the lag for LOESS, not less than 3, it is optional")
-    current_value_flag: Optional[bool] = Field(description="whether to take the current data point when using LOESS smoothing method, it is optional")
-    outlier_method: Optional[str] = Field(description="the outlier detection method chosen from {'z1', 'z2', 'mad', 'iqr', 'isolationforest', 'dbscan'}, it is optional")
-    threshold: Optional[float] = Field(description="the threshold for outlier detection, it is optional")
-    detect_seasonality: Optional[bool] = Field(description="whether to detect seasonality, it is optional")
-    alpha: Optional[float] = Field(description="the criterion for the autocorrelation coefficient, it is optional")
-    extrapolation: Optional[bool] = Field(description="whether to extrapolate the endpoints, it is optional")
-    periods: Optional[int] = Field(description="the number of periods for seasonality, it is optional")
-    random_state: Optional[int] = Field(description="specifies the seed for random number generator only valid for isolationforest, it is optional")
-    n_estimators: Optional[int] = Field(description="the number of trees in the forest only valid for isolationforest, it is optional")
-    max_samples: Optional[int] = Field(description="specifies the number of samples to draw from input to train each tree only valid for isolationforest, it is optional")
-    bootstrap: Optional[bool] = Field(description="whether to use bootstrap samples when building trees only valid for isolationforest, it is optional")
-    contamination: Optional[float] = Field(description="the proportion of outliers in the data set only valid for isolationforest, it is optional")
-    minpts: Optional[int] = Field(description="the number of points in a neighborhood for a point to be considered as a core point only valid for dbscan, it is optional")
-    eps: Optional[float] = Field(description="the maximum distance between two samples for one to be considered as in the neighborhood of the other only valid for dbscan, it is optional")
-    distiance_method: Optional[str] = Field(description="the distance method for dbscan chosen from {'manhattan', 'euclidean', 'minkowski', 'chebyshev', 'standardized_euclidean', 'cosine'}, it is optional")
-    dbscan_normalization: Optional[bool] = Field(description="whether to normalize the data before dbscan, it is optional")
-    dbscan_outlier_from_cluster: Optional[bool] = Field(description="specifies how to take outliers from DBSCAN result, it is optional")
-    thread_ratio: Optional[float] = Field(description="the ratio of threads to use for parallel processing, it is optional")
-    residual_usage: Optional[str] = Field(description="specifies which residual to output chosen from {'outlier_detection', 'outlier_correction'}, it is optional")
-    voting_config: Optional[dict] = Field(description="the configuration for voting, it is optional")
-    voting_outlier_method_criterion: Optional[float] = Field(description="the criterion for voting outlier method, it is optional")
+    auto: Optional[bool] = Field(description="whether to use auto outlier detection, it is optional", default=None)
+    detect_intermittent_ts: Optional[bool] = Field(description="whether to detect intermittent time series, it is optional", default=None)
+    smooth_method: Optional[str] = Field(description="the smoothing method for the time series chosen from {'no', 'median', 'loess'}, it is optional", default=None)
+    window_size: Optional[int] = Field(description="odd number, the window size for median filter, not less than 3, it is optional", default=None)
+    loess_lag: Optional[int] = Field(description="odd number, the lag for LOESS, not less than 3, it is optional", default=None)
+    current_value_flag: Optional[bool] = Field(description="whether to take the current data point when using LOESS smoothing method, it is optional", default=None)
+    outlier_method: Optional[str] = Field(description="the outlier detection method chosen from {'z1', 'z2', 'mad', 'iqr', 'isolationforest', 'dbscan'}, it is optional", default=None)
+    threshold: Optional[float] = Field(description="the threshold for outlier detection, it is optional", default=None)
+    detect_seasonality: Optional[bool] = Field(description="whether to detect seasonality, it is optional", default=None)
+    alpha: Optional[float] = Field(description="the criterion for the autocorrelation coefficient, it is optional", default=None)
+    extrapolation: Optional[bool] = Field(description="whether to extrapolate the endpoints, it is optional", default=None)
+    periods: Optional[int] = Field(description="the number of periods for seasonality, it is optional", default=None)
+    random_state: Optional[int] = Field(description="specifies the seed for random number generator only valid for isolationforest, it is optional", default=None)
+    n_estimators: Optional[int] = Field(description="the number of trees in the forest only valid for isolationforest, it is optional", default=None)
+    max_samples: Optional[int] = Field(description="specifies the number of samples to draw from input to train each tree only valid for isolationforest, it is optional", default=None)
+    bootstrap: Optional[bool] = Field(description="whether to use bootstrap samples when building trees only valid for isolationforest, it is optional", default=None)
+    contamination: Optional[float] = Field(description="the proportion of outliers in the data set only valid for isolationforest, it is optional", default=None)
+    minpts: Optional[int] = Field(description="the number of points in a neighborhood for a point to be considered as a core point only valid for dbscan, it is optional", default=None)
+    eps: Optional[float] = Field(description="the maximum distance between two samples for one to be considered as in the neighborhood of the other only valid for dbscan, it is optional", default=None)
+    distiance_method: Optional[str] = Field(description="the distance method for dbscan chosen from {'manhattan', 'euclidean', 'minkowski', 'chebyshev', 'standardized_euclidean', 'cosine'}, it is optional", default=None)
+    dbscan_normalization: Optional[bool] = Field(description="whether to normalize the data before dbscan, it is optional", default=None)
+    dbscan_outlier_from_cluster: Optional[bool] = Field(description="specifies how to take outliers from DBSCAN result, it is optional", default=None)
+    thread_ratio: Optional[float] = Field(description="the ratio of threads to use for parallel processing, it is optional", default=None)
+    residual_usage: Optional[str] = Field(description="specifies which residual to output chosen from {'outlier_detection', 'outlier_correction'}, it is optional", default=None)
+    voting_config: Optional[dict] = Field(description="the configuration for voting, it is optional", default=None)
+    voting_outlier_method_criterion: Optional[float] = Field(description="the criterion for voting outlier method, it is optional", default=None)
 
 class TSOutlierDetection(BaseTool):
     """
     This tool detects outliers in time series data.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The outliers in the time series data and the statistics of the detection.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - table_name
+                  - the name of the table. If not provided, ask the user. Do not guess.
+                * - key
+                  - the key of the dataset. If not provided, ask the user. Do not guess.
+                * - endog
+                  - the endog of the dataset. If not provided, ask the user. Do not guess.
+                * - auto
+                  - whether to use auto outlier detection, it is optional
+                * - detect_intermittent_ts
+                  - whether to detect intermittent time series, it is optional
+                * - smooth_method
+                  - the smoothing method for the time series chosen from {'no', 'median', 'loess'}, it is optional
+                * - window_size
+                  - odd number, the window size for median filter, not less than 3, it is optional
+                * - loess_lag
+                  - odd number, the lag for LOESS, not less than 3, it is optional
+                * - current_value_flag
+                  - whether to take the current data point when using LOESS smoothing method, it is optional
+                * - outlier_method
+                  - the outlier detection method chosen from {'z1', 'z2', 'mad', 'iqr', 'isolationforest', 'dbscan'}, it is optional
+                * - threshold
+                  - the threshold for outlier detection, it is optional
+                * - detect_seasonality
+                  - whether to detect seasonality, it is optional
+                * - alpha
+                  - the criterion for the autocorrelation coefficient, it is optional
+                * - extrapolation
+                  - whether to extrapolate the endpoints, it is optional
+                * - periods
+                  - the number of periods for seasonality, it is optional
+                * - random_state
+                  - specifies the seed for random number generator only valid for isolationforest, it is optional
+                * - n_estimators
+                  - the number of trees in the forest only valid for isolationforest, it is optional
+                * - max_samples
+                  - specifies the number of samples to draw from input to train each tree only valid for isolationforest, it is optional
+                * - bootstrap
+                  - whether to use bootstrap samples when building trees only valid for isolationforest, it is optional
+                * - contamination
+                  - the proportion of outliers in the data set only valid for isolationforest, it is optional
+                * - minpts
+                  - the number of points in a neighborhood for a point to be considered as a core point only valid for dbscan, it is optional
+                * - eps
+                  - the maximum distance between two samples for one to be considered as in the neighborhood of the other only valid for dbscan, it is optional
+                * - distiance_method
+                  - the distance method for dbscan chosen from {'manhattan', 'euclidean', 'minkowski', 'chebyshev', 'standardized_euclidean', 'cosine'}, it is optional
+                * - dbscan_normalization
+                  - whether to normalize the data before dbscan, it is optional
+                * - dbscan_outlier_from_cluster
+                  - specifies how to take outliers from DBSCAN result, it is optional
+                * - thread_ratio
+                  - the ratio of threads to use for parallel processing, it is optional
+                * - residual_usage
+                  - specifies which residual to output chosen from {'outlier_detection', 'outlier_correction'}, it is optional
+                * - voting_config
+                  - the configuration for voting, it is optional
+                * - voting_outlier_method_criterion
+                  - the criterion for voting outlier method, it is optional
     """
     name: str = "ts_outlier_detection"
     """Name of the tool."""

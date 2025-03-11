@@ -23,18 +23,51 @@ from hana_ml.visualizers.unified_report import UnifiedReport
 logger = logging.getLogger(__name__)
 
 class TSDatasetInput(BaseModel):
+    """
+    The input schema for the TSDatasetTool.
+    """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
 
 class ForecastLinePlotInput(BaseModel):
+    """
+    The input schema for the ForecastLinePlot tool.
+    """
     predict_table_name: str = Field(description="the name of the predicted result table. If not provided, ask the user. Do not guess.")
-    actual_table_name: Optional[str] = Field(description="the name of the actual data table, it is optional")
-    confidence: Optional[tuple] = Field(description="the column names of confidence bounds, it is optional")
+    actual_table_name: Optional[str] = Field(description="the name of the actual data table, it is optional", default=None)
+    confidence: Optional[tuple] = Field(description="the column names of confidence bounds, it is optional", default=None)
 
 class TimeSeriesDatasetReport(BaseTool):
     """
     This tool generates a report for a time series dataset.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The path of the generated report.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - table_name
+                  - the name of the table. If not provided, ask the user. Do not guess.
+                * - key
+                  - the key of the dataset. If not provided, ask the user. Do not guess.
+                * - endog
+                  - the endog of the dataset. If not provided, ask the user. Do not guess
     """
     name: str = "ts_dataset_report"
     """Name of the tool."""
@@ -63,7 +96,7 @@ class TimeSeriesDatasetReport(BaseTool):
         try:
             os.makedirs(destination_dir, exist_ok=True)
         except Exception as e:
-            logger.error(f"Error creating directory '{destination_dir}': {e}")
+            logger.error("Error creating directory %s: %s", destination_dir, e)
             raise
         output_file = os.path.join(
                     destination_dir,
@@ -81,6 +114,33 @@ class TimeSeriesDatasetReport(BaseTool):
 class ForecastLinePlot(BaseTool):
     """
     This tool generates a line plot for the forecasted result.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The path of the generated line plot.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - predict_table_name
+                  - the name of the predicted result table. If not provided, ask the user. Do not guess.
+                * - actual_table_name
+                  - the name of the actual data table, it is optional
+                * - confidence
+                  - the column names of confidence bounds, it is optional
     """
     name: str = "forecast_line_plot"
     """Name of the tool."""
@@ -111,7 +171,7 @@ class ForecastLinePlot(BaseTool):
         try:
             os.makedirs(destination_dir, exist_ok=True)
         except Exception as e:
-            logger.error(f"Error creating directory '{destination_dir}': {e}")
+            logger.error("Error creating directory %s: %s", destination_dir, e)
             raise
         output_file = os.path.join(
                     destination_dir,

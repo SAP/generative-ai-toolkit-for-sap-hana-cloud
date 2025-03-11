@@ -1,11 +1,27 @@
+"""
+A chatbot that can remember the chat history and use it to generate responses.
 
-from langchain_core.prompts import ChatPromptTemplate
+"""
 from langchain.agents import initialize_agent, AgentType
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 class ChatbotWithMemory(object):
+    """
+    A chatbot that can remember the chat history and use it to generate responses.
+
+    Parameters
+    ----------
+    llm : LLM
+        The language model to use.
+    tools : dict
+        The tools to use.
+    session_id : str
+        The session ID to use.
+    n_messages : int
+        The number of messages to remember.
+    """
     def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10):
         self.llm = llm
         memory = InMemoryChatMessageHistory(session_id=session_id)
@@ -20,7 +36,16 @@ class ChatbotWithMemory(object):
                                                                   input_messages_key="question",
                                                                   history_messages_key="history")
         self.config = {"configurable": {"session_id": session_id}}
+
     def chat(self, question):
+        """"
+        Chat with the chatbot.
+
+        Parameters
+        ----------
+        question : str
+            The question to ask.
+        """
         try:
             return self.agent_with_chat_history.invoke({"question": question}, self.config)
         except Exception as e:

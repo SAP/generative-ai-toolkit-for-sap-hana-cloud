@@ -10,10 +10,10 @@ Welcome to hana.ai's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   agents
-   tools
-   vectorstore
-   smart_dataframe
+   hana_ai.agents
+   hana_ai.tools
+   hana_ai.vectorstore
+   hana_ai.smart_dataframe
 
 Indices and tables
 ==================

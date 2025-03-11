@@ -65,18 +65,6 @@ model(['hello', 'world'])
 ```
 <img src="./img/hana_embeddings.png" alt="image" width="400" height="auto">
 
-## Corrective Retriever
-
-![alt](./img/crag.png)
-
-```python
-from hana_ai.vectorstore.corrective_retriever import CorrectiveRetriever
-
-cr = CorrectiveRetriever(hana_vec, llm, max_iter=3, recursion_limit=10)
-result = cr.query("Automatic classification code?")
-print(result)
-```
-<img src="./img/code_template.png" alt="image" width="400" height="auto">
 
 ## Union Vector Stores
 ```python
@@ -86,25 +74,13 @@ uvs = UnionVectorStores([hana_vec, hana_kg])
 uvs.query("AutoML classification", top_n=2)
 ```
 
-## Corrective Retriever with Multiple Vector Stores
+## Corrective Retriever Over Union Vector Stores
 ```python
-cr = CorrectiveRetriever(uvs, llm, max_iter=3, recursion_limit=10)
-result = cr.query("Automatic classification code?")
+from hana_ai.vectorstore.corrective_retriever import CorrectiveRetriever
+
+cr = CorrectiveRetriever(uvs)
+cr.query("AutoML classification", top_n=2)
 ```
-
-## Local Embeddings Procedure API
-```python
-df.head(5).collect()
-```
-
-<img src="./img/pal_embeddings0.png" alt="image" width="600" height="auto">
-
-
-```python
-print(pe.query("Automatic classification code?"))
-```
-
-<img src="./img/code_template.png" alt="image" width="400" height="auto">
 
 ## DataFrame Agent Example
 
@@ -139,17 +115,17 @@ hanavec = HANAMLinVectorEngine(cc, "hana_vec_hana_ml_knowledge")
 hana_vec.create_knowledge()
 ```
 
-### Create HANAML Toolkits and Add Knowledge Bases to It
+### Create Code Template Tool and Add Knowledge Bases to It
 
 ```python
-toolkit = HANAMLToolkit(cc)
-toolkit.set_vectordb(hanavec)
+code_tool = GetCodeTemplateFromVectorDB()
+code_tool.set_vectordb(self.vectordb)
 ```
 
 ### Create HANA Dataframe Agent and Execute Task
 
 ```python
-agent = create_hana_dataframe_agent(llm=llm, toolkit=toolkit, df=data, verbose=True)
+agent = create_hana_dataframe_agent(llm=llm, tools=[code_tool], df=data, verbose=True)
 agent.invoke("Create Automatic Regression model on this dataframe with max_eval_time_mins=10. Provide key is ID, background_size=100 and model_table_name='my_model' in the fit function and execute it. ")
 ```
 ![alt](./img/agent.png)
@@ -165,7 +141,7 @@ agent.invoke("create a dataset report.")
 from hana_ai.smart_dataframe import SmartDataFrame
 
 sdf = SmartDataFrame(hana_df)
-sdf.configure(toolkit=toolkit, llm=llm)
+sdf.configure(tools=[code_tool], llm=llm)
 sdf.ask("Show the samples of the dataset", verbose=True)
 ```
 ![alt](./img/smartdf_ask.png)

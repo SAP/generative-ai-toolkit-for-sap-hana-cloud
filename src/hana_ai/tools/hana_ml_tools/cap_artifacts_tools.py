@@ -20,18 +20,58 @@ from hana_ml.artifacts.generators.hana import HANAGeneratorForCAP
 logger = logging.getLogger(__name__)
 
 class CAPArtifactsInput(BaseModel):
+    """
+    The input schema for the CAPArtifactsTool.
+    """
     name: str = Field(description="the name of the model in model storage. If not provided, ask the user. Do not guess.")
     version: str = Field(description="the version of the model in model storage. If not provided, ask the user. Do not guess.")
     project_name: str = Field(description="the name of the project for CAP project. If not provided, ask the user. Do not guess.")
     output_dir: str = Field(description="the output directory for CAP project. If not provided, ask the user. Do not guess.")
-    namespace: Optional[str] = Field(description="the namespace for CAP project, it is optional")
-    cds_gen: Optional[bool] = Field(description="whether to generate CDS files for CAP project, it is optional")
-    tudf: Optional[bool] = Field(description="whether to generate table UDF for CAP project, it is optional")
-    archive: Optional[bool] = Field(description="whether to archive the generated artifacts, it is optional")
+    namespace: Optional[str] = Field(description="the namespace for CAP project, it is optional", default=None)
+    cds_gen: Optional[bool] = Field(description="whether to generate CDS files for CAP project, it is optional", default=None)
+    tudf: Optional[bool] = Field(description="whether to generate table UDF for CAP project, it is optional", default=None)
+    archive: Optional[bool] = Field(description="whether to archive the generated artifacts, it is optional", default=None)
 
 class CAPArtifactsTool(BaseTool):
     """
     This tool generates CAP artifacts for a given model.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The directory to the generated CAP artifacts.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - name
+                  - The name of the model in model storage. If not provided, ask the user. Do not guess.
+                * - version
+                  - The version of the model in model storage. If not provided, ask the user. Do not guess.
+                * - project_name
+                  - The name of the project for CAP project. If not provided, ask the user. Do not guess.
+                * - output_dir
+                  - The output directory for CAP project. If not provided, ask the user. Do not guess.
+                * - namespace
+                  - The namespace for CAP project, it is optional.
+                * - cds_gen
+                  - Whether to generate CDS files for CAP project, it is optional.
+                * - tudf
+                  - Whether to generate table UDF for CAP project, it is optional.
+                * - archive
+                  - Whether to archive the generated artifacts, it is optional.
     """
     name: str = "cap_artifacts"
     """Name of the tool."""
@@ -73,4 +113,4 @@ class CAPArtifactsTool(BaseTool):
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(name, version, project_name, output_dir, namespace, cds_gen, tudf, archive, run_manager)    
+        return self._run(name, version, project_name, output_dir, namespace, cds_gen, tudf, archive, run_manager)

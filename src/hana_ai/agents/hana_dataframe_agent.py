@@ -7,7 +7,7 @@ The following function is available:
 from typing import Any, Dict, List, Optional
 
 from langchain.agents.agent import AgentExecutor
-
+from langchain.tools import BaseTool
 from langchain.agents.mrkl.base import ZeroShotAgent
 from langchain.callbacks.base import BaseCallbackManager
 from langchain.chains.llm import LLMChain
@@ -17,7 +17,6 @@ try:
 except:
     from langchain_experimental.tools.python.tool import PythonAstREPLTool
 from hana_ai.agents.hana_dataframe_prompt import PREFIX, SUFFIX
-from hana_ai.tools.toolkit import HANAMLToolkit
 
 def _validate_hana_df(df: Any) -> bool:
     try:
@@ -30,7 +29,7 @@ def _validate_hana_df(df: Any) -> bool:
 def create_hana_dataframe_agent(
     llm: BaseLLM,
     df: Any,
-    toolkit: HANAMLToolkit = None,
+    tools: List[BaseTool] = None,
     callback_manager: Optional[BaseCallbackManager] = None,
     prefix: str = PREFIX,
     suffix: str = SUFFIX,
@@ -52,8 +51,8 @@ def create_hana_dataframe_agent(
         The LLM to use.
     df : DataFrame
         The HANA dataframe to use. It could be None.
-    toolkit : HANAMLToolkit, optional
-        The toolkit to use, by default None.
+    tools : BaseTool, optional
+        The tools to use, by default None.
     callback_manager : BaseCallbackManager, optional
         The callback manager to use, by default None.
     prefix : str, optional
@@ -85,11 +84,11 @@ def create_hana_dataframe_agent(
 
     if input_variables is None:
         input_variables = ["df", "input", "agent_scratchpad"]
-    if toolkit is None:
+    if tools is None:
         tools = [PythonAstREPLTool(locals={"df": df})]
         prefix = "You are working with a HANA dataframe in Python that is similar to Spark dataframe. The name of the dataframe is `df`. `connection_context` is `df`'s attribute. To handle connection or to use dataframe functions, you should use python_repl_ast tool. You should use the tools below to answer the question posed of you. :"
     else:
-        tools = toolkit.get_tools() + [PythonAstREPLTool(locals={"df": df})]
+        tools = tools + [PythonAstREPLTool(locals={"df": df})]
     prompt = ZeroShotAgent.create_prompt(
         tools, prefix=prefix, suffix=suffix, input_variables=input_variables
     )

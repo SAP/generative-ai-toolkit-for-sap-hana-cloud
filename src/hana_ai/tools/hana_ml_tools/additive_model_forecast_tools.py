@@ -21,48 +21,110 @@ from hana_ml.algorithms.pal.tsa.additive_model_forecast import AdditiveModelFore
 logger = logging.getLogger(__name__)
 
 class ModelFitInput(BaseModel):
+    """
+    This class is used to define the schema of the inputs for fitting the model
+    """
     fit_table: str = Field(description="the table to fit the model. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model in model storage. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model in model storage, it is optional")
+    version: Optional[str] = Field(description="the version of the model in model storage, it is optional", default=None)
     # init args
-    growth: Optional[str] = Field(description="the growth of the model chosen from {'linear', 'logistic'}, it is optional")
-    logistic_growth_capacity: Optional[float] = Field(description="the logistic growth capacity of the model only valid when growth is 'logistic', it is optional")
-    seasonality_mode: Optional[str] = Field(description="the seasonality mode of the model chosen from {'additive', 'multiplicative'}, it is optional")
-    seasonality: Optional[str] = Field(description="adds seasonality to the model in a json format such that each str is in json format '{\"NAME\": \"MONTHLY\", \"PERIOD\":30, \"FOURIER_ORDER\":5 }', it is optional")
-    num_changepoints: Optional[int] = Field(description="the number of changepoints in the model, it is optional")
-    changepoint_range: Optional[float] = Field(description="the proportion of history in which trend changepoints will be estimated, it is optional")
-    regressor: Optional[list] = Field(description="specifies the regressor in a list of json such that ['{\"NAME\": \"X1\", \"PRIOR_SCALE\":4, \"MODE\": \"additive\" }'], it is optional")
-    changepoints: Optional[list] = Field(description="specifies a list of changepoints in the format of timestamp, such as ['2019-01-01 00:00:00, '2019-02-04 00:00:00'], it is optional")
-    yearly_seasonality: Optional[str] = Field(description="Specifies whether or not to fit yearly seasonality chosen from {'auto', 'false', 'true'}, it is optional")
-    weekly_seasonality: Optional[str] = Field(description="Specifies whether or not to fit weekly seasonality chosen from {'auto', 'false', 'true'}, it is optional")
-    daily_seasonality: Optional[str] = Field(description="Specifies whether or not to fit daily seasonality chosen from {'auto', 'false', 'true'}, it is optional")
-    seasonality_prior_scale: Optional[float] = Field(description="the parameter modulating the strength of the seasonality model, it is optional")
-    holiday_prior_scale: Optional[float] = Field(description="the parameter modulating the strength of the holiday model, it is optional")
-    changepoint_prior_scale: Optional[float] = Field(description="the parameter modulating the flexibility of the automatic changepoint selection, it is optional")
+    growth: Optional[str] = Field(description="the growth of the model chosen from {'linear', 'logistic'}, it is optional", default=None)
+    logistic_growth_capacity: Optional[float] = Field(description="the logistic growth capacity of the model only valid when growth is 'logistic', it is optional", default=None)
+    seasonality_mode: Optional[str] = Field(description="the seasonality mode of the model chosen from {'additive', 'multiplicative'}, it is optional", default=None)
+    seasonality: Optional[str] = Field(description="adds seasonality to the model in a json format such that each str is in json format '{\"NAME\": \"MONTHLY\", \"PERIOD\":30, \"FOURIER_ORDER\":5 }', it is optional", default=None)
+    num_changepoints: Optional[int] = Field(description="the number of changepoints in the model, it is optional", default=None)
+    changepoint_range: Optional[float] = Field(description="the proportion of history in which trend changepoints will be estimated, it is optional", default=None)
+    regressor: Optional[list] = Field(description="specifies the regressor in a list of json such that ['{\"NAME\": \"X1\", \"PRIOR_SCALE\":4, \"MODE\": \"additive\" }'], it is optional", default=None)
+    changepoints: Optional[list] = Field(description="specifies a list of changepoints in the format of timestamp, such as ['2019-01-01 00:00:00, '2019-02-04 00:00:00'], it is optional", default=None)
+    yearly_seasonality: Optional[str] = Field(description="Specifies whether or not to fit yearly seasonality chosen from {'auto', 'false', 'true'}, it is optional", default=None)
+    weekly_seasonality: Optional[str] = Field(description="Specifies whether or not to fit weekly seasonality chosen from {'auto', 'false', 'true'}, it is optional", default=None)
+    daily_seasonality: Optional[str] = Field(description="Specifies whether or not to fit daily seasonality chosen from {'auto', 'false', 'true'}, it is optional", default=None)
+    seasonality_prior_scale: Optional[float] = Field(description="the parameter modulating the strength of the seasonality model, it is optional", default=None)
+    holiday_prior_scale: Optional[float] = Field(description="the parameter modulating the strength of the holiday model, it is optional", default=None)
+    changepoint_prior_scale: Optional[float] = Field(description="the parameter modulating the flexibility of the automatic changepoint selection, it is optional", default=None)
     # fit args
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
-    endog: Optional[str] = Field(description="the endog of the dataset, it is optional")
-    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional")
-    holiday_table: Optional[str] = Field(description="the table of the holiday, it is optional")
-    categorical_variable: Union[Optional[str], Optional[list]] = Field(description="the categorical variable of the dataset, it is optional")
+    endog: Optional[str] = Field(description="the endog of the dataset, it is optional", default=None)
+    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
+    holiday_table: Optional[str] = Field(description="the table of the holiday, it is optional", default=None)
+    categorical_variable: Union[Optional[str], Optional[list]] = Field(description="the categorical variable of the dataset, it is optional", default=None)
 
 class ModelPredictInput(BaseModel):
+    """
+    This class is used to define the schema of the inputs for predicting the model
+    """
     predict_table: str = Field(description="the table to predict. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model, it is optional")
+    version: Optional[str] = Field(description="the version of the model, it is optional", default=None)
     # predict args
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
-    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional")
-    logistic_growth_capacity: Optional[float] = Field(description="the logistic growth capacity of the model only valid when growth is 'logistic', it is optional")
-    interval_width: Optional[float] = Field(description="the width of the uncertainty interval, it is optional")
-    uncertainty_samples: Optional[int] = Field(description="the number of simulated draws used to estimate uncertainty intervals, it is optional")
-    show_explainer: Optional[bool] = Field(description="whether to show explainer, it is optional")
-    decompose_seasonality: Optional[bool] = Field(description="whether to decompose seasonality only valid when show_explainer is True, it is optional")
-    decompose_holiday: Optional[bool] = Field(description="whether to decompose holiday only valid when show_explainer is True, it is optional")
+    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
+    logistic_growth_capacity: Optional[float] = Field(description="the logistic growth capacity of the model only valid when growth is 'logistic', it is optional", default=None)
+    interval_width: Optional[float] = Field(description="the width of the uncertainty interval, it is optional", default=None)
+    uncertainty_samples: Optional[int] = Field(description="the number of simulated draws used to estimate uncertainty intervals, it is optional", default=None)
+    show_explainer: Optional[bool] = Field(description="whether to show explainer, it is optional", default=None)
+    decompose_seasonality: Optional[bool] = Field(description="whether to decompose seasonality only valid when show_explainer is True, it is optional", default=None)
+    decompose_holiday: Optional[bool] = Field(description="whether to decompose holiday only valid when show_explainer is True, it is optional", default=None)
 
 class AdditiveModelForecastFitAndSave(BaseTool):
-    """
+    r"""
     This tool is used to fit and predict the additive model forecast.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+       
+    Returns
+    -------
+    str
+        The result string containing the training table name, model storage name, and model storage version.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - fit_table
+                  - The name of the table containing the training data.
+                * - key
+                  - The key column in the training table.
+                * - name
+                  - The name of the model to save.
+                * - version
+                  - The version of the model to save.
+                * - growth
+                  - The growth of the model chosen from {'linear', 'logistic'}.
+                * - logistic_growth_capacity
+                  - The logistic growth capacity of the model only valid when growth is 'logistic'.
+                * - seasonality_mode
+                  - The seasonality mode of the model chosen from {'additive', 'multiplicative'}.
+                * - seasonality
+                  - Adds seasonality to the model in a json format such that each str is in json format '{\"NAME\": \"MONTHLY\", \"PERIOD\":30, \"FOURIER_ORDER\":5 }'.
+                * - num_changepoints
+                  - The number of changepoints in the model.
+                * - changepoint_range
+                  - The proportion of history in which trend changepoints will be estimated.
+                * - regressor
+                  - Specifies the regressor in a list of json such that ['{\"NAME\": \"X1\", \"PRIOR_SCALE\":4, \"MODE\": \"additive\" }'].
+                * - changepoints
+                  - Specifies a list of changepoints in the format of timestamp, such as ['2019-01-01 00:00:00, '2019-02-04 00:00:00'].
+                * - yearly_seasonality
+                  - Specifies whether or not to fit yearly seasonality chosen from {'auto', 'false', 'true'}.
+                * - weekly_seasonality
+                  - Specifies whether or not to fit weekly seasonality chosen from {'auto', 'false', 'true'}.
+                * - daily_seasonality
+                  - Specifies whether or not to fit daily seasonality chosen from {'auto', 'false', 'true'}.
+                * - seasonality_prior_scale
+                  - The parameter modulating the strength of the seasonality model.
+                * - holiday_prior_scale
+                  - The parameter modulating the strength of the holiday model.
+
     """
     name: str = "additive_model_forecast_fit_and_save"
     """Name of the tool."""
@@ -196,8 +258,51 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         )
 
 class AdditiveModelForecastLoadModelAndPredict(BaseTool):
-    """
+    r"""
     This tool is used to load the additive model forecast from model storage and predict.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The name of the predicted results table.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - predict_table
+                  - The name of the table containing the prediction data.
+                * - key
+                  - The key column in the prediction table.
+                * - name
+                  - The name of the model to load.
+                * - version
+                  - The version of the model to load.
+                * - exog
+                  - External regressors to include in the prediction.
+                * - logistic_growth_capacity
+                  - Capacity for logistic growth.
+                * - interval_width
+                  - Width of the prediction intervals.
+                * - uncertainty_samples
+                  - Number of uncertainty samples to draw.
+                * - show_explainer
+                  - Whether to show the explainer.
+                * - decompose_seasonality
+                  - Whether to decompose seasonality.
+                * - decompose_holiday
+                  - Whether to decompose holiday effects.
     """
     name: str = "additive_model_forecast_load_model_and_predict"
     """Name of the tool."""

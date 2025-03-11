@@ -16,7 +16,7 @@ from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveMo
 from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsTool
 from hana_ai.tools.hana_ml_tools.intermittent_forecast_tools import IntermittentForecast
 from hana_ai.tools.hana_ml_tools.ts_visualizer_tools import TimeSeriesDatasetReport
-from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelandScore
+from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.ts_check_tools import TimeSeriesCheck
 from hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools import TSOutlierDetection
 
@@ -35,7 +35,9 @@ class HANAMLToolkit(BaseToolkit):
         Parameters
         ----------
         connection_context : ConnectionContext
-            Connection context to the HANA database."""
+            Connection context to the HANA database.
+        used_tools : list, optional
+            List of tools to use. If None or 'all', all tools are used. Default is None."""
         super().__init__(connection_context=connection_context)
         self.default_tools = [
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),
@@ -45,7 +47,7 @@ class HANAMLToolkit(BaseToolkit):
             TimeSeriesDatasetReport(connection_context=self.connection_context),
             AutomaticTimeSeriesFitAndSave(connection_context=self.connection_context),
             AutomaticTimeseriesLoadModelAndPredict(connection_context=self.connection_context),
-            AutomaticTimeseriesLoadModelandScore(connection_context=self.connection_context),
+            AutomaticTimeseriesLoadModelAndScore(connection_context=self.connection_context),
             TimeSeriesCheck(connection_context=self.connection_context),
             TSOutlierDetection(connection_context=self.connection_context)
         ]
@@ -65,7 +67,7 @@ class HANAMLToolkit(BaseToolkit):
         
         Parameters
         ----------
-        vectordb : Union[HANAMLinVectorEngine]
+        vectordb : HANAMLinVectorEngine
             Vector database."""
         self.vectordb = vectordb
 

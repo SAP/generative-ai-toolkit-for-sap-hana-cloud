@@ -25,7 +25,7 @@ llm = init_llm('gpt-4', temperature=0.0, max_tokens=512)
 
 
 embedding_func = GenAIHubEmbeddings()
-toolkit = HANAMLToolkit()
+toolkit = HANAMLToolkit(connection_context)
 
 #hana_vec = HANAMLinVectorEngine(connection_context, "hana_vec_hana_ml_knowledge_v2")
 
@@ -42,7 +42,7 @@ toolkit.set_vectordb(hana_vec)
 
 refunds_hdf = connection_context.table('SALES_REFUNDS')
 
-agent = create_hana_dataframe_agent(llm=llm, toolkit=toolkit, df=refunds_hdf, verbose=True, handle_parsing_errors=True)
+agent = create_hana_dataframe_agent(llm=llm, tools=toolkit.get_tools(), df=refunds_hdf, verbose=True, handle_parsing_errors=True)
 
 
 import sys

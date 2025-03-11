@@ -9,18 +9,14 @@ The following class are available:
 """
 # pylint: disable=unused-argument
 
-from typing import Optional, Type, Union
-from pydantic import BaseModel
+from typing import Optional, Type
+from langchain.pydantic_v1 import BaseModel
 from langchain.tools import BaseTool
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
     CallbackManagerForToolRun,
 )
 
-try:
-    from hana_ai.vectorstore.corrective_retriever import CorrectiveRetriever
-except ImportError:
-    pass
 from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 
 class GetCodeTemplateFromVectorDB(BaseTool):
@@ -30,7 +26,7 @@ class GetCodeTemplateFromVectorDB(BaseTool):
     name: str = "CodeTemplatesFromVectorDB"
     description: str = "useful for when you need to create hana-ml code templates."
     args_schema: Type[BaseModel] = None
-    vectordb: Union[HANAMLinVectorEngine] = None
+    vectordb: HANAMLinVectorEngine = None
 
     def set_vectordb(self, vectordb):
         """
@@ -38,7 +34,7 @@ class GetCodeTemplateFromVectorDB(BaseTool):
         
         Parameters
         ----------
-        vectordb : Union[HANAMLinVectorEngine]
+        vectordb : HANAMLinVectorEngine
             Vector database.
         """
         self.vectordb = vectordb

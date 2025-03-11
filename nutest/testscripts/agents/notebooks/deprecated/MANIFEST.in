@@ -1,0 +1,3 @@
+include src/hana_ai/vectorstore/knowledge_base/python_knowledge/*
+include src/hana_ai/vectorstore/knowledge_base/sql_knowledge/*
+include img/*

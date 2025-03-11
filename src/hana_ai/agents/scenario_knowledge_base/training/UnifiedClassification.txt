@@ -1,8 +1,0 @@
-useful for when you need to get example to create Unified Classification model.
-------
-Strictly use the Examples to create unified Classification instance.
-Do fitting:
->>> from hana_ml.algorithms.pal.unified_classification import UnifiedClassification
->>> model_train = UnifiedClassification(func=<func>)
->>> model_train.fit(data=df, key=<key>, features=<features>, label=<label>)
->>> print({"output table names": model_train._fit_output_table_names, "Python object address": id(model_train)})

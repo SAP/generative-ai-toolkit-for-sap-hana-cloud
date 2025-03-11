@@ -29,8 +29,6 @@ class TestAdditiveModelForecastTools(TestML_BaseTestClass):
         self._insertData('#HANAI_DATA_TBL_PREDICT_RAW', data_list_predict_raw)
 
     def tearDown(self):
-        ms = ModelStorage(self.conn)
-        ms.delete_model("HANAI_MODEL", 1)
         self._dropTableIgnoreError('#HANAI_DATA_TBL_RAW')
         self._dropTableIgnoreError('#HANAI_DATA_TBL_PREDICT_RAW')
         super(TestAdditiveModelForecastTools, self).tearDown()

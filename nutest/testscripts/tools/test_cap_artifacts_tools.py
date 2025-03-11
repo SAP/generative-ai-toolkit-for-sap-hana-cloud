@@ -1,7 +1,7 @@
 #unittest for CAP Artifacts tools
 import os
 import shutil
-from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelandScore
+from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsTool
 from testML_BaseTestClass import TestML_BaseTestClass
 from hana_ml.model_storage import ModelStorage
@@ -53,7 +53,7 @@ class TestCAPArtifactsTool(TestML_BaseTestClass):
         self.assertTrue(os.path.exists(os.path.join('.', 'CAP_OUTPUT_DIR', 'CAP_PROJECT', 'db', 'src', 'hana-ml-base-pal-automl-fit.hdbprocedure')))
         tool = AutomaticTimeseriesLoadModelAndPredict(connection_context=self.conn)
         tool.run({"predict_table": "#HANAI_DATA_TBL_PREDICT_RAW", "key": "TIMESTAMP", "name": "AUTOML_MODEL", "version": 1})
-        tool = AutomaticTimeseriesLoadModelandScore(connection_context=self.conn)
+        tool = AutomaticTimeseriesLoadModelAndScore(connection_context=self.conn)
         tool.run({"score_table": "#HANAI_DATA_TBL_SCORE_RAW", "key": "TIMESTAMP", "endog": "VALUE", "name": "AUTOML_MODEL", "version": 1})
         tool = CAPArtifactsTool(connection_context=self.conn)
         result =tool.run({"name": "AUTOML_MODEL", "version": 1, "project_name": "CAP_PROJECT", "output_dir": "CAP_OUTPUT_DIR", "cds_gen": True, "tudf": True})

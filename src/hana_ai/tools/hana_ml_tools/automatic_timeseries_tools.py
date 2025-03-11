@@ -19,68 +19,170 @@ from hana_ml.algorithms.pal.auto_ml import AutomaticTimeSeries
 logger = logging.getLogger(__name__)
 
 class ModelFitInput(BaseModel):
+    """
+    The schema of the inputs for fitting the model.
+    """
     fit_table: str = Field(description="the table to fit the model. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model in model storage. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model in model storage, it is optional")
+    version: Optional[str] = Field(description="the version of the model in model storage, it is optional", default=None)
     # init args
-    scorings: Optional[dict] = Field(description="the scorings for the model, e.g. {'MAE':-1.0, 'EVAR':1.0} and it supports EVAR, MAE, MAPE, MAX_ERROR, MSE, R2, RMSE, WMAPE, LAYERS, SPEC, TIME, and it is optional")
-    generations: Optional[int] = Field(description="the number of iterations of the pipeline optimization., it is optional")
-    population_size: Optional[int] = Field(description="the number of individuals in the population., it is optional")
-    offspring_size: Optional[int] = Field(description="the number of children to produce at each generation., it is optional")
-    elite_number: Optional[int] = Field(description="the number of the best individuals to select for the next generation., it is optional")
-    min_layer: Optional[int] = Field(description="the minimum number of layers in the pipeline., it is optional")
-    max_layer: Optional[int] = Field(description="the maximum number of layers in the pipeline., it is optional")
-    mutation_rate: Optional[float] = Field(description="the mutation rate., it is optional")
-    crossover_rate: Optional[float] = Field(description="the crossover rate., it is optional")
-    random_seed: Optional[int] = Field(description="the random seed., it is optional")
-    config_dict: Optional[dict] = Field(description="the configuration dictionary for the searching space, it is optional")
-    progress_indicator_id: Optional[str] = Field(description="the progress indicator id, it is optional")
-    fold_num: Optional[int] = Field(description="the number of folds for cross validation, it is optional")
-    resampling_method: Optional[str] = Field(description="the resampling method for cross validation from {'rocv', 'block'}, it is optional")
-    max_eval_time_mins: Optional[float] = Field(description="the maximum evaluation time in minutes, it is optional")
-    early_stop: Optional[int] = Field(description="stop optimization progress when best pipeline is not updated for the give consecutive generations and 0 means there is no early stop, and it is optional")
-    percentage: Optional[float] = Field(description="the percentage of the data to be used for training, it is optional")
-    gap_num: Optional[int] = Field(description="the number of samples to exclude from the end of each train set before the test set, it is optional")
-    connections: Union[Optional[dict], Optional[str]] = Field(description="the connections for the model, it is optional")
-    alpha: Optional[float] = Field(description="the rejection probability in connection optimization, it is optional")
-    delta: Optional[float] = Field(description="the minimum improvement in connection optimization, it is optional")
-    top_k_connections: Optional[int] = Field(description="the number of top connections to keep in connection optimization, it is optional")
-    top_k_pipelines: Optional[int] = Field(description="the number of top pipelines to keep in pipeline optimization, it is optional")
-    fine_tune_pipline: Optional[bool] = Field(description="whether to fine tune the pipeline, it is optional")
-    fine_tune_resource: Optional[int] = Field(description="the resource for fine tuning, it is optional")
+    scorings: Optional[dict] = Field(description="the scorings for the model, e.g. {'MAE':-1.0, 'EVAR':1.0} and it supports EVAR, MAE, MAPE, MAX_ERROR, MSE, R2, RMSE, WMAPE, LAYERS, SPEC, TIME, and it is optional", default=None)
+    generations: Optional[int] = Field(description="the number of iterations of the pipeline optimization., it is optional", default=None)
+    population_size: Optional[int] = Field(description="the number of individuals in the population., it is optional", default=None)
+    offspring_size: Optional[int] = Field(description="the number of children to produce at each generation., it is optional", default=None)
+    elite_number: Optional[int] = Field(description="the number of the best individuals to select for the next generation., it is optional", default=None)
+    min_layer: Optional[int] = Field(description="the minimum number of layers in the pipeline., it is optional", default=None)
+    max_layer: Optional[int] = Field(description="the maximum number of layers in the pipeline., it is optional", default=None)
+    mutation_rate: Optional[float] = Field(description="the mutation rate., it is optional", default=None)
+    crossover_rate: Optional[float] = Field(description="the crossover rate., it is optional", default=None)
+    random_seed: Optional[int] = Field(description="the random seed., it is optional", default=None)
+    config_dict: Optional[dict] = Field(description="the configuration dictionary for the searching space, it is optional", default=None)
+    progress_indicator_id: Optional[str] = Field(description="the progress indicator id, it is optional", default=None)
+    fold_num: Optional[int] = Field(description="the number of folds for cross validation, it is optional", default=None)
+    resampling_method: Optional[str] = Field(description="the resampling method for cross validation from {'rocv', 'block'}, it is optional", default=None)
+    max_eval_time_mins: Optional[float] = Field(description="the maximum evaluation time in minutes, it is optional", default=None)
+    early_stop: Optional[int] = Field(description="stop optimization progress when best pipeline is not updated for the give consecutive generations and 0 means there is no early stop, and it is optional", default=None)
+    percentage: Optional[float] = Field(description="the percentage of the data to be used for training, it is optional", default=None)
+    gap_num: Optional[int] = Field(description="the number of samples to exclude from the end of each train set before the test set, it is optional", default=None)
+    connections: Union[Optional[dict], Optional[str]] = Field(description="the connections for the model, it is optional", default=None)
+    alpha: Optional[float] = Field(description="the rejection probability in connection optimization, it is optional", default=None)
+    delta: Optional[float] = Field(description="the minimum improvement in connection optimization, it is optional", default=None)
+    top_k_connections: Optional[int] = Field(description="the number of top connections to keep in connection optimization, it is optional", default=None)
+    top_k_pipelines: Optional[int] = Field(description="the number of top pipelines to keep in pipeline optimization, it is optional", default=None)
+    fine_tune_pipline: Optional[bool] = Field(description="whether to fine tune the pipeline, it is optional", default=None)
+    fine_tune_resource: Optional[int] = Field(description="the resource for fine tuning, it is optional", default=None)
     # fit args
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
-    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional")
-    categorical_variable: Union[Optional[str], Optional[list]] = Field(description="the categorical variable of the dataset, it is optional")
-    background_size: Optional[int] = Field(description="the amount of background data in Kernel SHAP. Its value should not exceed the number of rows in the training data, it is optional")
-    background_sampling_seed: Optional[int] = Field(description="the seed for sampling the background data in Kernel SHAP, it is optional")
-    use_explain: Optional[bool] = Field(description="whether to use explain, it is optional")
-    workload_class: Optional[str] = Field(description="the workload class for fitting the model, it is optional")
+    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
+    categorical_variable: Union[Optional[str], Optional[list]] = Field(description="the categorical variable of the dataset, it is optional", default=None)
+    background_size: Optional[int] = Field(description="the amount of background data in Kernel SHAP. Its value should not exceed the number of rows in the training data, it is optional", default=None)
+    background_sampling_seed: Optional[int] = Field(description="the seed for sampling the background data in Kernel SHAP, it is optional", default=None)
+    use_explain: Optional[bool] = Field(description="whether to use explain, it is optional", default=None)
+    workload_class: Optional[str] = Field(description="the workload class for fitting the model, it is optional", default=None)
 
 class ModelPredictInput(BaseModel):
+    """
+    The schema of the inputs for predicting the model.
+    """
     # init args
     predict_table: str = Field(description="the table to predict. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model, it is optional")
+    version: Optional[str] = Field(description="the version of the model, it is optional", default=None)
     # fit args
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
-    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional")
-    show_explainer: Optional[bool] = Field(description="whether to show explainer, it is optional")
-    predict_args: Optional[dict] = Field(description="the arguments for prediction, it is optional")
+    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
+    show_explainer: Optional[bool] = Field(description="whether to show explainer, it is optional", default=None)
+    predict_args: Optional[dict] = Field(description="the arguments for prediction, it is optional", default=None)
 
 class ModelScoreInput(BaseModel):
+    """
+    The schema of the inputs for scoring the model.
+    """
     score_table: str = Field(description="the table to score. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model, it is optional")
+    version: Optional[str] = Field(description="the version of the model, it is optional", default=None)
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
-    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional")
-    predict_args: Optional[dict] = Field(description="the arguments for prediction, it is optional")
+    exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
+    predict_args: Optional[dict] = Field(description="the arguments for prediction, it is optional", default=None)
 
 class AutomaticTimeSeriesFitAndSave(BaseTool):
     """
     This tool fits a time series model and saves it in the model storage.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The JSON string of the trained table, model storage name, and model storage version.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - fit_table
+                  - The table to fit the model. If not provided, ask the user. Do not guess.
+                * - name
+                  - The name of the model in model storage. If not provided, ask the user. Do not guess.
+                * - version
+                  - The version of the model in model storage, it is optional
+                * - scorings
+                  - The scorings for the model, e.g. {'MAE':-1.0, 'EVAR':1.0} and it supports EVAR, MAE, MAPE, MAX_ERROR, MSE, R2, RMSE, WMAPE, LAYERS, SPEC, TIME, and it is optional
+                * - generations
+                  - The number of iterations of the pipeline optimization., it is optional
+                * - population_size
+                  - The number of individuals in the population., it is optional
+                * - offspring_size
+                  - The number of children to produce at each generation., it is optional
+                * - elite_number
+                  - The number of the best individuals to select for the next generation., it is optional
+                * - min_layer
+                  - The minimum number of layers in the pipeline., it is optional
+                * - max_layer
+                  - The maximum number of layers in the pipeline., it is optional
+                * - mutation_rate
+                  - The mutation rate., it is optional
+                * - crossover_rate
+                  - The crossover rate., it is optional
+                * - random_seed
+                  - The random seed., it is optional
+                * - config_dict
+                  - The configuration dictionary for the searching space, it is optional
+                * - progress_indicator_id
+                  - The progress indicator id, it is optional
+                * - fold_num
+                  - The number of folds for cross validation, it is optional
+                * - resampling_method
+                  - The resampling method for cross validation from {'rocv', 'block'}, it is optional
+                * - max_eval_time_mins
+                  - The maximum evaluation time in minutes, it is optional
+                * - early_stop
+                  - Stop optimization progress when the best pipeline is not updated for the give consecutive generations and 0 means there is no early stop, and it is optional
+                * - percentage
+                  - The percentage of the data to be used for training, it is optional
+                * - gap_num
+                  - The number of samples to exclude from the end of each train set before the test set, it is optional
+                * - connections
+                  - The connections for the model, it is optional
+                * - alpha
+                  - The rejection probability in connection optimization, it is optional
+                * - delta
+                  - The minimum improvement in connection optimization, it is optional
+                * - top_k_connections
+                  - The number of top connections to keep in connection optimization, it is optional
+                * - top_k_pipelines
+                  - The number of top pipelines to keep in pipeline optimization, it is optional
+                * - fine_tune_pipline
+                  - Whether to fine tune the pipeline, it is optional
+                * - fine_tune_resource
+                  - The resource for fine tuning, it is optional
+                * - key
+                  - The key of the dataset. If not provided, ask the user. Do not guess.
+                * - endog
+                  - The endog of the dataset. If not provided, ask the user. Do not guess.
+                * - exog
+                  - The exog of the dataset, it is optional
+                * - categorical_variable
+                  - The categorical variable of the dataset, it is optional
+                * - background_size
+                  - The amount of background data in Kernel SHAP. Its value should not exceed the number of rows in the training data, it is optional
+                * - background_sampling_seed
+                  - The seed for sampling the background data in Kernel SHAP, it is optional
+                * - use_explain
+                  - Whether to use explain, it is optional
+                * - workload_class
+                  - The workload class for fitting the model, it is optional
     """
     name: str = "automatic_timeseries_fit_and_save"
     """Name of the tool."""
@@ -274,6 +376,41 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
 class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
     """
     This tool load model from model storage and do the prediction.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The JSON string of the predicted results table and the statistics.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - predict_table
+                  - The table to predict. If not provided, ask the user. Do not guess.
+                * - name
+                  - The name of the model. If not provided, ask the user. Do not guess.
+                * - version
+                  - The version of the model, it is optional
+                * - key
+                  - The key of the dataset. If not provided, ask the user. Do not guess.
+                * - exog
+                  - The exog of the dataset, it is optional
+                * - show_explainer
+                  - Whether to show explainer, it is optional
+                * - predict_args
+                  - The arguments for prediction, it is optional
     """
     name: str = "automatic_timeseries_load_model_and_predict"
     """Name of the tool."""
@@ -343,9 +480,44 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
             run_manager=run_manager
         )
 
-class AutomaticTimeseriesLoadModelandScore(BaseTool):
+class AutomaticTimeseriesLoadModelAndScore(BaseTool):
     """
     This tool load model from model storage and do the scoring.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The JSON string of the scored results table and the statistics.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - score_table
+                  - The table to score. If not provided, ask the user. Do not guess.
+                * - name
+                  - The name of the model. If not provided, ask the user. Do not guess.
+                * - version
+                  - The version of the model, it is optional
+                * - key
+                  - The key of the dataset. If not provided, ask the user. Do not guess.
+                * - endog
+                  - The endog of the dataset. If not provided, ask the user. Do not guess.
+                * - exog
+                  - The exog of the dataset, it is optional
+                * - predict_args
+                  - The arguments for prediction, it is optional
     """
     name: str = "automatic_timeseries_load_model_and_score"
     """Name of the tool."""

@@ -5,11 +5,12 @@ The following class is available:
 
     * :class `SmartDataFrame`
 """
+from typing import List
 from langchain.agents.agent import AgentExecutor
 from langchain.llms.base import BaseLLM
+from langchain.tools import BaseTool
 from hana_ml.dataframe import DataFrame
 from hana_ai.agents.hana_dataframe_agent import create_hana_dataframe_agent
-from hana_ai.tools.toolkit import HANAMLToolkit
 
 class SmartDataFrame(DataFrame):
     """
@@ -22,7 +23,7 @@ class SmartDataFrame(DataFrame):
     """
     llm: BaseLLM
     _dataframe: DataFrame
-    toolkit: HANAMLToolkit
+    tools: List[BaseTool]
     agent: AgentExecutor
     kwargs: dict
     def __init__(self, dataframe: DataFrame):
@@ -32,7 +33,7 @@ class SmartDataFrame(DataFrame):
 
     def configure(self,
                   llm: BaseLLM,
-                  toolkit: HANAMLToolkit,
+                  tools: List[BaseTool],
                   **kwargs):
         """
         Configure the Smart DataFrame.
@@ -45,10 +46,10 @@ class SmartDataFrame(DataFrame):
             Toolkit.
         """
         self.llm = llm
-        self.toolkit = toolkit
+        self.tools = tools
         self.kwargs = kwargs
         self.agent = create_hana_dataframe_agent(llm=llm,
-                                                 toolkit=toolkit,
+                                                 tools=tools,
                                                  df=self._dataframe,
                                                  **kwargs)
         self._is_configured = True
@@ -63,7 +64,7 @@ class SmartDataFrame(DataFrame):
 
         """
         self.agent_transform = create_hana_dataframe_agent(llm=llm,
-                                                           toolkit=toolkit,
+                                                           tools=tools,
                                                            df=self._dataframe,
                                                            suffix=suffix,
                                                            **kwargs)
@@ -85,9 +86,9 @@ class SmartDataFrame(DataFrame):
         return self.agent.invoke(question)
 
     @classmethod
-    def _construct(cls, dataframe: DataFrame, llm: BaseLLM, toolkit: HANAMLToolkit, **kwargs):
+    def _construct(cls, dataframe: DataFrame, llm: BaseLLM, tools: List[BaseTool], **kwargs):
         sdf = cls(dataframe)
-        sdf.configure(llm, toolkit, **kwargs)
+        sdf.configure(llm, tools, **kwargs)
         return sdf
 
     def transform(self, question: str, verbose: bool = False, output_key='output'):
@@ -108,5 +109,5 @@ class SmartDataFrame(DataFrame):
         if isinstance(select_statement, dict):
             if output_key in select_statement:
                 select_statement = select_statement[output_key]
-        sdf = self._construct(self._dataframe.connection_context.sql(select_statement), self.llm, self.toolkit, **self.kwargs)
+        sdf = self._construct(self._dataframe.connection_context.sql(select_statement), self.llm, self.tools, **self.kwargs)
         return sdf
