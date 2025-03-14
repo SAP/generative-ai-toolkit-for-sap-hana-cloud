@@ -24,7 +24,7 @@ class CAPArtifactsInput(BaseModel):
     The input schema for the CAPArtifactsTool.
     """
     name: str = Field(description="the name of the model in model storage. If not provided, ask the user. Do not guess.")
-    version: str = Field(description="the version of the model in model storage. If not provided, ask the user. Do not guess.")
+    version: int = Field(description="the version of the model in model storage. If not provided, ask the user. Do not guess.")
     project_name: str = Field(description="the name of the project for CAP project. If not provided, ask the user. Do not guess.")
     output_dir: str = Field(description="the output directory for CAP project. If not provided, ask the user. Do not guess.")
     namespace: Optional[str] = Field(description="the namespace for CAP project, it is optional", default=None)

@@ -5,6 +5,7 @@ A chatbot that can remember the chat history and use it to generate responses.
 from langchain.agents import initialize_agent, AgentType
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.runnables import Runnable
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 class ChatbotWithMemory(object):
@@ -30,7 +31,7 @@ class ChatbotWithMemory(object):
             MessagesPlaceholder(variable_name="history", n_messages=n_messages),
             ("human", "{question}"),
         ])
-        chain = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION)
+        chain: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION)
         self.agent_with_chat_history = RunnableWithMessageHistory(chain,
                                                                   lambda session_id: memory,
                                                                   input_messages_key="question",
@@ -47,7 +48,10 @@ class ChatbotWithMemory(object):
             The question to ask.
         """
         try:
-            return self.agent_with_chat_history.invoke({"question": question}, self.config)
+            response = self.agent_with_chat_history.invoke({"question": question}, self.config)
         except Exception as e:
             error_message = str(e)
-            return self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please analyze the error message and provide the solution."}, self.config)
+            response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
+        if 'output' in response:
+            return response['output']
+        return response

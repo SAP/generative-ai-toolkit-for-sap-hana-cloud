@@ -24,7 +24,7 @@ class ModelFitInput(BaseModel):
     """
     fit_table: str = Field(description="the table to fit the model. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model in model storage. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model in model storage, it is optional", default=None)
+    version: Optional[int] = Field(description="the version of the model in model storage, it is optional", default=None)
     # init args
     scorings: Optional[dict] = Field(description="the scorings for the model, e.g. {'MAE':-1.0, 'EVAR':1.0} and it supports EVAR, MAE, MAPE, MAX_ERROR, MSE, R2, RMSE, WMAPE, LAYERS, SPEC, TIME, and it is optional", default=None)
     generations: Optional[int] = Field(description="the number of iterations of the pipeline optimization., it is optional", default=None)
@@ -68,7 +68,7 @@ class ModelPredictInput(BaseModel):
     # init args
     predict_table: str = Field(description="the table to predict. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model, it is optional", default=None)
+    version: Optional[int] = Field(description="the version of the model, it is optional", default=None)
     # fit args
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
@@ -81,7 +81,7 @@ class ModelScoreInput(BaseModel):
     """
     score_table: str = Field(description="the table to score. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model, it is optional", default=None)
+    version: Optional[int] = Field(description="the version of the model, it is optional", default=None)
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
     exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
@@ -282,14 +282,15 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
                     background_sampling_seed=background_sampling_seed,
                     use_explain=use_explain)
         auto_ts.name = name
-        auto_ts.version = version
         ms = ModelStorage(connection_context=self.connection_context)
-        if version is not None:
-            ms.save_model(model=auto_ts, if_exists='replace')
-        else:
-            ms.save_model(model=auto_ts)
         if version is None:
-            version = int(ms._get_last_version_no(name))
+            version = ms._get_last_version_no(name)
+            if version is None:
+                version = 1
+            else:
+                version = int(version)
+        auto_ts.version = version
+        ms.save_model(model=auto_ts, if_exists='replace')
         return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version})
 
     async def _arun(

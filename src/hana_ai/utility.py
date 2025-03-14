@@ -29,3 +29,4 @@ def remove_prefix_sharp(table_name):
     if table_name.startswith("#"):
         return table_name[1:]
     return table_name
+

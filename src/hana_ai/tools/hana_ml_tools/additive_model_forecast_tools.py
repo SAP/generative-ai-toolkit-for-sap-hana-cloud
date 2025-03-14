@@ -26,7 +26,7 @@ class ModelFitInput(BaseModel):
     """
     fit_table: str = Field(description="the table to fit the model. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model in model storage. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model in model storage, it is optional", default=None)
+    version: Optional[int] = Field(description="the version of the model in model storage, it is optional", default=None)
     # init args
     growth: Optional[str] = Field(description="the growth of the model chosen from {'linear', 'logistic'}, it is optional", default=None)
     logistic_growth_capacity: Optional[float] = Field(description="the logistic growth capacity of the model only valid when growth is 'logistic', it is optional", default=None)
@@ -55,7 +55,7 @@ class ModelPredictInput(BaseModel):
     """
     predict_table: str = Field(description="the table to predict. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model. If not provided, ask the user. Do not guess.")
-    version: Optional[str] = Field(description="the version of the model, it is optional", default=None)
+    version: Optional[int] = Field(description="the version of the model, it is optional", default=None)
     # predict args
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
@@ -196,13 +196,14 @@ class AdditiveModelForecastFitAndSave(BaseTool):
                 holiday=holiday_df,
                 categorical_variable=categorical_variable)
         amf.name = name
-        amf.version = version
-        if version is not None:
-            ms.save_model(model=amf, if_exists='replace')
-        else:
-            ms.save_model(model=amf)
         if version is None:
-            version = int(ms._get_last_version_no(name))
+            version = ms._get_last_version_no(name)
+            if version is None:
+                version = 1
+            else:
+                version = int(version)
+        amf.version = version
+        ms.save_model(model=amf, if_exists='replace')
         return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version})
 
     async def _arun(

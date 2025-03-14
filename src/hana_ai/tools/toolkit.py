@@ -11,6 +11,7 @@ from langchain.agents.agent_toolkits.base import BaseToolkit
 from langchain.tools import BaseTool
 
 from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
+from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool
 from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
 from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsTool
@@ -49,7 +50,8 @@ class HANAMLToolkit(BaseToolkit):
             AutomaticTimeseriesLoadModelAndPredict(connection_context=self.connection_context),
             AutomaticTimeseriesLoadModelAndScore(connection_context=self.connection_context),
             TimeSeriesCheck(connection_context=self.connection_context),
-            TSOutlierDetection(connection_context=self.connection_context)
+            TSOutlierDetection(connection_context=self.connection_context),
+            FetchDataTool(connection_context=self.connection_context)
         ]
         if used_tools is None or used_tools == "all":
             self.used_tools = self.default_tools
@@ -60,6 +62,21 @@ class HANAMLToolkit(BaseToolkit):
             for tool in self.default_tools:
                 if tool.name in used_tools:
                     self.used_tools.append(tool)
+
+    def add_custom_tool(self, tool: BaseTool):
+        """
+        Add a custom tool to the toolkit.
+        
+        Parameters
+        ----------
+        tool : BaseTool
+            Custom tool to add.
+
+            .. note::
+
+                The tool must be a subclass of BaseTool. Please follow the guide to create the custom tools https://python.langchain.com/docs/how_to/custom_tools/.
+        """
+        self.used_tools.append(tool)
 
     def set_vectordb(self, vectordb):
         """

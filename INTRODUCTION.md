@@ -1,18 +1,37 @@
-# Project Introduction
+# Project description
 
-This project provides a HANA dataframe agent for users to utilize.
+## Introduction
 
-## What's New
-* Embedding Service API
-* Corrective Retriever
-* Union Vector Stores
-* Local Embeddings Procedure API
-* DataFrame Agent with HANA-ML Code Knowledge Base
-* Smart DataFrame
-* Chatbot Agent
-* AI Toolkit for HANA-ML
+Welcome to the __generative AI toolkit for SAP HANA Cloud (hana_ai)__ 
 
-## Supported AI Tools for HANA-ML in HANAML toolkit (in progress)
+This project provides generative AI-assisted, conversational agents to build SAP HANA Cloud forecasting and machine learning models as well as a library of aiding tools to utilize the SAP HANA Cloud ML functions, vector engine and text embedding capabilities. In addition it provides capabilities to build tools like custom code generators or adding custom code templates to be used as a dedicated context store for the tools, agents and code generation tasks.
+
+## Overview
+The generative AI toolkit for SAP HANA Cloud provides the following key capabilities:
+* a generative AI-assisted, conversational agent to build SAP HANA Cloud forecasting models
+* a library of prepared tools to streamline use of SAP HANA machine learning functions and aid in e.g. forecast algorithm selection with the given data
+* a generative AI-assisted, conversational SAP HANA dataframe agent to generate and execute HANA ML code based on code-templates stores
+* a SmartDataFrame interface to directly interact with HANA dataframes using functions like "ask" and "transform" to explore and transform the data in a conversational manner
+* tools for leveraging the SAP HANA Cloud vectorstore and embedding services
+* components for building custom code generation tools, targeted for SAP HANA Cloud scenarios  
+         
+
+  
+# Capabilities introduction
+
+## Agent to build SAP HANA Cloud forecasting and machine learning models
+This conversational agent (agents.chatbot_with_memory.ChatbotWithMemory class), aids to streamline development of SAP HANA Cloud forecasting and machine learning models, it's re-using the provided library of HANA ai-tools (tools.toolkit.HANAMLToolkit class) and is based on the Langchain agent framework. Trained models and artifacts are persisted using the hana_ml model storage class that helps manage the model version.
+```python
+from hana_ai.tools.toolkit import HANAMLToolkit
+tools = HANAMLToolkit(cc, used_tools='all').get_tools()
+
+from hana_ai.agents.chatbot_with_memory import ChatbotWithMemory
+chatbot = ChatbotWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
+```
+<img src="./img/chatbotwithtoolkit.png" alt="image" width="800" height="auto">
+
+## Library of tools for HANA-ML 
+Provided AI-tools for streamlining usage of HANA ML functions in context of the conversational agent.
 | Tool Name | Description |
 |-----------|-------------|
 | additive_model_forecast_fit_and_save | To fit an AutomaticTimeseries model and save it in the model storage. |
@@ -30,102 +49,13 @@ This project provides a HANA dataframe agent for users to utilize.
 | cap_artifacts | To generate CAP artifacts from the model in the model storage. |
 | intermittent_forecast | To forecast the intermittent time series data. |
 | ts_outlier_detection | To detect the outliers in the time series data. |
+| fetch_data | To fetch the data from the HANA database.|
 
-## Langchain Agent with HANAML Toolkit
-```python
-from hana_ai.agents.chatbot_with_memory import ChatbotWithMemory
-
-tools = HANAMLToolkit(cc, used_tools='all').get_tools()
-chatbot = ChatbotWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
-```
-<img src="./img/chatbotwithtoolkit.png" alt="image" width="800" height="auto">
-
-## Embedding Service API
-```python
-from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
-
-model = GenAIHubEmbeddings()
-model('hello')
-```
-<img src="./img/embeddings.png" alt="image" width="400" height="auto">
+## Agent to generate HANA-ML code and execute tasks based on a SAP HANA dataframe
+A generative AI-assisted, conversational SAP HANA dataframe agent to generate HANA ML code and execute tasks based on SAP HANA dataframe.
 
 ```python
-from hana_ai.vectorstore.embedding_service import PALModelEmbeddings
-
-model = PALModelEmbeddings(cc)
-model(['hello', 'world'])
-```
-<img src="./img/embeddings_pal.png" alt="image" width="400" height="auto">
-
-```python
-from hana_ai.vectorstore.embedding_service import HANAVectorEmbeddings
-
-model = HANAVectorEmbeddings(cc)
-model(['hello', 'world'])
-```
-<img src="./img/hana_embeddings.png" alt="image" width="400" height="auto">
-
-
-## Union Vector Stores
-```python
-from hana_ai.vectorstore.union_vector_stores import UnionVectorStores
-
-uvs = UnionVectorStores([hana_vec, hana_kg])
-uvs.query("AutoML classification", top_n=2)
-```
-
-## Corrective Retriever Over Union Vector Stores
-```python
-from hana_ai.vectorstore.corrective_retriever import CorrectiveRetriever
-
-cr = CorrectiveRetriever(uvs)
-cr.query("AutoML classification", top_n=2)
-```
-
-## DataFrame Agent Example
-
-### Import Modules
-
-```python
-from hana_ml import dataframe
-from hana_ml.algorithms.pal.utility import DataSets
-from hana_ai.agents.hana_dataframe_agent import create_hana_dataframe_agent
-from hana_ai.tools.toolkit import HANAMLToolkit
-from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
-from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
-```
-
-### Load Data
-
-```python
-cc = dataframe.ConnectionContext(url, port, user, pwd, encrypt=True, sslValidateCertificate=False)
-data = DataSets.load_covid_data(cc)
-```
-
-### Use GenAIHub Embedding Model
-
-```python
-embedding_func = GenAIHubEmbeddings()
-```
-
-### Create Knowledge Base for hana-ml codes in Hana Vector Engine
-
-```python
-hanavec = HANAMLinVectorEngine(cc, "hana_vec_hana_ml_knowledge")
-hana_vec.create_knowledge()
-```
-
-### Create Code Template Tool and Add Knowledge Bases to It
-
-```python
-code_tool = GetCodeTemplateFromVectorDB()
-code_tool.set_vectordb(self.vectordb)
-```
-
-### Create HANA Dataframe Agent and Execute Task
-
-```python
-agent = create_hana_dataframe_agent(llm=llm, tools=[code_tool], df=data, verbose=True)
+agent = create_hana_dataframe_agent(llm=llm, tools=[<####>], df=data, verbose=True)
 agent.invoke("Create Automatic Regression model on this dataframe with max_eval_time_mins=10. Provide key is ID, background_size=100 and model_table_name='my_model' in the fit function and execute it. ")
 ```
 ![alt](./img/agent.png)
@@ -135,7 +65,61 @@ agent.invoke("create a dataset report.")
 ```
 ![alt](./img/dataset_report.png)
 
-### Smart DataFrame
+## Vector engine and Embedding generation tools
+Different Embedding functions can be used ...
+### Embedding some code examples
+```python
+from hana_ai.vectorstore.embedding_service import PALModelEmbeddings
+model = PALModelEmbeddings(cc)
+model(['hello', 'world'])
+
+from hana_ai.vectorstore.embedding_service import HANAVectorEmbeddings
+
+model = HANAVectorEmbeddings(cc)
+model(['hello', 'world'])
+```
+
+```python
+from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
+embedding_func = GenAIHubEmbeddings()
+embedding_func('hello')
+```
+### Loading embeddings into a vector store
+Create Knowledge Base for hana-ml codes in Hana Vector Engine
+```python
+hanavec = HANAMLinVectorEngine(cc, "hana_vec_hana_ml_knowledge")
+hana_vec.create_knowledge()
+```
+
+Create Code Template Tool and Add Knowledge Bases to It
+```python
+code_tool = GetCodeTemplateFromVectorDB()
+code_tool.set_vectordb(self.vectordb)
+```
+### Similarity retrieval queries with vector stores
+```python
+hana_vec.query("AutoML classification", top_n=1)
+```
+![alt](./img/code_template.png)
+
+### Working with multiple Vector Stores
+Union of multiple vector stores is possible
+```python
+from hana_ai.vectorstore.union_vector_stores import UnionVectorStores
+
+uvs = UnionVectorStores([hana_vec1, hana_vec2])
+uvs.query("AutoML classification", top_n=1)
+```
+Utilizing Corrective Retriever Over Union Vector Stores
+```python
+from hana_ai.vectorstore.corrective_retriever import CorrectiveRetriever
+
+cr = CorrectiveRetriever(uvs)
+cr.query("AutoML classification", top_n=1)
+```
+
+## Smart DataFrame
+The Smart DataFrame is agent interface to HANA dataframes, provding a conversational approach for dataframe-related tasks for exploring the data using the "ask" method. Similarly and in addition, the "transform" method adds passing back the result data as a HANA dataframe.
 
 ```python
 from hana_ai.smart_dataframe import SmartDataFrame
@@ -148,10 +132,11 @@ sdf.ask("Show the samples of the dataset", verbose=True)
 
 ```python
 new_df = sdf.transform("Get first two rows", verbose=True)
-```
-![alt](./img/smartdf_transform.png)
-
-```python
 new_df.collect()
 ```
+![alt](./img/smartdf_transform.png)
 ![alt](./img/smartdf_res.png)
+
+
+
+

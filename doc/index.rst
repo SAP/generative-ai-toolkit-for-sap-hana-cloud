@@ -10,6 +10,7 @@ Welcome to hana.ai's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   hana_ai
    hana_ai.agents
    hana_ai.tools
    hana_ai.vectorstore
