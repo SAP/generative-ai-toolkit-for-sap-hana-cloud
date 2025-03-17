@@ -6,7 +6,7 @@ This module contains the tools for additive model forecast.
 import json
 import logging
 from typing import Optional, Type, Union
-from langchain.pydantic_v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
@@ -65,6 +65,7 @@ class ModelPredictInput(BaseModel):
     show_explainer: Optional[bool] = Field(description="whether to show explainer, it is optional", default=None)
     decompose_seasonality: Optional[bool] = Field(description="whether to decompose seasonality only valid when show_explainer is True, it is optional", default=None)
     decompose_holiday: Optional[bool] = Field(description="whether to decompose holiday only valid when show_explainer is True, it is optional", default=None)
+    add_placeholder: Optional[bool] = Field(description="whether to add placeholder for the endog column and it is set True by default, it is optional", default=True)
 
 class AdditiveModelForecastFitAndSave(BaseTool):
     r"""
@@ -197,7 +198,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
                 categorical_variable=categorical_variable)
         amf.name = name
         if version is None:
-            version = ms._get_last_version_no(name)
+            version = ms._get_new_version_no(name)
             if version is None:
                 version = 1
             else:
@@ -335,11 +336,15 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         show_explainer: Optional[bool] = None,
         decompose_seasonality: Optional[bool] = None,
         decompose_holiday: Optional[bool] = None,
+        add_placeholder: Optional[bool] = True,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name=name, version=version)
+        if hasattr(model, 'version'):
+            if model.version is not None:
+                version = model.version
         model.predict(data=self.connection_context.table(predict_table),
                       key=key,
                       exog=exog,
@@ -348,7 +353,8 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
                       uncertainty_samples=uncertainty_samples,
                       show_explainer=show_explainer,
                       decompose_seasonality=decompose_seasonality,
-                      decompose_holiday=decompose_holiday)
+                      decompose_holiday=decompose_holiday,
+                      add_placeholder=add_placeholder)
         ms.save_model(model=model, if_exists='replace_meta')
         predicted_results = [f"{name}_{version}_PREDICTED_RESULT"]
         self.connection_context.table(model._predict_output_table_names[0]).save(predicted_results[0])
@@ -373,6 +379,7 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         show_explainer: Optional[bool] = None,
         decompose_seasonality: Optional[bool] = None,
         decompose_holiday: Optional[bool] = None,
+        add_placeholder: Optional[bool] = True,
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None
     ) -> str:
         return self._run(
@@ -387,5 +394,6 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
             show_explainer=show_explainer,
             decompose_seasonality=decompose_seasonality,
             decompose_holiday=decompose_holiday,
+            add_placeholder=add_placeholder,
             run_manager=run_manager
         )

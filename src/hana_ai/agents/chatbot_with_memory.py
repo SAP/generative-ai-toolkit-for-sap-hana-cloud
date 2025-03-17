@@ -2,12 +2,14 @@
 A chatbot that can remember the chat history and use it to generate responses.
 
 """
+import logging
 from langchain.agents import initialize_agent, AgentType
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.runnables import Runnable
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
+logging.getLogger().setLevel(logging.ERROR)
 class ChatbotWithMemory(object):
     """
     A chatbot that can remember the chat history and use it to generate responses.

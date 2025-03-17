@@ -27,11 +27,10 @@ from langchain_core.callbacks import BaseCallbackManager
 from langchain_core.tools import BaseTool
 
 from hana_ml.dataframe import ConnectionContext
-from hana_ai.tools.toolkit import HANAMLToolkit
 
 class _sql_toolkit(object):
-    def __init__(self, llm, db, hanaml_toolkit=None):
-        self.hanaml_toolkit = hanaml_toolkit
+    def __init__(self, llm, db, tools=None):
+        self.tools = tools
         self.llm = llm
         self.db = db
 
@@ -46,9 +45,9 @@ class _sql_toolkit(object):
         arbitrary_types_allowed = True
 
     def get_tools(self) -> List[BaseTool]:
-        if self.hanaml_toolkit is None:
+        if self.tools is None:
             return SQLDatabaseToolkit(llm=self.llm, db=self.db).get_tools()
-        return self.hanaml_toolkit.get_tools() + SQLDatabaseToolkit(llm=self.llm, db=self.db).get_tools()
+        return self.tools + SQLDatabaseToolkit(llm=self.llm, db=self.db).get_tools()
 
     def get_context(self) -> dict:
         """Return db context that you may want in agent prompt."""
@@ -57,7 +56,7 @@ class _sql_toolkit(object):
 def create_hana_sql_agent(
     llm: any,
     connection_context: ConnectionContext,
-    toolkit: HANAMLToolkit = None,
+    tools: BaseTool = None,
     agent_type: Optional[
         Union[AgentType, Literal["openai-tools", "tool-calling"]]
     ] = AgentType.ZERO_SHOT_REACT_DESCRIPTION,
@@ -83,8 +82,8 @@ def create_hana_sql_agent(
     ----------
     llm: any
         The language model to use.
-    toolkit: HANAMLToolkit
-        The toolkit to use.
+    tools: BaseTool
+        The tools to use.
     agent_type: Optional[Union[AgentType, Literal["openai-tools", "tool-calling"]]]
         The type of agent to create.
     callback_manager: Optional[BaseCallbackManager]
@@ -122,7 +121,7 @@ def create_hana_sql_agent(
     """
     engine = connection_context.to_sqlalchemy()
     db = SQLDatabase(engine)
-    toolkit = _sql_toolkit(llm=llm, db=db, hanaml_toolkit=toolkit)
+    toolkit = _sql_toolkit(llm=llm, db=db, tools=tools)
     return create_sql_agent(llm=llm,
                             toolkit=toolkit,
                             agent_type=agent_type,

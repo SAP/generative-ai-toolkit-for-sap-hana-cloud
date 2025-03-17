@@ -16,7 +16,7 @@ from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
 from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsTool
 from hana_ai.tools.hana_ml_tools.intermittent_forecast_tools import IntermittentForecast
-from hana_ai.tools.hana_ml_tools.ts_visualizer_tools import TimeSeriesDatasetReport
+from hana_ai.tools.hana_ml_tools.ts_visualizer_tools import ForecastLinePlot, TimeSeriesDatasetReport
 from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.ts_check_tools import TimeSeriesCheck
 from hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools import TSOutlierDetection
@@ -51,7 +51,8 @@ class HANAMLToolkit(BaseToolkit):
             AutomaticTimeseriesLoadModelAndScore(connection_context=self.connection_context),
             TimeSeriesCheck(connection_context=self.connection_context),
             TSOutlierDetection(connection_context=self.connection_context),
-            FetchDataTool(connection_context=self.connection_context)
+            FetchDataTool(connection_context=self.connection_context),
+            ForecastLinePlot(connection_context=self.connection_context)
         ]
         if used_tools is None or used_tools == "all":
             self.used_tools = self.default_tools

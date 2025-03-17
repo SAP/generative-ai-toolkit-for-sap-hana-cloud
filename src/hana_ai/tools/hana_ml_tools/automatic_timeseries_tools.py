@@ -5,7 +5,7 @@ This module contains the tools for automatic timeseries.
 import json
 import logging
 from typing import Optional, Type, Union
-from langchain.pydantic_v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 
 from langchain.callbacks.manager import (
     CallbackManagerForToolRun,
@@ -284,7 +284,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         auto_ts.name = name
         ms = ModelStorage(connection_context=self.connection_context)
         if version is None:
-            version = ms._get_last_version_no(name)
+            version = ms._get_new_version_no(name)
             if version is None:
                 version = 1
             else:
@@ -444,6 +444,9 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
         """Use the tool."""
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
+        if hasattr(model, 'version'):
+            if model.version is not None:
+                version = model.version
         model.predict(data=self.connection_context.table(predict_table),
                       key=key,
                       exog=exog,
@@ -551,6 +554,9 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
         """Use the tool."""
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
+        if hasattr(model, 'version'):
+            if model.version is not None:
+                version = model.version
         model.score(data=self.connection_context.table(score_table),
                     key=key,
                     endog=endog,

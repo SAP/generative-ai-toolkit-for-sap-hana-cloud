@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 import tempfile
 from typing import Optional, Type
-from langchain.pydantic_v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
