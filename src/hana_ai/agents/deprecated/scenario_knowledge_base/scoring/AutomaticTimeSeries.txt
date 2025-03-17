@@ -1,9 +1,0 @@
-Model_type: AutomaticTimeSeries. Useful for when you need to get example to perform AutoML TimeSeries/AutomaticTimeSeries scoring.
-------
-Strictly use the Examples to create AutoML scoring instance.
-Do fitting:
->>> from hana_ml.algorithms.pal.auto_ml import AutomaticTimeSeries
->>> model_score = AutomaticTimeSeries()
->>> model_df = df.connection_context.table(<model_table>)
->>> model_score.score(data=df, key=<key>, exog=<exog>, model=model_df, endog=<endog>)
->>> print({"output table names": model_score._score_output_table_names, "Python object address": id(model_score)})

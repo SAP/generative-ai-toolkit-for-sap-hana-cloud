@@ -1,9 +1,0 @@
-Model_type: AdditiveModelForecast. useful for when you need to get example to create AdditiveModelForecast/Prophet model.
-------
-Strictly use the Examples to create AdditiveModelForecast instance.
-Do fitting:
->>> from hana_ml.algorithms.pal.tsa.additive_model_forecast import AdditiveModelForecast
->>> model_train = AdditiveModelForecast()
->>> holiday_df = df.connection_context.table(<holiday_table>)
->>> model_train.fit(data=df, key=<key>, exog=<exog>, endog=<endog>, holiday=holiday_df)
->>> print({"output table names": model_train._fit_output_table_names, "Python object address": id(model_train)})

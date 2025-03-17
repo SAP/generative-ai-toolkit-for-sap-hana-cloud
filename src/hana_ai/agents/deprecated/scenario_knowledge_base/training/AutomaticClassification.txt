@@ -1,9 +1,0 @@
-Model_type: AutomaticClassification. useful for when you need to get example to create AutoML Classification/AutomaticClassification model.
-------
-Strictly use the Examples to create AutoML instance.
-Do fitting:
->>> from hana_ml.algorithms.pal.auto_ml import AutomaticClassification
->>> model_train = AutomaticClassification(generations=2, population_size=5, offspring_size=5, max_eval_time_mins=10, successive_halving=True)
->>> model.enable_workload_class(workload_class_name=<WORKLOAD_CLASS>)
->>> model_train.fit(data=df, key=<key>, features=<features>, label=<label>)
->>> print({"output table names": model_train._fit_output_table_names, "Python object address": id(model_train)})

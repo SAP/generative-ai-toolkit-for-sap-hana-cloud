@@ -1,9 +1,0 @@
-Model_type: AutomaticClassification. Useful for when you need to get example to perform AutoML Classification/AutomaticClassification scoring.
-------
-Strictly use the Examples to create AutoML scoring instance.
-Do fitting:
->>> from hana_ml.algorithms.pal.auto_ml import AutomaticClassification
->>> model_score = AutomaticClassification()
->>> model_df = df.connection_context.table(<model_table>)
->>> model_score.score(data=df, key=<key>, features=<features>, model=model_df, label=<label>)
->>> print({"output table names": model_score._score_output_table_names, "Python object address": id(model_score)})

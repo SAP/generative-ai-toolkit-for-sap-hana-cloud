@@ -1,9 +1,0 @@
-Model_type: UnifiedRegression. Useful for when you need to get example to perform Unified Regression prediction.
-------
-Strictly use the Examples to create unified Regression prediction instance.
-Do prediction:
->>> from hana_ml.algorithms.pal.unified_Regression import UnifiedRegression
->>> model_predict = UnifiedRegression(func=<func>)
->>> model_df = df.connection_context.table(<model_table>)
->>> model_predict.predict(data=df, key=<key>, features=<features>, model=model_df)
->>> print({"output table names": model_predict._predict_output_table_names, "Python object address": id(model_predict)})

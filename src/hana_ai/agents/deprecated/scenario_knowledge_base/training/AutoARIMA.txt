@@ -1,8 +1,0 @@
-Model Type: AutoARIMA. useful for when you need to get example to create ARIMA or AutoARIMA model.
-------
-Strictly use the Examples to create AutoARIMA instance.
-Do fitting:
->>> from hana_ml.algorithms.pal.tsa.auto_arima import AutoARIMA
->>> model_train = AutoARIMA()
->>> model_train.fit(data=df, key=<key>, endog=<endog>)
->>> print({"output table names": model_train._fit_output_table_names, "Python object address": id(model_train)})
