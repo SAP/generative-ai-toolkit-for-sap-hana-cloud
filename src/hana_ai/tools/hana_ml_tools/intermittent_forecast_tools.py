@@ -1,5 +1,9 @@
 """
 This module contains the tools for intermittent demand forecasting.
+
+The following class is available:
+
+    * :class `IntermittentForecast`
 """
 
 import json

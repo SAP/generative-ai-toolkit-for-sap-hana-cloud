@@ -1,5 +1,9 @@
 """
 This module contains the functions to generate CAP artifacts.
+
+The following class is available:
+
+    * :class `CAPArtifactsTool`
 """
 
 import logging

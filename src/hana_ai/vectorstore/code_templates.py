@@ -14,8 +14,8 @@ def get_code_templates(option=None, customized_dir=None):
     """
     Get code templates.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     option: {'python', 'sql'}
         Option.
 
@@ -24,6 +24,11 @@ def get_code_templates(option=None, customized_dir=None):
         Customized directory.
 
         Defaults to None.
+
+    Returns
+    -------
+    Dict
+        A dictionary containing the code templates with the following keys: 'id', 'description', 'example'.
     """
     ids = []
     descriptions = []

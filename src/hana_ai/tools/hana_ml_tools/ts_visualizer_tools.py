@@ -1,5 +1,10 @@
 """
 This module is used to generate a report for the time series dataset.
+
+The following classes are available:
+
+    * :class `TimeSeriesDatasetReport`
+    * :class `ForecastLinePlot`
 """
 
 import json

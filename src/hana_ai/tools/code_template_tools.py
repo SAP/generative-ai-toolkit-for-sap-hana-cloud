@@ -22,6 +22,18 @@ from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 class GetCodeTemplateFromVectorDB(BaseTool):
     """
     Get code template from vector database.
+
+    Examples
+    --------
+    >>> from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
+    >>> from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
+
+    >>> hana_vec = HANAMLinVectorEngine(connection_context, "hana_vec_hana_ml_python_knowledge")
+    >>> hana_vec.create_knowledge()
+    >>> code_tool = GetCodeTemplateFromVectorDB()
+    >>> code_tool.set_vectordb(hana_vec)
+    >>> agent = create_hana_dataframe_agent(llm=llm, tools=[code_tool], df=hana_df, verbose=True, handle_parsing_errors=True)
+    >>> agent.invoke("Create a dataset report for this dataframe.")
     """
     name: str = "CodeTemplatesFromVectorDB"
     description: str = "useful for when you need to create hana-ml code templates."

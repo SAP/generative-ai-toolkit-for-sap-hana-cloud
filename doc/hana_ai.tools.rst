@@ -50,3 +50,13 @@ hana_ml_tools
    hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection
    hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport
    hana_ml_tools.ts_visualizer_tools.ForecastLinePlot
+
+.. _hana_ml_toolkit-label:
+
+hana_ml_toolkit
+---------------
+.. autosummary::
+   :toctree: tools/
+   :template: class.rst
+
+   toolkit.HANAMLToolkit

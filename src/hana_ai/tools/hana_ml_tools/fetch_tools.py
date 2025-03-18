@@ -1,5 +1,9 @@
 """
 This module contains the functions to fetch data from HANA.
+
+The following classes are available:
+
+    * :class `FetchDataTool`
 """
 
 import json

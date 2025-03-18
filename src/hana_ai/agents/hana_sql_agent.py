@@ -118,6 +118,19 @@ def create_hana_sql_agent(
         The prompt to use.
     kwargs: Any
         The kwargs to use.
+
+    examples
+    --------
+    >>> from hana_ai.agents.hana_sql_agent import 
+    >>> from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
+    >>> from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
+
+    >>> hana_vec = HANAMLinVectorEngine(connection_context, "hana_vec_hana_ml_sql_knowledge")
+    >>> hana_vec.create_knowledge(option='sql')
+    >>> code_tool = GetCodeTemplateFromVectorDB()
+    >>> code_tool.set_vectordb(hana_vec)
+    >>> agent_executor = create_hana_sql_agent(llm, connection_context, tools=[code_tool],verbose=True)
+    >>> agent_executor.invoke("show me the min and max value of sepalwidthcm in the table iris_data_full_tbl ")
     """
     engine = connection_context.to_sqlalchemy()
     db = SQLDatabase(engine)

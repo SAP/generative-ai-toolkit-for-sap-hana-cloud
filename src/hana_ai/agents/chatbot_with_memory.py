@@ -24,6 +24,15 @@ class ChatbotWithMemory(object):
         The session ID to use.
     n_messages : int
         The number of messages to remember.
+
+    Examples
+    --------
+    >>> from hana_ai.agents.chatbot_with_memory import ChatbotWithMemory
+    >>> from hana_ai.tools.toolkit import HANAMLToolkit
+
+    >>> tools = HANAMLToolkit(connection_context, used_tools='all').get_tools()
+    >>> chatbot = ChatbotWithMemory(llm=llm, tools=tools, session_id='hana_ai_test', n_messages=10)
+    >>> chatbot.chat("Analyze the data from the table MYTEST.")
     """
     def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10):
         self.llm = llm

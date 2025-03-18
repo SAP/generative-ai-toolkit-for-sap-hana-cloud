@@ -20,6 +20,15 @@ class SmartDataFrame(DataFrame):
     ----------
     dataframe : DataFrame
         Dataframe.
+
+    Examples
+    --------
+    >>> from hana_ai.smart_dataframe import SmartDataFrame
+
+    >>> sdf = SmartDataFrame(hana_df)
+    >>> sdf.configure(tools=[code_tool], llm=llm)
+    >>> sdf.ask("Show the samples of the dataset", verbose=True)
+    >>> new_sdf = sdf.transform("Get last two rows", verbose=True)
     """
     llm: BaseLLM
     _dataframe: DataFrame

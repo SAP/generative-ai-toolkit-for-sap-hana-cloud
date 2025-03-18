@@ -38,7 +38,16 @@ class HANAMLToolkit(BaseToolkit):
         connection_context : ConnectionContext
             Connection context to the HANA database.
         used_tools : list, optional
-            List of tools to use. If None or 'all', all tools are used. Default is None."""
+            List of tools to use. If None or 'all', all tools are used. Default is None.
+        
+        Examples
+        --------
+        >>> from hana_ai.tools.toolkit import HANAMLToolkit
+        >>> from hana_ai.agents.chatbot_with_memory import ChatbotWithMemory
+
+        >>> tools = HANAMLToolkit(cc, used_tools='all').get_tools()
+        >>> chatbot = ChatbotWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
+        """
         super().__init__(connection_context=connection_context)
         self.default_tools = [
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),

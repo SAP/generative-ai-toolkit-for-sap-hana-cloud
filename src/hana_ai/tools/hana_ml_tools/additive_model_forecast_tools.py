@@ -1,5 +1,10 @@
 """
 This module contains the tools for additive model forecast.
+
+The following class are available:
+
+    * :class `AdditiveModelForecastFitAndSave`
+    * :class `AdditiveModelForecastLoadModelAndPredict`
 """
 
 

@@ -1,5 +1,13 @@
 """
 This module is used to do some checks on the time series dataset.
+
+The following classes are available:
+
+    * :class `TimeSeriesCheck`
+    * :class `StationarityTest`
+    * :class `TrendTest`
+    * :class `SeasonalityTest`
+    * :class `WhiteNoiseTest`
 """
 
 import json

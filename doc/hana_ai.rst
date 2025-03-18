@@ -49,7 +49,7 @@ HANAML Toolkit is a set of tools to analyze data and build machine learning mode
 
 .. image:: image/chatbotwithtoolkit.png
    :width: 961px
-   :height: 151px
+   :height: 400px
    :scale: 80 %
    :alt: A chatbot with HANAML Toolkit.
 
@@ -83,7 +83,7 @@ Create a HANA dataframe agent and execute a task. ::
 
 .. image:: image/agent.png
    :width: 961px
-   :height: 151px
+   :height: 400px
    :scale: 80 %
    :alt: A HANA dataframe agent to build model.
 
@@ -92,9 +92,9 @@ Build a dataset report. ::
     agent.invoke("Build a dataset report")
 
 .. image:: image/dataset_report.png
-   :width: 961px
-   :height: 151px
-   :scale: 80 %
+   :width: 800px
+   :height: 500px
+   :scale: 70 %
    :alt: A HANA dataframe agent to generate dataset report.
 
 Smart DataFrame

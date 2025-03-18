@@ -1,5 +1,11 @@
 """
 This module contains the tools for automatic timeseries.
+
+The following class are available:
+
+    * :class `AutomaticTimeSeriesFitAndSave`
+    * :class `AutomaticTimeseriesLoadModelAndPredict`
+    * :class `AutomaticTimeseriesLoadModelAndScore`
 """
 
 import json

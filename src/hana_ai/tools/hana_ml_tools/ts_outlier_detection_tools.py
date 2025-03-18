@@ -1,5 +1,9 @@
 """
 This module contains functions for time series outlier detection.
+
+The following classes are available:
+
+    * :class `TSOutlierDetection`
 """
 
 import json
