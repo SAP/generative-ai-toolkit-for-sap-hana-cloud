@@ -1,9 +1,9 @@
-ChatbotWithMemory
+HANAMLAgentWithMemory
 ==================================================================
 
-.. currentmodule:: hana_ai.agents.chatbot_with_memory
+.. currentmodule:: hana_ai.agents.hanaml_agent_with_memory
 
-.. autoclass:: ChatbotWithMemory
+.. autoclass:: HANAMLAgentWithMemory
    :members:
    :inherited-members: BaseTool, BaseModel
    :no-undoc-members:

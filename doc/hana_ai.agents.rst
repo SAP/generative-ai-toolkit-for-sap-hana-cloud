@@ -27,12 +27,12 @@ hana_sql_agent
 
    hana_sql_agent.create_hana_sql_agent
 
-.. _chatbot_with_memory-label:
+.. _hanaml_agent_with_memory-label:
 
-chatbot_with_memory
+hanaml_agent_with_memory
 -------------------
 .. autosummary::
    :toctree: agents/
    :template: class.rst
 
-   chatbot_with_memory.ChatbotWithMemory
+   hanaml_agent_with_memory.HANAMLAgentWithMemory

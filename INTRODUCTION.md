@@ -20,13 +20,13 @@ The generative AI toolkit for SAP HANA Cloud provides the following key capabili
 # Capabilities introduction
 
 ## Agent to build SAP HANA Cloud forecasting and machine learning models
-This conversational agent (agents.chatbot_with_memory.ChatbotWithMemory class), aids to streamline development of SAP HANA Cloud forecasting and machine learning models, it's re-using the provided library of HANA ai-tools (tools.toolkit.HANAMLToolkit class) and is based on the Langchain agent framework. Trained models and artifacts are persisted using the hana_ml model storage class that helps manage the model version.
+This conversational agent (agents.hanaml_agent_with_memory.HANAMLAgentWithMemory class), aids to streamline development of SAP HANA Cloud forecasting and machine learning models, it's re-using the provided library of HANA ai-tools (tools.toolkit.HANAMLToolkit class) and is based on the Langchain agent framework. Trained models and artifacts are persisted using the hana_ml model storage class that helps manage the model version.
 ```python
 from hana_ai.tools.toolkit import HANAMLToolkit
 tools = HANAMLToolkit(cc, used_tools='all').get_tools()
 
-from hana_ai.agents.chatbot_with_memory import ChatbotWithMemory
-chatbot = ChatbotWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
+from hana_ai.agents.hanaml_agent_with_memory import HANAMLAgentWithMemory
+chatbot = HANAMLAgentWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
 ```
 <img src="./img/chatbotwithtoolkit.png" alt="image" width="800" height="auto">
 

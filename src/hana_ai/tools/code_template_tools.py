@@ -10,7 +10,7 @@ The following class are available:
 # pylint: disable=unused-argument
 
 from typing import Optional, Type
-from langchain.pydantic_v1 import BaseModel
+from pydantic import BaseModel
 from langchain.tools import BaseTool
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,

@@ -16,7 +16,7 @@ from typing import TypedDict, Dict
 from langgraph.graph import END, StateGraph
 from langchain.output_parsers.openai_tools import PydanticToolsParser
 from langchain.prompts import PromptTemplate
-from langchain_core.pydantic_v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 from langchain_core.utils.function_calling import convert_to_openai_tool
 
 logger = logging.getLogger(__name__) #pylint: disable=invalid-name

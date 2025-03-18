@@ -10,7 +10,7 @@ from langchain_core.runnables import Runnable
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 logging.getLogger().setLevel(logging.ERROR)
-class ChatbotWithMemory(object):
+class HANAMLAgentWithMemory(object):
     """
     A chatbot that can remember the chat history and use it to generate responses.
 
@@ -27,29 +27,34 @@ class ChatbotWithMemory(object):
 
     Examples
     --------
-    >>> from hana_ai.agents.chatbot_with_memory import ChatbotWithMemory
+    >>> from hana_ai.agents.hanaml_agent_with_memory import HANAMLAgentWithMemory
     >>> from hana_ai.tools.toolkit import HANAMLToolkit
 
     >>> tools = HANAMLToolkit(connection_context, used_tools='all').get_tools()
-    >>> chatbot = ChatbotWithMemory(llm=llm, tools=tools, session_id='hana_ai_test', n_messages=10)
-    >>> chatbot.chat("Analyze the data from the table MYTEST.")
+    >>> chatbot = HANAMLAgentWithMemory(llm=llm, tools=tools, session_id='hana_ai_test', n_messages=10)
+    >>> chatbot.run("Analyze the data from the table MYTEST.")
     """
-    def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10):
+    def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, verbose=False):
         self.llm = llm
         memory = InMemoryChatMessageHistory(session_id=session_id)
+        system_prompt = """You're an assistant skilled in data science using hana-ml tools. 
+        Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools. 
+        Ask for missing parameters if needed. NEVER return raw JSON strings outside this structure."""
+
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You're an assistant who's good at data science. You need to ask the user for the missing information to use hana-ml tools."),
+            ("system", system_prompt),
             MessagesPlaceholder(variable_name="history", n_messages=n_messages),
             ("human", "{question}"),
         ])
-        chain: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION)
+        chain: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose)
+
         self.agent_with_chat_history = RunnableWithMessageHistory(chain,
                                                                   lambda session_id: memory,
                                                                   input_messages_key="question",
                                                                   history_messages_key="history")
         self.config = {"configurable": {"session_id": session_id}}
 
-    def chat(self, question):
+    def run(self, question):
         """"
         Chat with the chatbot.
 

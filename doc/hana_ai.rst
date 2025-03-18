@@ -41,11 +41,11 @@ Langchain Agent with HANAML Toolkit
 
 HANAML Toolkit is a set of tools to analyze data and build machine learning models using the data directly in SAP HANA. It can be consumed by AI Agent. ::
 
-    from hana_ai.agents.chatbot_with_memory import ChatbotWithMemory
+    from hana_ai.agents.hanaml_agent_with_memory import HANAMLAgentWithMemory
     from hana_ai.tools.toolkit import HANAMLToolkit
 
     tools = HANAMLToolkit(cc, used_tools='all').get_tools()
-    chatbot = ChatbotWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
+    chatbot = HANAMLAgentWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
 
 .. image:: image/chatbotwithtoolkit.png
    :width: 961px
