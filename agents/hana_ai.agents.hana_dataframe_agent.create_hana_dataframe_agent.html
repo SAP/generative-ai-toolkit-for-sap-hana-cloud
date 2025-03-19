@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>create_hana_dataframe_agent &mdash; hana.ai 0.4.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7dc6ce7e" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=6c02275b"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="create_hana_sql_agent" href="hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html" />
+    <link rel="prev" title="hana_ai.agents" href="../hana_ai.agents.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            hana.ai
+          </a>
+              <div class="version">
+                0.4.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.html">Generative AI Toolkit for SAP HANA Cloud</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#langchain-agent-with-hanaml-toolkit">Langchain Agent with HANAML Toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../hana_ai.agents.html">hana_ai.agents</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../hana_ai.agents.html#hana-dataframe-agent">hana_dataframe_agent</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">create_hana_dataframe_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_dataframe_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hana-sql-agent">hana_sql_agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hanaml-agent-with-memory">hanaml_agent_with_memory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html">HANAMLAgentWithMemory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory"><code class="docutils literal notranslate"><span class="pre">HANAMLAgentWithMemory</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.tools.html">hana_ai.tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#agent-as-a-tool">agent_as_a_tool</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.agent_as_a_tool.AgentAsATool.html">AgentAsATool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.agent_as_a_tool.AgentAsATool.html#hana_ai.tools.agent_as_a_tool.AgentAsATool"><code class="docutils literal notranslate"><span class="pre">AgentAsATool</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#code-template-tools">code_template_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html">GetCodeTemplateFromVectorDB</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html#hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB"><code class="docutils literal notranslate"><span class="pre">GetCodeTemplateFromVectorDB</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#hana-ml-tools">hana_ml_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.html">AdditiveModelForecastFitAndSave</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.html#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave"><code class="docutils literal notranslate"><span class="pre">AdditiveModelForecastFitAndSave</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.html">AdditiveModelForecastLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AdditiveModelForecastLoadModelAndPredict</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html">AutomaticTimeSeriesFitAndSave</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html">AutomaticTimeseriesLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeseriesLoadModelAndPredict</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html">AutomaticTimeseriesLoadModelAndScore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeseriesLoadModelAndScore</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html">CAPArtifactsTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html#hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool"><code class="docutils literal notranslate"><span class="pre">CAPArtifactsTool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.html">IntermittentForecast</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.html#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast"><code class="docutils literal notranslate"><span class="pre">IntermittentForecast</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.TimeSeriesCheck.html">TimeSeriesCheck</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.TimeSeriesCheck.html#hana_ai.tools.hana_ml_tools.ts_check_tools.TimeSeriesCheck"><code class="docutils literal notranslate"><span class="pre">TimeSeriesCheck</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest.html">StationarityTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest"><code class="docutils literal notranslate"><span class="pre">StationarityTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.TrendTest.html">TrendTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.TrendTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.TrendTest"><code class="docutils literal notranslate"><span class="pre">TrendTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.SeasonalityTest.html">SeasonalityTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.SeasonalityTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.SeasonalityTest"><code class="docutils literal notranslate"><span class="pre">SeasonalityTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.WhiteNoiseTest.html">WhiteNoiseTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.WhiteNoiseTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.WhiteNoiseTest"><code class="docutils literal notranslate"><span class="pre">WhiteNoiseTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection.html">TSOutlierDetection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection.html#hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection"><code class="docutils literal notranslate"><span class="pre">TSOutlierDetection</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.html">TimeSeriesDatasetReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.html#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport"><code class="docutils literal notranslate"><span class="pre">TimeSeriesDatasetReport</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_visualizer_tools.ForecastLinePlot.html">ForecastLinePlot</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_visualizer_tools.ForecastLinePlot.html#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.ForecastLinePlot"><code class="docutils literal notranslate"><span class="pre">ForecastLinePlot</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#hana-ml-toolkit">hana_ml_toolkit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.toolkit.HANAMLToolkit.html">HANAMLToolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit"><code class="docutils literal notranslate"><span class="pre">HANAMLToolkit</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.vectorstore.html">hana_ai.vectorstore</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#code-templates">code_templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html">get_code_templates</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html#hana_ai.vectorstore.code_templates.get_code_templates"><code class="docutils literal notranslate"><span class="pre">get_code_templates()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#embedding-service">embedding_service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html">PALModelEmbeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html#hana_ai.vectorstore.embedding_service.PALModelEmbeddings"><code class="docutils literal notranslate"><span class="pre">PALModelEmbeddings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.html">HANAVectorEmbeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.html#hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings"><code class="docutils literal notranslate"><span class="pre">HANAVectorEmbeddings</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#hana-vector-engine">hana_vector_engine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html">HANAMLinVectorEngine</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine"><code class="docutils literal notranslate"><span class="pre">HANAMLinVectorEngine</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#union-vector-stores">union_vector_stores</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html">UnionVectorStores</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html#hana_ai.vectorstore.union_vector_stores.UnionVectorStores"><code class="docutils literal notranslate"><span class="pre">UnionVectorStores</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.smart_dataframe.html">hana_ai.smart_dataframe</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame.configure"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame.configure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame.ask"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame.ask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame.transform"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame.transform()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hana.ai</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../hana_ai.agents.html">hana_ai.agents</a></li>
+      <li class="breadcrumb-item active">create_hana_dataframe_agent</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/agents/hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="../hana_ai.agents.html" class="btn btn-neutral float-left" title="hana_ai.agents" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html" class="btn btn-neutral float-right" title="create_hana_sql_agent" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="create-hana-dataframe-agent">
+<h1>create_hana_dataframe_agent<a class="headerlink" href="#create-hana-dataframe-agent" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.agents.hana_dataframe_agent.</span></span><span class="sig-name descname"><span class="pre">create_hana_dataframe_agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">llm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseLLM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseTool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseCallbackManager</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&quot;\nYou</span> <span class="pre">are</span> <span class="pre">working</span> <span class="pre">with</span> <span class="pre">a</span> <span class="pre">HANA</span> <span class="pre">dataframe</span> <span class="pre">in</span> <span class="pre">Python</span> <span class="pre">that</span> <span class="pre">is</span> <span class="pre">similar</span> <span class="pre">to</span> <span class="pre">Spark</span> <span class="pre">dataframe.</span> <span class="pre">The</span> <span class="pre">name</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">dataframe</span> <span class="pre">is</span> <span class="pre">`df`.</span> <span class="pre">`connection_context`</span> <span class="pre">is</span> <span class="pre">`df`'s</span> <span class="pre">attribute.</span> <span class="pre">To</span> <span class="pre">handle</span> <span class="pre">connection</span> <span class="pre">or</span> <span class="pre">to</span> <span class="pre">use</span> <span class="pre">dataframe</span> <span class="pre">functions,</span> <span class="pre">you</span> <span class="pre">should</span> <span class="pre">use</span> <span class="pre">python_repl_ast</span> <span class="pre">tool.</span> <span class="pre">In</span> <span class="pre">most</span> <span class="pre">cases,</span> <span class="pre">you</span> <span class="pre">should</span> <span class="pre">use</span> <span class="pre">CodeTemplatesFromVectorDB</span> <span class="pre">tool.</span> <span class="pre">You</span> <span class="pre">should</span> <span class="pre">use</span> <span class="pre">the</span> <span class="pre">tools</span> <span class="pre">below</span> <span class="pre">to</span> <span class="pre">answer</span> <span class="pre">the</span> <span class="pre">question</span> <span class="pre">posed</span> <span class="pre">of</span> <span class="pre">you.</span> <span class="pre">:&quot;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'\nThis</span> <span class="pre">is</span> <span class="pre">the</span> <span class="pre">result</span> <span class="pre">of</span> <span class="pre">`print(df.head().collect())`:\n{df}\n\nBegin!\nQuestion:</span> <span class="pre">{input}\n{agent_scratchpad}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_intermediate_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_execution_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">early_stopping_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'force'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_executor_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AgentExecutor</span></span></span><a class="headerlink" href="#hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent" title="Link to this definition"></a></dt>
+<dd><p>Construct a hana-ml agent from an LLM and dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>llm</strong><span class="classifier">BaseLLM</span></dt><dd><p>The LLM to use.</p>
+</dd>
+<dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>The HANA dataframe to use. It could be None.</p>
+</dd>
+<dt><strong>tools</strong><span class="classifier">BaseTool, optional</span></dt><dd><p>The tools to use, by default None.</p>
+</dd>
+<dt><strong>callback_manager</strong><span class="classifier">BaseCallbackManager, optional</span></dt><dd><p>The callback manager to use, by default None.</p>
+</dd>
+<dt><strong>prefix</strong><span class="classifier">str, optional</span></dt><dd><p>The prefix to use.</p>
+</dd>
+<dt><strong>suffix</strong><span class="classifier">str, optional</span></dt><dd><p>The suffix to use.</p>
+</dd>
+<dt><strong>input_variables</strong><span class="classifier">List[str], optional</span></dt><dd><p>The input variables to use, by default None.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to be verbose, by default False.</p>
+</dd>
+<dt><strong>return_intermediate_steps</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to return intermediate steps, by default False.</p>
+</dd>
+<dt><strong>max_iterations</strong><span class="classifier">int, optional</span></dt><dd><p>The maximum number of iterations to use, by default 15.</p>
+</dd>
+<dt><strong>max_execution_time</strong><span class="classifier">float, optional</span></dt><dd><p>The maximum execution time to use, by default None.</p>
+</dd>
+<dt><strong>early_stopping_method</strong><span class="classifier">str, optional</span></dt><dd><p>The early stopping method to use, by default &quot;force&quot;.</p>
+</dd>
+<dt><strong>agent_executor_kwargs</strong><span class="classifier">Dict[str, Any], optional</span></dt><dd><p>The agent executor kwargs to use, by default None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hana_ai.tools.code_template_tools</span> <span class="kn">import</span> <span class="n">GetCodeTemplateFromVectorDB</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hana_ai.vectorstore.hana_vector_engine</span> <span class="kn">import</span> <span class="n">HANAMLinVectorEngine</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hana_ai.agents.hana_dataframe_agent</span> <span class="kn">import</span> <span class="n">create_hana_dataframe_agent</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hana_df</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;MY_DATA&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">connection_context</span><span class="p">,</span> <span class="s2">&quot;hana_vec_hana_ml_python_knowledge&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span><span class="o">.</span><span class="n">create_knowledge</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span> <span class="o">=</span> <span class="n">GetCodeTemplateFromVectorDB</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="n">hana_vec</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">agent</span> <span class="o">=</span> <span class="n">create_hana_dataframe_agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">code_tool</span><span class="p">],</span> <span class="n">df</span><span class="o">=</span><span class="n">hana_df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_parsing_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Create a dataset report for this dataframe.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="clearer"></div></section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, SAP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-XXXXXXX-1', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

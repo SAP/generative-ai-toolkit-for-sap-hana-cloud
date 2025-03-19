@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AdditiveModelForecastLoadModelAndPredict &mdash; hana.ai 0.4.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7dc6ce7e" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=6c02275b"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="AutomaticTimeSeriesFitAndSave" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html" />
+    <link rel="prev" title="AdditiveModelForecastFitAndSave" href="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            hana.ai
+          </a>
+              <div class="version">
+                0.4.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.html">Generative AI Toolkit for SAP HANA Cloud</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#langchain-agent-with-hanaml-toolkit">Langchain Agent with HANAML Toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.agents.html">hana_ai.agents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hana-dataframe-agent">hana_dataframe_agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html">create_hana_dataframe_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html#hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_dataframe_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hana-sql-agent">hana_sql_agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hanaml-agent-with-memory">hanaml_agent_with_memory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html">HANAMLAgentWithMemory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory"><code class="docutils literal notranslate"><span class="pre">HANAMLAgentWithMemory</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../hana_ai.tools.html">hana_ai.tools</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#agent-as-a-tool">agent_as_a_tool</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.agent_as_a_tool.AgentAsATool.html">AgentAsATool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.agent_as_a_tool.AgentAsATool.html#hana_ai.tools.agent_as_a_tool.AgentAsATool"><code class="docutils literal notranslate"><span class="pre">AgentAsATool</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#code-template-tools">code_template_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html">GetCodeTemplateFromVectorDB</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html#hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB"><code class="docutils literal notranslate"><span class="pre">GetCodeTemplateFromVectorDB</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../hana_ai.tools.html#hana-ml-tools">hana_ml_tools</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.html">AdditiveModelForecastFitAndSave</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.html#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave"><code class="docutils literal notranslate"><span class="pre">AdditiveModelForecastFitAndSave</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">AdditiveModelForecastLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AdditiveModelForecastLoadModelAndPredict</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html">AutomaticTimeSeriesFitAndSave</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html">AutomaticTimeseriesLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeseriesLoadModelAndPredict</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html">AutomaticTimeseriesLoadModelAndScore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeseriesLoadModelAndScore</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html">CAPArtifactsTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html#hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool"><code class="docutils literal notranslate"><span class="pre">CAPArtifactsTool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.html">IntermittentForecast</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.html#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast"><code class="docutils literal notranslate"><span class="pre">IntermittentForecast</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.TimeSeriesCheck.html">TimeSeriesCheck</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.TimeSeriesCheck.html#hana_ai.tools.hana_ml_tools.ts_check_tools.TimeSeriesCheck"><code class="docutils literal notranslate"><span class="pre">TimeSeriesCheck</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest.html">StationarityTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest"><code class="docutils literal notranslate"><span class="pre">StationarityTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.TrendTest.html">TrendTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.TrendTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.TrendTest"><code class="docutils literal notranslate"><span class="pre">TrendTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.SeasonalityTest.html">SeasonalityTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.SeasonalityTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.SeasonalityTest"><code class="docutils literal notranslate"><span class="pre">SeasonalityTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.WhiteNoiseTest.html">WhiteNoiseTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_check_tools.WhiteNoiseTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.WhiteNoiseTest"><code class="docutils literal notranslate"><span class="pre">WhiteNoiseTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection.html">TSOutlierDetection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection.html#hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection"><code class="docutils literal notranslate"><span class="pre">TSOutlierDetection</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.html">TimeSeriesDatasetReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.html#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport"><code class="docutils literal notranslate"><span class="pre">TimeSeriesDatasetReport</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_visualizer_tools.ForecastLinePlot.html">ForecastLinePlot</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.ts_visualizer_tools.ForecastLinePlot.html#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.ForecastLinePlot"><code class="docutils literal notranslate"><span class="pre">ForecastLinePlot</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#hana-ml-toolkit">hana_ml_toolkit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.toolkit.HANAMLToolkit.html">HANAMLToolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit"><code class="docutils literal notranslate"><span class="pre">HANAMLToolkit</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.vectorstore.html">hana_ai.vectorstore</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#code-templates">code_templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html">get_code_templates</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html#hana_ai.vectorstore.code_templates.get_code_templates"><code class="docutils literal notranslate"><span class="pre">get_code_templates()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#embedding-service">embedding_service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html">PALModelEmbeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html#hana_ai.vectorstore.embedding_service.PALModelEmbeddings"><code class="docutils literal notranslate"><span class="pre">PALModelEmbeddings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.html">HANAVectorEmbeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.html#hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings"><code class="docutils literal notranslate"><span class="pre">HANAVectorEmbeddings</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#hana-vector-engine">hana_vector_engine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html">HANAMLinVectorEngine</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine"><code class="docutils literal notranslate"><span class="pre">HANAMLinVectorEngine</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#union-vector-stores">union_vector_stores</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html">UnionVectorStores</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html#hana_ai.vectorstore.union_vector_stores.UnionVectorStores"><code class="docutils literal notranslate"><span class="pre">UnionVectorStores</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.smart_dataframe.html">hana_ai.smart_dataframe</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame.configure"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame.configure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame.ask"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame.ask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame.transform"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame.transform()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hana.ai</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../hana_ai.tools.html">hana_ai.tools</a></li>
+      <li class="breadcrumb-item active">AdditiveModelForecastLoadModelAndPredict</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.html" class="btn btn-neutral float-left" title="AdditiveModelForecastFitAndSave" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html" class="btn btn-neutral float-right" title="AutomaticTimeSeriesFitAndSave" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="additivemodelforecastloadmodelandpredict">
+<h1>AdditiveModelForecastLoadModelAndPredict<a class="headerlink" href="#additivemodelforecastloadmodelandpredict" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.</span></span><span class="sig-name descname"><span class="pre">AdditiveModelForecastLoadModelAndPredict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConnectionContext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict" title="Link to this definition"></a></dt>
+<dd><p>This tool is used to load the additive model forecast from model storage and predict.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>connection_context</strong><span class="classifier">ConnectionContext</span></dt><dd><p>Connection context to the HANA database.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt>str</dt><dd><p>The name of the predicted results table.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>args_schema is used to define the schema of the inputs as follows:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 23.1%" />
+<col style="width: 76.9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>predict_table</p></td>
+<td><p>The name of the table containing the prediction data.</p></td>
+</tr>
+<tr class="row-odd"><td><p>key</p></td>
+<td><p>The key column in the prediction table.</p></td>
+</tr>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>The name of the model to load.</p></td>
+</tr>
+<tr class="row-odd"><td><p>version</p></td>
+<td><p>The version of the model to load.</p></td>
+</tr>
+<tr class="row-even"><td><p>exog</p></td>
+<td><p>External regressors to include in the prediction.</p></td>
+</tr>
+<tr class="row-odd"><td><p>logistic_growth_capacity</p></td>
+<td><p>Capacity for logistic growth.</p></td>
+</tr>
+<tr class="row-even"><td><p>interval_width</p></td>
+<td><p>Width of the prediction intervals.</p></td>
+</tr>
+<tr class="row-odd"><td><p>uncertainty_samples</p></td>
+<td><p>Number of uncertainty samples to draw.</p></td>
+</tr>
+<tr class="row-even"><td><p>show_explainer</p></td>
+<td><p>Whether to show the explainer.</p></td>
+</tr>
+<tr class="row-odd"><td><p>decompose_seasonality</p></td>
+<td><p>Whether to decompose seasonality.</p></td>
+</tr>
+<tr class="row-even"><td><p>decompose_holiday</p></td>
+<td><p>Whether to decompose holiday effects.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">InputType</span></code></dt><dd><p>The type of input this runnable accepts specified as a type annotation.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutputType</span></code></dt><dd><p>The type of output this runnable produces specified as a type annotation.</p>
+</dd>
+<dt><strong>args</strong></dt><dd></dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_specs</span></code></dt><dd><p>List configurable fields for this runnable.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">input_schema</span></code></dt><dd><p>The type of input this runnable accepts specified as a pydantic model.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_single_input</span></code></dt><dd><p>Whether the tool only accepts a single input.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_attributes</span></code></dt><dd><p>List of attribute names that should be included in the serialized kwargs.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_secrets</span></code></dt><dd><p>A map of constructor argument names to secret ids.</p>
+</dd>
+<dt><strong>name</strong></dt><dd></dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_schema</span></code></dt><dd><p>The type of output this runnable produces specified as a pydantic model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code>()</p></td>
+<td><p>Configuration for this pydantic object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(tool_input[, callbacks])</p></td>
+<td><p>[<em>Deprecated</em>] Make tool callable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch</span></code>(inputs[, config, return_exceptions])</p></td>
+<td><p>Default implementation runs ainvoke in parallel using asyncio.gather.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch_as_completed</span></code>(inputs[, config, ...])</p></td>
+<td><p>Run ainvoke in parallel on a list of inputs, yielding results as they complete.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ainvoke</span></code>(input[, config])</p></td>
+<td><p>Default implementation of ainvoke, calls invoke from a thread.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">arun</span></code>(tool_input[, verbose, start_color, ...])</p></td>
+<td><p>Run the tool asynchronously.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign</span></code>(**kwargs)</p></td>
+<td><p>Assigns new fields to the dict output of this runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream</span></code>(input[, config])</p></td>
+<td><p>Default implementation of astream, which calls ainvoke.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream_events</span></code>(input[, config, ...])</p></td>
+<td><p>[<em>Beta</em>] Generate a stream of events.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream_log</span></code>(input[, config, diff, ...])</p></td>
+<td><p>Stream all output from a runnable, as reported to the callback system.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">atransform</span></code>(input[, config])</p></td>
+<td><p>Default implementation of atransform, which buffers input and calls astream.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">batch</span></code>(inputs[, config, return_exceptions])</p></td>
+<td><p>Default implementation runs invoke in parallel using a thread pool executor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_as_completed</span></code>(inputs[, config, ...])</p></td>
+<td><p>Run invoke in parallel on a list of inputs, yielding results as they complete.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bind</span></code>(**kwargs)</p></td>
+<td><p>Bind arguments to a Runnable, returning a new Runnable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_schema</span></code>(*[, include])</p></td>
+<td><p>The type of config this runnable accepts specified as a pydantic model.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configurable_alternatives</span></code>(which, *[, ...])</p></td>
+<td><p>Configure alternatives for runnables that can be set at runtime.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configurable_fields</span></code>(**kwargs)</p></td>
+<td><p>Configure particular runnable fields at runtime.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">construct</span></code>([_fields_set])</p></td>
+<td><p>Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
+<td><p>Duplicate a model, optionally choose which fields to include, exclude and change.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>(*[, include, exclude, by_alias, ...])</p></td>
+<td><p>Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_graph</span></code>([config])</p></td>
+<td><p>Return a graph representation of this runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_input_schema</span></code>([config])</p></td>
+<td><p>The tool's input schema.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lc_namespace</span></code>()</p></td>
+<td><p>Get the namespace of the langchain object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code>([suffix, name])</p></td>
+<td><p>Get the name of the runnable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_output_schema</span></code>([config])</p></td>
+<td><p>Get a pydantic model that can be used to validate output to the runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">invoke</span></code>(input[, config])</p></td>
+<td><p>Transform a single input into an output.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_lc_serializable</span></code>()</p></td>
+<td><p>Is this class serializable?</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">json</span></code>(*[, include, exclude, by_alias, ...])</p></td>
+<td><p>Generate a JSON representation of the model, <cite>include</cite> and <cite>exclude</cite> arguments as per <cite>dict()</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_id</span></code>()</p></td>
+<td><p>A unique identifier for this class for serialization purposes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map</span></code>()</p></td>
+<td><p>Return a new Runnable that maps a list of inputs to a list of outputs, by calling invoke() with each input.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick</span></code>(keys)</p></td>
+<td><p>Pick keys from the dict output of this runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe</span></code>(*others[, name])</p></td>
+<td><p>Compose this Runnable with Runnable-like objects to make a RunnableSequence.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">raise_deprecation</span></code>(values)</p></td>
+<td><p>Raise deprecation warning if callback_manager is used.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>(tool_input[, verbose, start_color, ...])</p></td>
+<td><p>Run the tool.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code>(input[, config])</p></td>
+<td><p>Default implementation of stream, which calls invoke.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code>()</p></td>
+<td><p>Serialize the runnable to JSON.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(input[, config])</p></td>
+<td><p>Default implementation of transform, which buffers input and then calls stream.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
+<td><p>Try to update ForwardRefs on fields based on this Model, globalns and localns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_config</span></code>([config])</p></td>
+<td><p>Bind config to a Runnable, returning a new Runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_fallbacks</span></code>(fallbacks, *[, ...])</p></td>
+<td><p>Add fallbacks to a runnable, returning a new Runnable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_listeners</span></code>(*[, on_start, on_end, on_error])</p></td>
+<td><p>Bind lifecycle listeners to a Runnable, returning a new Runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_retry</span></code>(*[, retry_if_exception_type, ...])</p></td>
+<td><p>Create a new Runnable that retries the original runnable on exceptions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_types</span></code>(*[, input_type, output_type])</p></td>
+<td><p>Bind input and output types to a Runnable, returning a new Runnable.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.name" title="Link to this definition"></a></dt>
+<dd><p>Name of the tool.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.description" title="Link to this definition"></a></dt>
+<dd><p>Description of the tool.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.connection_context">
+<span class="sig-name descname"><span class="pre">connection_context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ConnectionContext</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.connection_context" title="Link to this definition"></a></dt>
+<dd><p>Connection context to the HANA database.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.args_schema">
+<span class="sig-name descname"><span class="pre">args_schema</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseModel</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.args_schema" title="Link to this definition"></a></dt>
+<dd><p>Pydantic model class to validate and parse the tool's input arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.return_direct">
+<span class="sig-name descname"><span class="pre">return_direct</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.return_direct" title="Link to this definition"></a></dt>
+<dd><p>Whether to return the tool's output directly. Setting this to True means</p>
+<p>that after the tool is called, the AgentExecutor will stop looping.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="clearer"></div></section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, SAP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-XXXXXXX-1', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>
