@@ -41,10 +41,10 @@ class CorrectiveRetriever(object):
         Vector database.
     llm: any
         LLM.
-    max_iter: int
-        Maximum iterations.
-    recursion_limit: int
-        Recursion limit.
+    max_iter: int, optional
+        Maximum iterations. Defaults to 3.
+    recursion_limit: int, optional
+        Recursion limit. Defaults to 100.
     """
     vectordb: any
     llm: any

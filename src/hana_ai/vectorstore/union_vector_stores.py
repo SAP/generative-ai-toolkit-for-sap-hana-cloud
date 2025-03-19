@@ -58,8 +58,8 @@ class UnionVectorStores(object):
         -----------
         input: str
             Input.
-        top_n: int
-            Top N.
+        top_n: int, optional
+            Top N. Default to 1.
         """
         if self.is_hana:
             return _hana_vector_stores_query(self.vector_stores, input, top_n)
@@ -79,10 +79,10 @@ def merge_hana_vector_store(vector_stores, table_name=None, schema=None, **kwarg
     -----------
     vector_stores: list
         List of vector stores.
-    table_name: str
+    table_name: str, optional
         Table name.
     schema: str, optional
-        Schema name.
+        Schema name. Default to None.
     """
     list_of_tables = list(map(lambda x: x.get_knowledge(), vector_stores))
     if schema is not None and table_name is not None:

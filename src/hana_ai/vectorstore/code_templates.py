@@ -16,14 +16,10 @@ def get_code_templates(option=None, customized_dir=None):
 
     Parameters
     ----------
-    option: {'python', 'sql'}
-        Option.
-
-        Defaults to 'python'.
-    customized_dir: str
-        Customized directory.
-
-        Defaults to None.
+    option: {'python', 'sql'}, optional
+        The option of language.  Default to 'python'.
+    customized_dir: str, optional
+        Customized directory. Default to None.
 
     Returns
     -------

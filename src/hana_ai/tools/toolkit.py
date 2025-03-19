@@ -23,31 +23,32 @@ from hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools import TSOutlierDete
 
 
 class HANAMLToolkit(BaseToolkit):
-    """Toolkit for interacting with HANA SQL."""
+    """
+    Toolkit for interacting with HANA SQL.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+    used_tools : list, optional
+        List of tools to use. If None or 'all', all tools are used. Default to None.
+
+    Examples
+    --------
+    Assume cc is a connection to a SAP HANA instance:
+
+    >>> from hana_ai.tools.toolkit import HANAMLToolkit
+    >>> from hana_ai.agents.hanaml_agent_with_memory import HANAMLAgentWithMemory
+
+    >>> tools = HANAMLToolkit(connection_context=cc, used_tools='all').get_tools()
+    >>> chatbot = HANAMLAgentWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
+    """
     vectordb: Optional[HANAMLinVectorEngine] = None
     connection_context: ConnectionContext = None
     used_tools: Optional[list] = None
     default_tools: List[BaseTool] = None
 
     def __init__(self, connection_context, used_tools=None):
-        """
-        Initialize the toolkit.
-        
-        Parameters
-        ----------
-        connection_context : ConnectionContext
-            Connection context to the HANA database.
-        used_tools : list, optional
-            List of tools to use. If None or 'all', all tools are used. Default is None.
-        
-        Examples
-        --------
-        >>> from hana_ai.tools.toolkit import HANAMLToolkit
-        >>> from hana_ai.agents.hanaml_agent_with_memory import HANAMLAgentWithMemory
-
-        >>> tools = HANAMLToolkit(cc, used_tools='all').get_tools()
-        >>> chatbot = HANAMLAgentWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
-        """
         super().__init__(connection_context=connection_context)
         self.default_tools = [
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),
@@ -76,7 +77,7 @@ class HANAMLToolkit(BaseToolkit):
     def add_custom_tool(self, tool: BaseTool):
         """
         Add a custom tool to the toolkit.
-        
+
         Parameters
         ----------
         tool : BaseTool
@@ -91,11 +92,12 @@ class HANAMLToolkit(BaseToolkit):
     def set_vectordb(self, vectordb):
         """
         Set the vector database.
-        
+
         Parameters
         ----------
         vectordb : HANAMLinVectorEngine
-            Vector database."""
+            Vector database.
+        """
         self.vectordb = vectordb
 
     class Config:

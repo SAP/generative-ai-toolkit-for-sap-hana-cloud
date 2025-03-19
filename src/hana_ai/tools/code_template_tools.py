@@ -25,13 +25,16 @@ class GetCodeTemplateFromVectorDB(BaseTool):
 
     Examples
     --------
+    Assume cc is a connection to a SAP HANA instance:
+
     >>> from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
     >>> from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
+    >>> from hana_ai.agents.hana_dataframe_agent import create_hana_dataframe_agent
 
-    >>> hana_vec = HANAMLinVectorEngine(connection_context, "hana_vec_hana_ml_python_knowledge")
+    >>> hana_vec = HANAMLinVectorEngine(connection_context=cc, table_name="hana_vec_hana_ml_python_knowledge")
     >>> hana_vec.create_knowledge()
     >>> code_tool = GetCodeTemplateFromVectorDB()
-    >>> code_tool.set_vectordb(hana_vec)
+    >>> code_tool.set_vectordb(vectordb=hana_vec)
     >>> agent = create_hana_dataframe_agent(llm=llm, tools=[code_tool], df=hana_df, verbose=True, handle_parsing_errors=True)
     >>> agent.invoke("Create a dataset report for this dataframe.")
     """
@@ -43,7 +46,7 @@ class GetCodeTemplateFromVectorDB(BaseTool):
     def set_vectordb(self, vectordb):
         """
         Set the vector database.
-        
+
         Parameters
         ----------
         vectordb : HANAMLinVectorEngine

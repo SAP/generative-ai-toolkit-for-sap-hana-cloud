@@ -27,14 +27,10 @@ class HANAMLinVectorEngine(object):
         Connection context.
     table_name: str
         Table name.
-    schema: str
-        Schema name.
+    schema: str, optional
+        Schema name. Default to None.
     model_version: str, optional
-        Model version.
-
-        Defaults to 'SAP_NEB.20240715'.
-    option: str, optional
-        Option to get code templates (python or sql).
+        Model version. Default to 'SAP_NEB.20240715'.
     """
     connection_context: ConnectionContext = None
     table_name: str = None
@@ -67,6 +63,11 @@ class HANAMLinVectorEngine(object):
     def create_knowledge(self, option='python'):
         """
         Create knowledge base.
+
+        Parameters
+        ----------
+        option: {'python', 'sql'}, optional
+            The option of language.  Default to 'python'.
         """
         self.upsert_knowledge(get_code_templates(option=option))
 
@@ -93,6 +94,15 @@ class HANAMLinVectorEngine(object):
     def query(self, input, top_n=1, distance='cosine_similarity'):
         """
         Query.
+
+        Parameters
+        ----------
+        input: str
+            Input text.
+        top_n: int, optional
+            Top n. Default to 1.
+        distance: str, optional
+            Distance. Default to 'cosine_similarity'.
         """
         schema = self.schema
         if self.columns is None:
