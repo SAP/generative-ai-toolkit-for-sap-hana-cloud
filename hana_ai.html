@@ -1,25 +1,23 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generative AI Toolkit for SAP HANA Cloud &mdash; hana.ai 1.0.25031900 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+  <title>Generative AI Toolkit for SAP HANA Cloud &mdash; hana.ai 0.4.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7dc6ce7e" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=aceb6d63"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=6c02275b"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,9 +36,6 @@
           <a href="index.html" class="icon icon-home">
             hana.ai
           </a>
-              <div class="version">
-                1.0.25031900
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -246,7 +241,8 @@
              
   <section id="generative-ai-toolkit-for-sap-hana-cloud">
 <h1>Generative AI Toolkit for SAP HANA Cloud<a class="headerlink" href="#generative-ai-toolkit-for-sap-hana-cloud" title="Link to this heading"></a></h1>
-<a class="reference internal image-reference" href="_images/SAP_R_grad2.jpg"><img alt="_images/SAP_R_grad2.jpg" src="_images/SAP_R_grad2.jpg" style="width: 100.0px; height: 50.0px;" /></a>
+<a class="reference internal image-reference" href="_images/SAP_R_grad2.jpg"><img alt="_images/SAP_R_grad2.jpg" src="_images/SAP_R_grad2.jpg" style="width: 100.0px; height: 50.0px;" />
+</a>
 <p>Welcome to Generative AI Toolkit for SAP HANA Cloud (hana.ai)!</p>
 <p>This package enables the users to access SAP HANA data and build various machine
 learning models using the data directly in SAP HANA via natural language. This page provides an overview of hana.ai.</p>
@@ -277,19 +273,20 @@ for more information. Only valid when using the APL package.</p></li>
 </section>
 <section id="langchain-agent-with-hanaml-toolkit">
 <h2>Langchain Agent with HANAML Toolkit<a class="headerlink" href="#langchain-agent-with-hanaml-toolkit" title="Link to this heading"></a></h2>
-<p>HANAML Toolkit is a set of tools to analyze data and build machine learning models using the data directly in SAP HANA. It can be consumed by AI Agent.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hana_ai.agents.hanaml_agent_with_memory</span> <span class="kn">import</span> <span class="n">HANAMLAgentWithMemory</span>
-<span class="kn">from</span> <span class="nn">hana_ai.tools.toolkit</span> <span class="kn">import</span> <span class="n">HANAMLToolkit</span>
+<p>HANAML Toolkit is a set of tools to analyze data and build machine learning models using the data directly in SAP HANA. It can be consumed by AI Agent. cc is a connection to a SAP HANA instance.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hanaml_agent_with_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLAgentWithMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.toolkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLToolkit</span>
 
-<span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
-<span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLAgentWithMemory</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">toos</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;hana_ai_test&#39;</span><span class="p">,</span> <span class="n">n_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
+<span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLAgentWithMemory</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;hana_ai_test&#39;</span><span class="p">,</span> <span class="n">n_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/chatbotwithtoolkit.png"><img alt="A chatbot with HANAML Toolkit." src="_images/chatbotwithtoolkit.png" style="width: 768.8000000000001px; height: 320.0px;" /></a>
+<a class="reference internal image-reference" href="_images/chatbotwithtoolkit.png"><img alt="A chatbot with HANAML Toolkit." src="_images/chatbotwithtoolkit.png" style="width: 768.8000000000001px; height: 320.0px;" />
+</a>
 </section>
 <section id="hana-vector-store-and-knowledge-base-api">
 <h2>HANA Vector Store and Knowledge Base API<a class="headerlink" href="#hana-vector-store-and-knowledge-base-api" title="Link to this heading"></a></h2>
-<p>Create Knowledge Base for hana-ml codes in Hana Vector Engine.</p>
+<p>Create Knowledge Base for hana-ml codes in HANA Vector Engine.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hanavec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="s2">&quot;hana_vec_hana_ml_knowledge&quot;</span><span class="p">)</span>
 <span class="n">hana_vec</span><span class="o">.</span><span class="n">create_knowledge</span><span class="p">()</span>
 </pre></div>
@@ -298,7 +295,7 @@ for more information. Only valid when using the APL package.</p></li>
 <section id="create-code-template-tool-and-add-knowledge-bases-to-it">
 <h2>Create Code Template Tool and Add Knowledge Bases to It<a class="headerlink" href="#create-code-template-tool-and-add-knowledge-bases-to-it" title="Link to this heading"></a></h2>
 <p>Create a code template tool and add knowledge bases to it.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hana_ai.tools.code_template_tools</span> <span class="kn">import</span> <span class="n">GetCodeTemplateFromVectorDB</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.code_template_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetCodeTemplateFromVectorDB</span>
 
 <span class="n">code_tool</span> <span class="o">=</span> <span class="n">GetCodeTemplateFromVectorDB</span><span class="p">()</span>
 <span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vectordb</span><span class="p">)</span>
@@ -308,23 +305,25 @@ for more information. Only valid when using the APL package.</p></li>
 <section id="create-hana-dataframe-agent-and-execute-task">
 <h2>Create HANA Dataframe Agent and Execute Task<a class="headerlink" href="#create-hana-dataframe-agent-and-execute-task" title="Link to this heading"></a></h2>
 <p>Create a HANA dataframe agent and execute a task.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hana_ai.agents.hana_dataframe_agent</span> <span class="kn">import</span> <span class="n">create_hana_dataframe_agent</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hana_dataframe_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_hana_dataframe_agent</span>
 
 <span class="n">agent</span> <span class="o">=</span> <span class="n">create_hana_dataframe_agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">code_tool</span><span class="p">],</span> <span class="n">df</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Create Automatic Regression model on this dataframe with max_eval_time_mins=10. Provide key is ID, background_size=100 and model_table_name=&#39;my_model&#39; in the fit function and execute it. &quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/agent.png"><img alt="A HANA dataframe agent to build model." src="_images/agent.png" style="width: 768.8000000000001px; height: 320.0px;" /></a>
+<a class="reference internal image-reference" href="_images/agent.png"><img alt="A HANA dataframe agent to build model." src="_images/agent.png" style="width: 768.8000000000001px; height: 320.0px;" />
+</a>
 <p>Build a dataset report.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Build a dataset report&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/dataset_report.png"><img alt="A HANA dataframe agent to generate dataset report." src="_images/dataset_report.png" style="width: 560.0px; height: 350.0px;" /></a>
+<a class="reference internal image-reference" href="_images/dataset_report.png"><img alt="A HANA dataframe agent to generate dataset report." src="_images/dataset_report.png" style="width: 560.0px; height: 350.0px;" />
+</a>
 </section>
 <section id="smart-dataframe">
 <h2>Smart DataFrame<a class="headerlink" href="#smart-dataframe" title="Link to this heading"></a></h2>
 <p>Smart DataFrame is a HANA dataframe Agent to interact with HANA data.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hana_ai.smart_dataframe</span> <span class="kn">import</span> <span class="n">SmartDataFrame</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.smart_dataframe</span><span class="w"> </span><span class="kn">import</span> <span class="n">SmartDataFrame</span>
 
 <span class="n">sdf</span> <span class="o">=</span> <span class="n">SmartDataFrame</span><span class="p">(</span><span class="n">hana_df</span><span class="p">)</span>
 <span class="n">sdf</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">code_tool</span><span class="p">],</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
@@ -332,7 +331,8 @@ for more information. Only valid when using the APL package.</p></li>
 <span class="n">new_df</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/smartdf_res.png"><img alt="A Smart DataFrame's transformed result." src="_images/smartdf_res.png" style="width: 400.0px; height: 64.0px;" /></a>
+<a class="reference internal image-reference" href="_images/smartdf_res.png"><img alt="A Smart DataFrame's transformed result." src="_images/smartdf_res.png" style="width: 400.0px; height: 64.0px;" />
+</a>
 </section>
 </section>
 

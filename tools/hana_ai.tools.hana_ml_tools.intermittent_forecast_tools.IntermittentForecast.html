@@ -1,25 +1,23 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IntermittentForecast &mdash; hana.ai 1.0.25031900 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+  <title>IntermittentForecast &mdash; hana.ai 0.4.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7dc6ce7e" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=aceb6d63"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=6c02275b"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             hana.ai
           </a>
-              <div class="version">
-                1.0.25031900
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -249,17 +244,175 @@
 <h1>IntermittentForecast<a class="headerlink" href="#intermittentforecast" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.</span></span><span class="sig-name descname"><span class="pre">IntermittentForecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConnectionContext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.</span></span><span class="sig-name descname"><span class="pre">IntermittentForecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConnectionContext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast" title="Link to this definition"></a></dt>
 <dd><p>This tool generates forecast for the intermittent demand dataset.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>connection_context</strong><span class="classifier">ConnectionContext</span></dt><dd><p>Connection context to the HANA database.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.InputType" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.InputType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InputType</span></code></a></dt><dd><p>The type of input this runnable accepts specified as a type annotation.</p>
+</dd>
+<dt><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.OutputType" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.OutputType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutputType</span></code></a></dt><dd><p>The type of output this runnable produces specified as a type annotation.</p>
+</dd>
+<dt><strong>args</strong></dt><dd></dd>
+<dt><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.config_specs" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.config_specs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_specs</span></code></a></dt><dd><p>List configurable fields for this runnable.</p>
+</dd>
+<dt><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.input_schema" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.input_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">input_schema</span></code></a></dt><dd><p>The type of input this runnable accepts specified as a pydantic model.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_single_input</span></code></dt><dd><p>Whether the tool only accepts a single input.</p>
+</dd>
+<dt><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_attributes" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_attributes</span></code></a></dt><dd><p>List of attribute names that should be included in the serialized kwargs.</p>
+</dd>
+<dt><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_secrets" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_secrets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_secrets</span></code></a></dt><dd><p>A map of constructor argument names to secret ids.</p>
+</dd>
+<dt><strong>name</strong></dt><dd></dd>
+<dt><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.output_schema" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.output_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_schema</span></code></a></dt><dd><p>The type of output this runnable produces specified as a pydantic model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code>()</p></td>
+<td><p>Configuration for this pydantic object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(tool_input[, callbacks])</p></td>
+<td><p>[<em>Deprecated</em>] Make tool callable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.abatch" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.abatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch</span></code></a>(inputs[, config, return_exceptions])</p></td>
+<td><p>Default implementation runs ainvoke in parallel using asyncio.gather.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.abatch_as_completed" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.abatch_as_completed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch_as_completed</span></code></a>(inputs[, config, ...])</p></td>
+<td><p>Run ainvoke in parallel on a list of inputs, yielding results as they complete.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ainvoke</span></code>(input[, config])</p></td>
+<td><p>Default implementation of ainvoke, calls invoke from a thread.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">arun</span></code>(tool_input[, verbose, start_color, ...])</p></td>
+<td><p>Run the tool asynchronously.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.assign" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.assign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign</span></code></a>(**kwargs)</p></td>
+<td><p>Assigns new fields to the dict output of this runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream</span></code></a>(input[, config])</p></td>
+<td><p>Default implementation of astream, which calls ainvoke.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream_events" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream_events</span></code></a>(input[, config, ...])</p></td>
+<td><p>[<em>Beta</em>] Generate a stream of events.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream_log" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream_log</span></code></a>(input[, config, diff, ...])</p></td>
+<td><p>Stream all output from a runnable, as reported to the callback system.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.atransform" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.atransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">atransform</span></code></a>(input[, config])</p></td>
+<td><p>Default implementation of atransform, which buffers input and calls astream.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.batch" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">batch</span></code></a>(inputs[, config, return_exceptions])</p></td>
+<td><p>Default implementation runs invoke in parallel using a thread pool executor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.batch_as_completed" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.batch_as_completed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_as_completed</span></code></a>(inputs[, config, ...])</p></td>
+<td><p>Run invoke in parallel on a list of inputs, yielding results as they complete.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.bind" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.bind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bind</span></code></a>(**kwargs)</p></td>
+<td><p>Bind arguments to a Runnable, returning a new Runnable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.config_schema" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.config_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_schema</span></code></a>(*[, include])</p></td>
+<td><p>The type of config this runnable accepts specified as a pydantic model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.configurable_alternatives" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.configurable_alternatives"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configurable_alternatives</span></code></a>(which, *[, ...])</p></td>
+<td><p>Configure alternatives for runnables that can be set at runtime.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.configurable_fields" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.configurable_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configurable_fields</span></code></a>(**kwargs)</p></td>
+<td><p>Configure particular runnable fields at runtime.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">construct</span></code>([_fields_set])</p></td>
+<td><p>Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
+<td><p>Duplicate a model, optionally choose which fields to include, exclude and change.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>(*[, include, exclude, by_alias, ...])</p></td>
+<td><p>Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_graph" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_graph</span></code></a>([config])</p></td>
+<td><p>Return a graph representation of this runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_input_schema</span></code>([config])</p></td>
+<td><p>The tool's input schema.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_lc_namespace" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_lc_namespace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lc_namespace</span></code></a>()</p></td>
+<td><p>Get the namespace of the langchain object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_name" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code></a>([suffix, name])</p></td>
+<td><p>Get the name of the runnable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_output_schema" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_output_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_output_schema</span></code></a>([config])</p></td>
+<td><p>Get a pydantic model that can be used to validate output to the runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">invoke</span></code>(input[, config])</p></td>
+<td><p>Transform a single input into an output.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.is_lc_serializable" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.is_lc_serializable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_lc_serializable</span></code></a>()</p></td>
+<td><p>Is this class serializable?</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">json</span></code>(*[, include, exclude, by_alias, ...])</p></td>
+<td><p>Generate a JSON representation of the model, <cite>include</cite> and <cite>exclude</cite> arguments as per <cite>dict()</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_id" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_id</span></code></a>()</p></td>
+<td><p>A unique identifier for this class for serialization purposes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.map" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map</span></code></a>()</p></td>
+<td><p>Return a new Runnable that maps a list of inputs to a list of outputs, by calling invoke() with each input.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.pick" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.pick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick</span></code></a>(keys)</p></td>
+<td><p>Pick keys from the dict output of this runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.pipe" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe</span></code></a>(*others[, name])</p></td>
+<td><p>Compose this Runnable with Runnable-like objects to make a RunnableSequence.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">raise_deprecation</span></code>(values)</p></td>
+<td><p>Raise deprecation warning if callback_manager is used.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>(tool_input[, verbose, start_color, ...])</p></td>
+<td><p>Run the tool.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.stream" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code></a>(input[, config])</p></td>
+<td><p>Default implementation of stream, which calls invoke.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.to_json" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a>()</p></td>
+<td><p>Serialize the runnable to JSON.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.transform" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(input[, config])</p></td>
+<td><p>Default implementation of transform, which buffers input and then calls stream.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
+<td><p>Try to update ForwardRefs on fields based on this Model, globalns and localns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_config" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_config</span></code></a>([config])</p></td>
+<td><p>Bind config to a Runnable, returning a new Runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_fallbacks" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_fallbacks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_fallbacks</span></code></a>(fallbacks, *[, ...])</p></td>
+<td><p>Add fallbacks to a runnable, returning a new Runnable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_listeners" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_listeners"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_listeners</span></code></a>(*[, on_start, on_end, on_error])</p></td>
+<td><p>Bind lifecycle listeners to a Runnable, returning a new Runnable.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_retry" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_retry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_retry</span></code></a>(*[, retry_if_exception_type, ...])</p></td>
+<td><p>Create a new Runnable that retries the original runnable on exceptions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_types" title="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_types</span></code></a>(*[, input_type, output_type])</p></td>
+<td><p>Bind input and output types to a Runnable, returning a new Runnable.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
 <dt>str</dt><dd><p>The name of the predicted result table and the statistics of the forecast.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -332,163 +485,7 @@
 </dd>
 </dl>
 </dd>
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">InputType</span></code></dt><dd><p>The type of input this runnable accepts specified as a type annotation.</p>
-</dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutputType</span></code></dt><dd><p>The type of output this runnable produces specified as a type annotation.</p>
-</dd>
-<dt><strong>args</strong></dt><dd></dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_specs</span></code></dt><dd><p>List configurable fields for this runnable.</p>
-</dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">input_schema</span></code></dt><dd><p>The type of input this runnable accepts specified as a pydantic model.</p>
-</dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_single_input</span></code></dt><dd><p>Whether the tool only accepts a single input.</p>
-</dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_attributes</span></code></dt><dd><p>List of attribute names that should be included in the serialized kwargs.</p>
-</dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_secrets</span></code></dt><dd><p>A map of constructor argument names to secret ids.</p>
-</dd>
-<dt><strong>name</strong></dt><dd></dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_schema</span></code></dt><dd><p>The type of output this runnable produces specified as a pydantic model.</p>
-</dd>
 </dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code>()</p></td>
-<td><p>Configuration for this pydantic object.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(tool_input[, callbacks])</p></td>
-<td><p>[<em>Deprecated</em>] Make tool callable.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch</span></code>(inputs[, config, return_exceptions])</p></td>
-<td><p>Default implementation runs ainvoke in parallel using asyncio.gather.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch_as_completed</span></code>(inputs[, config, ...])</p></td>
-<td><p>Run ainvoke in parallel on a list of inputs, yielding results as they complete.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ainvoke</span></code>(input[, config])</p></td>
-<td><p>Default implementation of ainvoke, calls invoke from a thread.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">arun</span></code>(tool_input[, verbose, start_color, ...])</p></td>
-<td><p>Run the tool asynchronously.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign</span></code>(**kwargs)</p></td>
-<td><p>Assigns new fields to the dict output of this runnable.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream</span></code>(input[, config])</p></td>
-<td><p>Default implementation of astream, which calls ainvoke.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream_events</span></code>(input[, config, ...])</p></td>
-<td><p>[<em>Beta</em>] Generate a stream of events.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream_log</span></code>(input[, config, diff, ...])</p></td>
-<td><p>Stream all output from a runnable, as reported to the callback system.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">atransform</span></code>(input[, config])</p></td>
-<td><p>Default implementation of atransform, which buffers input and calls astream.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">batch</span></code>(inputs[, config, return_exceptions])</p></td>
-<td><p>Default implementation runs invoke in parallel using a thread pool executor.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_as_completed</span></code>(inputs[, config, ...])</p></td>
-<td><p>Run invoke in parallel on a list of inputs, yielding results as they complete.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bind</span></code>(**kwargs)</p></td>
-<td><p>Bind arguments to a Runnable, returning a new Runnable.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_schema</span></code>(*[, include])</p></td>
-<td><p>The type of config this runnable accepts specified as a pydantic model.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configurable_alternatives</span></code>(which, *[, ...])</p></td>
-<td><p>Configure alternatives for runnables that can be set at runtime.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configurable_fields</span></code>(**kwargs)</p></td>
-<td><p>Configure particular runnable fields at runtime.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">construct</span></code>([_fields_set])</p></td>
-<td><p>Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
-<td><p>Duplicate a model, optionally choose which fields to include, exclude and change.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>(*[, include, exclude, by_alias, ...])</p></td>
-<td><p>Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_graph</span></code>([config])</p></td>
-<td><p>Return a graph representation of this runnable.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_input_schema</span></code>([config])</p></td>
-<td><p>The tool's input schema.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lc_namespace</span></code>()</p></td>
-<td><p>Get the namespace of the langchain object.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code>([suffix, name])</p></td>
-<td><p>Get the name of the runnable.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_output_schema</span></code>([config])</p></td>
-<td><p>Get a pydantic model that can be used to validate output to the runnable.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">invoke</span></code>(input[, config])</p></td>
-<td><p>Transform a single input into an output.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_lc_serializable</span></code>()</p></td>
-<td><p>Is this class serializable?</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">json</span></code>(*[, include, exclude, by_alias, ...])</p></td>
-<td><p>Generate a JSON representation of the model, <cite>include</cite> and <cite>exclude</cite> arguments as per <cite>dict()</cite>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_id</span></code>()</p></td>
-<td><p>A unique identifier for this class for serialization purposes.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map</span></code>()</p></td>
-<td><p>Return a new Runnable that maps a list of inputs to a list of outputs, by calling invoke() with each input.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick</span></code>(keys)</p></td>
-<td><p>Pick keys from the dict output of this runnable.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe</span></code>(*others[, name])</p></td>
-<td><p>Compose this Runnable with Runnable-like objects to make a RunnableSequence.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">raise_deprecation</span></code>(values)</p></td>
-<td><p>Raise deprecation warning if callback_manager is used.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>(tool_input[, verbose, start_color, ...])</p></td>
-<td><p>Run the tool.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code>(input[, config])</p></td>
-<td><p>Default implementation of stream, which calls invoke.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code>()</p></td>
-<td><p>Serialize the runnable to JSON.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(input[, config])</p></td>
-<td><p>Default implementation of transform, which buffers input and then calls stream.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
-<td><p>Try to update ForwardRefs on fields based on this Model, globalns and localns.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_config</span></code>([config])</p></td>
-<td><p>Bind config to a Runnable, returning a new Runnable.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_fallbacks</span></code>(fallbacks, *[, ...])</p></td>
-<td><p>Add fallbacks to a runnable, returning a new Runnable.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_listeners</span></code>(*[, on_start, on_end, on_error])</p></td>
-<td><p>Bind lifecycle listeners to a Runnable, returning a new Runnable.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_retry</span></code>(*[, retry_if_exception_type, ...])</p></td>
-<td><p>Create a new Runnable that retries the original runnable on exceptions.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_types</span></code>(*[, input_type, output_type])</p></td>
-<td><p>Bind input and output types to a Runnable, returning a new Runnable.</p></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.name" title="Link to this definition"></a></dt>
@@ -518,6 +515,804 @@
 <span class="sig-name descname"><span class="pre">return_direct</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.return_direct" title="Link to this definition"></a></dt>
 <dd><p>Whether to return the tool's output directly. Setting this to True means</p>
 <p>that after the tool is called, the AgentExecutor will stop looping.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.InputType">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">InputType</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.InputType" title="Link to this definition"></a></dt>
+<dd><p>The type of input this runnable accepts specified as a type annotation.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.OutputType">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OutputType</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.OutputType" title="Link to this definition"></a></dt>
+<dd><p>The type of output this runnable produces specified as a type annotation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.abatch">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">abatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">RunnableConfig</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_exceptions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.abatch" title="Link to this definition"></a></dt>
+<dd><p>Default implementation runs ainvoke in parallel using asyncio.gather.</p>
+<p>The default implementation of batch works well for IO bound runnables.</p>
+<p>Subclasses should override this method if they can batch more efficiently;
+e.g., if the underlying runnable uses an API which supports a batch mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.abatch_as_completed">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">abatch_as_completed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">RunnableConfig</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_exceptions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Exception</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.abatch_as_completed" title="Link to this definition"></a></dt>
+<dd><p>Run ainvoke in parallel on a list of inputs,
+yielding results as they complete.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.assign">
+<span class="sig-name descname"><span class="pre">assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RunnableSerializable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.assign" title="Link to this definition"></a></dt>
+<dd><p>Assigns new fields to the dict output of this runnable.
+Returns a new runnable.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.llms.fake</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeStreamingListLLM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.output_parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrOutputParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemMessagePromptTemplate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">Runnable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">itemgetter</span>
+
+<span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">SystemMessagePromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&quot;You are a nice assistant.&quot;</span><span class="p">)</span>
+    <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{question}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">FakeStreamingListLLM</span><span class="p">(</span><span class="n">responses</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;foo-lish&quot;</span><span class="p">])</span>
+
+<span class="n">chain</span><span class="p">:</span> <span class="n">Runnable</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">|</span> <span class="n">llm</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;str&quot;</span><span class="p">:</span> <span class="n">StrOutputParser</span><span class="p">()}</span>
+
+<span class="n">chain_with_assign</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">hello</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="n">llm</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">chain_with_assign</span><span class="o">.</span><span class="n">input_schema</span><span class="o">.</span><span class="n">schema</span><span class="p">())</span>
+<span class="c1"># {&#39;title&#39;: &#39;PromptInput&#39;, &#39;type&#39;: &#39;object&#39;, &#39;properties&#39;:</span>
+<span class="p">{</span><span class="s1">&#39;question&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Question&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">}}}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain_with_assign</span><span class="o">.</span><span class="n">output_schema</span><span class="o">.</span><span class="n">schema</span><span class="p">())</span> <span class="c1">#</span>
+<span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;RunnableSequenceOutput&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;object&#39;</span><span class="p">,</span> <span class="s1">&#39;properties&#39;</span><span class="p">:</span>
+<span class="p">{</span><span class="s1">&#39;str&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Str&#39;</span><span class="p">,</span>
+<span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">},</span> <span class="s1">&#39;hello&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Hello&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">}}}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">astream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream" title="Link to this definition"></a></dt>
+<dd><p>Default implementation of astream, which calls ainvoke.
+Subclasses should override this method if they support streaming output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream_events">
+<span class="sig-name descname"><span class="pre">astream_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'v1'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">StreamEvent</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream_events" title="Link to this definition"></a></dt>
+<dd><p>[<em>Beta</em>] Generate a stream of events.</p>
+<p>Use to create an iterator over StreamEvents that provide real-time information
+about the progress of the runnable, including StreamEvents from intermediate
+results.</p>
+<p>A StreamEvent is a dictionary with the following schema:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">event</span></code>: <strong>str</strong> - Event names are of the</dt><dd><p>format: on_[runnable_type]_(start|stream|end).</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: <strong>str</strong> - The name of the runnable that generated the event.</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">run_id</span></code>: <strong>str</strong> - randomly generated ID associated with the given execution of</dt><dd><p>the runnable that emitted the event.
+A child runnable that gets invoked as part of the execution of a
+parent runnable is assigned its own unique ID.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">tags</span></code>: <strong>Optional[List[str]]</strong> - The tags of the runnable that generated</dt><dd><p>the event.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">metadata</span></code>: <strong>Optional[Dict[str, Any]]</strong> - The metadata of the runnable</dt><dd><p>that generated the event.</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: <strong>Dict[str, Any]</strong></p></li>
+</ul>
+<p>Below is a table that illustrates some evens that might be emitted by various
+chains. Metadata fields have been omitted from the table for brevity.
+Chain definitions have been included after the table.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>event</p></th>
+<th class="head"><p>name</p></th>
+<th class="head"><p>chunk</p></th>
+<th class="head"><p>input</p></th>
+<th class="head"><p>output</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>on_chat_model_start</p></td>
+<td><p>[model name]</p></td>
+<td></td>
+<td><p>{&quot;messages&quot;: [[SystemMessage, HumanMessage]]}</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>on_chat_model_stream</p></td>
+<td><p>[model name]</p></td>
+<td><p>AIMessageChunk(content=&quot;hello&quot;)</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>on_chat_model_end</p></td>
+<td><p>[model name]</p></td>
+<td></td>
+<td><p>{&quot;messages&quot;: [[SystemMessage, HumanMessage]]}</p></td>
+<td><p>{&quot;generations&quot;: [...], &quot;llm_output&quot;: None, ...}</p></td>
+</tr>
+<tr class="row-odd"><td><p>on_llm_start</p></td>
+<td><p>[model name]</p></td>
+<td></td>
+<td><p>{'input': 'hello'}</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>on_llm_stream</p></td>
+<td><p>[model name]</p></td>
+<td><p>'Hello'</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>on_llm_end</p></td>
+<td><p>[model name]</p></td>
+<td></td>
+<td><p>'Hello human!'</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>on_chain_start</p></td>
+<td><p>format_docs</p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>on_chain_stream</p></td>
+<td><p>format_docs</p></td>
+<td><p>&quot;hello world!, goodbye world!&quot;</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>on_chain_end</p></td>
+<td><p>format_docs</p></td>
+<td></td>
+<td><p>[Document(...)]</p></td>
+<td><p>&quot;hello world!, goodbye world!&quot;</p></td>
+</tr>
+<tr class="row-odd"><td><p>on_tool_start</p></td>
+<td><p>some_tool</p></td>
+<td></td>
+<td><p>{&quot;x&quot;: 1, &quot;y&quot;: &quot;2&quot;}</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>on_tool_stream</p></td>
+<td><p>some_tool</p></td>
+<td><p>{&quot;x&quot;: 1, &quot;y&quot;: &quot;2&quot;}</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>on_tool_end</p></td>
+<td><p>some_tool</p></td>
+<td></td>
+<td></td>
+<td><p>{&quot;x&quot;: 1, &quot;y&quot;: &quot;2&quot;}</p></td>
+</tr>
+<tr class="row-even"><td><p>on_retriever_start</p></td>
+<td><p>[retriever name]</p></td>
+<td></td>
+<td><p>{&quot;query&quot;: &quot;hello&quot;}</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>on_retriever_chunk</p></td>
+<td><p>[retriever name]</p></td>
+<td><p>{documents: [...]}</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>on_retriever_end</p></td>
+<td><p>[retriever name]</p></td>
+<td></td>
+<td><p>{&quot;query&quot;: &quot;hello&quot;}</p></td>
+<td><p>{documents: [...]}</p></td>
+</tr>
+<tr class="row-odd"><td><p>on_prompt_start</p></td>
+<td><p>[template_name]</p></td>
+<td></td>
+<td><p>{&quot;question&quot;: &quot;hello&quot;}</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>on_prompt_end</p></td>
+<td><p>[template_name]</p></td>
+<td></td>
+<td><p>{&quot;question&quot;: &quot;hello&quot;}</p></td>
+<td><p>ChatPromptValue(messages: [SystemMessage, ...])</p></td>
+</tr>
+</tbody>
+</table>
+<p>Here are declarations associated with the events shown above:</p>
+<p><cite>format_docs</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">format_docs</span><span class="p">(</span><span class="n">docs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Document</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Format the docs.&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">doc</span><span class="o">.</span><span class="n">page_content</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">])</span>
+
+<span class="n">format_docs</span> <span class="o">=</span> <span class="n">RunnableLambda</span><span class="p">(</span><span class="n">format_docs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><cite>some_tool</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">some_tool</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Some_tool.&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><cite>prompt</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">template</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_messages</span><span class="p">(</span>
+    <span class="p">[(</span><span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;You are Cat Agent 007&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;human&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{question}</span><span class="s2">&quot;</span><span class="p">)]</span>
+<span class="p">)</span><span class="o">.</span><span class="n">with_config</span><span class="p">({</span><span class="s2">&quot;run_name&quot;</span><span class="p">:</span> <span class="s2">&quot;my_template&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;my_template&quot;</span><span class="p">]})</span>
+</pre></div>
+</div>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunnableLambda</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">reverse</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">chain</span> <span class="o">=</span> <span class="n">RunnableLambda</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+
+<span class="n">events</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">event</span> <span class="k">async</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">chain</span><span class="o">.</span><span class="n">astream_events</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v1&quot;</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># will produce the following events (run_id has been omitted for brevity):</span>
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="s2">&quot;on_chain_start&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;reverse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;chunk&quot;</span><span class="p">:</span> <span class="s2">&quot;olleh&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="s2">&quot;on_chain_stream&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;reverse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="s2">&quot;olleh&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="s2">&quot;on_chain_end&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;reverse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<dl>
+<dt>Args:</dt><dd><p>input: The input to the runnable.
+config: The config to use for the runnable.
+version: The version of the schema to use.</p>
+<blockquote>
+<div><p>Currently only version 1 is available.
+No default will be assigned until the API is stabilized.</p>
+</div></blockquote>
+<p>include_names: Only include events from runnables with matching names.
+include_types: Only include events from runnables with matching types.
+include_tags: Only include events from runnables with matching tags.
+exclude_names: Exclude events from runnables with matching names.
+exclude_types: Exclude events from runnables with matching types.
+exclude_tags: Exclude events from runnables with matching tags.
+kwargs: Additional keyword arguments to pass to the runnable.</p>
+<blockquote>
+<div><p>These will be passed to astream_log as this implementation
+of astream_events is built on top of astream_log.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>An async stream of StreamEvents.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream_log">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">astream_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_streamed_output_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">RunLogPatch</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">RunLog</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.astream_log" title="Link to this definition"></a></dt>
+<dd><p>Stream all output from a runnable, as reported to the callback system.
+This includes all inner runs of LLMs, Retrievers, Tools, etc.</p>
+<p>Output is streamed as Log objects, which include a list of
+jsonpatch ops that describe how the state of the run has changed in each
+step, and the final state of the run.</p>
+<p>The jsonpatch ops can be applied in order to construct state.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>input: The input to the runnable.
+config: The config to use for the runnable.
+diff: Whether to yield diffs between each step, or the current state.
+with_streamed_output_list: Whether to yield the streamed_output list.
+include_names: Only include logs with these names.
+include_types: Only include logs with these types.
+include_tags: Only include logs with these tags.
+exclude_names: Exclude logs with these names.
+exclude_types: Exclude logs with these types.
+exclude_tags: Exclude logs with these tags.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.atransform">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AsyncIterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.atransform" title="Link to this definition"></a></dt>
+<dd><p>Default implementation of atransform, which buffers input and calls astream.
+Subclasses should override this method if they can start producing output while
+input is still being generated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.batch">
+<span class="sig-name descname"><span class="pre">batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">RunnableConfig</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_exceptions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.batch" title="Link to this definition"></a></dt>
+<dd><p>Default implementation runs invoke in parallel using a thread pool executor.</p>
+<p>The default implementation of batch works well for IO bound runnables.</p>
+<p>Subclasses should override this method if they can batch more efficiently;
+e.g., if the underlying runnable uses an API which supports a batch mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.batch_as_completed">
+<span class="sig-name descname"><span class="pre">batch_as_completed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">RunnableConfig</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_exceptions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Exception</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.batch_as_completed" title="Link to this definition"></a></dt>
+<dd><p>Run invoke in parallel on a list of inputs,
+yielding results as they complete.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.bind">
+<span class="sig-name descname"><span class="pre">bind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.bind" title="Link to this definition"></a></dt>
+<dd><p>Bind arguments to a Runnable, returning a new Runnable.</p>
+<p>Useful when a runnable in a chain requires an argument that is not
+in the output of the previous runnable or included in the user input.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOllama</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.output_parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrOutputParser</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;llama2&#39;</span><span class="p">)</span>
+
+<span class="c1"># Without bind.</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">llm</span>
+    <span class="o">|</span> <span class="n">StrOutputParser</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="n">chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Repeat quoted words exactly: &#39;One two three four five.&#39;&quot;</span><span class="p">)</span>
+<span class="c1"># Output is &#39;One two three four five.&#39;</span>
+
+<span class="c1"># With bind.</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">llm</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;three&quot;</span><span class="p">])</span>
+    <span class="o">|</span> <span class="n">StrOutputParser</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="n">chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Repeat quoted words exactly: &#39;One two three four five.&#39;&quot;</span><span class="p">)</span>
+<span class="c1"># Output is &#39;One two&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.config_schema">
+<span class="sig-name descname"><span class="pre">config_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseModel</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.config_schema" title="Link to this definition"></a></dt>
+<dd><p>The type of config this runnable accepts specified as a pydantic model.</p>
+<p>To mark a field as configurable, see the <cite>configurable_fields</cite>
+and <cite>configurable_alternatives</cite> methods.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>include: A list of fields to include in the config schema.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A pydantic model that can be used to validate config.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.config_specs">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config_specs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigurableFieldSpec</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.config_specs" title="Link to this definition"></a></dt>
+<dd><p>List configurable fields for this runnable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.configurable_alternatives">
+<span class="sig-name descname"><span class="pre">configurable_alternatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConfigurableField</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RunnableSerializable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.configurable_alternatives" title="Link to this definition"></a></dt>
+<dd><p>Configure alternatives for runnables that can be set at runtime.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_anthropic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatAnthropic</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurableField</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">ChatAnthropic</span><span class="p">(</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;claude-3-sonnet-20240229&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">configurable_alternatives</span><span class="p">(</span>
+    <span class="n">ConfigurableField</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;llm&quot;</span><span class="p">),</span>
+    <span class="n">default_key</span><span class="o">=</span><span class="s2">&quot;anthropic&quot;</span><span class="p">,</span>
+    <span class="n">openai</span><span class="o">=</span><span class="n">ChatOpenAI</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># uses the default model ChatAnthropic</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;which organization created you?&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+<span class="c1"># uses ChatOpenaAI</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">with_config</span><span class="p">(</span>
+        <span class="n">configurable</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">}</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;which organization created you?&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.configurable_fields">
+<span class="sig-name descname"><span class="pre">configurable_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConfigurableField</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ConfigurableFieldSingleOption</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ConfigurableFieldMultiOption</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RunnableSerializable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.configurable_fields" title="Link to this definition"></a></dt>
+<dd><p>Configure particular runnable fields at runtime.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurableField</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">configurable_fields</span><span class="p">(</span>
+    <span class="n">max_tokens</span><span class="o">=</span><span class="n">ConfigurableField</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;output_token_number&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Max tokens in the output&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The maximum number of tokens in the output&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># max_tokens = 20</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;max_tokens_20: &quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;tell me something about chess&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+<span class="p">)</span>
+
+<span class="c1"># max_tokens = 200</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;max_tokens_200: &quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">with_config</span><span class="p">(</span>
+    <span class="n">configurable</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;output_token_number&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">}</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;tell me something about chess&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_graph">
+<span class="sig-name descname"><span class="pre">get_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Graph</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_graph" title="Link to this definition"></a></dt>
+<dd><p>Return a graph representation of this runnable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_lc_namespace">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_lc_namespace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_lc_namespace" title="Link to this definition"></a></dt>
+<dd><p>Get the namespace of the langchain object.</p>
+<p>For example, if the class is <cite>langchain.llms.openai.OpenAI</cite>, then the
+namespace is [&quot;langchain&quot;, &quot;llms&quot;, &quot;openai&quot;]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_name" title="Link to this definition"></a></dt>
+<dd><p>Get the name of the runnable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_output_schema">
+<span class="sig-name descname"><span class="pre">get_output_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseModel</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.get_output_schema" title="Link to this definition"></a></dt>
+<dd><p>Get a pydantic model that can be used to validate output to the runnable.</p>
+<p>Runnables that leverage the configurable_fields and configurable_alternatives
+methods will have a dynamic output schema that depends on which
+configuration the runnable is invoked with.</p>
+<p>This method allows to get an output schema for a specific configuration.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>config: A config to use when generating the schema.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A pydantic model that can be used to validate output.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.input_schema">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_schema</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseModel</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.input_schema" title="Link to this definition"></a></dt>
+<dd><p>The type of input this runnable accepts specified as a pydantic model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.is_lc_serializable">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_lc_serializable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.is_lc_serializable" title="Link to this definition"></a></dt>
+<dd><p>Is this class serializable?</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_attributes">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lc_attributes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_attributes" title="Link to this definition"></a></dt>
+<dd><p>List of attribute names that should be included in the serialized kwargs.</p>
+<p>These attributes must be accepted by the constructor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_id">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lc_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for this class for serialization purposes.</p>
+<p>The unique identifier is a list of strings that describes the path
+to the object.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_secrets">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lc_secrets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.lc_secrets" title="Link to this definition"></a></dt>
+<dd><p>A map of constructor argument names to secret ids.</p>
+<dl class="simple">
+<dt>For example,</dt><dd><p>{&quot;openai_api_key&quot;: &quot;OPENAI_API_KEY&quot;}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.map">
+<span class="sig-name descname"><span class="pre">map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.map" title="Link to this definition"></a></dt>
+<dd><p>Return a new Runnable that maps a list of inputs to a list of outputs,
+by calling invoke() with each input.</p>
+<p>Example:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunnableLambda</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lambda</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">runnable</span> <span class="o">=</span> <span class="n">RunnableLambda</span><span class="p">(</span><span class="n">_lambda</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">runnable</span><span class="o">.</span><span class="n">map</span><span class="p">()</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span> <span class="c1"># [2, 3, 4]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.output_schema">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_schema</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseModel</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.output_schema" title="Link to this definition"></a></dt>
+<dd><p>The type of output this runnable produces specified as a pydantic model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.pick">
+<span class="sig-name descname"><span class="pre">pick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RunnableSerializable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.pick" title="Link to this definition"></a></dt>
+<dd><p>Pick keys from the dict output of this runnable.</p>
+<dl>
+<dt>Pick single key:</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunnableLambda</span><span class="p">,</span> <span class="n">RunnableMap</span>
+
+<span class="n">as_str</span> <span class="o">=</span> <span class="n">RunnableLambda</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">as_json</span> <span class="o">=</span> <span class="n">RunnableLambda</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">RunnableMap</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="n">as_str</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">as_json</span><span class="p">)</span>
+
+<span class="n">chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;[1, 2, 3]&quot;</span><span class="p">)</span>
+<span class="c1"># -&gt; {&quot;str&quot;: &quot;[1, 2, 3]&quot;, &quot;json&quot;: [1, 2, 3]}</span>
+
+<span class="n">json_only_chain</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
+<span class="n">json_only_chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;[1, 2, 3]&quot;</span><span class="p">)</span>
+<span class="c1"># -&gt; [1, 2, 3]</span>
+</pre></div>
+</div>
+</dd>
+<dt>Pick list of keys:</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunnableLambda</span><span class="p">,</span> <span class="n">RunnableMap</span>
+
+<span class="n">as_str</span> <span class="o">=</span> <span class="n">RunnableLambda</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">as_json</span> <span class="o">=</span> <span class="n">RunnableLambda</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">as_bytes</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+<span class="n">chain</span> <span class="o">=</span> <span class="n">RunnableMap</span><span class="p">(</span>
+    <span class="nb">str</span><span class="o">=</span><span class="n">as_str</span><span class="p">,</span>
+    <span class="n">json</span><span class="o">=</span><span class="n">as_json</span><span class="p">,</span>
+    <span class="nb">bytes</span><span class="o">=</span><span class="n">RunnableLambda</span><span class="p">(</span><span class="n">as_bytes</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;[1, 2, 3]&quot;</span><span class="p">)</span>
+<span class="c1"># -&gt; {&quot;str&quot;: &quot;[1, 2, 3]&quot;, &quot;json&quot;: [1, 2, 3], &quot;bytes&quot;: b&quot;[1, 2, 3]&quot;}</span>
+
+<span class="n">json_and_bytes_chain</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">pick</span><span class="p">([</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;bytes&quot;</span><span class="p">])</span>
+<span class="n">json_and_bytes_chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;[1, 2, 3]&quot;</span><span class="p">)</span>
+<span class="c1"># -&gt; {&quot;json&quot;: [1, 2, 3], &quot;bytes&quot;: b&quot;[1, 2, 3]&quot;}</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.pipe">
+<span class="sig-name descname"><span class="pre">pipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">others</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Other</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Other</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RunnableSerializable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Other</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.pipe" title="Link to this definition"></a></dt>
+<dd><p>Compose this Runnable with Runnable-like objects to make a RunnableSequence.</p>
+<p>Equivalent to <cite>RunnableSequence(self, *others)</cite> or <cite>self | others[0] | ...</cite></p>
+<dl>
+<dt>Example:</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunnableLambda</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_one</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">mul_two</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+
+<span class="n">runnable_1</span> <span class="o">=</span> <span class="n">RunnableLambda</span><span class="p">(</span><span class="n">add_one</span><span class="p">)</span>
+<span class="n">runnable_2</span> <span class="o">=</span> <span class="n">RunnableLambda</span><span class="p">(</span><span class="n">mul_two</span><span class="p">)</span>
+<span class="n">sequence</span> <span class="o">=</span> <span class="n">runnable_1</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">runnable_2</span><span class="p">)</span>
+<span class="c1"># Or equivalently:</span>
+<span class="c1"># sequence = runnable_1 | runnable_2</span>
+<span class="c1"># sequence = RunnableSequence(first=runnable_1, last=runnable_2)</span>
+<span class="n">sequence</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">sequence</span><span class="o">.</span><span class="n">ainvoke</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># -&gt; 4</span>
+
+<span class="n">sequence</span><span class="o">.</span><span class="n">batch</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="k">await</span> <span class="n">sequence</span><span class="o">.</span><span class="n">abatch</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="c1"># -&gt; [4, 6, 8]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.stream">
+<span class="sig-name descname"><span class="pre">stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.stream" title="Link to this definition"></a></dt>
+<dd><p>Default implementation of stream, which calls invoke.
+Subclasses should override this method if they support streaming output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SerializedConstructor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SerializedNotImplemented</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.to_json" title="Link to this definition"></a></dt>
+<dd><p>Serialize the runnable to JSON.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.transform" title="Link to this definition"></a></dt>
+<dd><p>Default implementation of transform, which buffers input and then calls stream.
+Subclasses should override this method if they can start producing output while
+input is still being generated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_config">
+<span class="sig-name descname"><span class="pre">with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RunnableConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_config" title="Link to this definition"></a></dt>
+<dd><p>Bind config to a Runnable, returning a new Runnable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_fallbacks">
+<span class="sig-name descname"><span class="pre">with_fallbacks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fallbacks:</span> <span class="pre">Sequence[Runnable[Input,</span> <span class="pre">Output]],</span> <span class="pre">*,</span> <span class="pre">exceptions_to_handle:</span> <span class="pre">Tuple[Type[BaseException],</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(&lt;class</span> <span class="pre">'Exception'&gt;,),</span> <span class="pre">exception_key:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RunnableWithFallbacksT</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_fallbacks" title="Link to this definition"></a></dt>
+<dd><p>Add fallbacks to a runnable, returning a new Runnable.</p>
+<p>Example:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunnableGenerator</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_immediate_error</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+    <span class="k">yield</span> <span class="s2">&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">yield from</span> <span class="s2">&quot;foo bar&quot;</span>
+
+<span class="n">runnable</span> <span class="o">=</span> <span class="n">RunnableGenerator</span><span class="p">(</span><span class="n">_generate_immediate_error</span><span class="p">)</span><span class="o">.</span><span class="n">with_fallbacks</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">RunnableGenerator</span><span class="p">(</span><span class="n">_generate</span><span class="p">)]</span>
+    <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">runnable</span><span class="o">.</span><span class="n">stream</span><span class="p">({})))</span> <span class="c1">#foo bar</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl>
+<dt>Args:</dt><dd><p>fallbacks: A sequence of runnables to try if the original runnable fails.
+exceptions_to_handle: A tuple of exception types to handle.
+exception_key: If string is specified then handled exceptions will be passed</p>
+<blockquote>
+<div><p>to fallbacks as part of the input under the specified key. If None,
+exceptions will not be passed to fallbacks. If used, the base runnable
+and its fallbacks must accept a dictionary as input.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>A new Runnable that will try the original runnable, and then each
+fallback in order, upon failures.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_listeners">
+<span class="sig-name descname"><span class="pre">with_listeners</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Listener</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Listener</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Listener</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_listeners" title="Link to this definition"></a></dt>
+<dd><p>Bind lifecycle listeners to a Runnable, returning a new Runnable.</p>
+<p>on_start: Called before the runnable starts running, with the Run object.
+on_end: Called after the runnable finishes running, with the Run object.
+on_error: Called if the runnable throws an error, with the Run object.</p>
+<p>The Run object contains information about the run, including its id,
+type, input, output, error, start_time, end_time, and any tags or metadata
+added to the run.</p>
+<p>Example:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_retry">
+<span class="sig-name descname"><span class="pre">with_retry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*,</span> <span class="pre">retry_if_exception_type:</span> <span class="pre">~typing.Tuple[~typing.Type[BaseException],</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(&lt;class</span> <span class="pre">'Exception'&gt;,),</span> <span class="pre">wait_exponential_jitter:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">stop_after_attempt:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">3</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_retry" title="Link to this definition"></a></dt>
+<dd><p>Create a new Runnable that retries the original runnable on exceptions.</p>
+<p>Example:</p>
+<dl>
+<dt>Args:</dt><dd><p>retry_if_exception_type: A tuple of exception types to retry on
+wait_exponential_jitter: Whether to add jitter to the wait time</p>
+<blockquote>
+<div><p>between retries</p>
+</div></blockquote>
+<p>stop_after_attempt: The maximum number of attempts to make before giving up</p>
+</dd>
+<dt>Returns:</dt><dd><p>A new Runnable that retries the original runnable on exceptions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_types">
+<span class="sig-name descname"><span class="pre">with_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Runnable</span><span class="p"><span class="pre">[</span></span><span class="pre">Input</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Output</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.with_types" title="Link to this definition"></a></dt>
+<dd><p>Bind input and output types to a Runnable, returning a new Runnable.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.verbose" title="Link to this definition"></a></dt>
+<dd><p>Whether to log the tool's progress.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.callbacks">
+<span class="sig-name descname"><span class="pre">callbacks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callbacks</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.callbacks" title="Link to this definition"></a></dt>
+<dd><p>Callbacks to be called during tool execution.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.callback_manager">
+<span class="sig-name descname"><span class="pre">callback_manager</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BaseCallbackManager</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.callback_manager" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Please use callbacks instead.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.tags">
+<span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.tags" title="Link to this definition"></a></dt>
+<dd><p>Optional list of tags associated with the tool. Defaults to None
+These tags will be associated with each call to this tool,
+and passed as arguments to the handlers defined in <cite>callbacks</cite>.
+You can use these to eg identify a specific instance of a tool with its use case.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.metadata" title="Link to this definition"></a></dt>
+<dd><p>Optional metadata associated with the tool. Defaults to None
+This metadata will be associated with each call to this tool,
+and passed as arguments to the handlers defined in <cite>callbacks</cite>.
+You can use these to eg identify a specific instance of a tool with its use case.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.handle_tool_error">
+<span class="sig-name descname"><span class="pre">handle_tool_error</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ToolException</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.handle_tool_error" title="Link to this definition"></a></dt>
+<dd><p>Handle the content of the ToolException thrown.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.handle_validation_error">
+<span class="sig-name descname"><span class="pre">handle_validation_error</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationError</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.handle_validation_error" title="Link to this definition"></a></dt>
+<dd><p>Handle the content of the ValidationError thrown.</p>
 </dd></dl>
 
 </dd></dl>
