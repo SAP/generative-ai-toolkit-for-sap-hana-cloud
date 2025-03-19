@@ -249,15 +249,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>model_version</strong><span class="classifier">str</span></dt><dd><p>Model version.</p>
-</dd>
 <dt><strong>connection_context</strong><span class="classifier">ConnectionContext</span></dt><dd><p>Connection context.</p>
 </dd>
-<dt><strong>batch_size</strong><span class="classifier">int</span></dt><dd><p>Batch size.</p>
+<dt><strong>model_version</strong><span class="classifier">str, optional</span></dt><dd><p>Model version. Default to None.</p>
 </dd>
-<dt><strong>thread_number</strong><span class="classifier">int</span></dt><dd><p>Thread number.</p>
+<dt><strong>batch_size</strong><span class="classifier">int, optional</span></dt><dd><p>Batch size. Default to None.</p>
 </dd>
-<dt><strong>is_query</strong><span class="classifier">bool</span></dt><dd><p>Use different embedding model for query purpose.</p>
+<dt><strong>thread_number</strong><span class="classifier">int, optional</span></dt><dd><p>Thread number. Default to None.</p>
+</dd>
+<dt><strong>is_query</strong><span class="classifier">bool, optional</span></dt><dd><p>Use different embedding model for query purpose. Default to None.</p>
 </dd>
 </dl>
 </dd>
@@ -289,18 +289,60 @@
 <dt class="sig sig-object py" id="hana_ai.vectorstore.embedding_service.PALModelEmbeddings.embed_documents">
 <span class="sig-name descname"><span class="pre">embed_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.vectorstore.embedding_service.PALModelEmbeddings.embed_documents" title="Link to this definition"></a></dt>
 <dd><p>Embed multiple documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>texts</strong><span class="classifier">List[str]</span></dt><dd><p>List of texts.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>List[List[float]]</dt><dd><p>List of embeddings.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hana_ai.vectorstore.embedding_service.PALModelEmbeddings.embed_query">
 <span class="sig-name descname"><span class="pre">embed_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.vectorstore.embedding_service.PALModelEmbeddings.embed_query" title="Link to this definition"></a></dt>
 <dd><p>Embed a single query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>text</strong><span class="classifier">str</span></dt><dd><p>Text.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>List[float]</dt><dd><p>Embedding.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hana_ai.vectorstore.embedding_service.PALModelEmbeddings.get_text_embedding_batch">
 <span class="sig-name descname"><span class="pre">get_text_embedding_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.embedding_service.PALModelEmbeddings.get_text_embedding_batch" title="Link to this definition"></a></dt>
 <dd><p>Get text embedding batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>texts</strong><span class="classifier">List[str]</span></dt><dd><p>List of texts.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>List[List[float]]</dt><dd><p>List of embeddings.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

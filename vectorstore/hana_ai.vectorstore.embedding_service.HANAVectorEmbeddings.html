@@ -246,13 +246,12 @@
 <dt class="sig sig-object py" id="hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.vectorstore.embedding_service.</span></span><span class="sig-name descname"><span class="pre">HANAVectorEmbeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SAP_NEB.20240715'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings" title="Link to this definition"></a></dt>
 <dd><p>PAL embedding model.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
+<dd class="field-odd"><dl class="simple">
 <dt><strong>connection_context</strong><span class="classifier">ConnectionContext</span></dt><dd><p>Connection context.</p>
 </dd>
-<dt><strong>model_version</strong><span class="classifier">str</span></dt><dd><p>Model version.</p>
-<p>Default to 'SAP_NEB.20240715'</p>
+<dt><strong>model_version</strong><span class="classifier">str, optional</span></dt><dd><p>Model version.  Default to 'SAP_NEB.20240715'</p>
 </dd>
 </dl>
 </dd>
@@ -284,18 +283,60 @@
 <dt class="sig sig-object py" id="hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.embed_documents">
 <span class="sig-name descname"><span class="pre">embed_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.embed_documents" title="Link to this definition"></a></dt>
 <dd><p>Embed multiple documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>texts</strong><span class="classifier">List[str]</span></dt><dd><p>List of texts.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>List[List[float]]</dt><dd><p>List of embeddings.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.embed_query">
 <span class="sig-name descname"><span class="pre">embed_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.embed_query" title="Link to this definition"></a></dt>
 <dd><p>Embed a single query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>text</strong><span class="classifier">str</span></dt><dd><p>Text.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>List[float]</dt><dd><p>Embedding.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.get_text_embedding_batch">
 <span class="sig-name descname"><span class="pre">get_text_embedding_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.get_text_embedding_batch" title="Link to this definition"></a></dt>
 <dd><p>Get text embedding batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>texts</strong><span class="classifier">List[str]</span></dt><dd><p>List of texts.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>List[List[float]]</dt><dd><p>List of embeddings.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

@@ -253,27 +253,27 @@
 </dd>
 <dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>The HANA dataframe to use. It could be None.</p>
 </dd>
-<dt><strong>tools</strong><span class="classifier">BaseTool, optional</span></dt><dd><p>The tools to use, by default None.</p>
+<dt><strong>tools</strong><span class="classifier">BaseTool, optional</span></dt><dd><p>The tools to use. Default to None.</p>
 </dd>
-<dt><strong>callback_manager</strong><span class="classifier">BaseCallbackManager, optional</span></dt><dd><p>The callback manager to use, by default None.</p>
+<dt><strong>callback_manager</strong><span class="classifier">BaseCallbackManager, optional</span></dt><dd><p>The callback manager to use. Default to None.</p>
 </dd>
 <dt><strong>prefix</strong><span class="classifier">str, optional</span></dt><dd><p>The prefix to use.</p>
 </dd>
 <dt><strong>suffix</strong><span class="classifier">str, optional</span></dt><dd><p>The suffix to use.</p>
 </dd>
-<dt><strong>input_variables</strong><span class="classifier">List[str], optional</span></dt><dd><p>The input variables to use, by default None.</p>
+<dt><strong>input_variables</strong><span class="classifier">List[str], optional</span></dt><dd><p>The input variables to use. Default to None.</p>
 </dd>
-<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to be verbose, by default False.</p>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to be verbose. Default to False.</p>
 </dd>
-<dt><strong>return_intermediate_steps</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to return intermediate steps, by default False.</p>
+<dt><strong>return_intermediate_steps</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to return intermediate steps. Default to False.</p>
 </dd>
-<dt><strong>max_iterations</strong><span class="classifier">int, optional</span></dt><dd><p>The maximum number of iterations to use, by default 15.</p>
+<dt><strong>max_iterations</strong><span class="classifier">int, optional</span></dt><dd><p>The maximum number of iterations to use. Default to 15.</p>
 </dd>
-<dt><strong>max_execution_time</strong><span class="classifier">float, optional</span></dt><dd><p>The maximum execution time to use, by default None.</p>
+<dt><strong>max_execution_time</strong><span class="classifier">float, optional</span></dt><dd><p>The maximum execution time to use. Default to None.</p>
 </dd>
-<dt><strong>early_stopping_method</strong><span class="classifier">str, optional</span></dt><dd><p>The early stopping method to use, by default &quot;force&quot;.</p>
+<dt><strong>early_stopping_method</strong><span class="classifier">str, optional</span></dt><dd><p>The early stopping method to use. Default to &quot;force&quot;.</p>
 </dd>
-<dt><strong>agent_executor_kwargs</strong><span class="classifier">Dict[str, Any], optional</span></dt><dd><p>The agent executor kwargs to use, by default None.</p>
+<dt><strong>agent_executor_kwargs</strong><span class="classifier">Dict[str, Any], optional</span></dt><dd><p>The agent executor kwargs to use. Default to None.</p>
 </dd>
 </dl>
 </dd>
@@ -289,7 +289,7 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;hana_vec_hana_ml_python_knowledge&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span><span class="o">.</span><span class="n">create_knowledge</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span> <span class="o">=</span> <span class="n">GetCodeTemplateFromVectorDB</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="n">hana_vec</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="n">vectordb</span><span class="o">=</span><span class="n">hana_vec</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">agent</span> <span class="o">=</span> <span class="n">create_hana_dataframe_agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">code_tool</span><span class="p">],</span> <span class="n">df</span><span class="o">=</span><span class="n">hana_df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_parsing_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Create a dataset report for this dataframe.&quot;</span><span class="p">)</span>
 </pre></div>

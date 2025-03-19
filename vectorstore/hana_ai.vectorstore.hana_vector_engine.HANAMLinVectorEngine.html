@@ -246,19 +246,16 @@
 <dt class="sig sig-object py" id="hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.vectorstore.hana_vector_engine.</span></span><span class="sig-name descname"><span class="pre">HANAMLinVectorEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SAP_NEB.20240715'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine" title="Link to this definition"></a></dt>
 <dd><p>HANA vector engine.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
+<dd class="field-odd"><dl class="simple">
 <dt><strong>connection_context: ConnectionContext</strong></dt><dd><p>Connection context.</p>
 </dd>
 <dt><strong>table_name: str</strong></dt><dd><p>Table name.</p>
 </dd>
-<dt><strong>schema: str</strong></dt><dd><p>Schema name.</p>
+<dt><strong>schema: str, optional</strong></dt><dd><p>Schema name. Default to None.</p>
 </dd>
-<dt><strong>model_version: str, optional</strong></dt><dd><p>Model version.</p>
-<p>Defaults to 'SAP_NEB.20240715'.</p>
-</dd>
-<dt><strong>option: str, optional</strong></dt><dd><p>Option to get code templates (python or sql).</p>
+<dt><strong>model_version: str, optional</strong></dt><dd><p>Model version. Default to 'SAP_NEB.20240715'.</p>
 </dd>
 </dl>
 </dd>
@@ -298,6 +295,14 @@
 <dt class="sig sig-object py" id="hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.create_knowledge">
 <span class="sig-name descname"><span class="pre">create_knowledge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'python'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.create_knowledge" title="Link to this definition"></a></dt>
 <dd><p>Create knowledge base.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>option: {'python', 'sql'}, optional</strong></dt><dd><p>The option of language.  Default to 'python'.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -318,6 +323,18 @@
 <dt class="sig sig-object py" id="hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.query">
 <span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cosine_similarity'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.query" title="Link to this definition"></a></dt>
 <dd><p>Query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>input: str</strong></dt><dd><p>Input text.</p>
+</dd>
+<dt><strong>top_n: int, optional</strong></dt><dd><p>Top n. Default to 1.</p>
+</dd>
+<dt><strong>distance: str, optional</strong></dt><dd><p>Distance. Default to 'cosine_similarity'.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

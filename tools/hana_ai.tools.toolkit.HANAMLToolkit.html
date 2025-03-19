@@ -246,6 +246,16 @@
 <dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.toolkit.</span></span><span class="sig-name descname"><span class="pre">HANAMLToolkit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">used_tools</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit" title="Link to this definition"></a></dt>
 <dd><p>Toolkit for interacting with HANA SQL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>connection_context</strong><span class="classifier">ConnectionContext</span></dt><dd><p>Connection context to the HANA database.</p>
+</dd>
+<dt><strong>used_tools</strong><span class="classifier">list, optional</span></dt><dd><p>List of tools to use. If None or 'all', all tools are used. Default to None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -278,6 +288,16 @@
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<p>Assume cc is a connection to a SAP HANA instance:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.toolkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLToolkit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hanaml_agent_with_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLAgentWithMemory</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLAgentWithMemory</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">toos</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;hana_ai_test&#39;</span><span class="p">,</span> <span class="n">n_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.add_custom_tool">
 <span class="sig-name descname"><span class="pre">add_custom_tool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseTool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.add_custom_tool" title="Link to this definition"></a></dt>
