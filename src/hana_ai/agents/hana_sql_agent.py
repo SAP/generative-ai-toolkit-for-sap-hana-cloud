@@ -84,53 +84,55 @@ def create_hana_sql_agent(
         The language model to use.
     tools: BaseTool
         The tools to use.
-    agent_type: Optional[Union[AgentType, Literal["openai-tools", "tool-calling"]]]
+    agent_type: Union[AgentType, Literal["openai-tools", "tool-calling"]], optional
         The type of agent to create.
-    callback_manager: Optional[BaseCallbackManager]
+    callback_manager: BaseCallbackManager, optional
         The callback manager to use.
-    prefix: Optional[str]
+    prefix: str, optional
         The prefix to use.
-    suffix: Optional[str]
+    suffix: str, optional
         The suffix to use.
-    format_instructions: Optional[str]
+    format_instructions: str, optional
         The format instructions to use.
-    input_variables: Optional[List[str]]
+    input_variables: List[str], optional
         The input variables to use.
     top_k: int
         The top k to use.
-    max_iterations: Optional[int]
+    max_iterations: int, optional
         The max iterations to use.
-    max_execution_time: Optional[float]
+    max_execution_time: float, optional
         The max execution time to use.
     early_stopping_method: str
         The early stopping method to use.
     verbose: bool
         The verbose to use.
-    agent_executor_kwargs: Optional[Dict[str, Any]]
+    agent_executor_kwargs: Dict[str, Any], optional
         The agent executor kwargs to use.
     extra_tools: Sequence[BaseTool]
         The extra tools to use.
-    db: Optional[SQLDatabase]
+    db: SQLDatabase, optional
         The database to use.
     connection_context: ConnectionContext
         The connection context to use.
-    prompt: Optional[BasePromptTemplate]
+    prompt: BasePromptTemplate, optional
         The prompt to use.
     kwargs: Any
         The kwargs to use.
 
     examples
     --------
-    >>> from hana_ai.agents.hana_sql_agent import 
+    Assume cc is a connection to a SAP HANA instance:
+
+    >>> from hana_ai.agents.hana_sql_agent import
     >>> from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
     >>> from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 
-    >>> hana_vec = HANAMLinVectorEngine(connection_context, "hana_vec_hana_ml_sql_knowledge")
+    >>> hana_vec = HANAMLinVectorEngine(connection_context=cc, "hana_vec_hana_ml_sql_knowledge")
     >>> hana_vec.create_knowledge(option='sql')
     >>> code_tool = GetCodeTemplateFromVectorDB()
     >>> code_tool.set_vectordb(hana_vec)
-    >>> agent_executor = create_hana_sql_agent(llm, connection_context, tools=[code_tool],verbose=True)
-    >>> agent_executor.invoke("show me the min and max value of sepalwidthcm in the table iris_data_full_tbl ")
+    >>> agent_executor = create_hana_sql_agent(llm=llm, connection_context=cc, tools=[code_tool], verbose=True)
+    >>> agent_executor.invoke("show me the min and max value of sepalwidthcm in the table iris_data_full_tbl?")
     """
     engine = connection_context.to_sqlalchemy()
     db = SQLDatabase(engine)
