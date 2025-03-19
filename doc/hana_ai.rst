@@ -45,7 +45,7 @@ HANAML Toolkit is a set of tools to analyze data and build machine learning mode
     from hana_ai.tools.toolkit import HANAMLToolkit
 
     tools = HANAMLToolkit(cc, used_tools='all').get_tools()
-    chatbot = HANAMLAgentWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
+    chatbot = HANAMLAgentWithMemory(llm=llm, tools=tools, session_id='hana_ai_test', n_messages=10)
 
 .. image:: image/chatbotwithtoolkit.png
    :width: 961px
@@ -56,7 +56,7 @@ HANAML Toolkit is a set of tools to analyze data and build machine learning mode
 HANA Vector Store and Knowledge Base API
 ----------------------------------------
 
-Create Knowledge Base for hana-ml codes in Hana Vector Engine. ::
+Create Knowledge Base for hana-ml codes in HANA Vector Engine. ::
 
     hanavec = HANAMLinVectorEngine(cc, "hana_vec_hana_ml_knowledge")
     hana_vec.create_knowledge()
@@ -88,7 +88,7 @@ Create a HANA dataframe agent and execute a task. ::
    :alt: A HANA dataframe agent to build model.
 
 Build a dataset report. ::
-    
+
     agent.invoke("Build a dataset report")
 
 .. image:: image/dataset_report.png
