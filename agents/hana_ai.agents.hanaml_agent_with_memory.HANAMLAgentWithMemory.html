@@ -253,9 +253,11 @@
 </dd>
 <dt><strong>tools</strong><span class="classifier">dict</span></dt><dd><p>The tools to use.</p>
 </dd>
-<dt><strong>session_id</strong><span class="classifier">str</span></dt><dd><p>The session ID to use.</p>
+<dt><strong>session_id</strong><span class="classifier">str, optional</span></dt><dd><p>The session ID to use. Default is &quot;hana_ai_chat_session&quot;.</p>
 </dd>
-<dt><strong>n_messages</strong><span class="classifier">int</span></dt><dd><p>The number of messages to remember.</p>
+<dt><strong>n_messages</strong><span class="classifier">int, optional</span></dt><dd><p>The number of messages to remember. Default is 10.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to be verbose. Default is False.</p>
 </dd>
 </dl>
 </dd>
@@ -269,13 +271,14 @@
 </tbody>
 </table>
 <p class="rubric">Examples</p>
+<p>Assume cc is a connection to a SAP HANA instance:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hanaml_agent_with_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLAgentWithMemory</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.toolkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLToolkit</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">connection_context</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLAgentWithMemory</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;hana_ai_test&#39;</span><span class="p">,</span> <span class="n">n_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chatbot</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Analyze the data from the table MYTEST.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chatbot</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="s2">&quot;Analyze the data from the table MYTEST.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py method">

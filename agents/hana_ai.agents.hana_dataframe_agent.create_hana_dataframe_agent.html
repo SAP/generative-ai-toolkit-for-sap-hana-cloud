@@ -279,13 +279,14 @@
 </dd>
 </dl>
 <p class="rubric">Examples</p>
+<p>Assume cc is a connection to a SAP HANA instance:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.code_template_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetCodeTemplateFromVectorDB</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.vectorstore.hana_vector_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLinVectorEngine</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hana_dataframe_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_hana_dataframe_agent</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hana_df</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;MY_DATA&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">connection_context</span><span class="p">,</span> <span class="s2">&quot;hana_vec_hana_ml_python_knowledge&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;hana_vec_hana_ml_python_knowledge&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span><span class="o">.</span><span class="n">create_knowledge</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span> <span class="o">=</span> <span class="n">GetCodeTemplateFromVectorDB</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="n">hana_vec</span><span class="p">)</span>

@@ -48,8 +48,8 @@ HANAML Toolkit is a set of tools to analyze data and build machine learning mode
     chatbot = HANAMLAgentWithMemory(llm=llm, tools=tools, session_id='hana_ai_test', n_messages=10)
 
 .. image:: image/chatbotwithtoolkit.png
-   :width: 961px
-   :height: 400px
+   :width: 1200px
+   :height: 600px
    :scale: 80 %
    :alt: A chatbot with HANAML Toolkit.
 
@@ -58,18 +58,18 @@ HANA Vector Store and Knowledge Base API
 
 Create Knowledge Base for hana-ml codes in HANA Vector Engine. ::
 
-    hanavec = HANAMLinVectorEngine(cc, "hana_vec_hana_ml_knowledge")
+    hana_vec = HANAMLinVectorEngine(connection_context=cc, table_name="hana_vec_hana_ml_knowledge")
     hana_vec.create_knowledge()
 
 Create Code Template Tool and Add Knowledge Bases to It
---------------------------------------------------------
+-------------------------------------------------------
 
 Create a code template tool and add knowledge bases to it. ::
 
     from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
 
     code_tool = GetCodeTemplateFromVectorDB()
-    code_tool.set_vectordb(self.vectordb)
+    code_tool.set_vectordb(vectordb=self.vectordb)
 
 Create HANA Dataframe Agent and Execute Task
 --------------------------------------------
@@ -83,7 +83,7 @@ Create a HANA dataframe agent and execute a task. ::
 
 .. image:: image/agent.png
    :width: 961px
-   :height: 400px
+   :height: 500px
    :scale: 80 %
    :alt: A HANA dataframe agent to build model.
 
@@ -92,10 +92,10 @@ Build a dataset report. ::
     agent.invoke("Build a dataset report")
 
 .. image:: image/dataset_report.png
-   :width: 800px
-   :height: 500px
-   :scale: 70 %
-   :alt: A HANA dataframe agent to generate dataset report.
+   :width: 961px
+   :height: 650px
+   :scale: 80 %
+   :alt: A HANA dataframe agent to generate a dataset report.
 
 Smart DataFrame
 ---------------
@@ -104,13 +104,13 @@ Smart DataFrame is a HANA dataframe Agent to interact with HANA data. ::
 
     from hana_ai.smart_dataframe import SmartDataFrame
 
-    sdf = SmartDataFrame(hana_df)
+    sdf = SmartDataFrame(dataframe=hana_df)
     sdf.configure(tools=[code_tool], llm=llm)
-    new_df = sdf.transform("Get first two rows", verbose=True)
+    new_df = sdf.transform(question="Get first two rows", verbose=True)
     new_df.collect()
 
 .. image:: image/smartdf_res.png
    :width: 500px
-   :height: 80px
-   :scale: 80 %
+   :height: 70px
+   :scale: 90 %
    :alt: A Smart DataFrame's transformed result.

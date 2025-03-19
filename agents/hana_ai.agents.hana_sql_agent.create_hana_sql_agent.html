@@ -253,37 +253,37 @@
 </dd>
 <dt><strong>tools: BaseTool</strong></dt><dd><p>The tools to use.</p>
 </dd>
-<dt><strong>agent_type: Optional[Union[AgentType, Literal[&quot;openai-tools&quot;, &quot;tool-calling&quot;]]]</strong></dt><dd><p>The type of agent to create.</p>
+<dt><strong>agent_type: Union[AgentType, Literal[&quot;openai-tools&quot;, &quot;tool-calling&quot;]], optional</strong></dt><dd><p>The type of agent to create.</p>
 </dd>
-<dt><strong>callback_manager: Optional[BaseCallbackManager]</strong></dt><dd><p>The callback manager to use.</p>
+<dt><strong>callback_manager: BaseCallbackManager, optional</strong></dt><dd><p>The callback manager to use.</p>
 </dd>
-<dt><strong>prefix: Optional[str]</strong></dt><dd><p>The prefix to use.</p>
+<dt><strong>prefix: str, optional</strong></dt><dd><p>The prefix to use.</p>
 </dd>
-<dt><strong>suffix: Optional[str]</strong></dt><dd><p>The suffix to use.</p>
+<dt><strong>suffix: str, optional</strong></dt><dd><p>The suffix to use.</p>
 </dd>
-<dt><strong>format_instructions: Optional[str]</strong></dt><dd><p>The format instructions to use.</p>
+<dt><strong>format_instructions: str, optional</strong></dt><dd><p>The format instructions to use.</p>
 </dd>
-<dt><strong>input_variables: Optional[List[str]]</strong></dt><dd><p>The input variables to use.</p>
+<dt><strong>input_variables: List[str], optional</strong></dt><dd><p>The input variables to use.</p>
 </dd>
 <dt><strong>top_k: int</strong></dt><dd><p>The top k to use.</p>
 </dd>
-<dt><strong>max_iterations: Optional[int]</strong></dt><dd><p>The max iterations to use.</p>
+<dt><strong>max_iterations: int, optional</strong></dt><dd><p>The max iterations to use.</p>
 </dd>
-<dt><strong>max_execution_time: Optional[float]</strong></dt><dd><p>The max execution time to use.</p>
+<dt><strong>max_execution_time: float, optional</strong></dt><dd><p>The max execution time to use.</p>
 </dd>
 <dt><strong>early_stopping_method: str</strong></dt><dd><p>The early stopping method to use.</p>
 </dd>
 <dt><strong>verbose: bool</strong></dt><dd><p>The verbose to use.</p>
 </dd>
-<dt><strong>agent_executor_kwargs: Optional[Dict[str, Any]]</strong></dt><dd><p>The agent executor kwargs to use.</p>
+<dt><strong>agent_executor_kwargs: Dict[str, Any], optional</strong></dt><dd><p>The agent executor kwargs to use.</p>
 </dd>
 <dt><strong>extra_tools: Sequence[BaseTool]</strong></dt><dd><p>The extra tools to use.</p>
 </dd>
-<dt><strong>db: Optional[SQLDatabase]</strong></dt><dd><p>The database to use.</p>
+<dt><strong>db: SQLDatabase, optional</strong></dt><dd><p>The database to use.</p>
 </dd>
 <dt><strong>connection_context: ConnectionContext</strong></dt><dd><p>The connection context to use.</p>
 </dd>
-<dt><strong>prompt: Optional[BasePromptTemplate]</strong></dt><dd><p>The prompt to use.</p>
+<dt><strong>prompt: BasePromptTemplate, optional</strong></dt><dd><p>The prompt to use.</p>
 </dd>
 <dt><strong>kwargs: Any</strong></dt><dd><p>The kwargs to use.</p>
 </dd>
@@ -291,17 +291,18 @@
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hana_sql_agent</span><span class="w"> </span><span class="kn">import</span> 
+<p>Assume cc is a connection to a SAP HANA instance:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hana_sql_agent</span><span class="w"> </span><span class="kn">import</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.code_template_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetCodeTemplateFromVectorDB</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.vectorstore.hana_vector_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLinVectorEngine</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">connection_context</span><span class="p">,</span> <span class="s2">&quot;hana_vec_hana_ml_sql_knowledge&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="s2">&quot;hana_vec_hana_ml_sql_knowledge&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span><span class="o">.</span><span class="n">create_knowledge</span><span class="p">(</span><span class="n">option</span><span class="o">=</span><span class="s1">&#39;sql&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span> <span class="o">=</span> <span class="n">GetCodeTemplateFromVectorDB</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="n">hana_vec</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">agent_executor</span> <span class="o">=</span> <span class="n">create_hana_sql_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">connection_context</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">code_tool</span><span class="p">],</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">agent_executor</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;show me the min and max value of sepalwidthcm in the table iris_data_full_tbl &quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">agent_executor</span> <span class="o">=</span> <span class="n">create_hana_sql_agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">code_tool</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">agent_executor</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;show me the min and max value of sepalwidthcm in the table iris_data_full_tbl?&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

@@ -30,7 +30,7 @@ hana_sql_agent
 .. _hanaml_agent_with_memory-label:
 
 hanaml_agent_with_memory
--------------------
+------------------------
 .. autosummary::
    :toctree: agents/
    :template: class.rst

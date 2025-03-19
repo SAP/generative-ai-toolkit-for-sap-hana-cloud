@@ -281,13 +281,13 @@ for more information. Only valid when using the APL package.</p></li>
 <span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLAgentWithMemory</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;hana_ai_test&#39;</span><span class="p">,</span> <span class="n">n_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/chatbotwithtoolkit.png"><img alt="A chatbot with HANAML Toolkit." src="_images/chatbotwithtoolkit.png" style="width: 768.8000000000001px; height: 320.0px;" />
+<a class="reference internal image-reference" href="_images/chatbotwithtoolkit.png"><img alt="A chatbot with HANAML Toolkit." src="_images/chatbotwithtoolkit.png" style="width: 960.0px; height: 480.0px;" />
 </a>
 </section>
 <section id="hana-vector-store-and-knowledge-base-api">
 <h2>HANA Vector Store and Knowledge Base API<a class="headerlink" href="#hana-vector-store-and-knowledge-base-api" title="Link to this heading"></a></h2>
 <p>Create Knowledge Base for hana-ml codes in HANA Vector Engine.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hanavec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="s2">&quot;hana_vec_hana_ml_knowledge&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hana_vec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;hana_vec_hana_ml_knowledge&quot;</span><span class="p">)</span>
 <span class="n">hana_vec</span><span class="o">.</span><span class="n">create_knowledge</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -298,7 +298,7 @@ for more information. Only valid when using the APL package.</p></li>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.code_template_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetCodeTemplateFromVectorDB</span>
 
 <span class="n">code_tool</span> <span class="o">=</span> <span class="n">GetCodeTemplateFromVectorDB</span><span class="p">()</span>
-<span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vectordb</span><span class="p">)</span>
+<span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="n">vectordb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vectordb</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -311,13 +311,13 @@ for more information. Only valid when using the APL package.</p></li>
 <span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Create Automatic Regression model on this dataframe with max_eval_time_mins=10. Provide key is ID, background_size=100 and model_table_name=&#39;my_model&#39; in the fit function and execute it. &quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/agent.png"><img alt="A HANA dataframe agent to build model." src="_images/agent.png" style="width: 768.8000000000001px; height: 320.0px;" />
+<a class="reference internal image-reference" href="_images/agent.png"><img alt="A HANA dataframe agent to build model." src="_images/agent.png" style="width: 768.8000000000001px; height: 400.0px;" />
 </a>
 <p>Build a dataset report.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Build a dataset report&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/dataset_report.png"><img alt="A HANA dataframe agent to generate dataset report." src="_images/dataset_report.png" style="width: 560.0px; height: 350.0px;" />
+<a class="reference internal image-reference" href="_images/dataset_report.png"><img alt="A HANA dataframe agent to generate a dataset report." src="_images/dataset_report.png" style="width: 768.8000000000001px; height: 520.0px;" />
 </a>
 </section>
 <section id="smart-dataframe">
@@ -325,13 +325,13 @@ for more information. Only valid when using the APL package.</p></li>
 <p>Smart DataFrame is a HANA dataframe Agent to interact with HANA data.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.smart_dataframe</span><span class="w"> </span><span class="kn">import</span> <span class="n">SmartDataFrame</span>
 
-<span class="n">sdf</span> <span class="o">=</span> <span class="n">SmartDataFrame</span><span class="p">(</span><span class="n">hana_df</span><span class="p">)</span>
+<span class="n">sdf</span> <span class="o">=</span> <span class="n">SmartDataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="n">hana_df</span><span class="p">)</span>
 <span class="n">sdf</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">code_tool</span><span class="p">],</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
-<span class="n">new_df</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;Get first two rows&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">new_df</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="s2">&quot;Get first two rows&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">new_df</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/smartdf_res.png"><img alt="A Smart DataFrame's transformed result." src="_images/smartdf_res.png" style="width: 400.0px; height: 64.0px;" />
+<a class="reference internal image-reference" href="_images/smartdf_res.png"><img alt="A Smart DataFrame's transformed result." src="_images/smartdf_res.png" style="width: 450.0px; height: 63.0px;" />
 </a>
 </section>
 </section>
