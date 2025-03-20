@@ -28,7 +28,7 @@ Prerequisites
   - SAP HANA PAL: Security **AFL__SYS_AFL_AFLPAL_EXECUTE** and
     **AFL__SYS_AFL_AFLPAL_EXECUTE_WITH_GRANT_OPTION** roles. See `SAP HANA
     Predictive Analysis Library
-    <https://help.sap.com/viewer/2cfbc5cf2bc14f028cfbe2a2bba60a50/latest/en-US/253f2b552f55436ba1243ff0d7b374b3.html>`_
+    <https://help.sap.com/docs/hana-cloud-database/sap-hana-cloud-sap-hana-database-predictive-analysis-library/sap-hana-cloud-sap-hana-database-predictive-analysis-library-pal>`_
     for more information.
 
   - SAP HANA APL 1905 or higher. See
