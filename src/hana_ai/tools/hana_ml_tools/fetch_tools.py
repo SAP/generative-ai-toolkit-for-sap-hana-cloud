@@ -27,6 +27,7 @@ class FetchDataInput(BaseModel):
     """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     top_n: Optional[int] = Field(description="the number of rows to fetch, it is optional", default=None)
+    last_n: Optional[int] = Field(description="the number of rows to fetch from the end of the table, it is optional", default=None)
 
 class FetchDataTool(BaseTool):
     """
@@ -56,6 +57,8 @@ class FetchDataTool(BaseTool):
                   - The name of the table. If not provided, ask the user. Do not guess.
                 * - top_n
                   - The number of rows to fetch, it is optional
+                * - last_n
+                  - The number of rows to fetch from the end of the table, it is optional
     """
     name: str = "fetch_data"
     """Name of the tool."""
@@ -76,42 +79,23 @@ class FetchDataTool(BaseTool):
         )
 
     def _run(
-        self, table_name: str, top_n: Optional[int] = None,
+        self, table_name: str, top_n: Optional[int] = None, last_n: Optional[int] = None,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
-        if top_n is None:
-            results = self.connection_context.table(table_name).collect()
-        else:
+        if top_n:
             results = self.connection_context.table(table_name).head(top_n).collect()
+        elif last_n:
+            results = self.connection_context.table(table_name).tail(last_n).collect()
+        else:
+            results = self.connection_context.table(table_name).collect()
         # serialize the results
-        return json.dumps({"fetched_data": results.to_json()})
+        return results
 
     async def _arun(
-        self, table_name: str, key: str, endog: str, auto: Optional[bool] = None,
-        detect_intermittent_ts: Optional[bool] = None, smooth_method: Optional[str] = None,
-        window_size: Optional[int] = None, loess_lag: Optional[int] = None,
-        current_value_flag: Optional[bool] = None, outlier_method: Optional[str] = None,
-        threshold: Optional[float] = None, detect_seasonality: Optional[bool] = None,
-        alpha: Optional[float] = None, extrapolation: Optional[bool] = None,
-        periods: Optional[int] = None, random_state: Optional[int] = None,
-        n_estimators: Optional[int] = None, max_samples: Optional[int] = None,
-        bootstrap: Optional[bool] = None, contamination: Optional[float] = None,
-        minpts: Optional[int] = None, eps: Optional[float] = None,
-        distiance_method: Optional[str] = None, dbscan_normalization: Optional[bool] = None,
-        dbscan_outlier_from_cluster: Optional[bool] = None, thread_ratio: Optional[float] = None,
-        residual_usage: Optional[str] = None, voting_config: Optional[dict] = None,
-        voting_outlier_method_criterion: Optional[float] = None,
+        self, table_name: str, top_n: Optional[int] = None, last_n: Optional[int] = None,
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(
-            table_name, key, endog, auto=auto, detect_intermittent_ts=detect_intermittent_ts, smooth_method=smooth_method,
-            window_size=window_size, loess_lag=loess_lag, current_value_flag=current_value_flag, outlier_method=outlier_method,
-            threshold=threshold, detect_seasonality=detect_seasonality, alpha=alpha, extrapolation=extrapolation,
-            periods=periods, random_state=random_state, n_estimators=n_estimators, max_samples=max_samples,
-            bootstrap=bootstrap, contamination=contamination, minpts=minpts, eps=eps, distiance_method=distiance_method,
-            dbscan_normalization=dbscan_normalization, dbscan_outlier_from_cluster=dbscan_outlier_from_cluster,
-            thread_ratio=thread_ratio, residual_usage=residual_usage, voting_config=voting_config,
-            voting_outlier_method_criterion=voting_outlier_method_criterion, run_manager=run_manager
+        return self._run(table_name, top_n, last_n, run_manager=run_manager
         )
