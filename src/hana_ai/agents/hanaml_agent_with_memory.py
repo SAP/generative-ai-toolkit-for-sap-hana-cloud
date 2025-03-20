@@ -20,25 +20,29 @@ class HANAMLAgentWithMemory(object):
         The language model to use.
     tools : dict
         The tools to use.
-    session_id : str
-        The session ID to use.
-    n_messages : int
-        The number of messages to remember.
+    session_id : str, optional
+        The session ID to use. Default to "hana_ai_chat_session".
+    n_messages : int, optional
+        The number of messages to remember. Default to 10.
+    verbose : bool, optional
+        Whether to be verbose. Default to False.
 
     Examples
     --------
+    Assume cc is a connection to a SAP HANA instance:
+
     >>> from hana_ai.agents.hanaml_agent_with_memory import HANAMLAgentWithMemory
     >>> from hana_ai.tools.toolkit import HANAMLToolkit
 
-    >>> tools = HANAMLToolkit(connection_context, used_tools='all').get_tools()
+    >>> tools = HANAMLToolkit(connection_context=cc, used_tools='all').get_tools()
     >>> chatbot = HANAMLAgentWithMemory(llm=llm, tools=tools, session_id='hana_ai_test', n_messages=10)
-    >>> chatbot.run("Analyze the data from the table MYTEST.")
+    >>> chatbot.run(question="Analyze the data from the table MYTEST.")
     """
     def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, verbose=False):
         self.llm = llm
         memory = InMemoryChatMessageHistory(session_id=session_id)
-        system_prompt = """You're an assistant skilled in data science using hana-ml tools. 
-        Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools. 
+        system_prompt = """You're an assistant skilled in data science using hana-ml tools.
+        Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools.
         Ask for missing parameters if needed. NEVER return raw JSON strings outside this structure."""
 
         prompt = ChatPromptTemplate.from_messages([
@@ -55,7 +59,7 @@ class HANAMLAgentWithMemory(object):
         self.config = {"configurable": {"session_id": session_id}}
 
     def run(self, question):
-        """"
+        """
         Chat with the chatbot.
 
         Parameters

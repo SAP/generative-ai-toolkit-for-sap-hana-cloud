@@ -25,10 +25,10 @@ class SmartDataFrame(DataFrame):
     --------
     >>> from hana_ai.smart_dataframe import SmartDataFrame
 
-    >>> sdf = SmartDataFrame(hana_df)
+    >>> sdf = SmartDataFrame(dataframe=hana_df)
     >>> sdf.configure(tools=[code_tool], llm=llm)
-    >>> sdf.ask("Show the samples of the dataset", verbose=True)
-    >>> new_sdf = sdf.transform("Get last two rows", verbose=True)
+    >>> sdf.ask(question="Show the samples of the dataset", verbose=True)
+    >>> new_sdf = sdf.transform(question="Get last two rows", verbose=True)
     """
     llm: BaseLLM
     _dataframe: DataFrame
@@ -86,8 +86,8 @@ class SmartDataFrame(DataFrame):
         ----------
         question : str
             Question.
-        verbose : bool
-            Verbose.
+        verbose : bool, optional
+            Verbose. Default to False.
         """
         if self._is_configured is False:
             raise Exception("The SmartDataFrame is not configured. Please call the configure method first.")
@@ -108,8 +108,8 @@ class SmartDataFrame(DataFrame):
         ----------
         question : str
             Question.
-        verbose : bool
-            Verbose.
+        verbose : bool, optional
+            Verbose. Default to False.
         """
         if self._is_configured is False:
             raise Exception("The SmartDataFrame is not configured. Please call the configure method first.")
