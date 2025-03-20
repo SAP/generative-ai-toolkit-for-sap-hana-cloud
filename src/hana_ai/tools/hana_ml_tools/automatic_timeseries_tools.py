@@ -289,6 +289,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
                     use_explain=use_explain)
         auto_ts.name = name
         ms = ModelStorage(connection_context=self.connection_context)
+        ms._create_metadata_table()
         if version is None:
             version = ms._get_new_version_no(name)
             if version is None:

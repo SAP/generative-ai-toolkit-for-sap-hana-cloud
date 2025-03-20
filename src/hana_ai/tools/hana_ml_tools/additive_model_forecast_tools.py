@@ -177,6 +177,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
     ) -> str:
         """Use the tool."""
         ms = ModelStorage(connection_context=self.connection_context)
+        ms._create_metadata_table()
         amf = AdditiveModelForecast(
             growth=growth,
             logistic_growth_capacity=logistic_growth_capacity,

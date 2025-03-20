@@ -2,6 +2,7 @@
 A chatbot that can remember the chat history and use it to generate responses.
 
 """
+import json
 import logging
 from langchain.agents import initialize_agent, AgentType
 from langchain_core.chat_history import InMemoryChatMessageHistory
@@ -40,6 +41,7 @@ class HANAMLAgentWithMemory(object):
     """
     def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, verbose=False):
         self.llm = llm
+        self.tools = tools
         memory = InMemoryChatMessageHistory(session_id=session_id)
         system_prompt = """You're an assistant skilled in data science using hana-ml tools.
         Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools.
@@ -72,6 +74,27 @@ class HANAMLAgentWithMemory(object):
         except Exception as e:
             error_message = str(e)
             response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
-        if 'output' in response:
-            return response['output']
+        if isinstance(response, dict) and 'output' in response:
+            response = response['output']
+        if isinstance(response, str): 
+            if response.startswith("Action:"): # force to call tool if return a Action string
+                action_json = response[7:]
+                try:
+                    action_dict = json.loads(action_json)
+                    action = action_dict.get("action")
+                    for tool in self.tools:
+                        if tool.name == action:
+                            action_input = action_dict.get("action_input")
+                            try:
+                                response = tool.run(action_input)
+                                self.agent_with_chat_history.invoke({"question": f"The question is `{question}`. Tool {tool.name} has been already called via {action_input}"}, self.config)
+                                return response
+                            except Exception as e:
+                                error_message = str(e)
+                                response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
+                except Exception as e:
+                    error_message = str(e)
+                    response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
+            if response.strip() == "":
+                response = "I'm sorry, I don't understand. Please ask me again."
         return response
