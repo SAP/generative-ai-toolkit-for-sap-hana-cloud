@@ -21,20 +21,28 @@ Generative AI Toolkit for SAP HANA Cloud consists of four main parts:
 Prerequisites
 -------------
 
-  - SAP HANA Python Driver: hdbcli. Please see `SAP HANA Client Interface Programming Reference
+  - **SAP HANA Python Driver** : hdbcli. Please see `SAP HANA Client Interface Programming Reference
     <https://help.sap.com/docs/SAP_HANA_CLIENT/f1b440ded6144a54ada97ff95dac7adf/f3b8fabf34324302b123297cdbe710f0.html>`_
     for more information.
 
-  - SAP HANA PAL: Security **AFL__SYS_AFL_AFLPAL_EXECUTE** and
+  - **SAP HANA PAL** : Security **AFL__SYS_AFL_AFLPAL_EXECUTE** and
     **AFL__SYS_AFL_AFLPAL_EXECUTE_WITH_GRANT_OPTION** roles. See `SAP HANA
     Predictive Analysis Library
     <https://help.sap.com/docs/hana-cloud-database/sap-hana-cloud-sap-hana-database-predictive-analysis-library/sap-hana-cloud-sap-hana-database-predictive-analysis-library-pal>`_
     for more information.
 
-  - SAP HANA APL 1905 or higher. See
+  - **SAP HANA APL** 1905 or higher. See
     `SAP HANA Automated Predictive Library Developer Guide
     <https://help.sap.com/viewer/product/apl/latest/en-US>`_
     for more information. Only valid when using the APL package.
+
+  - **Python Machine Learning Client for SAP HANA** version 2.24 or higher : Install it using ``pip install -U hana-ml``.
+    For more details, refer to the `Documentation <https://help.sap.com/doc/cd94b08fe2e041c2ba778374572ddba9/latest/en-US/hana_ml.html>`_.
+
+  - **Generative-AI-Hub-SDK**: Install it using ``pip install "generative-ai-hub-sdk[all]"``.
+    For comprehensive instructions, see the `SAP Learning Unit on Using Generative-AI-Hub-SDK <https://learning.sap.com/learning-journeys/solving-your-business-problems-using-prompts-and-llms-in-sap-s-generative-ai-hub/identifying-the-need-for-using-generative-ai-hub-sdk>`_.
+
+  - Ensure that you have access to generative AI hub and deployed models in SAP Business Technology Platform. For more information, see the `Create a Deployment for a Generative AI Model <https://help.sap.com/docs/sap-ai-core/sap-ai-core-service-guide/create-deployment-for-generative-ai-model-in-sap-ai-core>`_.
 
 Langchain Agent with HANAML Toolkit
 -----------------------------------
