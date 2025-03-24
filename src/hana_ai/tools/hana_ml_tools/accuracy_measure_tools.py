@@ -19,16 +19,17 @@ logger = logging.getLogger(__name__)
 
 class AccuracyMeasureInput(BaseModel):
     """Class of input arguments for accuracy measure"""
-    input_table : str = Field(description="Table (or view) containing the input data for computing the accuracy measure, should have at 2 columns," +\
-    " i.e. real and forecast data. The ID column is mandatory for 'spec' evaluation metric, not for other metrics. " +\
-    "If not provided, ask the user, do not guess")
+    input_table : str = Field(description="Table (or view) containing the input data for computing the accuracy measure, should have at least 3 columns:" +\
+    "ID, real data and forecast data. If not provided, ask the user, do not guess")
     evaluation_metric : Union[str, List[str]] = Field(description="Specifies the accuracy measures to compute, it could be one or a list of the" +\
     " following options : 'mpe', 'mse', 'rmse', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape' and 'spec'." + \
     " If not provided, ask the user, do not guess")
+    key : str = Field(description="Specifies the name of the ID column in input_table. If not provided," +\
+    " the 1st column of input_table will be used.", default=None)
     real_col : str = Field(description="Name of the column that contains the real data in input_table." +\
-    " If not provided, the 1st column of input_table will be used", default=None)
+    " If not provided, name of the 1st non-ID column of input_table will be used", default=None)
     forecast_col : str = Field(description="Name of the column that contains the forecast data in input_table." +\
-    " If not provided, the 2nd column of input_table will be used", default=None)
+    " If not provided, name of the 2nd non-ID column of input_table will be used", default=None)
     ignore_zero : bool = Field(description="Specifies whether or not to ignore zero values when calculating accuracy measure 'mpe' or 'mape', it is optional", default=None)#pylint:disable=line-too-long
     alpha2 : float = Field(description="Specifies the unit stock-keeping cost parameter of accuracy measure 'spec'", default=None)#pylint:disable=line-too-long
     alpha1 : float = Field(description="Specifies unit opportunity cost parameter of accuracy measure 'spec'", default=None)#pylint:disable=line-too-long
@@ -85,6 +86,7 @@ class AccuracyMeasure(BaseTool):
         self,
         input_table : str,
         evaluation_metric : Union[str, List[str]],
+        key : str=None,
         real_col : str=None,
         forecast_col : str=None,
         ignore_zero : bool=None,
@@ -93,14 +95,25 @@ class AccuracyMeasure(BaseTool):
         run_manager: CallbackManagerForToolRun=None#pylint:disable=unused-argument
         )-> str:
         input_data = self.connection_context.table(input_table)
-        input_cols = input_data.columns
-        for in_col in [real_col, forecast_col]:
+        table_type = len(input_data.columns)
+        if isinstance(evaluation_metric, str):
+            evaluation_metric = [evaluation_metric]
+        if 'spec' in evaluation_metric and table_type < 3:
+            msg = "When 'spec' is specified as the evaluation metric, input_table should" +\
+            "have at least 3 columns, and the ID column must present"
+            raise ValueError(msg)
+        if table_type == 2:
+            input_data = input_data.add_id("ACC_MS_GEN_ID")
+        key = input_data.columns[0] if key is None else key
+        for in_col in [key, real_col, forecast_col]:
             if in_col is not None and in_col not in input_data.columns:
                 msg = f"Column {in_col} not found in table {input_table}"
                 raise ValueError(msg)
+        input_cols = input_data.columns
+        input_cols.remove(key)
         real_col = input_cols[0] if real_col is None else real_col
         forecast_col = input_cols[1] if forecast_col is None else forecast_col
-        accm_res = accuracy_measure(data=input_data[[real_col, forecast_col]],
+        accm_res = accuracy_measure(data=input_data[[key, real_col, forecast_col]],
                                     evaluation_metric=evaluation_metric,
                                     ignore_zero=ignore_zero,
                                     alpha1=alpha1,
