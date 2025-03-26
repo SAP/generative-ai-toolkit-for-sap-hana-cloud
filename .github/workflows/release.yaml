@@ -1,20 +1,38 @@
-name: Release to PyPI
+name: Release
 
 on:
   push:
     tags:
-      - "v*"
+    -   v*
 
 jobs:
-  deploy:
+  release:
     runs-on: ubuntu-latest
-    environment: 
-      name: pypi
-      url: https://pypi.org/project/hana-ai
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - run: echo "Building and publishing..."
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+    -   name: Checkout repository
+        uses: actions/checkout@v4
+    -   name: Setup python
+        uses: actions/setup-python@v5
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          python-version: '3.13'
+    -   name: Install project
+        run: pip install -e .
+    -   name: Install libraries
+        run: pip install -U build
+    -   name: Create wheel
+        run: python -m build -o dist/ .
+    -   name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+    -   name: Determine version
+        run: |
+          version="${GITHUB_REF_NAME:1}"
+          echo "RELEASE_VERSION=${version}" >> $GITHUB_ENV
+    -   name: Release on GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          name: Version ${{ env.RELEASE_VERSION }}
