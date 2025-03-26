@@ -15,6 +15,8 @@ You have installed the required Python packages pip install "generative-ai-hub-s
 You have created a deployment for a Generative AI model in the SAP BTP:
 https://help.sap.com/docs/sap-ai-core/sap-ai-core-service-guide/create-deployment-for-generative-ai-model-in-sap-ai-core.
 
+Download the package from github [Releases](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/releases) and install it using pip install generative-ai-toolkit-for-sap-hana-cloud-x.x.x.zip. (pypi package will be available soon)
+
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
