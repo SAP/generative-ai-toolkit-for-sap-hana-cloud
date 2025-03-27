@@ -183,14 +183,16 @@ class TimeSeriesCheck(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = TSCheckInput
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
     def _run(
@@ -252,14 +254,16 @@ class StationarityTest(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = StationarityTestInput
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
     def _run(
@@ -343,14 +347,16 @@ class TrendTest(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = TrendTestInput
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
     def _run(
@@ -450,14 +456,16 @@ class SeasonalityTest(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = SeasonalityTestInput
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
     def _run(
@@ -561,14 +569,16 @@ class WhiteNoiseTest(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = WhiteNoiseTestInput
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
     def _run(

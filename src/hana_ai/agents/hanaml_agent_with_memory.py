@@ -87,7 +87,7 @@ class HANAMLAgentWithMemory(object):
                             action_input = action_dict.get("action_input")
                             try:
                                 response = tool.run(action_input)
-                                self.agent_with_chat_history.invoke({"question": f"The question is `{question}`. Tool {tool.name} has been already called via {action_input}"}, self.config)
+                                self.agent_with_chat_history.invoke({"question": f"The question is `{question}`. Inform the user that the tool {tool.name} has been already called via {action_input}."}, self.config)
                                 return response
                             except Exception as e:
                                 error_message = str(e)
@@ -98,3 +98,60 @@ class HANAMLAgentWithMemory(object):
             if response.strip() == "":
                 response = "I'm sorry, I don't understand. Please ask me again."
         return response
+
+def stateless_call(llm, tools, question, chat_history=None, verbose=False):
+    """
+    Stateless call to the chatbot.
+
+    Parameters
+    ----------
+    llm : LLM
+        The language model to use.
+    tools : dict
+        The tools to use.
+    question : str
+        The question to ask.
+    chat_history : list of str
+        The chat history. Default to None.
+
+    Returns
+    -------
+    str
+        The response.
+    """
+    if chat_history is None:
+        chat_history = []
+    system_prompt = """You're an assistant skilled in data science using hana-ml tools.
+    Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools.
+    Ask for missing parameters if needed. NEVER return raw JSON strings outside this structure."""
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_prompt),
+        MessagesPlaceholder(variable_name="history", messages=chat_history),
+        ("human", "{question}"),
+    ])
+    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose)    
+    response = agent.invoke({"question": question, "history": chat_history})
+    if isinstance(response, dict) and 'output' in response:
+        response = response['output']
+    if isinstance(response, str): 
+        if response.startswith("Action:"): # force to call tool if return a Action string
+            action_json = response[7:]
+            try:
+                action_dict = json.loads(action_json)
+                action = action_dict.get("action")
+                for tool in tools:
+                    if tool.name == action:
+                        action_input = action_dict.get("action_input")
+                        try:
+                            response = tool.run(action_input)
+                            return response
+                        except Exception as e:
+                            error_message = str(e)
+                            response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+            except Exception as e:
+                error_message = str(e)
+                response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+        if response.strip() == "":
+            response = "I'm sorry, I don't understand. Please ask me again."
+    return response

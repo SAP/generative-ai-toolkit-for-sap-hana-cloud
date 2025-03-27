@@ -3,36 +3,40 @@ name: Release
 on:
   push:
     tags:
-    -   v*
+      - v*
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment: pypi
+    environment: pypi:hana_ai
     permissions:
       id-token: write
       contents: write
     steps:
-    -   name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-    -   name: Setup python
+
+      - name: Determine version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          echo "RELEASE_VERSION=$version" >> $GITHUB_ENV
+
+      - name: Setup python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
-    -   name: Install project
-        run: pip install -e .
-    -   name: Install libraries
-        run: pip install -U build
-    -   name: Create wheel
-        run: python -m build -o dist/ .
-    -   name: Publish package distributions to PyPI
+          python-version: '3.11'  # Use a compatible version (e.g., '3.11')
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build wheel
+        run: python -m build --wheel --outdir dist/
+
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-    -   name: Determine version
-        run: |
-          version="${GITHUB_REF_NAME:1}"
-          echo "RELEASE_VERSION=${version}" >> $GITHUB_ENV
-    -   name: Release on GitHub
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          files: dist/*.whl
           name: Version ${{ env.RELEASE_VERSION }}
