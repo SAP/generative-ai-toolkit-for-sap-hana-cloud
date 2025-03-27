@@ -72,10 +72,12 @@ class FetchDataTool(BaseTool):
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct: bool = True
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
     def _run(

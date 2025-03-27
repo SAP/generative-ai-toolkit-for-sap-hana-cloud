@@ -111,14 +111,16 @@ class IntermittentForecast(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = IntermittentForecastInput
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
     def _run(
