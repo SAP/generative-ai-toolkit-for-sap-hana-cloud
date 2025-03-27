@@ -8,4 +8,4 @@ langchain-experimental
 langchain-text-splitters
 pydantic
 pydantic-core
-generative-ai-hub-sdk
+generative-ai-hub-sdk[all]

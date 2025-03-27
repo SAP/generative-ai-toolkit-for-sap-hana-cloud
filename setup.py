@@ -11,7 +11,7 @@ install_requires = [
         'langchain-text-splitters',
         'pydantic',
         'pydantic-core',
-        'generative-ai-hub-sdk'
+        'generative-ai-hub-sdk[all]'
 ]
 
 def get_version():
