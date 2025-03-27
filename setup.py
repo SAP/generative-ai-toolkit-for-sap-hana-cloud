@@ -27,7 +27,7 @@ def get_version():
 
 setup(
     name='hana_ai',
-    version=get_version(),
+    version="1.0.25032700",
     author='SAP',
     license='Apache License 2.0',
     url='https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud',

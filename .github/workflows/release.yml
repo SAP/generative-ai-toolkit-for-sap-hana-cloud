@@ -9,10 +9,8 @@ jobs:
   build:
     permissions:
       contents: read
-      # id-token: write is required to release using the trusted publisher
       id-token: write
     runs-on: ubuntu-latest
-    # The GitHub Actions Environment configured for the trusted publisher
     environment: pypi
     steps:
       - uses: actions/checkout@v4
@@ -21,16 +19,17 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install build tools
-        run: pip install build
+      # Install essential build tools
+      - name: Install build dependencies
+        run: pip install setuptools wheel
 
-      # Process to build/test your package
-      # Adjust as necessary for your project
-      - name: Install dependencies
+      # Optional: Only include if you need dependencies for building
+      - name: Install project dependencies
         run: pip install -r requirements.txt
-      - name: Build release distribution
-        run: python -m build .
 
-      # This step releases your built version to PyPI
+      # Build using setup.py directly
+      - name: Build release distribution
+        run: python setup.py sdist bdist_wheel
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@v1.8.14
