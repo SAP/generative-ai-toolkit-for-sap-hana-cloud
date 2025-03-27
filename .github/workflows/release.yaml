@@ -6,37 +6,28 @@ on:
       - v*
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    environment: pypi
+  build:
     permissions:
+      contents: read
+      # id-token: write is required to release using the trusted publisher
       id-token: write
-      contents: write
+    runs-on: ubuntu-latest
+    # The GitHub Actions Environment configured for the trusted publisher
+    environment: <pypi:packageName>
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Determine version
-        run: |
-          version="${GITHUB_REF_NAME#v}"
-          echo "RELEASE_VERSION=$version" >> $GITHUB_ENV
-
-      - name: Setup python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'  # Use a compatible version (e.g., '3.11')
+          python-version: "3.11"
 
-      - name: Install build tools
-        run: pip install build
+      # Process to build/test your package
+      # Adjust as necessary for your project
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Build release distribution
+        run: python -m build .
 
-      - name: Build wheel
-        run: python -m build --wheel --outdir dist/
-
+      # This step releases your built version to PyPI
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/*.whl
-          name: Version ${{ env.RELEASE_VERSION }}
+        uses: pypa/gh-action-pypi-publish@v1.8.14
