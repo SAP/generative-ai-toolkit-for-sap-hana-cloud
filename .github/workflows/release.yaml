@@ -13,13 +13,16 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     # The GitHub Actions Environment configured for the trusted publisher
-    environment: <pypi:packageName>
+    environment: pypi
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+
+      - name: Install build tools
+        run: pip install build
 
       # Process to build/test your package
       # Adjust as necessary for your project
