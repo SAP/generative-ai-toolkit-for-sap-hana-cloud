@@ -19,16 +19,8 @@ class TestML_BaseTestClass(unittest.TestCase):
 
     def setUp(self):
         self.config = configparser.ConfigParser()
-        self.config.read(os.path.join(os.path.dirname(__file__), 'config/e2edata.ini'))
-        host_name = socket.gethostname()
-
-        url = self.config.get('hana', 'url')
-        port = int(self.config.get('hana', 'port'))
-        pwd = self.config.get('hana', 'passwd')
-        user = self.config.get('hana', 'user')
-        self.conn = dataframe.ConnectionContext(url, port, user, pwd)
+        self.conn = dataframe.ConnectionContext(userkey="RaysKey")
         self.conn.sql_tracer.enable_sql_trace(True)
-        print("$"*50, host_name, url, port, user, pwd)
 
     def tearDown(self):
         self.conn.connection.close()

@@ -48,7 +48,7 @@ class HANAMLToolkit(BaseToolkit):
     used_tools: Optional[list] = None
     default_tools: List[BaseTool] = None
 
-    def __init__(self, connection_context, used_tools=None):
+    def __init__(self, connection_context, used_tools=None, return_direct=None):
         super().__init__(connection_context=connection_context)
         self.default_tools = [
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),
@@ -64,6 +64,13 @@ class HANAMLToolkit(BaseToolkit):
             FetchDataTool(connection_context=self.connection_context),
             ForecastLinePlot(connection_context=self.connection_context)
         ]
+        if isinstance(return_direct, dict):
+            for tool in self.default_tools:
+                if tool.name in return_direct:
+                    tool.return_direct = return_direct[tool.name]
+        if isinstance(return_direct, bool):
+            for tool in self.default_tools:
+                tool.return_direct = return_direct
         if used_tools is None or used_tools == "all":
             self.used_tools = self.default_tools
         else:
