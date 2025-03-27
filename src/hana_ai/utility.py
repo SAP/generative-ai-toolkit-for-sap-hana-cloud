@@ -1,8 +1,15 @@
 """
 Utility functions for counting tokens in a query.
 """
+# check nltk has been installed, if not install it and reload the module
+try:
+    import nltk
+except ImportError:
+    import subprocess
+    import sys
 
-import nltk
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "nltk"])
+    import nltk
 
 def count_tokens(query):
     """
