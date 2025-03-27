@@ -14,9 +14,14 @@ install_requires = [
         'generative-ai-hub-sdk'
 ]
 
+def get_version():
+    with open('version.txt') as ver_file:
+        version_str = ver_file.readline().rstrip()
+    return version_str
+
 setup(
     name='hana_ai',
-    version="1.0.25031900",
+    version=get_version(),
     author='SAP',
     license='Apache License 2.0',
     packages=find_packages(where='src'),
