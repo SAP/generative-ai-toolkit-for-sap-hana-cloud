@@ -8,7 +8,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment: pypi:hana_ai
+    environment: pypi
     permissions:
       id-token: write
       contents: write
