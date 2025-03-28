@@ -50,6 +50,7 @@ hana_ml_tools
    hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection
    hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport
    hana_ml_tools.ts_visualizer_tools.ForecastLinePlot
+   hana_ml_tools.ts_accuracy_measure_tools.AccuracyMeasure
 
 .. _hana_ml_toolkit-label:
 
