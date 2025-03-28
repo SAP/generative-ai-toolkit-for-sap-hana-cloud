@@ -20,7 +20,7 @@ from hana_ai.tools.hana_ml_tools.ts_visualizer_tools import ForecastLinePlot, Ti
 from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.ts_check_tools import TimeSeriesCheck
 from hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools import TSOutlierDetection
-
+from hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools import AccuracyMeasure
 
 class HANAMLToolkit(BaseToolkit):
     """
@@ -62,7 +62,8 @@ class HANAMLToolkit(BaseToolkit):
             TimeSeriesCheck(connection_context=self.connection_context),
             TSOutlierDetection(connection_context=self.connection_context),
             FetchDataTool(connection_context=self.connection_context),
-            ForecastLinePlot(connection_context=self.connection_context)
+            ForecastLinePlot(connection_context=self.connection_context),
+            AccuracyMeasure(connection_context=self.connection_context)
         ]
         if isinstance(return_direct, dict):
             for tool in self.default_tools:
@@ -95,6 +96,22 @@ class HANAMLToolkit(BaseToolkit):
                 The tool must be a subclass of BaseTool. Please follow the guide to create the custom tools https://python.langchain.com/docs/how_to/custom_tools/.
         """
         self.used_tools.append(tool)
+
+    def delete_tool(self, tool_name: str):
+        """
+        Delete a tool from the toolkit.
+
+        Parameters
+        ----------
+        tool_name : str
+            Name of the tool to delete.
+        """
+        for tool in self.used_tools:
+            if tool.name == tool_name:
+                self.used_tools.remove(tool)
+                break
+        else:
+            raise ValueError(f"Tool {tool_name} not found in the toolkit.")
 
     def set_vectordb(self, vectordb):
         """
