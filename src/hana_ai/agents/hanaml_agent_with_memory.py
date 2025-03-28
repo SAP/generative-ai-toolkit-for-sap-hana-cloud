@@ -80,7 +80,7 @@ class HANAMLAgentWithMemory(object):
             response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
         if isinstance(response, dict) and 'output' in response:
             response = response['output']
-        if isinstance(response, str): 
+        if isinstance(response, str):
             if response.startswith("Action:"): # force to call tool if return a Action string
                 action_json = response[7:]
                 try:
@@ -135,11 +135,11 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False):
         MessagesPlaceholder(variable_name="history", messages=chat_history),
         ("human", "{question}"),
     ])
-    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose)    
+    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose)
     response = agent.invoke({"question": question, "history": chat_history})
     if isinstance(response, dict) and 'output' in response:
         response = response['output']
-    if isinstance(response, str): 
+    if isinstance(response, str):
         if response.startswith("Action:"): # force to call tool if return a Action string
             action_json = response[7:]
             try:
