@@ -22,7 +22,7 @@ install_requires = [
 
 setup(
     name='hana_ai',
-    version="1.0.25032701",
+    version="1.0.25032800",
     author='SAP',
     license='Apache License 2.0',
     url='https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud',

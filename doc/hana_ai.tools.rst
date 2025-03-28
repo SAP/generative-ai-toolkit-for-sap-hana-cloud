@@ -43,6 +43,7 @@ hana_ml_tools
    hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool
    hana_ml_tools.intermittent_forecast_tools.IntermittentForecast
    hana_ml_tools.model_storage_tools.ListModels
+   hana_ml_tools.ts_accuracy_measure_tools.AccuracyMeasure
    hana_ml_tools.ts_check_tools.TimeSeriesCheck
    hana_ml_tools.ts_check_tools.StationarityTest
    hana_ml_tools.ts_check_tools.TrendTest
