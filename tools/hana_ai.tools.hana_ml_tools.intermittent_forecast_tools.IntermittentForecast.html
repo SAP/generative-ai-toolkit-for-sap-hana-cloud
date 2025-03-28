@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IntermittentForecast &mdash; hana.ai 1.0.25032701 documentation</title>
+  <title>IntermittentForecast &mdash; hana.ai 1.0.25032800 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -17,7 +17,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=f81f4889"></script>
+        <script src="../_static/documentation_options.js?v=ea746314"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -39,7 +39,7 @@
             hana.ai
           </a>
               <div class="version">
-                1.0.25032701
+                1.0.25032800
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -284,47 +284,26 @@
 <tr class="row-even"><td><p>endog</p></td>
 <td><p>the endog of the dataset. If not provided, ask the user. Do not guess.</p></td>
 </tr>
-<tr class="row-odd"><td><p>p</p></td>
-<td><p>the smoothing parameter for demand, it is optional</p></td>
+<tr class="row-odd"><td><p>alpha</p></td>
+<td><p>Smoothing parameter for demand, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>q</p></td>
-<td><p>the smoothing parameter for the time-intervals between intermittent demands, it is optional</p></td>
+<tr class="row-even"><td><p>beta</p></td>
+<td><p>Smoothing parameter for probability, it is optional</p></td>
 </tr>
 <tr class="row-odd"><td><p>forecast_num</p></td>
-<td><p>the number of forecast steps, it is optional</p></td>
+<td><p>Number of values to be forecast, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>optimizer</p></td>
-<td><p>the optimizer for the model chosen from {'lbfgsb', 'brute', 'sim_annealing'}, it is optional</p></td>
+<tr class="row-even"><td><p>method</p></td>
+<td><p>Method to be used from sporadic or constant, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>the method for the output chosen from {'sporadic', 'constant'}, it is optional</p></td>
+<tr class="row-odd"><td><p>accuracy_measure</p></td>
+<td><p>The metric to quantify how well a model fits input data. Options: 'mpe', 'mse', 'rmse', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape'., it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>grid_size</p></td>
-<td><p>specifies the number of steps from the start point to the length of data for grid search, it is optional</p></td>
+<tr class="row-even"><td><p>ignore_zero</p></td>
+<td><p>Ignore zero values or not in the dataset and only valid when <code class="docutils literal notranslate"><span class="pre">accuracy_measure</span></code> is 'mpe' or 'mape'., it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>optimize_step</p></td>
-<td><p>specifies the minimum step for each iteration of LBFGSB method, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>accuracy_measure</p></td>
-<td><p>the metric to quantify how well a model fits input data chosen from 'mse', 'rmse', 'mae', 'mape', 'smape', 'mase', it is optional</p></td>
-</tr>
-<tr class="row-odd"><td><p>ignore_zero</p></td>
-<td><p>whether to ignore zero values in the dataset to calculate mape, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>expost_flag</p></td>
-<td><p>whether to output the expost forecast, it is optional</p></td>
-</tr>
-<tr class="row-odd"><td><p>thread_ratio</p></td>
-<td><p>the ratio of threads to use for parallel processing, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>iter_count</p></td>
-<td><p>a positive integer that controls the iteration of the simulated annealing, it is optional</p></td>
-</tr>
-<tr class="row-odd"><td><p>random_state</p></td>
-<td><p>specifies the seed for random number generator and valid for Simulated annealing method, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>penalty</p></td>
-<td><p>a penalty is applied to the cost function to avoid over-fitting, it is optional</p></td>
+<tr class="row-odd"><td><p>remove_leading_zeros</p></td>
+<td><p>When it is set to True, the leading zeros are ignored for calculating measure, it is optional</p></td>
 </tr>
 </tbody>
 </table>

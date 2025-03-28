@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HANAMLToolkit &mdash; hana.ai 1.0.25032701 documentation</title>
+  <title>HANAMLToolkit &mdash; hana.ai 1.0.25032800 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -17,7 +17,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=f81f4889"></script>
+        <script src="../_static/documentation_options.js?v=ea746314"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -39,7 +39,7 @@
             hana.ai
           </a>
               <div class="version">
-                1.0.25032701
+                1.0.25032800
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -286,19 +286,22 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
 <td><p>Duplicate a model, optionally choose which fields to include, exclude and change.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>(*[, include, exclude, by_alias, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.delete_tool" title="hana_ai.tools.toolkit.HANAMLToolkit.delete_tool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_tool</span></code></a>(tool_name)</p></td>
+<td><p>Delete a tool from the toolkit.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>(*[, include, exclude, by_alias, ...])</p></td>
 <td><p>Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.get_tools" title="hana_ai.tools.toolkit.HANAMLToolkit.get_tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tools</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.get_tools" title="hana_ai.tools.toolkit.HANAMLToolkit.get_tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tools</span></code></a>()</p></td>
 <td><p>Get the tools in the toolkit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">json</span></code>(*[, include, exclude, by_alias, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">json</span></code>(*[, include, exclude, by_alias, ...])</p></td>
 <td><p>Generate a JSON representation of the model, <cite>include</cite> and <cite>exclude</cite> arguments as per <cite>dict()</cite>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb" title="hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vectordb</span></code></a>(vectordb)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb" title="hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vectordb</span></code></a>(vectordb)</p></td>
 <td><p>Set the vector database.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
 <td><p>Try to update ForwardRefs on fields based on this Model, globalns and localns.</p></td>
 </tr>
 </tbody>
@@ -315,6 +318,20 @@
 <p class="admonition-title">Note</p>
 <p>The tool must be a subclass of BaseTool. Please follow the guide to create the custom tools <a class="reference external" href="https://python.langchain.com/docs/how_to/custom_tools/">https://python.langchain.com/docs/how_to/custom_tools/</a>.</p>
 </div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.delete_tool">
+<span class="sig-name descname"><span class="pre">delete_tool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.delete_tool" title="Link to this definition"></a></dt>
+<dd><p>Delete a tool from the toolkit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>tool_name</strong><span class="classifier">str</span></dt><dd><p>Name of the tool to delete.</p>
 </dd>
 </dl>
 </dd>
