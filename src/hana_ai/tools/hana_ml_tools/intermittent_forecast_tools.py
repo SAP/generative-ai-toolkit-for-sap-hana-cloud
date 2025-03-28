@@ -8,7 +8,7 @@ The following class is available:
 
 import json
 import logging
-from typing import Optional, Type, Union
+from typing import List, Optional, Type, Union
 from pydantic import BaseModel, Field
 
 from langchain.callbacks.manager import (
@@ -17,7 +17,7 @@ from langchain.callbacks.manager import (
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
-from hana_ml.algorithms.pal.tsa.intermittent_forecast import intermittent_forecast
+from hana_ml.algorithms.pal.tsa.exponential_smoothing import CrostonTSB
 
 from hana_ai.utility import remove_prefix_sharp
 
@@ -30,20 +30,14 @@ class IntermittentForecastInput(BaseModel):
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
-    p: Optional[int] = Field(description="the smoothing parameter for demand, it is optional", default=None)
-    q: Optional[int] = Field(description="the smoothing parameter for the time-intervals between intermittent demands, it is optional", default=None)
-    forecast_num: Optional[int] = Field(description="the number of forecast steps, it is optional", default=None)
-    optimizer: Optional[str] = Field(description="the optimizer for the model chosen from {'lbfgsb', 'brute', 'sim_annealing'}, it is optional", default=None)
-    method: Optional[str] = Field(description="the method for the output chosen from {'sporadic', 'constant'}, it is optional", default=None)
-    grid_size: Optional[int] = Field(description="specifies the number of steps from the start point to the length of data for grid search, it is optional", default=None)
-    optimize_step: Optional[int] = Field(description="specifies the minimum step for each iteration of LBFGSB method, it is optional", default=None)
-    accuracy_measure: Union[Optional[str], Optional[list]] = Field(description="the metric to quantify how well a model fits input data chosen from 'mse', 'rmse', 'mae', 'mape', 'smape', 'mase', it is optional", default=None)
-    ignore_zero: Optional[bool] = Field(description="whether to ignore zero values in the dataset to calculate mape, it is optional", default=None)
-    expost_flag: Optional[bool] = Field(description="whether to output the expost forecast, it is optional", default=None)
-    thread_ratio: Optional[float] = Field(description="the ratio of threads to use for parallel processing, it is optional", default=None)
-    iter_count: Optional[int] = Field(description="a positive integer that controls the iteration of the simulated annealing, it is optional", default=None)
-    random_state: Optional[int] = Field(description="specifies the seed for random number generator and valid for Simulated annealing method, it is optional", default=None)
-    penalty: Optional[float] = Field(description="a penalty is applied to the cost function to avoid over-fitting, it is optional", default=None)
+    alpha: Optional[float] = Field(description="Smoothing parameter for demand, it is optional", default=0.1)
+    beta: Optional[float] = Field(description="Smoothing parameter for probability, it is optional", default=0.1)
+    forecast_num: Optional[int] = Field(description="Number of values to be forecast, it is optional", default=1)
+    method: Optional[str] = Field(description="Method to be used from sporadic or constant, it is optional", default="sporadic")
+    accuracy_measure: Union[str, List] = Field(description="The metric to quantify how well a model fits input data. Options: 'mpe', 'mse', 'rmse', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape'., it is optional", default=None)
+    ignore_zero: Optional[bool] = Field(description="Ignore zero values or not in the dataset and only valid when ``accuracy_measure`` is 'mpe' or 'mape'., it is optional", default=False)
+    remove_leading_zeros: Optional[bool] = Field(description="When it is set to True, the leading zeros are ignored for calculating measure, it is optional", default=False)
+
 
 class IntermittentForecast(BaseTool):
     """
@@ -75,34 +69,21 @@ class IntermittentForecast(BaseTool):
                   - the key of the dataset. If not provided, ask the user. Do not guess.
                 * - endog
                   - the endog of the dataset. If not provided, ask the user. Do not guess.
-                * - p
-                  - the smoothing parameter for demand, it is optional
-                * - q
-                  - the smoothing parameter for the time-intervals between intermittent demands, it is optional
+                * - alpha
+                  - Smoothing parameter for demand, it is optional
+                * - beta
+                  - Smoothing parameter for probability, it is optional
                 * - forecast_num
-                  - the number of forecast steps, it is optional
-                * - optimizer
-                  - the optimizer for the model chosen from {'lbfgsb', 'brute', 'sim_annealing'}, it is optional
+                  - Number of values to be forecast, it is optional
                 * - method
-                  - the method for the output chosen from {'sporadic', 'constant'}, it is optional
-                * - grid_size
-                  - specifies the number of steps from the start point to the length of data for grid search, it is optional
-                * - optimize_step
-                  - specifies the minimum step for each iteration of LBFGSB method, it is optional
+                  - Method to be used from sporadic or constant, it is optional
                 * - accuracy_measure
-                  - the metric to quantify how well a model fits input data chosen from 'mse', 'rmse', 'mae', 'mape', 'smape', 'mase', it is optional
+                  - The metric to quantify how well a model fits input data. Options: 'mpe', 'mse', 'rmse', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape'., it is optional
                 * - ignore_zero
-                  - whether to ignore zero values in the dataset to calculate mape, it is optional
-                * - expost_flag
-                  - whether to output the expost forecast, it is optional
-                * - thread_ratio
-                  - the ratio of threads to use for parallel processing, it is optional
-                * - iter_count
-                  - a positive integer that controls the iteration of the simulated annealing, it is optional
-                * - random_state
-                  - specifies the seed for random number generator and valid for Simulated annealing method, it is optional
-                * - penalty
-                  - a penalty is applied to the cost function to avoid over-fitting, it is optional
+                  - Ignore zero values or not in the dataset and only valid when ``accuracy_measure`` is 'mpe' or 'mape'., it is optional
+                * - remove_leading_zeros
+                  - When it is set to True, the leading zeros are ignored for calculating measure, it is optional
+
     """
     name: str = "intermittent_forecast"
     """Name of the tool."""
@@ -124,46 +105,49 @@ class IntermittentForecast(BaseTool):
         )
 
     def _run(
-        self, table_name: str, key: str, endog: str, p: Optional[int] = None, q: Optional[int] = None,
-        forecast_num: Optional[int] = None, optimizer: Optional[str] = None, method: Optional[str] = None,
-        grid_size: Optional[int] = None, optimize_step: Optional[int] = None,
-        accuracy_measure: Union[Optional[str], Optional[list]] = None, ignore_zero: Optional[bool] = None,
-        expost_flag: Optional[bool] = None, thread_ratio: Optional[float] = None, iter_count: Optional[int] = None,
-        random_state: Optional[int] = None, penalty: Optional[float] = None,
+        self, table_name: str, key: str, endog: str, alpha: float = 0.1,
+        beta: float = 0.1, forecast_num: int = 1, method: str = "sporadic",
+        accuracy_measure: Union[str, List] = None, ignore_zero: bool = False,
+        remove_leading_zeros: bool = False,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
         df = self.connection_context.table(table_name).select(key, endog)
-        result, stats = intermittent_forecast(
-            df,
-            key=key, endog=endog,
-            p=p, q=q, forecast_num=forecast_num, optimizer=optimizer, method=method, grid_size=grid_size,
-            optimize_step=optimize_step, accuracy_measure=accuracy_measure, ignore_zero=ignore_zero,
-            expost_flag=expost_flag, thread_ratio=thread_ratio, iter_count=iter_count, random_state=random_state,
-            penalty=penalty
+        croston_tsb = CrostonTSB(
+            alpha=alpha,
+            beta=beta,
+            forecast_num=forecast_num,
+            method=method,
+            accuracy_measure=accuracy_measure,
+            ignore_zero=ignore_zero,
+            remove_leading_zeros=remove_leading_zeros,
+            expost_flag=False)
+
+        result = croston_tsb.fit_predict(
+            data=df,
+            key=key,
+            endog=endog
         )
         predicted_results = f"{table_name}_INTERMITTENT_FORECAST_RESULT"
         result.save(remove_prefix_sharp(predicted_results), force=True)
         outputs = {
             "predicted_result_table": remove_prefix_sharp(predicted_results),
         }
-        for _, row in stats.collect().iterrows():
-            outputs[row[stats.columns[0]]] = row[stats.columns[1]]
+        for _, row in croston_tsb.stats_.collect().iterrows():
+            outputs[row[croston_tsb.stats_.columns[0]]] = row[croston_tsb.stats_.columns[1]]
+        for _, row in croston_tsb.metrics_.collect().iterrows():
+            outputs[row[croston_tsb.metrics_.columns[0]]] = row[croston_tsb.metrics_.columns[1]]
         return json.dumps(outputs)
 
     async def _run_async(
-        self, table_name: str, key: str, endog: str, p: Optional[int] = None, q: Optional[int] = None,
-        forecast_num: Optional[int] = None, optimizer: Optional[str] = None, method: Optional[str] = None,
-        grid_size: Optional[int] = None, optimize_step: Optional[int] = None,
-        accuracy_measure: Union[Optional[str], Optional[list]] = None, ignore_zero: Optional[bool] = None,
-        expost_flag: Optional[bool] = None, thread_ratio: Optional[float] = None, iter_count: Optional[int] = None,
-        random_state: Optional[int] = None, penalty: Optional[float] = None,
+        self, table_name: str, key: str, endog: str, alpha: float = 0.1,
+        beta: float = 0.1, forecast_num: int = 1, method: str = "sporadic",
+        accuracy_measure: Union[str, List] = None, ignore_zero: bool = False,
+        remove_leading_zeros: bool = False,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool asynchronously."""
         return self._run(
-            table_name, key, endog, p=p, q=q, forecast_num=forecast_num, optimizer=optimizer, method=method,
-            grid_size=grid_size, optimize_step=optimize_step, accuracy_measure=accuracy_measure, ignore_zero=ignore_zero,
-            expost_flag=expost_flag, thread_ratio=thread_ratio, iter_count=iter_count, random_state=random_state,
-            penalty=penalty, run_manager=run_manager
+            table_name, key, endog, alpha, beta, forecast_num, method,
+            accuracy_measure, ignore_zero, remove_leading_zeros, run_manager=run_manager
         )
