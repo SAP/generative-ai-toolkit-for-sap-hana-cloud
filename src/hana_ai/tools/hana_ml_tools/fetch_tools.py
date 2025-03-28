@@ -39,7 +39,7 @@ class FetchDataTool(BaseTool):
 
     Returns
     -------
-    str
+    pandas.DataFrame
         The fetched data.
 
         .. note::
