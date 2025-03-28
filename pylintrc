@@ -59,4 +59,9 @@ disable=bad-option-value,
         bare-except,
         too-few-public-methods,
         too-many-instance-attributes,
-        eval-used
+        eval-used,
+        invalid-name,
+        unused-argument,
+        too-many-positional-arguments,
+        protected-access,
+        too-many-nested-blocks

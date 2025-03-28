@@ -1,0 +1,26 @@
+name: Pylint Check
+
+on:
+  pull_request:
+    branches: [ main ]  # Trigger on PRs to the main branch
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # Check out the repository code
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'  # Use your Python version (e.g., 3.11)
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt  # Install project dependencies
+      
+      - name: Install Pylint
+        run: pip install pylint  # Install Pylint globally
+
+      - name: Run Pylint
+        run: pylint ./src  # Replace "./src" with your Python code directory
