@@ -51,7 +51,7 @@ class AccuracyMeasure(BaseTool):
     str
         The accuracy measure result in JSON format.
 
-        ... note::
+        .. note::
 
             args_schema is used to define the schema of the inputs as follows:
 
