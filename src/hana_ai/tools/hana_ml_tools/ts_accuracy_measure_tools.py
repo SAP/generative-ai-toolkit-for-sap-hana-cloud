@@ -21,6 +21,9 @@ from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.accuracy_measure import accuracy_measure
 
 class AccuracyMeasureInput(BaseModel):
+    """
+    Input schema for the AccuracyMeasure tool.
+    """
     predict_table: str = Field(description="should be the table name of the prediction result")
     actual_table: str = Field(description="should be the table name of the actual result")
     predict_key: str = Field(description="should be the key column name of the prediction result")
