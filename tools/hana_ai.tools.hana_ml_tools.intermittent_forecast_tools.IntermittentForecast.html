@@ -4,8 +4,8 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IntermittentForecast &mdash; hana.ai 1.0.25031900 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+  <title>IntermittentForecast &mdash; hana.ai 1.0.25032701 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7dc6ce7e" />
@@ -17,7 +17,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=aceb6d63"></script>
+        <script src="../_static/documentation_options.js?v=f81f4889"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -39,7 +39,7 @@
             hana.ai
           </a>
               <div class="version">
-                1.0.25031900
+                1.0.25032701
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -249,17 +249,91 @@
 <h1>IntermittentForecast<a class="headerlink" href="#intermittentforecast" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.</span></span><span class="sig-name descname"><span class="pre">IntermittentForecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConnectionContext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.</span></span><span class="sig-name descname"><span class="pre">IntermittentForecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConnectionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_direct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast" title="Link to this definition"></a></dt>
 <dd><p>This tool generates forecast for the intermittent demand dataset.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>connection_context</strong><span class="classifier">ConnectionContext</span></dt><dd><p>Connection context to the HANA database.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Attributes<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt>str</dt><dd><p>The name of the predicted result table and the statistics of the forecast.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>args_schema is used to define the schema of the inputs as follows:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 23.1%" />
+<col style="width: 76.9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>table_name</p></td>
+<td><p>the name of the table. If not provided, ask the user. Do not guess.</p></td>
+</tr>
+<tr class="row-odd"><td><p>key</p></td>
+<td><p>the key of the dataset. If not provided, ask the user. Do not guess.</p></td>
+</tr>
+<tr class="row-even"><td><p>endog</p></td>
+<td><p>the endog of the dataset. If not provided, ask the user. Do not guess.</p></td>
+</tr>
+<tr class="row-odd"><td><p>p</p></td>
+<td><p>the smoothing parameter for demand, it is optional</p></td>
+</tr>
+<tr class="row-even"><td><p>q</p></td>
+<td><p>the smoothing parameter for the time-intervals between intermittent demands, it is optional</p></td>
+</tr>
+<tr class="row-odd"><td><p>forecast_num</p></td>
+<td><p>the number of forecast steps, it is optional</p></td>
+</tr>
+<tr class="row-even"><td><p>optimizer</p></td>
+<td><p>the optimizer for the model chosen from {'lbfgsb', 'brute', 'sim_annealing'}, it is optional</p></td>
+</tr>
+<tr class="row-odd"><td><p>method</p></td>
+<td><p>the method for the output chosen from {'sporadic', 'constant'}, it is optional</p></td>
+</tr>
+<tr class="row-even"><td><p>grid_size</p></td>
+<td><p>specifies the number of steps from the start point to the length of data for grid search, it is optional</p></td>
+</tr>
+<tr class="row-odd"><td><p>optimize_step</p></td>
+<td><p>specifies the minimum step for each iteration of LBFGSB method, it is optional</p></td>
+</tr>
+<tr class="row-even"><td><p>accuracy_measure</p></td>
+<td><p>the metric to quantify how well a model fits input data chosen from 'mse', 'rmse', 'mae', 'mape', 'smape', 'mase', it is optional</p></td>
+</tr>
+<tr class="row-odd"><td><p>ignore_zero</p></td>
+<td><p>whether to ignore zero values in the dataset to calculate mape, it is optional</p></td>
+</tr>
+<tr class="row-even"><td><p>expost_flag</p></td>
+<td><p>whether to output the expost forecast, it is optional</p></td>
+</tr>
+<tr class="row-odd"><td><p>thread_ratio</p></td>
+<td><p>the ratio of threads to use for parallel processing, it is optional</p></td>
+</tr>
+<tr class="row-even"><td><p>iter_count</p></td>
+<td><p>a positive integer that controls the iteration of the simulated annealing, it is optional</p></td>
+</tr>
+<tr class="row-odd"><td><p>random_state</p></td>
+<td><p>specifies the seed for random number generator and valid for Simulated annealing method, it is optional</p></td>
+</tr>
+<tr class="row-even"><td><p>penalty</p></td>
+<td><p>a penalty is applied to the cost function to avoid over-fitting, it is optional</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">InputType</span></code></dt><dd><p>The type of input this runnable accepts specified as a type annotation.</p>
 </dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutputType</span></code></dt><dd><p>The type of output this runnable produces specified as a type annotation.</p>
@@ -415,82 +489,6 @@
 </tr>
 </tbody>
 </table>
-<dl class="field-list">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt>str</dt><dd><p>The name of the predicted result table and the statistics of the forecast.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>args_schema is used to define the schema of the inputs as follows:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 23.1%" />
-<col style="width: 76.9%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>table_name</p></td>
-<td><p>the name of the table. If not provided, ask the user. Do not guess.</p></td>
-</tr>
-<tr class="row-odd"><td><p>key</p></td>
-<td><p>the key of the dataset. If not provided, ask the user. Do not guess.</p></td>
-</tr>
-<tr class="row-even"><td><p>endog</p></td>
-<td><p>the endog of the dataset. If not provided, ask the user. Do not guess.</p></td>
-</tr>
-<tr class="row-odd"><td><p>p</p></td>
-<td><p>the smoothing parameter for demand, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>q</p></td>
-<td><p>the smoothing parameter for the time-intervals between intermittent demands, it is optional</p></td>
-</tr>
-<tr class="row-odd"><td><p>forecast_num</p></td>
-<td><p>the number of forecast steps, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>optimizer</p></td>
-<td><p>the optimizer for the model chosen from {'lbfgsb', 'brute', 'sim_annealing'}, it is optional</p></td>
-</tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>the method for the output chosen from {'sporadic', 'constant'}, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>grid_size</p></td>
-<td><p>specifies the number of steps from the start point to the length of data for grid search, it is optional</p></td>
-</tr>
-<tr class="row-odd"><td><p>optimize_step</p></td>
-<td><p>specifies the minimum step for each iteration of LBFGSB method, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>accuracy_measure</p></td>
-<td><p>the metric to quantify how well a model fits input data chosen from 'mse', 'rmse', 'mae', 'mape', 'smape', 'mase', it is optional</p></td>
-</tr>
-<tr class="row-odd"><td><p>ignore_zero</p></td>
-<td><p>whether to ignore zero values in the dataset to calculate mape, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>expost_flag</p></td>
-<td><p>whether to output the expost forecast, it is optional</p></td>
-</tr>
-<tr class="row-odd"><td><p>thread_ratio</p></td>
-<td><p>the ratio of threads to use for parallel processing, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>iter_count</p></td>
-<td><p>a positive integer that controls the iteration of the simulated annealing, it is optional</p></td>
-</tr>
-<tr class="row-odd"><td><p>random_state</p></td>
-<td><p>specifies the seed for random number generator and valid for Simulated annealing method, it is optional</p></td>
-</tr>
-<tr class="row-even"><td><p>penalty</p></td>
-<td><p>a penalty is applied to the cost function to avoid over-fitting, it is optional</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</dd>
-</dl>
-</dd>
-</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.name" title="Link to this definition"></a></dt>
