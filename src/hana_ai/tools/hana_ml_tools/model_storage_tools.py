@@ -6,7 +6,6 @@ The following class are available:
     * :class `ListModels`: List all models in the model storage.
 """
 
-import json
 import logging
 from typing import Optional, Type
 from pydantic import BaseModel, Field
@@ -19,6 +18,8 @@ from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
 from hana_ml.model_storage import ModelStorage
+
+logger = logging.getLogger(__name__)
 
 class ListModelsInput(BaseModel):
     """
@@ -75,7 +76,7 @@ class ListModels(BaseTool):
             connection_context=connection_context,
             return_direct=return_direct
         )
-   
+
     def _run(
         self,
         name: Optional[str] = None,
