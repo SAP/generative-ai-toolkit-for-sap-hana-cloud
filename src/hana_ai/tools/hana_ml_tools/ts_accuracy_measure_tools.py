@@ -76,12 +76,11 @@ class AccuracyMeasure(BaseTool):
                 * - evaluation_metric
                   - The accuracy measures to compute. It could be one or a list of the following options: 'mpe', 'mse', 'rmse', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape' and 'spec'.
                 * - ignore_zero
-                    
-                    - Specifies whether or not to ignore zero values when calculating accuracy measure 'mpe' or 'mape'. It is optional.
+                  - Specifies whether or not to ignore zero values when calculating accuracy measure 'mpe' or 'mape'. It is optional.
                 * - alpha2
-                    - Specifies the unit stock-keeping cost parameter of accuracy measure 'spec'.
+                  - Specifies the unit stock-keeping cost parameter of accuracy measure 'spec'.
                 * - alpha1
-                    - Specifies the unit opportunity cost parameter of accuracy measure 'spec'.                  
+                  - Specifies the unit opportunity cost parameter of accuracy measure 'spec'.                  
        
     """
     name : str = "accuracy_measure"
