@@ -9,11 +9,19 @@ The following class is available:
 # pylint: disable=invalid-name
 # pylint: disable=misplaced-bare-raise
 # pylint: disable=logging-fstring-interpolation
+# pylint: disable=import-error
 
 import logging
 from typing import TypedDict, Dict
+# try to import langgraph, if not installed, install it
+try:
+    from langgraph.graph import END, StateGraph
+except ImportError:
+    import subprocess
+    import sys
 
-from langgraph.graph import END, StateGraph
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "langgraph"])
+    from langgraph.graph import END, StateGraph
 from langchain.output_parsers.openai_tools import PydanticToolsParser
 from langchain.prompts import PromptTemplate
 from pydantic import BaseModel, Field
