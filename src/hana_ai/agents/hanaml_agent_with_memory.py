@@ -1,6 +1,10 @@
 """
 A chatbot that can remember the chat history and use it to generate responses.
 
+The following class is available:
+    
+        * :class `HANAMLAgentWithMemory`
+
 """
 import json
 import logging
@@ -19,7 +23,7 @@ class HANAMLAgentWithMemory(object):
     ----------
     llm : LLM
         The language model to use.
-    tools : dict
+    tools : list of BaseTool
         The tools to use.
     session_id : str, optional
         The session ID to use. Default to "hana_ai_chat_session".
@@ -101,13 +105,14 @@ class HANAMLAgentWithMemory(object):
 
 def stateless_call(llm, tools, question, chat_history=None, verbose=False):
     """
-    Stateless call to the chatbot.
+    Utility function to call the agent with chat_history input. For stateless use cases.
+    This function is useful for BAS integration purposes.
 
     Parameters
     ----------
     llm : LLM
         The language model to use.
-    tools : dict
+    tools : list of BaseTool
         The tools to use.
     question : str
         The question to ask.
