@@ -6,7 +6,6 @@ The following classes are available:
     * :class `FetchDataTool`
 """
 
-import json
 import logging
 from typing import Optional, Type
 from pydantic import BaseModel, Field

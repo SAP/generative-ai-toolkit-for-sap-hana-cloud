@@ -16,6 +16,9 @@ jobs:
         with:
           python-version: '3.11'  # Use your Python version (e.g., 3.11)
 
+      - name: Install dependencies
+        run: pip install -r requirements.txt  # Install project dependencies
+      
       - name: Install Pylint
         run: pip install pylint  # Install Pylint globally
 
