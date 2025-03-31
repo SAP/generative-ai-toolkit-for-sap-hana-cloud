@@ -12,6 +12,7 @@ from langchain.tools import BaseTool
 
 from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
 from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool
+from hana_ai.tools.hana_ml_tools.model_storage_tools import ListModels
 from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
 from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsTool
@@ -51,19 +52,20 @@ class HANAMLToolkit(BaseToolkit):
     def __init__(self, connection_context, used_tools=None, return_direct=None):
         super().__init__(connection_context=connection_context)
         self.default_tools = [
+            AccuracyMeasure(connection_context=self.connection_context),
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),
             AdditiveModelForecastLoadModelAndPredict(connection_context=self.connection_context),
-            CAPArtifactsTool(connection_context=self.connection_context),
-            IntermittentForecast(connection_context=self.connection_context),
-            TimeSeriesDatasetReport(connection_context=self.connection_context),
             AutomaticTimeSeriesFitAndSave(connection_context=self.connection_context),
             AutomaticTimeseriesLoadModelAndPredict(connection_context=self.connection_context),
             AutomaticTimeseriesLoadModelAndScore(connection_context=self.connection_context),
-            TimeSeriesCheck(connection_context=self.connection_context),
-            TSOutlierDetection(connection_context=self.connection_context),
+            CAPArtifactsTool(connection_context=self.connection_context),
             FetchDataTool(connection_context=self.connection_context),
             ForecastLinePlot(connection_context=self.connection_context),
-            AccuracyMeasure(connection_context=self.connection_context)
+            IntermittentForecast(connection_context=self.connection_context),
+            ListModels(connection_context=self.connection_context),
+            TimeSeriesDatasetReport(connection_context=self.connection_context),
+            TimeSeriesCheck(connection_context=self.connection_context),
+            TSOutlierDetection(connection_context=self.connection_context)
         ]
         if isinstance(return_direct, dict):
             for tool in self.default_tools:
