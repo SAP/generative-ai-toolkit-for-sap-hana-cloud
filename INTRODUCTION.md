@@ -39,17 +39,19 @@ Provided AI-tools for streamlining usage of HANA ML functions in context of the 
 | automatic_timeseries_fit_and_save | To fit an AutomaticTimeseries model and save it in the model storage. |
 | automatic_timeseries_load_model_and_predict | To load an AutomaticTimeseries model and predict the future values. |
 | automatic_timeseries_load_model_and_score | To load an AutomaticTimeseries model and score the model. |
-| ts_check | To check the time series data for stationarity, intermittent, trend and seasonality. |
+| accuracy_measure | To compute the accuracy measure using true and predict tables. |
+| cap_artifacts | To generate CAP artifacts from the model in the model storage. |
+| fetch_data | To fetch the data from the HANA database.|
+| forecast_line_plot | To generate line plot for the forecasted result. |
+| intermittent_forecast | To forecast the intermittent time series data. |
+| list_models | To list the models in the model storage. |
+| seasonality_test | To check the seasonality of the time series data. |
 | stationarity_test | To check the stationarity of the time series data. |
 | trend_test | To check the trend of the time series data. |
-| seasonality_test | To check the seasonality of the time series data. |
-| white_noise_test | To check the white noise of the time series data. |
+| ts_check | To check the time series data for stationarity, intermittent, trend and seasonality. |
 | ts_dataset_report | To generate a report for the time series data. |
-| forecast_line_plot | To generate line plot for the forecasted result. |
-| cap_artifacts | To generate CAP artifacts from the model in the model storage. |
-| intermittent_forecast | To forecast the intermittent time series data. |
 | ts_outlier_detection | To detect the outliers in the time series data. |
-| fetch_data | To fetch the data from the HANA database.|
+| white_noise_test | To check the white noise of the time series data. |
 
 ## Agent to generate HANA-ML code and execute tasks based on a SAP HANA dataframe
 A generative AI-assisted, conversational SAP HANA dataframe agent to generate HANA ML code and execute tasks based on SAP HANA dataframe.
