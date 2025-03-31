@@ -41,6 +41,7 @@ hana_ml_tools
    hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict
    hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore
    hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool
+   hana_ml_tools.fetch_tools.FetchDataTool
    hana_ml_tools.intermittent_forecast_tools.IntermittentForecast
    hana_ml_tools.model_storage_tools.ListModels
    hana_ml_tools.ts_accuracy_measure_tools.AccuracyMeasure
