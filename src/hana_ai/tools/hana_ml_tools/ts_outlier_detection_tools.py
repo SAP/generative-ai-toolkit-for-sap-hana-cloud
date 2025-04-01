@@ -48,7 +48,7 @@ class TSOutlierDetectionInput(BaseModel):
     contamination: Optional[float] = Field(description="the proportion of outliers in the data set only valid for isolationforest, it is optional", default=None)
     minpts: Optional[int] = Field(description="the number of points in a neighborhood for a point to be considered as a core point only valid for dbscan, it is optional", default=None)
     eps: Optional[float] = Field(description="the maximum distance between two samples for one to be considered as in the neighborhood of the other only valid for dbscan, it is optional", default=None)
-    distiance_method: Optional[str] = Field(description="the distance method for dbscan chosen from {'manhattan', 'euclidean', 'minkowski', 'chebyshev', 'standardized_euclidean', 'cosine'}, it is optional", default=None)
+    distance_method: Optional[str] = Field(description="the distance method for dbscan chosen from {'manhattan', 'euclidean', 'minkowski', 'chebyshev', 'standardized_euclidean', 'cosine'}, it is optional", default=None)
     dbscan_normalization: Optional[bool] = Field(description="whether to normalize the data before dbscan, it is optional", default=None)
     dbscan_outlier_from_cluster: Optional[bool] = Field(description="specifies how to take outliers from DBSCAN result, it is optional", default=None)
     thread_ratio: Optional[float] = Field(description="the ratio of threads to use for parallel processing, it is optional", default=None)
@@ -124,7 +124,7 @@ class TSOutlierDetection(BaseTool):
                   - the number of points in a neighborhood for a point to be considered as a core point only valid for dbscan, it is optional
                 * - eps
                   - the maximum distance between two samples for one to be considered as in the neighborhood of the other only valid for dbscan, it is optional
-                * - distiance_method
+                * - distance_method
                   - the distance method for dbscan chosen from {'manhattan', 'euclidean', 'minkowski', 'chebyshev', 'standardized_euclidean', 'cosine'}, it is optional
                 * - dbscan_normalization
                   - whether to normalize the data before dbscan, it is optional
@@ -169,7 +169,7 @@ class TSOutlierDetection(BaseTool):
         n_estimators: Optional[int] = None, max_samples: Optional[int] = None,
         bootstrap: Optional[bool] = None, contamination: Optional[float] = None,
         minpts: Optional[int] = None, eps: Optional[float] = None,
-        distiance_method: Optional[str] = None, dbscan_normalization: Optional[bool] = None,
+        distance_method: Optional[str] = None, dbscan_normalization: Optional[bool] = None,
         dbscan_outlier_from_cluster: Optional[bool] = None, thread_ratio: Optional[float] = None,
         residual_usage: Optional[str] = None, voting_config: Optional[dict] = None,
         voting_outlier_method_criterion: Optional[float] = None,
@@ -196,7 +196,7 @@ class TSOutlierDetection(BaseTool):
                 contamination=contamination,
                 minpts=minpts,
                 eps=eps,
-                distiance_method=distiance_method,
+                distance_method=distance_method,
                 dbscan_normalization=dbscan_normalization,
                 dbscan_outlier_from_cluster=dbscan_outlier_from_cluster,
                 residual_usage=residual_usage,
@@ -226,7 +226,7 @@ class TSOutlierDetection(BaseTool):
         n_estimators: Optional[int] = None, max_samples: Optional[int] = None,
         bootstrap: Optional[bool] = None, contamination: Optional[float] = None,
         minpts: Optional[int] = None, eps: Optional[float] = None,
-        distiance_method: Optional[str] = None, dbscan_normalization: Optional[bool] = None,
+        distance_method: Optional[str] = None, dbscan_normalization: Optional[bool] = None,
         dbscan_outlier_from_cluster: Optional[bool] = None, thread_ratio: Optional[float] = None,
         residual_usage: Optional[str] = None, voting_config: Optional[dict] = None,
         voting_outlier_method_criterion: Optional[float] = None,
@@ -238,7 +238,7 @@ class TSOutlierDetection(BaseTool):
             window_size=window_size, loess_lag=loess_lag, current_value_flag=current_value_flag, outlier_method=outlier_method,
             threshold=threshold, detect_seasonality=detect_seasonality, alpha=alpha, extrapolation=extrapolation,
             periods=periods, random_state=random_state, n_estimators=n_estimators, max_samples=max_samples,
-            bootstrap=bootstrap, contamination=contamination, minpts=minpts, eps=eps, distiance_method=distiance_method,
+            bootstrap=bootstrap, contamination=contamination, minpts=minpts, eps=eps, distance_method=distance_method,
             dbscan_normalization=dbscan_normalization, dbscan_outlier_from_cluster=dbscan_outlier_from_cluster,
             thread_ratio=thread_ratio, residual_usage=residual_usage, voting_config=voting_config,
             voting_outlier_method_criterion=voting_outlier_method_criterion, run_manager=run_manager
