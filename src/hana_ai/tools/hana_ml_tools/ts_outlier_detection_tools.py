@@ -16,10 +16,9 @@ from langchain.callbacks.manager import (
     CallbackManagerForToolRun,
 )
 from langchain_core.tools import BaseTool
-
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.outlier_detection import OutlierDetectionTS
-
+from pandas import Timestamp
 logger = logging.getLogger(__name__)
 
 class TSOutlierDetectionInput(BaseModel):
@@ -55,6 +54,14 @@ class TSOutlierDetectionInput(BaseModel):
     residual_usage: Optional[str] = Field(description="specifies which residual to output chosen from {'outlier_detection', 'outlier_correction'}, it is optional", default=None)
     voting_config: Optional[dict] = Field(description="the configuration for voting, it is optional", default=None)
     voting_outlier_method_criterion: Optional[float] = Field(description="the criterion for voting outlier method, it is optional", default=None)
+
+class CustomEncoder(json.JSONEncoder):
+   def default(self, obj):
+       if isinstance(obj, Timestamp):
+           # Convert Timestamp to ISO string
+           return obj.isoformat()
+       # Let other types use the default handler
+       return super().default(obj)
 
 class TSOutlierDetection(BaseTool):
     """
@@ -213,7 +220,8 @@ class TSOutlierDetection(BaseTool):
         }
         for _, row in odt.stats_.collect().iterrows():
             results[row[odt.stats_.columns[0]]] = row[odt.stats_.columns[1]]
-        return json.dumps(results)
+
+        return json.dumps(results, cls=CustomEncoder)
 
     async def _arun(
         self, table_name: str, key: str, endog: str, auto: Optional[bool] = None,
