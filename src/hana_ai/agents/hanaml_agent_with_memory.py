@@ -43,7 +43,7 @@ class HANAMLAgentWithMemory(object):
     >>> chatbot = HANAMLAgentWithMemory(llm=llm, tools=tools, session_id='hana_ai_test', n_messages=10)
     >>> chatbot.run(question="Analyze the data from the table MYTEST.")
     """
-    def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, verbose=False):
+    def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, verbose=False, **kwargs):
         self.llm = llm
         self.tools = tools
         memory = InMemoryChatMessageHistory(session_id=session_id)
@@ -56,7 +56,7 @@ class HANAMLAgentWithMemory(object):
             MessagesPlaceholder(variable_name="history", n_messages=n_messages),
             ("human", "{question}"),
         ])
-        chain: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose)
+        chain: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, **kwargs)
 
         self.agent_with_chat_history = RunnableWithMessageHistory(chain,
                                                                   lambda session_id: memory,
@@ -84,23 +84,24 @@ class HANAMLAgentWithMemory(object):
             if response.startswith("Action:"): # force to call tool if return a Action string
                 action_json = response[7:]
                 try:
-                    action_dict = json.loads(action_json)
-                    action = action_dict.get("action")
-                    for tool in self.tools:
-                        if tool.name == action:
-                            action_input = action_dict.get("action_input")
-                            try:
-                                response = tool.run(action_input)
-                                self.agent_with_chat_history.invoke({"question": f"The question is `{question}`. Inform the user that the tool {tool.name} has been already called via {action_input}."}, self.config)
-                                return response
-                            except Exception as e:
-                                error_message = str(e)
-                                response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
+                    response = json.loads(action_json)
                 except Exception as e:
                     error_message = str(e)
                     response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
-            if response.strip() == "":
+            if isinstance(response, str) and response.strip() == "":
                 response = "I'm sorry, I don't understand. Please ask me again."
+        if isinstance(response, dict) and 'action' in response and 'action_input' in response:
+            action = response.get("action")
+            for tool in self.tools:
+                if tool.name == action:
+                    action_input = response.get("action_input")
+                    try:
+                        response = tool.run(action_input)
+                        self.agent_with_chat_history.invoke({"question": f"The question is `{question}`. Inform the user that the tool {tool.name} has been already called via {action_input}."}, self.config)
+                        return response
+                    except Exception as e:
+                        error_message = str(e)
+                        response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
         return response
 
 def stateless_call(llm, tools, question, chat_history=None, verbose=False):
@@ -143,20 +144,21 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False):
         if response.startswith("Action:"): # force to call tool if return a Action string
             action_json = response[7:]
             try:
-                action_dict = json.loads(action_json)
-                action = action_dict.get("action")
-                for tool in tools:
-                    if tool.name == action:
-                        action_input = action_dict.get("action_input")
-                        try:
-                            response = tool.run(action_input)
-                            return response
-                        except Exception as e:
-                            error_message = str(e)
-                            response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+                response = json.loads(action_json)
             except Exception as e:
                 error_message = str(e)
                 response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
-        if response.strip() == "":
+        if isinstance(response, str) and response.strip() == "":
             response = "I'm sorry, I don't understand. Please ask me again."
+    if isinstance(response, dict) and 'action' in response and 'action_input' in response:
+        action = response.get("action")
+        for tool in tools:
+            if tool.name == action:
+                action_input = response.get("action_input")
+                try:
+                    response = tool.run(action_input)
+                    return response
+                except Exception as e:
+                    error_message = str(e)
+                    response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
     return response
