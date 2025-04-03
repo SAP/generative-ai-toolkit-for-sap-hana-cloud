@@ -29,7 +29,7 @@ jobs:
 
       # New step to clean previous builds
       - name: Clean dist directory
-        run: rm -rf dist
+        run: rm -rf dist/ build/ hana_ai.egg-info/
 
       # Build using setup.py directly
       - name: Build release distribution
