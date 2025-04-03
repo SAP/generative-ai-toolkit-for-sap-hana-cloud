@@ -27,6 +27,10 @@ jobs:
       #- name: Install project dependencies
       #  run: pip install -r requirements.txt
 
+      # New step to clean previous builds
+      - name: Clean dist directory
+        run: rm -rf dist
+
       # Build using setup.py directly
       - name: Build release distribution
         run: python -m build
