@@ -21,7 +21,7 @@ jobs:
 
       # Install essential build tools
       - name: Install build dependencies
-        run: pip install --upgrade pip setuptools wheel
+        run: pip install setuptools wheel
 
       # Optional: Only include if you need dependencies for building
       #- name: Install project dependencies
