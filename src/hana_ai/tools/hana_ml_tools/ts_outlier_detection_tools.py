@@ -5,12 +5,12 @@ The following classes are available:
 
     * :class `TSOutlierDetection`
 """
-
 import json
 import logging
 from typing import Optional, Type
+from datetime import datetime, date
+from pandas import Timestamp
 from pydantic import BaseModel, Field
-
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
     CallbackManagerForToolRun,
@@ -18,7 +18,6 @@ from langchain.callbacks.manager import (
 from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.outlier_detection import OutlierDetectionTS
-from pandas import Timestamp
 logger = logging.getLogger(__name__)
 
 class TSOutlierDetectionInput(BaseModel):
@@ -55,13 +54,14 @@ class TSOutlierDetectionInput(BaseModel):
     voting_config: Optional[dict] = Field(description="the configuration for voting, it is optional", default=None)
     voting_outlier_method_criterion: Optional[float] = Field(description="the criterion for voting outlier method, it is optional", default=None)
 
-class CustomEncoder(json.JSONEncoder):
-   def default(self, obj):
-       if isinstance(obj, Timestamp):
-           # Convert Timestamp to ISO string
-           return obj.isoformat()
-       # Let other types use the default handler
-       return super().default(obj)
+class _CustomEncoder(json.JSONEncoder):
+    """
+    This class is used to encode the object into JSON string.
+    """
+    def default(self, obj): #pylint: disable=arguments-renamed
+        if isinstance(obj, (Timestamp, datetime, date)):
+            return obj.isoformat()
+        return super().default(obj)
 
 class TSOutlierDetection(BaseTool):
     """
@@ -210,7 +210,7 @@ class TSOutlierDetection(BaseTool):
                 voting_config=voting_config,
                 voting_outlier_method_criterion=voting_outlier_method_criterion,
                 thread_ratio=thread_ratio)
-        df = self.connection_context.table(table_name).select(key, endog)
+        df = self.connection_context.table(table_name).select(key, endog) #pylint: disable=invalid-name
         result = odt.fit_predict(df,
                                  key=key,
                                  endog=endog)
@@ -221,7 +221,7 @@ class TSOutlierDetection(BaseTool):
         for _, row in odt.stats_.collect().iterrows():
             results[row[odt.stats_.columns[0]]] = row[odt.stats_.columns[1]]
 
-        return json.dumps(results, cls=CustomEncoder)
+        return json.dumps(results, cls=_CustomEncoder)
 
     async def _arun(
         self, table_name: str, key: str, endog: str, auto: Optional[bool] = None,
