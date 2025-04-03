@@ -4,12 +4,34 @@ This script is designed to process a question and chat history using the HANA AI
 
 import sys
 import json
+from datetime import datetime, date
 
+from pandas import Timestamp
+
+from numpy import int64
+ 
 from gen_ai_hub.proxy.langchain import init_llm
 from hana_ml import dataframe
+import pandas as pd
 from hana_ai.agents.hanaml_agent_with_memory import stateless_call
 from hana_ai.tools.toolkit import HANAMLToolkit
 
+class _CustomEncoder(json.JSONEncoder):
+    """
+    This class is used to encode the model attributes into JSON string.
+    """
+    def default(self, obj): #pylint: disable=arguments-renamed
+        if isinstance(obj, Timestamp):
+            # Convert Timestamp to ISO string
+            return obj.isoformat()
+        elif isinstance(obj, (datetime, date)):
+            # Convert datetime or date to ISO string
+            return obj.isoformat()
+        elif isinstance(obj, (int64, int)):
+            # Convert numpy int64 or Python int to Python int
+            return int(obj)
+        # Let other types use the default handler
+        return super().default(obj)
 
 # pylint: disable=line-too-long, broad-exception-caught
 
@@ -50,9 +72,11 @@ if __name__ == "__main__":
 
         # Process and output
         result = process_strings(input_data['question'], input_data['chat_history'])
-        print(json.dumps({"result": result}, ensure_ascii=False))
+        if isinstance(result, pd.DataFrame):
+            result = result.to_dict(orient="records")
+        print(json.dumps({"result": result}, ensure_ascii=False, cls=_CustomEncoder))
 
     except Exception as e:
-        print(json.dumps({"error": str(e)}, ensure_ascii=False))
+        print(json.dumps({"error": str(e)}, ensure_ascii=False, cls=_CustomEncoder))
     finally:
         sys.stdout.flush()  # Ensure output is sent
