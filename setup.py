@@ -6,19 +6,11 @@ this_directory = path.abspath(path.dirname(__file__))
 with io.open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires = [
-        'langchain',
-        'numpy',
-        'pandas',
-        'hana-ml>=2.24.25031800',
-        'langchain-community',
-        'langchain-core',
-        'langchain-experimental',
-        'langchain-text-splitters',
-        'pydantic',
-        'pydantic-core',
-        'generative-ai-hub-sdk[all]'
-]
+def parse_requirements(filename):
+    with open(filename, 'r') as req_file:
+        return [line.strip() for line in req_file if line.strip() and not line.startswith('#')]
+
+install_requires = parse_requirements('requirements.txt')
 
 def get_version():
     with open('version.txt') as ver_file:

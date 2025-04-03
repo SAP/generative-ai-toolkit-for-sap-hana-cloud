@@ -1,7 +1,7 @@
 langchain
 numpy
 pandas
-hana-ml>=2.24.25031800
+hana-ml>=2.24.25040300
 langchain-community
 langchain-core
 langchain-experimental
