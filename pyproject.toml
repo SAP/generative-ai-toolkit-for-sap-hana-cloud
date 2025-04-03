@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=62.4", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hana_ai"
+version = "1.0.25040300"
+authors = [
+    {name = "SAP"}
+]
+description = "Generative AI Toolkit for SAP HANA Cloud"
+readme = "README.md"
+requires-python = ">=3.0"
+license = {text = "Apache-2.0"}
+keywords = ["Generative AI Toolkit SAP HANA Cloud"]
+
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud"
+Documentation = "https://sap.github.io/generative-ai-toolkit-for-sap-hana-cloud/"
+"Report Issues" = "https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/issues"
+"Notebook Examples" = "https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/tree/main/nutest/testscripts"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = {find = {where = ["src"]}}
+include-package-data = true
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.package-data]
+hana_ai = [
+    "vectorstore/knowledge_base/sql_knowledge/*",
+    "vectorstore/knowledge_base/python_knowledge/*",
+    "include src/hana_ai/agents/scenario_knowledge_base/*"
+]
