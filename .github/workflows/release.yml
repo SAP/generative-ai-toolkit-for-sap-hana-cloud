@@ -21,7 +21,7 @@ jobs:
 
       # Install essential build tools
       - name: Install build dependencies
-        run: pip install setuptools wheel build
+        run: pip install -U setuptools wheel build pkginfo twine
 
       # Optional: Only include if you need dependencies for building
       #- name: Install project dependencies
@@ -36,4 +36,4 @@ jobs:
         run: python -m build
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.14
+        uses: pypa/gh-action-pypi-publish@release/v1
