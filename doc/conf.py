@@ -20,6 +20,7 @@
 
 import os
 import sys
+import toml
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
@@ -76,9 +77,9 @@ author = 'SAP'
 #
 # The short X.Y version.
 def get_version():
-    with open('../version.txt') as ver_file:
-        version_str = ver_file.readline().rstrip()
-    return version_str
+    with open('../pyproject.toml') as pyproject_file:
+        pyproject_data = toml.load(pyproject_file)
+    return pyproject_data['project']['version']
 
 version = get_version()
 # The full version, including alpha/beta/rc tags.
