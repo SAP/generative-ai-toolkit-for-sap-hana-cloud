@@ -43,7 +43,6 @@ class TestForecastLinePlotTools(TestML_BaseTestClass):
         super(TestForecastLinePlotTools, self).tearDown()
 
     def test_forecast_line_plot(self):
-        from hana_ml.visualizers.visualizer_base import forecast_line_plot
         tool = AutomaticTimeSeriesFitAndSave(connection_context=self.conn)
         tool.run({"fit_table": "#HANAI_DATA_TBL_RAW", "key": "TIMESTAMP", "endog": "VALUE", "name": "AUTOML_MODEL", "version": 1, 'fold_num': 2})
         tool = AutomaticTimeseriesLoadModelAndPredict(connection_context=self.conn)
