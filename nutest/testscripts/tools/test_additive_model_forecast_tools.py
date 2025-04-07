@@ -1,6 +1,7 @@
 #unittest for AdditiveModelForecastTools
 import json
 from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
+from hana_ai.tools.hana_ml_tools.ts_visualizer_tools import ForecastLinePlot
 from testML_BaseTestClass import TestML_BaseTestClass
 from hana_ml.model_storage import ModelStorage
 class TestAdditiveModelForecastTools(TestML_BaseTestClass):
@@ -45,4 +46,8 @@ class TestAdditiveModelForecastTools(TestML_BaseTestClass):
         result = json.loads(tool.run({"predict_table": "#HANAI_DATA_TBL_PREDICT_RAW", "key": "TIMESTAMP", "name": "HANAI_MODEL", "version": 1}))
         print(result)
         self.assertTrue(result['predicted_results_table']=="HANAI_MODEL_1_PREDICTED_RESULT")
+
+        tool = ForecastLinePlot(connection_context=self.conn)
+        result = json.loads(tool.run({"predict_table_name": "HANAI_MODEL_1_PREDICTED_RESULT", "actual_table_name": "#HANAI_DATA_TBL_RAW"}))
+
         self.conn.drop_table('HANAI_MODEL_1_PREDICTED_RESULT')

@@ -181,10 +181,35 @@ class ForecastLinePlot(BaseTool):
         self, predict_table_name: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        predict_df = self.connection_context.table(predict_table_name)
+        if confidence is None:
+            if "YHAT_LOWER" in predict_df.columns and "YHAT_UPPER" in predict_df.columns:
+                # check if "YHAT_LOWER" column has values
+                if not predict_df["YHAT_LOWER"].collect()["YHAT_LOWER"].isnull().all():
+                    confidence = ("YHAT_LOWER", "YHAT_UPPER")
+            elif "LO80" in predict_df.columns and "HI80" in predict_df.columns:
+                if not predict_df["LO80"].collect()["LO80"].isnull().all():
+                    confidence = ("LO80", "HI80")
+            elif "LO95" in predict_df.columns and "HI95" in predict_df.columns:
+                if not predict_df["LO95"].collect()["LO95"].isnull().all():
+                    if confidence is None:
+                        confidence = ("LO95", "HI95")
+                    else:
+                        confidence = confidence + ("LO95", "HI95")
+            elif "PI1_LOWER" in predict_df.columns and "PI1_UPPER" in predict_df.columns:
+                if not predict_df["PI1_LOWER"].collect()["PI1_LOWER"].isnull().all():
+                    confidence = ("PI1_LOWER", "PI1_UPPER")
+            elif "PI2_LOWER" in predict_df.columns and "PI2_UPPER" in predict_df.columns:
+                if not predict_df["PI2_LOWER"].collect()["PI2_LOWER"].isnull().all():
+                    if confidence is None:
+                        confidence = ("PI2_LOWER", "PI2_UPPER")
+                    else:
+                        confidence = confidence + ("PI2_LOWER", "PI2_UPPER")
+
         if actual_table_name is None:
-            fig = forecast_line_plot(self.connection_context.table(predict_table_name), confidence=confidence)
+            fig = forecast_line_plot(predict_df, confidence=confidence)
         else:
-            fig = forecast_line_plot(self.connection_context.table(predict_table_name), self.connection_context.table(actual_table_name), confidence)
+            fig = forecast_line_plot(predict_df, self.connection_context.table(actual_table_name), confidence)
         if output_dir is None:
             destination_dir = os.path.join(tempfile.gettempdir(), "hanaml_chart")
         else:
