@@ -1,6 +1,15 @@
 Changelog
 =========
 
+**Version 1.0.250407**
+
+``Enhancements``
+    - Improved `forecast_line_plot` tool to automatically detect the confidence if it is not provided.
+    - Serialized the tool's return if it is pandas DataFrame when `return_direct` is set to `False`.
+
+``Bug Fixes``
+    - Fixed the json serialization issue when the tool's return contains Timestamp.
+
 **Version 1.0.250403**
 
 ``New Functions``
