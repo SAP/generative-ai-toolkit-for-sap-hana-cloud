@@ -8,8 +8,6 @@ The following classes are available:
 import json
 import logging
 from typing import Optional, Type
-from datetime import datetime, date
-from pandas import Timestamp
 from pydantic import BaseModel, Field
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
@@ -18,6 +16,8 @@ from langchain.callbacks.manager import (
 from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.outlier_detection import OutlierDetectionTS
+
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
 logger = logging.getLogger(__name__)
 
 class TSOutlierDetectionInput(BaseModel):
@@ -53,15 +53,6 @@ class TSOutlierDetectionInput(BaseModel):
     residual_usage: Optional[str] = Field(description="specifies which residual to output chosen from {'outlier_detection', 'outlier_correction'}, it is optional", default=None)
     voting_config: Optional[dict] = Field(description="the configuration for voting, it is optional", default=None)
     voting_outlier_method_criterion: Optional[float] = Field(description="the criterion for voting outlier method, it is optional", default=None)
-
-class _CustomEncoder(json.JSONEncoder):
-    """
-    This class is used to encode the object into JSON string.
-    """
-    def default(self, obj): #pylint: disable=arguments-renamed
-        if isinstance(obj, (Timestamp, datetime, date)):
-            return obj.isoformat()
-        return super().default(obj)
 
 class TSOutlierDetection(BaseTool):
     """

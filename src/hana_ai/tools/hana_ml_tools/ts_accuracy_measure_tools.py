@@ -20,6 +20,8 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.accuracy_measure import accuracy_measure
 
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+
 class AccuracyMeasureInput(BaseModel):
     """
     Input schema for the AccuracyMeasure tool.
@@ -133,7 +135,7 @@ class AccuracyMeasure(BaseTool):
         out_dict = {}
         for _, row in accm_res.collect().iterrows():
             out_dict[row['STAT_NAME']] = row['STAT_VALUE']
-        return json.dumps(out_dict)
+        return json.dumps(out_dict, cls=_CustomEncoder)
 
     async def _arun(
         self,

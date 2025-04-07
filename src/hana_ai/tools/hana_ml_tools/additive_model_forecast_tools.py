@@ -23,6 +23,8 @@ from hana_ml import ConnectionContext
 from hana_ml.model_storage import ModelStorage
 from hana_ml.algorithms.pal.tsa.additive_model_forecast import AdditiveModelForecast
 
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+
 logger = logging.getLogger(__name__)
 
 class ModelFitInput(BaseModel):
@@ -213,7 +215,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
                 version = int(version)
         amf.version = version
         ms.save_model(model=amf, if_exists='replace')
-        return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version})
+        return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version}, cls=_CustomEncoder)
 
     async def _arun(
         self,
@@ -374,7 +376,7 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
             )
             self.connection_context.table(model._predict_output_table_names[1]).save(predicted_results[1])
             return json.dumps({"predicted_results_table": predicted_results[0], "decomposed_and_reason_code_table": predicted_results[1]})
-        return json.dumps({"predicted_results_table": predicted_results[0]})
+        return json.dumps({"predicted_results_table": predicted_results[0]}, cls=_CustomEncoder)
 
     async def _arun(
         self,
