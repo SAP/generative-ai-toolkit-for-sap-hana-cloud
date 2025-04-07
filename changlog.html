@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>hana_ai.vectorstore &mdash; hana.ai 1.0.25040300 documentation</title>
+  <title>Changelog &mdash; hana.ai 1.0.25040300 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
@@ -23,8 +23,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="get_code_templates" href="vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html" />
-    <link rel="prev" title="HANAMLToolkit" href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html" /> 
+    <link rel="next" title="hana_ai.agents" href="hana_ai.agents.html" />
+    <link rel="prev" title="Generative AI Toolkit for SAP HANA Cloud" href="hana_ai.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -60,7 +60,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="changlog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.agents.html">hana_ai.agents</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#hana-dataframe-agent">hana_dataframe_agent</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html">create_hana_dataframe_agent</a><ul>
@@ -184,15 +184,15 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">hana_ai.vectorstore</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#code-templates">code_templates</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="hana_ai.vectorstore.html">hana_ai.vectorstore</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.vectorstore.html#code-templates">code_templates</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html">get_code_templates</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html#hana_ai.vectorstore.code_templates.get_code_templates"><code class="docutils literal notranslate"><span class="pre">get_code_templates()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#embedding-service">embedding_service</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.vectorstore.html#embedding-service">embedding_service</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="vectorstore/hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html">PALModelEmbeddings</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="vectorstore/hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html#hana_ai.vectorstore.embedding_service.PALModelEmbeddings"><code class="docutils literal notranslate"><span class="pre">PALModelEmbeddings</span></code></a></li>
 </ul>
@@ -203,14 +203,14 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#hana-vector-engine">hana_vector_engine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.vectorstore.html#hana-vector-engine">hana_vector_engine</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html">HANAMLinVectorEngine</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine"><code class="docutils literal notranslate"><span class="pre">HANAMLinVectorEngine</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#union-vector-stores">union_vector_stores</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.vectorstore.html#union-vector-stores">union_vector_stores</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="vectorstore/hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html">UnionVectorStores</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="vectorstore/hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html#hana_ai.vectorstore.union_vector_stores.UnionVectorStores"><code class="docutils literal notranslate"><span class="pre">UnionVectorStores</span></code></a></li>
 </ul>
@@ -244,65 +244,35 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">hana_ai.vectorstore</li>
+      <li class="breadcrumb-item active">Changelog</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/hana_ai.vectorstore.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/changlog.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html" class="btn btn-neutral float-left" title="HANAMLToolkit" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html" class="btn btn-neutral float-right" title="get_code_templates" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="hana_ai.html" class="btn btn-neutral float-left" title="Generative AI Toolkit for SAP HANA Cloud" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hana_ai.agents.html" class="btn btn-neutral float-right" title="hana_ai.agents" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="hana-ai-vectorstore">
-<h1>hana_ai.vectorstore<a class="headerlink" href="#hana-ai-vectorstore" title="Link to this heading"></a></h1>
-<p>HANA ML Vector Store is a service that provides a set of APIs to store and retrieve vectors. The service is built on top of the HANA Vector Engine using HANA Machine Learning knowledge base, which is a high-performance vector engine that can store and retrieve vectors in real-time.</p>
-<span class="target" id="module-hana_ai.vectorstore"></span><section id="code-templates">
-<span id="code-templates-label"></span><h2>code_templates<a class="headerlink" href="#code-templates" title="Link to this heading"></a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html#hana_ai.vectorstore.code_templates.get_code_templates" title="hana_ai.vectorstore.code_templates.get_code_templates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">code_templates.get_code_templates</span></code></a>([option, ...])</p></td>
-<td><p>Get code templates.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="embedding-service">
-<span id="embedding-service-label"></span><h2>embedding_service<a class="headerlink" href="#embedding-service" title="Link to this heading"></a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="vectorstore/hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html#hana_ai.vectorstore.embedding_service.PALModelEmbeddings" title="hana_ai.vectorstore.embedding_service.PALModelEmbeddings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">embedding_service.PALModelEmbeddings</span></code></a>(...[, ...])</p></td>
-<td><p>PAL embedding model.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="vectorstore/hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.html#hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings" title="hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">embedding_service.HANAVectorEmbeddings</span></code></a>(...)</p></td>
-<td><p>PAL embedding model.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="hana-vector-engine">
-<span id="hana-vector-engine-label"></span><h2>hana_vector_engine<a class="headerlink" href="#hana-vector-engine" title="Link to this heading"></a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine" title="hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hana_vector_engine.HANAMLinVectorEngine</span></code></a>(...)</p></td>
-<td><p>HANA vector engine.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="union-vector-stores">
-<span id="union-vector-stores-label"></span><h2>union_vector_stores<a class="headerlink" href="#union-vector-stores" title="Link to this heading"></a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="vectorstore/hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html#hana_ai.vectorstore.union_vector_stores.UnionVectorStores" title="hana_ai.vectorstore.union_vector_stores.UnionVectorStores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">union_vector_stores.UnionVectorStores</span></code></a>(...)</p></td>
-<td><p>Aggregate different vector stores.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<p><strong>Version 1.0.250403</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Functions</span></code></dt><dd><ul class="simple">
+<li><p>Added <cite>list_models</cite> tool to list all trained models in the model storage.</p></li>
+<li><p>Added <cite>accuracy_measure</cite> tool to measure the accuracy of a model on a test dataset for time series forecasting.</p></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">Enhancements</span></code></dt><dd><ul class="simple">
+<li><p>Improved the <cite>intermittent_forecast</cite> tool to use CrostonTSB instead.</p></li>
+<li><p>Added parameter <cite>return_direct</cite> to all tools and toolkit.</p></li>
+<li><p>Improved the <cite>fetch_data</cite> tool to return a pandas DataFrame instead of a list of dictionaries. By default, the tool parameter <cite>return_direct</cite> is set to <cite>True</cite>, which means the tool will return a pandas DataFrame.</p></li>
+</ul>
+</dd>
+</dl>
 </section>
 
 

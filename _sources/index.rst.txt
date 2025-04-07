@@ -11,6 +11,7 @@ Welcome to hana.ai's documentation!
    :caption: Contents:
 
    hana_ai
+   changlog
    hana_ai.agents
    hana_ai.tools
    hana_ai.vectorstore
