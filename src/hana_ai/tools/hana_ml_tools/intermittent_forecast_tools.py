@@ -19,6 +19,7 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.exponential_smoothing import CrostonTSB
 
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
 from hana_ai.utility import remove_prefix_sharp
 
 logger = logging.getLogger(__name__)
@@ -137,7 +138,7 @@ class IntermittentForecast(BaseTool):
             outputs[row[croston_tsb.stats_.columns[0]]] = row[croston_tsb.stats_.columns[1]]
         for _, row in croston_tsb.metrics_.collect().iterrows():
             outputs[row[croston_tsb.metrics_.columns[0]]] = row[croston_tsb.metrics_.columns[1]]
-        return json.dumps(outputs)
+        return json.dumps(outputs, cls=_CustomEncoder)
 
     async def _run_async(
         self, table_name: str, key: str, endog: str, alpha: float = 0.1,

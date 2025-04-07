@@ -22,6 +22,8 @@ from hana_ml import ConnectionContext
 from hana_ml.model_storage import ModelStorage
 from hana_ml.algorithms.pal.auto_ml import AutomaticTimeSeries
 
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+
 logger = logging.getLogger(__name__)
 
 class ModelFitInput(BaseModel):
@@ -300,7 +302,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
                 version = int(version)
         auto_ts.version = version
         ms.save_model(model=auto_ts, if_exists='replace')
-        return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version})
+        return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version}, cls=_CustomEncoder)
 
     async def _arun(
         self,
@@ -470,7 +472,7 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
         outputs = {"predicted_results_table": predicted_results}
         for _, row in stats.iterrows():
             outputs[row[stats.columns[0]]] = row[stats.columns[1]]
-        return json.dumps(outputs)
+        return json.dumps(outputs, cls=_CustomEncoder)
 
     async def _arun(
         self,
@@ -582,7 +584,7 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
         outputs = {"scored_results_table": scored_results}
         for _, row in stats.iterrows():
             outputs[row[stats.columns[0]]] = row[stats.columns[1]]
-        return json.dumps(outputs)
+        return json.dumps(outputs, cls=_CustomEncoder)
 
     async def _arun(
         self,

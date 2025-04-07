@@ -27,6 +27,8 @@ from hana_ml.algorithms.pal.tsa.trend_test import trend_test
 from hana_ml.algorithms.pal.tsa.seasonal_decompose import seasonal_decompose
 from hana_ml.algorithms.pal.tsa.white_noise_test import white_noise_test
 
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+
 logger = logging.getLogger(__name__)
 
 def ts_char(df, key, endog):
@@ -289,7 +291,7 @@ class StationarityTest(BaseTool):
         analysis_result = {}
         for _, row in result.iterrows():
             analysis_result[row['STATS_NAME']] = row['STATS_VALUE']
-        return json.dumps(analysis_result)
+        return json.dumps(analysis_result, cls=_CustomEncoder)
 
     async def _arun(
         self,
@@ -384,7 +386,7 @@ class TrendTest(BaseTool):
                     analysis_result['Trend'] = "Downward trend."
                 else:
                     analysis_result['Trend'] = "No trend."
-        return json.dumps(analysis_result)
+        return json.dumps(analysis_result, cls=_CustomEncoder)
 
     async def _arun(
         self,
@@ -503,7 +505,7 @@ class SeasonalityTest(BaseTool):
         analysis_result = {}
         for _, row in result.iterrows():
             analysis_result[row['STAT_NAME']] = row['STAT_VALUE']
-        return json.dumps(analysis_result)
+        return json.dumps(analysis_result, cls=_CustomEncoder)
 
     async def _arun(
         self,
@@ -602,7 +604,7 @@ class WhiteNoiseTest(BaseTool):
         analysis_result = {}
         for _, row in result.iterrows():
             analysis_result[row['STAT_NAME']] = row['STAT_VALUE']
-        return json.dumps(analysis_result)
+        return json.dumps(analysis_result, cls=_CustomEncoder)
 
     async def _arun(
         self,
