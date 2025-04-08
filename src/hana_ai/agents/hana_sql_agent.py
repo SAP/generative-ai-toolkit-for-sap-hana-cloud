@@ -17,6 +17,7 @@ from typing import (
     Sequence,
     Union,
 )
+from sqlalchemy import MetaData
 
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
@@ -135,7 +136,15 @@ def create_hana_sql_agent(
     >>> agent_executor.invoke("show me the min and max value of sepalwidthcm in the table iris_data_full_tbl?")
     """
     engine = connection_context.to_sqlalchemy()
-    db = SQLDatabase(engine)
+    metadata = MetaData()
+
+    # Reflect tables WITH engine and case sensitivity
+    metadata.reflect(
+        bind=engine,
+        views=True,
+        case_sensitive=True
+    )
+    db = SQLDatabase(engine, metadata=metadata)
     toolkit = _sql_toolkit(llm=llm, db=db, tools=tools)
     return create_sql_agent(llm=llm,
                             toolkit=toolkit,
