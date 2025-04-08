@@ -9,7 +9,7 @@ The following class is available:
 
 # build custom tool for accuracy measure from PAL function
 import json
-from typing import Type, List
+from typing import Type, List, Union
 from pydantic import BaseModel, Field
 
 from langchain.callbacks.manager import (
@@ -32,7 +32,7 @@ class AccuracyMeasureInput(BaseModel):
     actual_key: str = Field(description="should be the key column name of the actual result")
     predict_target: str = Field(description="should be the target column name of the prediction result")
     actual_target: str = Field(description="should be the target column name of the actual result")
-    evaluation_metric : str | List[str] = Field(description="Specifies the accuracy measures to compute, it could be one or a list of the" +\
+    evaluation_metric : Union[str,  List[str]] = Field(description="Specifies the accuracy measures to compute, it could be one or a list of the" +\
     " following options : 'mpe', 'mse', 'rmse', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape' and 'spec'." + \
     " If not provided, ask the user, do not guess")
     ignore_zero : bool = Field(description="Specifies whether or not to ignore zero values when calculating accuracy measure 'mpe' or 'mape', it is optional", default=None)#pylint:disable=line-too-long
@@ -112,7 +112,7 @@ class AccuracyMeasure(BaseTool):
         actual_key : str,
         predict_target : str,
         actual_target : str,
-        evaluation_metric : str | List[str],
+        evaluation_metric : Union[str, List[str]],
         ignore_zero : bool=None,
         alpha1 : float=None,
         alpha2 : float=None,
@@ -120,14 +120,17 @@ class AccuracyMeasure(BaseTool):
         )-> str:
         m_actual_target = actual_target + "_actual"
         m_predict_target = predict_target + "_predict"
+        m_actual_key = actual_key + "_actual"
+        m_predict_key = predict_key + "_predict"
+        m_actual_key_int = m_actual_key + "_int"
         prepared_input = self.connection_context.table(predict_table)\
-            .rename_columns({predict_target: m_predict_target})\
-                .set_index(predict_key)\
-                    .join(self.connection_context.table(actual_table)\
-                          .rename_columns({actual_target: m_actual_target})\
-                            .set_index(actual_key))[[m_actual_target, m_predict_target]]\
-                                .cast({m_actual_target: 'DOUBLE', m_predict_target: 'DOUBLE'})
-        accm_res = accuracy_measure(data=prepared_input.add_id(),
+            .rename_columns({predict_target: m_predict_target, predict_key: m_predict_key})\
+                .join(self.connection_context.table(actual_table)\
+                    .rename_columns({actual_target: m_actual_target, actual_key: m_actual_key}),\
+                         f'"{m_actual_key}"="{m_predict_key}"')[[m_actual_key, m_actual_target, m_predict_target]]\
+                             .cast({m_actual_target: 'DOUBLE', m_predict_target: 'DOUBLE'})\
+                                 .add_id(m_actual_key_int, ref_col=m_actual_key)
+        accm_res = accuracy_measure(data=prepared_input[[m_actual_key_int, m_actual_target, m_predict_target]],
                                     evaluation_metric=evaluation_metric,
                                     ignore_zero=ignore_zero,
                                     alpha1=alpha1,
@@ -145,7 +148,7 @@ class AccuracyMeasure(BaseTool):
         actual_key : str,
         predict_target : str,
         actual_target : str,
-        evaluation_metric : str | List[str],
+        evaluation_metric : Union[str, List[str]],
         ignore_zero : bool=None,
         alpha1 : float=None,
         alpha2 : float=None,
