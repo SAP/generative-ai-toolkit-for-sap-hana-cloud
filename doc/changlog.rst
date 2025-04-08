@@ -1,6 +1,14 @@
 Changelog
 =========
 
+**Version 1.0.250414**
+
+``Enhancements``
+    - Enhanced the HANA SQL agent to support case-sensitive SQL queries.
+
+``Bug Fixes``
+    - Fixed the accuracy_measure tool issue when evaluation_metric="spec".
+
 **Version 1.0.250407**
 
 ``Enhancements``
