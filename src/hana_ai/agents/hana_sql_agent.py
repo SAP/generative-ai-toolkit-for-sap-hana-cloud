@@ -164,3 +164,29 @@ def create_hana_sql_agent(
                             db=None,
                             prompt=prompt,
                             **kwargs)
+
+def create_hana_sql_toolkit(
+    llm: any,
+    connection_context: ConnectionContext
+):
+    """
+    Create a HANA SQL toolkit.
+
+    Parameters
+    ----------
+    llm: any
+        The language model to use.
+    connection_context: ConnectionContext
+        The connection context to use.
+    """
+    engine = connection_context.to_sqlalchemy()
+    metadata = MetaData()
+
+    # Reflect tables WITH engine and case sensitivity
+    metadata.reflect(
+        bind=engine,
+        views=True,
+        case_sensitive=True
+    )
+    db = SQLDatabase(engine, metadata=metadata)
+    return _sql_toolkit(llm=llm, db=db)
