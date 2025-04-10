@@ -6,17 +6,20 @@ The following class is available:
         * :class `HANAMLAgentWithMemory`
 
 """
+
+#pylint: disable=ungrouped-imports, abstract-method
 import json
 import logging
 import pandas as pd
 from langchain.agents import initialize_agent, AgentType
-from langchain_core.chat_history import InMemoryChatMessageHistory
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.runnables import Runnable
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.callbacks.base import BaseCallbackHandler
-from langchain.schema.messages import AIMessage
+from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.messages.base import BaseMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain.schema.messages import AIMessage
+
 
 logging.getLogger().setLevel(logging.ERROR)
 
@@ -30,14 +33,14 @@ class _ToolObservationCallbackHandler(BaseCallbackHandler):
         memory = self.memory_getter()
         # Get all current observations in chronological order
         current_obs = [msg for msg in memory.messages if self._is_observation(msg)]
-        
+
         # Calculate how many to remove if over limit (before adding new)
         excess = len(current_obs) - (self.max_observations - 1)
         if excess > 0:
             # Remove oldest 'excess' observations from memory
             to_remove = current_obs[:excess]
             memory.messages = [msg for msg in memory.messages if msg not in to_remove]
-        
+
         # Add new observation
         memory.add_message(AIMessage(content=f"Observation: {output}"))
 
@@ -107,7 +110,7 @@ class HANAMLAgentWithMemory(object):
             ("human", "{question}"),
         ])
         # Create callback handler linked to memory
-        self.observation_callback = _ToolObservationCallbackHandler(lambda: self.memory, max_observations=max_observations) 
+        self.observation_callback = _ToolObservationCallbackHandler(lambda: self.memory, max_observations=max_observations)
         chain: Runnable = prompt | initialize_agent(tools,
                                                     llm,
                                                     agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,verbose=verbose,

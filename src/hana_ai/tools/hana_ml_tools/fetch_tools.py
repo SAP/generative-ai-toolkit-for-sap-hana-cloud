@@ -6,7 +6,6 @@ The following classes are available:
     * :class `FetchDataTool`
 """
 
-import json
 import logging
 from typing import Optional, Type
 from pydantic import BaseModel, Field
@@ -18,8 +17,6 @@ from langchain.callbacks.manager import (
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
-
-from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -93,8 +90,6 @@ class FetchDataTool(BaseTool):
             results = self.connection_context.table(table_name).tail(last_n).collect()
         else:
             results = self.connection_context.table(table_name).collect()
-        # serialize the results
-        
         return results
 
     async def _arun(
