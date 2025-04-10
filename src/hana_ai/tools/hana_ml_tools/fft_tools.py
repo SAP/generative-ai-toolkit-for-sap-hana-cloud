@@ -28,10 +28,10 @@ class FFTInput(BaseModel):
     " involved for computing FFT. It can be a tuple of two columns, with the 1st column being the real part "+\
     "and the 2nd column being the imaginary part. It can also be a single column indicating the input sequence is pure real or imaginary. "+\
     "If not provided, ask the user. Do not guess")
-    num_type : str = Field(escription="Specifies the number type of the sequence data, i.e. 'real' for pure real data" +\
-    " and 'imag' for pure imaginary data if `data_cols` is a single column.", default=None)
-    inverse : bool = Field(description="Specifies whether inverse FFT is applied or not. Regular forward FFT is applied if it is set as False," +\
-    " otherwise inverse FFT is applied.", default=None)
+    num_type : str = Field(escription="Specifies the number type of the sequence data, where 'real' is for pure real data" +\
+    " and 'imag' is for pure imaginary data if `data_cols` is a single column.", default=None)
+    inverse : bool = Field(description="Specifies whether inverse FFT is applied or not. Inverse FFT is applied if it is set as True," +\
+    " otherwise regular forward FFT is applied.", default=None)
     window : str = Field(description="Specifies the window type for windowed fft, valid options including " +\
     "'none', 'hamming', 'hann', 'hanning', 'bartlett', 'triangular', 'bartlett_hann', 'blackman','blackman_harris', 'blackman_nuttall', " +\
     "'bohman', 'cauchy', 'cheb', 'chebwin', 'cosine', 'sine', 'flattop', 'gaussian', 'kaiser', 'lanczos', 'sinc', 'nuttall', 'parzen', " +\
@@ -78,8 +78,8 @@ class FFT(BaseTool):
                     It can be a tuple of two columns, with the 1st column being the real part and the 2nd column being the
                     imaginary part. It can also be a single column indicating the input sequence is pure real or imaginary.
                 * - num_type
-                  - Specifies the number type of the sequence data, i.e. 'real' for pure real data
-                    and 'imag' for pure imaginary data if `data_cols` is a single column.
+                  - Specifies the number type of the sequence data, where 'real' is for pure real data
+                    and 'imag' is for pure imaginary data if `data_cols` is a single column.
                 * - inverse
                   - If set as True, inverse FFT is applied, otherwise regular forward FFT is applied.
                 * - window
@@ -101,7 +101,7 @@ class FFT(BaseTool):
                 * - r
                   - A parameter for the 'tukey' window type.
     """
-    name: str = "Applying fast-Fourier transform (FFT) or inverse FFT to time-series data."
+    name: str = "fast_fourier_transform_for_timeseries"
     """Name of the tool."""
     description: str = "To compute the fast-Fourier transform (FFT) or inverse FFT of a single input time-series."
     """Description of the tool."""
@@ -137,16 +137,23 @@ class FFT(BaseTool):
         run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
         )-> str:
         cols = [data_cols] if isinstance(data_cols, str) else list(data_cols)
-        input_data = self.connection_context.table(table_name)[[key] + cols]
-        if "INT" not in input_data[[key]].dtypes()[0][1]:
-            input_data = input_data.add_id(f"{key}" + "_int", ref_col=key).deselect(key)
-        fft_res = fft(data=input_data,
-                      num_type=num_type, inverse=inverse, window=window,
-                      window_start=window_start, window_length=window_length,
-                      alpha=alpha, beta=beta, attenuation=attenuation,
-                      flattop_mode=flattop_mode,
-                      flattop_precision=flattop_precision,
-                      r=r)
+        try:
+            input_data = self.connection_context.table(table_name)[[key] + cols]
+            if "INT" not in input_data.dtypes()[0][1]:#inclusive of column name check
+                input_data = input_data.add_id(f"{key}" + "_int", ref_col=key).deselect(key)
+            fft_res = fft(data=input_data,
+                          num_type=num_type, inverse=inverse, window=window,
+                          window_start=window_start, window_length=window_length,
+                          alpha=alpha, beta=beta, attenuation=attenuation,
+                          flattop_mode=flattop_mode,
+                          flattop_precision=flattop_precision,
+                          r=r)
+        except ValueError as verr:
+            return 'ValueError occurred: ' + str(verr)
+        except TypeError as terr:
+            return 'TypeError occurred: ' + str(terr)
+        except KeyError as kerr:
+            return 'KeyError occurred: ' + str(kerr)
         fft_res_tab = remove_prefix_sharp(f"{table_name}_FFT_RESULT")
         fft_res.save(fft_res_tab, force=True)
         return json.dumps({"fft_result_table" : fft_res_tab})
