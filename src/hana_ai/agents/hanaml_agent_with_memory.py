@@ -33,8 +33,7 @@ def _get_pandas_meta(df):
     """
     if hasattr(df, 'columns'):
         columns = df.columns.tolist()
-        dtypes = df.dtypes.astype(str).tolist()
-        return json.dumps({"columns": columns, "dtypes": dtypes})
+        return json.dumps({"columns": columns})
     return ''
 class HANAMLAgentWithMemory(object):
     """
@@ -111,9 +110,14 @@ class HANAMLAgentWithMemory(object):
             response = error_message
         if isinstance(response, pd.DataFrame):
             meta = _get_pandas_meta(response)
+            self.memory.add_user_message(question)
             self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata:\n{meta}")
         if isinstance(response, dict) and 'output' in response:
             response = response['output']
+            if isinstance(response, pd.DataFrame):
+                meta = _get_pandas_meta(response)
+                self.memory.add_user_message(question)
+                self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata: \n{meta}")
         if isinstance(response, str):
             if response.startswith("Action:"): # force to call tool if return a Action string
                 action_json = response[7:]
@@ -133,9 +137,9 @@ class HANAMLAgentWithMemory(object):
                         response = tool.run(action_input)
                         if isinstance(response, pd.DataFrame):
                             meta = _get_pandas_meta(response)
-                            self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata:\n{meta}")
+                            self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata: \n{meta}")
                         else:
-                            self.memory.add_ai_message(f"The question is `{question}`. The tool {tool.name} has been already called via {action_input}. The result is `{response}`.")
+                            self.memory.add_ai_message(f"The tool {tool.name} has been already called via {action_input}. The result is `{response}`.")
                         return response
                     except Exception as e:
                         error_message = str(e)
