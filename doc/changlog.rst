@@ -1,6 +1,12 @@
 Changelog
 =========
 
+**Version 1.0.250411**
+
+``Enhancements``
+    - Save observations to chat history in HANA ML agent. Added max_observations parameter to control the number of observations saved in the chat history.
+    - Adjust the default value of fetch_data tool to return pandas indirectly to avoid chain stopping due to the tool call of fetch_data in the intermediate step.
+
 **Version 1.0.250410**
 
 ``Enhancements``
