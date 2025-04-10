@@ -108,6 +108,7 @@ class HANAMLAgentWithMemory(object):
             error_message = str(e)
             self.memory.add_user_message(question)
             self.memory.add_ai_message(f"The error message is `{error_message}`.")
+            response = error_message
         if isinstance(response, pd.DataFrame):
             meta = _get_pandas_meta(response)
             self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata:\n{meta}")
