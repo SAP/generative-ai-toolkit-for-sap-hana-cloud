@@ -6,6 +6,7 @@ Changelog
 ``Enhancements``
     - Enhanced the HANA SQL agent to support case-sensitive SQL queries.
     - Added create_hana_sql_toolkit function to create a toolkit for HANA SQL.
+    - Optimized the chat history management in HANA ML agent.
 
 ``Bug Fixes``
     - Fixed the accuracy_measure tool issue when evaluation_metric="spec".
