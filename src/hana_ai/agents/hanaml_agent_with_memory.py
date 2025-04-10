@@ -8,6 +8,7 @@ The following class is available:
 """
 import json
 import logging
+import pandas as pd
 from langchain.agents import initialize_agent, AgentType
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -15,6 +16,26 @@ from langchain_core.runnables import Runnable
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 logging.getLogger().setLevel(logging.ERROR)
+
+def _get_pandas_meta(df):
+    """
+    Get the metadata of a pandas dataframe.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe to get the metadata from.
+
+    Returns
+    -------
+    dict
+        The metadata of the dataframe.
+    """
+    if hasattr(df, 'columns'):
+        columns = df.columns.tolist()
+        dtypes = df.dtypes.astype(str).tolist()
+        return json.dumps({"columns": columns, "dtypes": dtypes})
+    return ''
 class HANAMLAgentWithMemory(object):
     """
     A chatbot that can remember the chat history and use it to generate responses.
@@ -46,7 +67,7 @@ class HANAMLAgentWithMemory(object):
     def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, verbose=False, **kwargs):
         self.llm = llm
         self.tools = tools
-        memory = InMemoryChatMessageHistory(session_id=session_id)
+        self.memory = InMemoryChatMessageHistory(session_id=session_id)
         system_prompt = """You're an assistant skilled in data science using hana-ml tools.
         Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools.
         Ask for missing parameters if needed. NEVER return raw JSON strings outside this structure."""
@@ -59,10 +80,18 @@ class HANAMLAgentWithMemory(object):
         chain: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, **kwargs)
 
         self.agent_with_chat_history = RunnableWithMessageHistory(chain,
-                                                                  lambda session_id: memory,
+                                                                  lambda session_id: self.memory,
                                                                   input_messages_key="question",
                                                                   history_messages_key="history")
         self.config = {"configurable": {"session_id": session_id}}
+
+    def add_user_message(self, content: str):
+        """Add a message from the user to the chat history."""
+        self.memory.add_user_message(content)
+
+    def add_ai_message(self, content: str):
+        """Add a response from the AI to the chat history."""
+        self.memory.add_ai_message(content)
 
     def run(self, question):
         """
@@ -77,7 +106,11 @@ class HANAMLAgentWithMemory(object):
             response = self.agent_with_chat_history.invoke({"question": question}, self.config)
         except Exception as e:
             error_message = str(e)
-            response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
+            self.memory.add_user_message(question)
+            self.memory.add_ai_message(f"The error message is `{error_message}`.")
+        if isinstance(response, pd.DataFrame):
+            meta = _get_pandas_meta(response)
+            self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata:\n{meta}")
         if isinstance(response, dict) and 'output' in response:
             response = response['output']
         if isinstance(response, str):
@@ -87,7 +120,7 @@ class HANAMLAgentWithMemory(object):
                     response = json.loads(action_json)
                 except Exception as e:
                     error_message = str(e)
-                    response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
+                    self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
             if isinstance(response, str) and response.strip() == "":
                 response = "I'm sorry, I don't understand. Please ask me again."
         if isinstance(response, dict) and 'action' in response and 'action_input' in response:
@@ -97,11 +130,15 @@ class HANAMLAgentWithMemory(object):
                     action_input = response.get("action_input")
                     try:
                         response = tool.run(action_input)
-                        self.agent_with_chat_history.invoke({"question": f"The question is `{question}`. Inform the user that the tool {tool.name} has been already called via {action_input}."}, self.config)
+                        if isinstance(response, pd.DataFrame):
+                            meta = _get_pandas_meta(response)
+                            self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata:\n{meta}")
+                        else:
+                            self.memory.add_ai_message(f"The question is `{question}`. The tool {tool.name} has been already called via {action_input}. The result is `{response}`.")
                         return response
                     except Exception as e:
                         error_message = str(e)
-                        response = self.agent_with_chat_history.invoke({"question": f"The question is `{question}`.The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."}, self.config)
+                        self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
         return response
 
 def stateless_call(llm, tools, question, chat_history=None, verbose=False):
