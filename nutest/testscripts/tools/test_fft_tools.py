@@ -33,7 +33,7 @@ class TestFFTTools(TestML_BaseTestClass):
         tool = FFT(connection_context=self.conn)
         #verify that fft followed by fft-inverse results in identity transform
         tool_input = dict(table_name="#FFT_SIM_DATA_TBL",
-                          key="ID", data_cols=('REAL_VAL', 'IMAG_VAL'))
+                          key="ID", data_cols=['REAL_VAL', 'IMAG_VAL'])
         result = json.loads(tool.run(tool_input=tool_input))
         self.assertTrue(result['fft_result_table'] == "FFT_SIM_DATA_TBL_FFT_RESULT")
         result_df0 = self.conn.table("FFT_SIM_DATA_TBL_FFT_RESULT").sort("ID").collect()
