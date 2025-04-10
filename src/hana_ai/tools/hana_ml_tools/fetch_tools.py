@@ -70,12 +70,12 @@ class FetchDataTool(BaseTool):
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = FetchDataInput
     """Input schema of the tool."""
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
         connection_context: ConnectionContext,
-        return_direct: bool = True
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
             connection_context=connection_context,
@@ -94,9 +94,8 @@ class FetchDataTool(BaseTool):
         else:
             results = self.connection_context.table(table_name).collect()
         # serialize the results
-        if self.return_direct is True:
-            return results
-        return json.dumps({"fetched_data": results.to_json()}, cls=_CustomEncoder)
+        
+        return results
 
     async def _arun(
         self, table_name: str, top_n: Optional[int] = None, last_n: Optional[int] = None,
