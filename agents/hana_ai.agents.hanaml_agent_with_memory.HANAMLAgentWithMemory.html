@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HANAMLAgentWithMemory &mdash; hana.ai 1.0.25041001 documentation</title>
+  <title>HANAMLAgentWithMemory &mdash; hana.ai 1.0.25041100 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -17,7 +17,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=decd4b78"></script>
+        <script src="../_static/documentation_options.js?v=0b608538"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -39,7 +39,7 @@
             hana.ai
           </a>
               <div class="version">
-                1.0.25041001
+                1.0.25041100
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -262,7 +262,7 @@
 <h1>HANAMLAgentWithMemory<a class="headerlink" href="#hanamlagentwithmemory" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.agents.hanaml_agent_with_memory.</span></span><span class="sig-name descname"><span class="pre">HANAMLAgentWithMemory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">llm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hanaai_chat_session'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.agents.hanaml_agent_with_memory.</span></span><span class="sig-name descname"><span class="pre">HANAMLAgentWithMemory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">llm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hanaai_chat_session'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_observations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory" title="Link to this definition"></a></dt>
 <dd><p>A chatbot that can remember the chat history and use it to generate responses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -274,6 +274,8 @@
 <dt><strong>session_id</strong><span class="classifier">str, optional</span></dt><dd><p>The session ID to use. Default to &quot;hana_ai_chat_session&quot;.</p>
 </dd>
 <dt><strong>n_messages</strong><span class="classifier">int, optional</span></dt><dd><p>The number of messages to remember. Default to 10.</p>
+</dd>
+<dt><strong>max_observations</strong><span class="classifier">int, optional</span></dt><dd><p>The maximum number of observations to remember. Default to 5.</p>
 </dd>
 <dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to be verbose. Default to False.</p>
 </dd>
