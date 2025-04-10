@@ -6,7 +6,6 @@ The following classes are available:
     * :class `FetchDataTool`
 """
 
-import json
 import logging
 from typing import Optional, Type
 from pydantic import BaseModel, Field
@@ -18,8 +17,6 @@ from langchain.callbacks.manager import (
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
-
-from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -70,12 +67,12 @@ class FetchDataTool(BaseTool):
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = FetchDataInput
     """Input schema of the tool."""
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
         connection_context: ConnectionContext,
-        return_direct: bool = True
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
             connection_context=connection_context,
@@ -93,10 +90,7 @@ class FetchDataTool(BaseTool):
             results = self.connection_context.table(table_name).tail(last_n).collect()
         else:
             results = self.connection_context.table(table_name).collect()
-        # serialize the results
-        if self.return_direct is True:
-            return results
-        return json.dumps({"fetched_data": results.to_json()}, cls=_CustomEncoder)
+        return results
 
     async def _arun(
         self, table_name: str, top_n: Optional[int] = None, last_n: Optional[int] = None,

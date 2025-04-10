@@ -6,16 +6,47 @@ The following class is available:
         * :class `HANAMLAgentWithMemory`
 
 """
+
+#pylint: disable=ungrouped-imports, abstract-method
 import json
 import logging
 import pandas as pd
 from langchain.agents import initialize_agent, AgentType
+from langchain.callbacks.base import BaseCallbackHandler
 from langchain_core.chat_history import InMemoryChatMessageHistory
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.runnables import Runnable
+from langchain_core.messages.base import BaseMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain.schema.messages import AIMessage
+
 
 logging.getLogger().setLevel(logging.ERROR)
+
+class _ToolObservationCallbackHandler(BaseCallbackHandler):
+    def __init__(self, memory_getter, max_observations=5):
+        super().__init__()
+        self.memory_getter = memory_getter
+        self.max_observations = max_observations  # Set your desired limit here
+
+    def on_tool_end(self, output: str, **kwargs):
+        memory = self.memory_getter()
+        # Get all current observations in chronological order
+        current_obs = [msg for msg in memory.messages if self._is_observation(msg)]
+
+        # Calculate how many to remove if over limit (before adding new)
+        excess = len(current_obs) - (self.max_observations - 1)
+        if excess > 0:
+            # Remove oldest 'excess' observations from memory
+            to_remove = current_obs[:excess]
+            memory.messages = [msg for msg in memory.messages if msg not in to_remove]
+
+        # Add new observation
+        memory.add_message(AIMessage(content=f"Observation: {output}"))
+
+    def _is_observation(self, msg: BaseMessage) -> bool:
+        """Identifies observation messages"""
+        return isinstance(msg, AIMessage) and msg.content.startswith("Observation: ")
 
 def _get_pandas_meta(df):
     """
@@ -49,6 +80,8 @@ class HANAMLAgentWithMemory(object):
         The session ID to use. Default to "hana_ai_chat_session".
     n_messages : int, optional
         The number of messages to remember. Default to 10.
+    max_observations : int, optional
+        The maximum number of observations to remember. Default to 5.
     verbose : bool, optional
         Whether to be verbose. Default to False.
 
@@ -63,7 +96,7 @@ class HANAMLAgentWithMemory(object):
     >>> chatbot = HANAMLAgentWithMemory(llm=llm, tools=tools, session_id='hana_ai_test', n_messages=10)
     >>> chatbot.run(question="Analyze the data from the table MYTEST.")
     """
-    def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, verbose=False, **kwargs):
+    def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, max_observations=5, verbose=False, **kwargs):
         self.llm = llm
         self.tools = tools
         self.memory = InMemoryChatMessageHistory(session_id=session_id)
@@ -76,7 +109,13 @@ class HANAMLAgentWithMemory(object):
             MessagesPlaceholder(variable_name="history", n_messages=n_messages),
             ("human", "{question}"),
         ])
-        chain: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, **kwargs)
+        # Create callback handler linked to memory
+        self.observation_callback = _ToolObservationCallbackHandler(lambda: self.memory, max_observations=max_observations)
+        chain: Runnable = prompt | initialize_agent(tools,
+                                                    llm,
+                                                    agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,verbose=verbose,
+                                                    callbacks=[self.observation_callback],
+                                                    **kwargs)
 
         self.agent_with_chat_history = RunnableWithMessageHistory(chain,
                                                                   lambda session_id: self.memory,
@@ -102,7 +141,10 @@ class HANAMLAgentWithMemory(object):
             The question to ask.
         """
         try:
-            response = self.agent_with_chat_history.invoke({"question": question}, self.config)
+            response = self.agent_with_chat_history.invoke({"question": question},
+                                                           config={**self.config,  # Preserve session_id
+                                                                   "callbacks": [self.observation_callback]
+                                                                   })
         except Exception as e:
             error_message = str(e)
             self.memory.add_user_message(question)

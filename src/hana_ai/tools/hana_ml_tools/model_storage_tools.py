@@ -65,12 +65,12 @@ class ListModels(BaseTool):
     description: str = "List all models in the model storage."
     args_schema: Type[ListModelsInput] = ListModelsInput
     connection_context: ConnectionContext
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
         connection_context: ConnectionContext,
-        return_direct: bool = True
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
             connection_context=connection_context,

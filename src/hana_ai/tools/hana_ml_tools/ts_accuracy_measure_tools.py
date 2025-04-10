@@ -26,12 +26,12 @@ class AccuracyMeasureInput(BaseModel):
     """
     Input schema for the AccuracyMeasure tool.
     """
-    predict_table: str = Field(description="should be the table name of the prediction result")
-    actual_table: str = Field(description="should be the table name of the actual result")
-    predict_key: str = Field(description="should be the key column name of the prediction result")
-    actual_key: str = Field(description="should be the key column name of the actual result")
-    predict_target: str = Field(description="should be the target column name of the prediction result")
-    actual_target: str = Field(description="should be the target column name of the actual result")
+    predict_table: str = Field(description="should be the table name of the prediction result. If not provided, ask the user, do not guess")
+    actual_table: str = Field(description="should be the table name of the actual result. If not provided, ask the user, do not guess")
+    predict_key: str = Field(description="should be the key column name of the prediction result. If not provided, ask the user, do not guess")
+    actual_key: str = Field(description="should be the key column name of the actual result. If not provided, ask the user, do not guess")
+    predict_target: str = Field(description="should be the target column name of the prediction result. If not provided, ask the user, do not guess")
+    actual_target: str = Field(description="should be the target column name of the actual result. If not provided, ask the user, do not guess")
     evaluation_metric : Union[str,  List[str]] = Field(description="Specifies the accuracy measures to compute, it could be one or a list of the" +\
     " following options : 'mpe', 'mse', 'rmse', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape' and 'spec'." + \
     " If not provided, ask the user, do not guess")
