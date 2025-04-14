@@ -182,30 +182,43 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         """Use the tool."""
         ms = ModelStorage(connection_context=self.connection_context)
         ms._create_metadata_table()
-        amf = AdditiveModelForecast(
-            growth=growth,
-            logistic_growth_capacity=logistic_growth_capacity,
-            seasonality_mode=seasonality_mode,
-            seasonality=seasonality,
-            num_changepoints=num_changepoints,
-            changepoint_range=changepoint_range,
-            regressor=regressor,
-            changepoints=changepoints,
-            yearly_seasonality=yearly_seasonality,
-            weekly_seasonality=weekly_seasonality,
-            daily_seasonality=daily_seasonality,
-            seasonality_prior_scale=seasonality_prior_scale,
-            holiday_prior_scale=holiday_prior_scale,
-            changepoint_prior_scale=changepoint_prior_scale)
-        holiday_df = None
-        if holiday_table is not None:
-            holiday_df = self.connection_context.table(holiday_table)
-        amf.fit(data=self.connection_context.table(fit_table),
-                key=key,
-                endog=endog,
-                exog=exog,
-                holiday=holiday_df,
-                categorical_variable=categorical_variable)
+        try:
+            amf = AdditiveModelForecast(
+                growth=growth,
+                logistic_growth_capacity=logistic_growth_capacity,
+                seasonality_mode=seasonality_mode,
+                seasonality=seasonality,
+                num_changepoints=num_changepoints,
+                changepoint_range=changepoint_range,
+                regressor=regressor,
+                changepoints=changepoints,
+                yearly_seasonality=yearly_seasonality,
+                weekly_seasonality=weekly_seasonality,
+                daily_seasonality=daily_seasonality,
+                seasonality_prior_scale=seasonality_prior_scale,
+                holiday_prior_scale=holiday_prior_scale,
+                changepoint_prior_scale=changepoint_prior_scale)
+            holiday_df = None
+            if holiday_table is not None:
+                holiday_df = self.connection_context.table(holiday_table)
+            amf.fit(data=self.connection_context.table(fit_table),
+                  key=key,
+                  endog=endog,
+                  exog=exog,
+                  holiday=holiday_df,
+                  categorical_variable=categorical_variable)
+        except ValueError as ve:
+            # Handles invalid parameter values (e.g., alpha not in [0,1])
+            return f"ValueError occurred: {str(ve)}"
+
+        except KeyError as ke:
+            # Handles missing columns in the DataFrame
+            return f"KeyError occurred: {str(ke)}"
+
+        except TypeError as te:
+            # Handles type mismatches (e.g., non-numeric input where number expected)
+            return f"TypeError occurred: {str(te)}"
+
         amf.name = name
         if version is None:
             version = ms._get_new_version_no(name)
@@ -357,16 +370,29 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         if hasattr(model, 'version'):
             if model.version is not None:
                 version = model.version
-        model.predict(data=self.connection_context.table(predict_table),
-                      key=key,
-                      exog=exog,
-                      logistic_growth_capacity=logistic_growth_capacity,
-                      interval_width=interval_width,
-                      uncertainty_samples=uncertainty_samples,
-                      show_explainer=show_explainer,
-                      decompose_seasonality=decompose_seasonality,
-                      decompose_holiday=decompose_holiday,
-                      add_placeholder=add_placeholder)
+        try:
+            model.predict(data=self.connection_context.table(predict_table),
+                        key=key,
+                        exog=exog,
+                        logistic_growth_capacity=logistic_growth_capacity,
+                        interval_width=interval_width,
+                        uncertainty_samples=uncertainty_samples,
+                        show_explainer=show_explainer,
+                        decompose_seasonality=decompose_seasonality,
+                        decompose_holiday=decompose_holiday,
+                        add_placeholder=add_placeholder)
+        except ValueError as ve:
+            # Handles invalid parameter values (e.g., alpha not in [0,1])
+            return f"ValueError occurred: {str(ve)}"
+
+        except KeyError as ke:
+            # Handles missing columns in the DataFrame
+            return f"KeyError occurred: {str(ke)}"
+
+        except TypeError as te:
+            # Handles type mismatches (e.g., non-numeric input where number expected)
+            return f"TypeError occurred: {str(te)}"
+
         ms.save_model(model=model, if_exists='replace_meta')
         predicted_results = [f"{name}_{version}_PREDICTED_RESULT"]
         self.connection_context.table(model._predict_output_table_names[0]).save(predicted_results[0])
