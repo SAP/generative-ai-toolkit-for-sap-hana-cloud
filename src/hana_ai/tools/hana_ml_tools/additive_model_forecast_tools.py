@@ -208,16 +208,16 @@ class AdditiveModelForecastFitAndSave(BaseTool):
                   holiday=holiday_df,
                   categorical_variable=categorical_variable)
         except ValueError as ve:
-          # Handles invalid parameter values (e.g., alpha not in [0,1])
-          return f"ValueError occurred: {str(ve)}"
+            # Handles invalid parameter values (e.g., alpha not in [0,1])
+            return f"ValueError occurred: {str(ve)}"
 
         except KeyError as ke:
-          # Handles missing columns in the DataFrame
-          return f"KeyError occurred: {str(ke)}"
+            # Handles missing columns in the DataFrame
+            return f"KeyError occurred: {str(ke)}"
 
         except TypeError as te:
-          # Handles type mismatches (e.g., non-numeric input where number expected)
-          return f"TypeError occurred: {str(te)}"
+            # Handles type mismatches (e.g., non-numeric input where number expected)
+            return f"TypeError occurred: {str(te)}"
 
         amf.name = name
         if version is None:
