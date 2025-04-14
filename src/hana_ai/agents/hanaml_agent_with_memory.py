@@ -19,7 +19,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.schema.messages import AIMessage
-
+from langchain.load.dump import dumps
 
 logging.getLogger().setLevel(logging.ERROR)
 
@@ -188,7 +188,7 @@ class HANAMLAgentWithMemory(object):
                         self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
         return response
 
-def stateless_call(llm, tools, question, chat_history=None, verbose=False):
+def stateless_call(llm, tools, question, chat_history=None, verbose=False, return_intermediate_steps=False):
     """
     Utility function to call the agent with chat_history input. For stateless use cases.
     This function is useful for BAS integration purposes.
@@ -203,6 +203,10 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False):
         The question to ask.
     chat_history : list of str
         The chat history. Default to None.
+    verbose : bool, optional
+        Verbose mode. Default to False.
+    return_intermediate_steps : bool, optional
+        Whether to return intermediate steps. Default to False.
 
     Returns
     -------
@@ -220,8 +224,11 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False):
         MessagesPlaceholder(variable_name="history", messages=chat_history),
         ("human", "{question}"),
     ])
-    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose)
+    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, return_intermediate_steps=return_intermediate_steps)
     response = agent.invoke({"question": question, "history": chat_history})
+    intermediate_steps = None
+    if return_intermediate_steps is True:
+        intermediate_steps = response.get("intermediate_steps")
     if isinstance(response, dict) and 'output' in response:
         response = response['output']
     if isinstance(response, str):
@@ -241,8 +248,17 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False):
                 action_input = response.get("action_input")
                 try:
                     response = tool.run(action_input)
-                    return response
+                    if return_intermediate_steps is True:
+                        response = {"output": response, "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None}
+                    else:
+                        response = response
                 except Exception as e:
                     error_message = str(e)
                     response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+    if return_intermediate_steps is True:
+        # Add the intermediate steps to the response if requested
+        response = {
+            "output": response,
+            "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None
+        }
     return response
