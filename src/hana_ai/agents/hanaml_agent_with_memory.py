@@ -19,7 +19,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.schema.messages import AIMessage
-
+from langchain.load.dump import dumps
 
 logging.getLogger().setLevel(logging.ERROR)
 
@@ -249,7 +249,7 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
                 try:
                     response = tool.run(action_input)
                     if return_intermediate_steps is True:
-                        response = {"output": response, "intermediate_steps": intermediate_steps}
+                        response = {"output": response, "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None}
                     else:
                         response = response
                 except Exception as e:
@@ -259,6 +259,6 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
         # Add the intermediate steps to the response if requested
         response = {
             "output": response,
-            "intermediate_steps": intermediate_steps
+            "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None
         }
     return response
