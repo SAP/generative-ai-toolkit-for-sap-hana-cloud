@@ -28,10 +28,17 @@ class FFTInput(BaseModel):
     " involved for computing FFT. It can be a tuple of two columns, with the 1st column being the real part "+\
     "and the 2nd column being the imaginary part. It can also be a single column indicating the input sequence is pure real or imaginary. "+\
     "If not provided, ask the user. Do not guess")
+<<<<<<< HEAD
     num_type : str = Field(escription="Specifies the number type of the sequence data, where 'real' is for pure real data" +\
     " and 'imag' is for pure imaginary data if `data_cols` is a single column.", default=None)
     inverse : bool = Field(description="Specifies whether inverse FFT is applied or not. Inverse FFT is applied if it is set as True," +\
     " otherwise regular forward FFT is applied.", default=None)
+=======
+    num_type : str = Field(escription="Specifies the number type of the sequence data, i.e. 'real' for pure real data" +\
+    " and 'imag' for pure imaginary data if `data_cols` is a single column.", default=None)
+    inverse : bool = Field(description="Specifies whether inverse FFT is applied or not. Regular forward FFT is applied if it is set as False," +\
+    " otherwise inverse FFT is applied.", default=None)
+>>>>>>> a905c25479bdb7e510d9550066920b159a165cf5
     window : str = Field(description="Specifies the window type for windowed fft, valid options including " +\
     "'none', 'hamming', 'hann', 'hanning', 'bartlett', 'triangular', 'bartlett_hann', 'blackman','blackman_harris', 'blackman_nuttall', " +\
     "'bohman', 'cauchy', 'cheb', 'chebwin', 'cosine', 'sine', 'flattop', 'gaussian', 'kaiser', 'lanczos', 'sinc', 'nuttall', 'parzen', " +\
@@ -78,8 +85,13 @@ class FFT(BaseTool):
                     It can be a tuple of two columns, with the 1st column being the real part and the 2nd column being the
                     imaginary part. It can also be a single column indicating the input sequence is pure real or imaginary.
                 * - num_type
+<<<<<<< HEAD
                   - Specifies the number type of the sequence data, where 'real' is for pure real data
                     and 'imag' is for pure imaginary data if `data_cols` is a single column.
+=======
+                  - Specifies the number type of the sequence data, i.e. 'real' for pure real data
+                    and 'imag' for pure imaginary data if `data_cols` is a single column.
+>>>>>>> a905c25479bdb7e510d9550066920b159a165cf5
                 * - inverse
                   - If set as True, inverse FFT is applied, otherwise regular forward FFT is applied.
                 * - window
