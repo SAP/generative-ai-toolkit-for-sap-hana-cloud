@@ -78,8 +78,13 @@ class FFT(BaseTool):
                     It can be a tuple of two columns, with the 1st column being the real part and the 2nd column being the
                     imaginary part. It can also be a single column indicating the input sequence is pure real or imaginary.
                 * - num_type
+<<<<<<< HEAD
                   - Specifies the number type of the sequence data, where 'real' is for pure real data
                     and 'imag' is for pure imaginary data if `data_cols` is a single column.
+=======
+                  - Specifies the number type of the sequence data, i.e. 'real' for pure real data
+                    and 'imag' for pure imaginary data if `data_cols` is a single column.
+>>>>>>> a905c25479bdb7e510d9550066920b159a165cf5
                 * - inverse
                   - If set as True, inverse FFT is applied, otherwise regular forward FFT is applied.
                 * - window
@@ -149,11 +154,11 @@ class FFT(BaseTool):
                           flattop_precision=flattop_precision,
                           r=r)
         except ValueError as verr:
-            return 'ValueError occurred: ' + str(verr)
+            return json.dumps({'ValueError occurred': str(verr)})
         except TypeError as terr:
-            return 'TypeError occurred: ' + str(terr)
+            return json.dumps({'TypeError occurred': str(terr)})
         except KeyError as kerr:
-            return 'KeyError occurred: ' + str(kerr)
+            return json.dumps({'KeyError occurred': str(kerr)})
         fft_res_tab = remove_prefix_sharp(f"{table_name}_FFT_RESULT")
         fft_res.save(fft_res_tab, force=True)
         return json.dumps({"fft_result_table" : fft_res_tab})
