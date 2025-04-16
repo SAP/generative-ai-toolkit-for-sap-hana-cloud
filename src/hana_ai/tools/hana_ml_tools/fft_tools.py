@@ -3,7 +3,7 @@ This module defines a agent tool for fft() function in hana-ml.
 """
 import json
 import logging
-from typing import Type, Tuple, Union
+from typing import Type
 from pydantic import BaseModel, Field
 
 from langchain.callbacks.manager import (
@@ -24,12 +24,10 @@ class FFTInput(BaseModel):
     """
     table_name : str = Field(description="Table (or view) that contains the input sequence data for applying FFT or inverse FFT. If not provided, ask the user, do not guess")
     key : str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess")
-    data_cols : Union[str, Tuple[str, str]] = Field(description="The columns, i.e. real part and imaginary part of the sequence data" +\
-    " involved for computing FFT. It can be a tuple of two columns, with the 1st column being the real part "+\
-    "and the 2nd column being the imaginary part. It can also be a single column indicating the input sequence is pure real or imaginary. "+\
-    "If not provided, ask the user. Do not guess")
-    num_type : str = Field(escription="Specifies the number type of the sequence data, where 'real' is for pure real data" +\
-    " and 'imag' is for pure imaginary data if `data_cols` is a single column.", default=None)
+    real_col : str = Field(description="Specifies the column name that contains the real sequence data for applying FFT. " +\
+    "It cannot be None if parameter `imag_col` is None", default=None)
+    imag_col : str = Field(description="Specifies the column name that contain the imaginary sequence data for applying FFT. " +\
+    "It cannot be None if parameter `real_col` is None", default=None)
     inverse : bool = Field(description="Specifies whether inverse FFT is applied or not. Inverse FFT is applied if it is set as True," +\
     " otherwise regular forward FFT is applied.", default=None)
     window : str = Field(description="Specifies the window type for windowed fft, valid options including " +\
@@ -73,18 +71,12 @@ class FFT(BaseTool):
                   - Table (or view) that contains the input data for applying FFT. If not provided, ask the user, do not guess.
                 * - key
                   - Specifies the key of the dataset. If not provided, ask the user. Do not guess
-                * - data_cols
-                  - Specifies the columns, i.e. real part and imaginary part of the sequence data involved for computing FFT.
-                    It can be a tuple of two columns, with the 1st column being the real part and the 2nd column being the
-                    imaginary part. It can also be a single column indicating the input sequence is pure real or imaginary.
-                * - num_type
-<<<<<<< HEAD
-                  - Specifies the number type of the sequence data, where 'real' is for pure real data
-                    and 'imag' is for pure imaginary data if `data_cols` is a single column.
-=======
-                  - Specifies the number type of the sequence data, i.e. 'real' for pure real data
-                    and 'imag' for pure imaginary data if `data_cols` is a single column.
->>>>>>> a905c25479bdb7e510d9550066920b159a165cf5
+                * - real_col
+                  - Specifies the column name that contains the real sequence data for applying FFT. It cannot be None if parameter
+                    `imag_col` is None.
+                * - imag_col
+                  - Specifies the column name that contains the imaginary sequence data for applying FFT. It cannot be None if parameter
+                    `real_col` is None.
                 * - inverse
                   - If set as True, inverse FFT is applied, otherwise regular forward FFT is applied.
                 * - window
@@ -127,8 +119,8 @@ class FFT(BaseTool):
         self,
         table_name : str,
         key : str,
-        data_cols : Union[str, Tuple[str, str]],
-        num_type : str=None,
+        real_col : str=None,
+        imag_col : str=None,
         inverse : bool=None,
         window : str=None,
         window_start : int=None,
@@ -141,7 +133,13 @@ class FFT(BaseTool):
         r : float=None,
         run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
         )-> str:
-        cols = [data_cols] if isinstance(data_cols, str) else list(data_cols)
+        cols = [real_col, imag_col]
+        if all(col is None for col in cols):
+            msg = 'Parameter `real_col` and `imag_col` cannot both be None'
+            return json.dumps({'ValueError occurred': msg})
+        if any(col is None for col in cols):
+            cols.remove(None)
+        num_type = 'imag' if (real_col is None and imag_col is not None) else None
         try:
             input_data = self.connection_context.table(table_name)[[key] + cols]
             if "INT" not in input_data.dtypes()[0][1]:#inclusive of column name check
@@ -166,8 +164,8 @@ class FFT(BaseTool):
     async def _arun(self,#pylint:disable=too-many-positional-arguments
                     table_name : str,
                     key : str,
-                    data_cols : Union[str, Tuple[str, str]],
-                    num_type : str=None,
+                    real_col : str=None,
+                    imag_col : str=None,
                     inverse : bool=None,
                     window : str=None,
                     window_start : int=None,
@@ -183,8 +181,8 @@ class FFT(BaseTool):
         """Use the tool asynchronously."""
         return self._run(table_name=table_name,
                          key=key,
-                         data_cols=data_cols,
-                         num_type=num_type,
+                         real_col=real_col,
+                         imag_col=imag_col,
                          inverse=inverse,
                          window=window,
                          window_start=window_start,

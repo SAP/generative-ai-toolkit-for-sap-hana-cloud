@@ -33,13 +33,16 @@ class TestFFTTools(TestML_BaseTestClass):
         tool = FFT(connection_context=self.conn)
         #verify that fft followed by fft-inverse results in identity transform
         tool_input = dict(table_name="#FFT_SIM_DATA_TBL",
-                          key="ID", data_cols=['REAL_VAL', 'IMAG_VAL'])
+                          key="ID",
+                          real_col='REAL_VAL',
+                          imag_col='IMAG_VAL')
         result = json.loads(tool.run(tool_input=tool_input))
         self.assertTrue(result['fft_result_table'] == "FFT_SIM_DATA_TBL_FFT_RESULT")
         result_df0 = self.conn.table("FFT_SIM_DATA_TBL_FFT_RESULT").sort("ID").collect()
         tool_input_inv = dict(table_name="FFT_SIM_DATA_TBL_FFT_RESULT",
                               key=self.conn.table("FFT_SIM_DATA_TBL_FFT_RESULT").columns[0],
-                              data_cols=('REAL', 'IMAG'),
+                              real_col='REAL',
+                              imag_col='IMAG',
                               inverse=True)
         result_inv = json.loads(tool.run(tool_input=tool_input_inv))
         result_df_inv = self.conn.table(result_inv["fft_result_table"])\
@@ -49,24 +52,40 @@ class TestFFTTools(TestML_BaseTestClass):
         #verify the timestamp case
         tool_input_tp = dict(table_name="#FFT_SIM_DATA_TBL",
                              key="TIMESTAMP",
-                             data_cols=('REAL_VAL', 'IMAG_VAL'))
+                             real_col='REAL_VAL',
+                             imag_col='IMAG_VAL')
         result_tp = json.loads(tool.run(tool_input=tool_input_tp))
         result_df_tp = self.conn.table(result_tp["fft_result_table"]).sort('TIMESTAMP_int').collect()
         assert_frame_equal(result_df0.iloc[:,1:], result_df_tp.iloc[:,1:])
         #verify that fft is linear in essense
         tool_input1 = dict(table_name="#FFT_SIM_DATA_TBL",
-                           key="ID", data_cols='REAL_VAL',
-                           num_type='real')
+                           key="ID", real_col='REAL_VAL')
         tool.run(tool_input=tool_input1)
         result_df1 = self.conn.table("FFT_SIM_DATA_TBL_FFT_RESULT").sort("ID").collect()
         tool_input2 = dict(table_name="#FFT_SIM_DATA_TBL",
-                           key="ID", data_cols='IMAG_VAL',
-                           num_type='imag')
+                           key="ID", imag_col='IMAG_VAL')
         tool.run(tool_input=tool_input2)
         result_df2 = self.conn.table("FFT_SIM_DATA_TBL_FFT_RESULT").sort("ID").collect()
         result_df1["REAL"] = result_df1["REAL"] + result_df2["REAL"]
         result_df1["IMAG"] = result_df1["IMAG"] + result_df2["IMAG"]
         assert_frame_equal(result_df0, result_df1)
+        #verifies that error messages are caught correctly
+        tool_input_err1 = dict(table_name="#FFT_SIM_DATA_TBL",
+                               key="TIMESTAMP")
+        err_result1 = json.loads(tool.run(tool_input=tool_input_err1))
+        self.assertTrue('`real_col` and `imag_col`' in err_result1['ValueError occurred'])
+        tool_input_err2 = dict(table_name="#FFT_SIM_DATA_TBL",
+                               key="TIME_STAMP",
+                               real_col="REAL_VAL")
+        err_result2 = json.loads(tool.run(tool_input=tool_input_err2))
+        self.assertTrue('TIME_STAMP' in err_result2['ValueError occurred'])
+        tool_input_err3 = dict(table_name="#FFT_SIM_DATA_TBL",
+                               key="TIMESTAMP",
+                               real_col="REAL_VAL",
+                               window='newton')
+        err_result3 = json.loads(tool.run(tool_input=tool_input_err3))
+        print(err_result3)
+        self.assertTrue('newton' in err_result3['ValueError occurred'])
 
 if __name__ == '__main__':
     unittest.main()
