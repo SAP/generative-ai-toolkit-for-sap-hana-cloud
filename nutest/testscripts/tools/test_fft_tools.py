@@ -72,20 +72,19 @@ class TestFFTTools(TestML_BaseTestClass):
         #verifies that error messages are caught correctly
         tool_input_err1 = dict(table_name="#FFT_SIM_DATA_TBL",
                                key="TIMESTAMP")
-        err_result1 = json.loads(tool.run(tool_input=tool_input_err1))
-        self.assertTrue('`real_col` and `imag_col`' in err_result1['ValueError occurred'])
+        err_result1 = tool.run(tool_input=tool_input_err1)
+        self.assertTrue('`real_col` and `imag_col`' in err_result1)
         tool_input_err2 = dict(table_name="#FFT_SIM_DATA_TBL",
                                key="TIME_STAMP",
                                real_col="REAL_VAL")
-        err_result2 = json.loads(tool.run(tool_input=tool_input_err2))
-        self.assertTrue('TIME_STAMP' in err_result2['ValueError occurred'])
+        err_result2 = tool.run(tool_input=tool_input_err2)
+        self.assertTrue('TIME_STAMP' in err_result2)
         tool_input_err3 = dict(table_name="#FFT_SIM_DATA_TBL",
                                key="TIMESTAMP",
                                real_col="REAL_VAL",
                                window='newton')
-        err_result3 = json.loads(tool.run(tool_input=tool_input_err3))
-        print(err_result3)
-        self.assertTrue('newton' in err_result3['ValueError occurred'])
+        err_result3 = tool.run(tool_input=tool_input_err3)
+        self.assertTrue('newton' in err_result3)
 
 if __name__ == '__main__':
     unittest.main()
