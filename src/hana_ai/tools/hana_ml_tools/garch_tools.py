@@ -116,11 +116,11 @@ class GARCHFitPredict(BaseTool):
                       thread_ratio=thread_ratio)
             out_tabs = garch.predict(horizon=forecast_length)
         except ValueError as verr:
-            return json.dumps({'ValueError occurred': str(verr)})
+            return 'ValueError occurred: ' + str(verr)
         except TypeError as terr:
-            return json.dumps({'TypeError occurred': str(terr)})
+            return 'TypeError occurred: ' + str(terr)
         except KeyError as kerr:
-            return json.dumps({'KeyError occurred': str(kerr)})
+            return 'KeyError occurred: ' + str(kerr)
         predict_result = remove_prefix_sharp(f"{table_name}_PREDICT_RESULT")
         out_tabs[0].save(predict_result, force=True)
         out_dict = {"garch_predict_result_table" : predict_result}

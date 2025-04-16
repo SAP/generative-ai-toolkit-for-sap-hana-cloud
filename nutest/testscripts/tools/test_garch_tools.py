@@ -47,15 +47,15 @@ class TestGARCHTools(TestML_BaseTestClass):
                               key="TIME_STAMP",
                               endog="VAL",
                               forecast_length=5)
-        err_res1 = json.loads(tool.run(tool_input=tool_input_err))
-        self.assertTrue('TIME_STAMP' in err_res1['ValueError occurred'])
+        err_res1 = tool.run(tool_input=tool_input_err)
+        self.assertTrue(all(str_v in err_res1 for str_v in ['TIME_STAMP', 'ValueError']))
         tool_input_err = dict(table_name="#GARCH_SIM_DATA_TBL",
                               key="TIMESTAMP",
                               endog="VAL",
                               model_type='zgarch',
                               forecast_length=4)
-        err_res2 = json.loads(tool.run(tool_input=tool_input_err))
-        self.assertTrue('zgarch' in err_res2['ValueError occurred'])
+        err_res2 = tool.run(tool_input=tool_input_err)
+        self.assertTrue(all(str_v in err_res2 for str_v in ['ValueError', 'zgarch']))
 
 if __name__ == '__main__':
     unittest.main()
