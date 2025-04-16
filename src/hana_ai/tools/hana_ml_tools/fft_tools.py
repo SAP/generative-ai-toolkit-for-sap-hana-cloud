@@ -152,11 +152,11 @@ class FFT(BaseTool):
                           flattop_precision=flattop_precision,
                           r=r)
         except ValueError as verr:
-            return json.dumps({'ValueError occurred': str(verr)})
+            return 'ValueError occurred: ' + str(verr)
         except TypeError as terr:
-            return json.dumps({'TypeError occurred': str(terr)})
+            return 'TypeError occurred: ' + str(terr)
         except KeyError as kerr:
-            return json.dumps({'KeyError occurred': str(kerr)})
+            return 'KeyError occurred: ' + str(kerr)
         fft_res_tab = remove_prefix_sharp(f"{table_name}_FFT_RESULT")
         fft_res.save(fft_res_tab, force=True)
         return json.dumps({"fft_result_table" : fft_res_tab})
