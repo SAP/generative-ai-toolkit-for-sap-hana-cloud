@@ -27,7 +27,7 @@ class TestTSCheckTools(TestML_BaseTestClass):
     def test_TimeSeriesCheck(self):
         tool = TimeSeriesCheck(connection_context=self.conn)
         result = tool.run({"table_name": "#HANAI_DATA_TBL_RAW", "key": "TIMESTAMP", "endog": "VALUE"})
-        expected_result = "Intermittent Test: proportion of zero values is 0.0\nStationarity Test: The stationary is 0.The kpss_stat is 0.499999.The p-value is 0.041666666666844876.The lags is 4.The number of observations is 5.The critical values is {'10%': 0.347, '5%': 0.463, '2.5%': 0.574, '1%': 0.739}.\nTrend Test: Downward trend.\nSeasonality Test: The type is non-seasonal.The period is 0.The acf is -0.292111."
+        expected_result = "Index: starts from 1900-01-01 12:00:00 to 1900-01-01 16:00:00. Time series length is 5\nIntermittent Test: proportion of zero values is 0.0\nStationarity Test: The stationary is 0.The kpss_stat is 0.499999.The p-value is 0.041666666666844876.The lags is 4.The number of observations is 5.The critical values is {'10%': 0.347, '5%': 0.463, '2.5%': 0.574, '1%': 0.739}.\nTrend Test: Downward trend.\nSeasonality Test: The type is non-seasonal.The period is 0.The acf is -0.292111."
         self.assertTrue(result==expected_result)
 
     def test_TrendTest(self):
