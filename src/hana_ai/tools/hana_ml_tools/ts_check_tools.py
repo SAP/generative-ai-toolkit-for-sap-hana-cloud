@@ -45,6 +45,9 @@ def ts_char(df, key, endog):
         The endogenous column of the DataFrame.
     """
     analysis_result = ''
+    # Index info
+    analysis_result += f"Index: starts from {df[key].min()} to {df[key].max()}. Time series length is {df.count()}\n"
+
     key_col_type = df.get_table_structure()[key]
     key_ = key
     df_ = df
