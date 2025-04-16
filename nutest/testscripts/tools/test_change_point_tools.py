@@ -51,8 +51,8 @@ class TestBayesianChangePointTools(TestML_BaseTestClass):
                            random_seed=23,
                            max_harmonic_order=2,
                            max_iter=2000)
-        result2 = json.loads(tool.run(tool_input=tool_input2))
-        self.assertTrue('TIMESTAMP' in result2['ValueError occurred'])
+        result2 = tool.run(tool_input=tool_input2)
+        self.assertTrue(all(x in result2  for x in ['TIMESTAMP', 'ValueError']))
 
 if __name__ == '__main__':
     unittest.main()

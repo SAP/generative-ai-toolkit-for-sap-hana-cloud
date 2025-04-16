@@ -132,13 +132,13 @@ class BayesianChangePoint(BaseTool):
                                         key=key, endog=endog)
         except ValueError as verr:
             # Handles invalid parameter values (e.g., alpha not in [0,1])
-            return json.dumps({"ValueError occurred": str(verr)})
+            return "ValueError occurred: " + str(verr)
         except KeyError as kerr:
             # Handles missing columns in the DataFrame
-            return json.dumps({"KeyError occurred": str(kerr)})
+            return "KeyError occurred: " + str(kerr)
         except TypeError as terr:
             # Handles type mismatches (e.g., non-numeric input where number expected)
-            return json.dumps({"TypeError occurred": str(terr)})
+            return "TypeError occurred: " + str(terr)
         cf_table = remove_prefix_sharp(f"{table_name}_CORRELATION_RESULT")
         t_cps = ', '.join([str(stmp) for stmp in list(bcpd_dfs[0].collect().iloc[:,1])])
         s_cps = ', '.join([str(stmp) for stmp in list(bcpd_dfs[1].collect().iloc[:,1])])
