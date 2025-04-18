@@ -118,6 +118,27 @@ class AccuracyMeasure(BaseTool):
         alpha2 : float=None,
         run_manager: CallbackManagerForToolRun=None#pylint:disable=unused-argument
         )-> str:
+        err_msg = []
+        # check table existence
+        if not self.connection_context.has_table(predict_table):
+            err_msg.append(f"predict_table error: Table {predict_table} does not exist.")
+        if not self.connection_context.has_table(actual_table):
+            err_msg.append(f"actual_table error: Table {actual_table} does not exist.")
+        if len(err_msg) > 0:
+            return "\n".join(err_msg)
+        # check column existence
+        err_msg = []
+        if predict_key not in self.connection_context.table(predict_table).columns:
+            err_msg.append(f"predict_key error: Column {predict_key} does not exist in table {predict_table}.")
+        if actual_key not in self.connection_context.table(actual_table).columns:
+            err_msg.append(f"actual_key error: Column {actual_key} does not exist in table {actual_table}.")
+        if predict_target not in self.connection_context.table(predict_table).columns:
+            err_msg.append(f"predict_target error: Column {predict_target} does not exist in table {predict_table}.")
+        if actual_target not in self.connection_context.table(actual_table).columns:
+            err_msg.append(f"actual_target error: Column {actual_target} does not exist in table {actual_table}.")
+        if len(err_msg) > 0:
+            return "\n".join(err_msg)
+
         m_actual_target = actual_target + "_actual"
         m_predict_target = predict_target + "_predict"
         m_actual_key = actual_key + "_actual"
