@@ -4,7 +4,8 @@ This module define the agent tools for `correlation()` function in hana-ml.
 import json
 import logging
 from typing import Type
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, Annotated
+from annotated_types import Interval
 
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
@@ -34,7 +35,7 @@ class CorrelationInput(BaseModel):
     calculate_pacf : bool = Field(description="If set as True, calculate the partial autocorrelation coefficient (pacf) as well.", default=None)
     calculate_confint : bool = Field(description="If set as True, calculate the confidence intervals of autocorrelation coefficients",
     default=False)
-    alpha : float = Field(description="Specifies the confidence level for confidence interval, which should be a positive value" +\
+    alpha : Annotated[float, Interval(gt=0, lt=1)] = Field(description="Specifies the confidence level for confidence interval, which should be a positive value" +\
     " between 0 and 1. For example, the value of 0.1 implies a 90% confidence interval.", default=None)
     bartlett : bool = Field(description="If set as True, Bartlett's formula is used to calculate the confidence bound," +\
     " otherwise standard error is used", default=None)
@@ -83,9 +84,13 @@ class Correlation(BaseTool):
                 * - calculate_confint
                   - If set as True, calculate the confidence bounds of autocorrelation coefficients.
                 * - alpha
+<<<<<<< HEAD
                   - Specifies the confidence level of confidence interval defined by confidence bound,
                     which should be a positive value between 0 and 1. For example, the value of 0.1 implies
                     a 90% confidence interval.
+=======
+                  - Specifies the level of confidence for the intervals defined by confidence bounds.
+>>>>>>> 14956c852d0cb0a17e3a1f920d4cfc417edf451f
                 * - bartlett
                   - If set as True, Bartlett's formula is used to calculate the confidence bounds.
     """
@@ -117,7 +122,7 @@ class Correlation(BaseTool):
         max_lag : int=None,
         calculate_pacf : bool=None,
         calculate_confint : bool=False,
-        alpha : float=None,
+        alpha : Annotated[float, Interval(gt=0, lt=1)]=None,
         bartlett : bool=None,
         run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
         ) -> str:
@@ -155,7 +160,7 @@ class Correlation(BaseTool):
                     max_lag : int=None,
                     calculate_pacf : bool=None,
                     calculate_confint : bool=False,
-                    alpha : float=None,
+                    alpha : Annotated[float, Interval(gt=0, lt=1)]=None,
                     bartlett : bool=None,
                     run_manager: AsyncCallbackManagerForToolRun = None#pylint:disable=unused-argument
                     )-> str:
