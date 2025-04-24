@@ -3,8 +3,8 @@ This module define the agent tools for `correlation()` function in hana-ml.
 """
 import json
 import logging
-from typing import Type
-from pydantic import BaseModel, Field, Annotated
+from typing import Type, Annotated
+from pydantic import BaseModel, Field
 from annotated_types import Interval
 
 from langchain.callbacks.manager import (
@@ -123,8 +123,9 @@ class Correlation(BaseTool):
         run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
         ) -> str:
         if calculate_confint and y is not None:
-            msg = "confidence intervals are only applicable to the autocorrelation of one time-series."
-            return json.dumps({"Error message": msg})
+            msg = "Since confidence intervals are only applicable to the autocorrelation of one time-series, " +\
+            "the value of `calculate_confint` needs to be changed to False to proceed further"
+            return f'ValueError occurred: {msg}'
         input_data = self.connection_context.table(table_name)
         try:
             cf_coef = correlation(data=input_data,
