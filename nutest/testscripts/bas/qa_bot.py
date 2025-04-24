@@ -37,7 +37,7 @@ class _CustomEncoder(json.JSONEncoder):
 
 connection_context = dataframe.ConnectionContext(userkey="RaysKey") # need to discuss how to get the connection context
 llm = init_llm('gpt-4-32k', temperature=0.0, max_tokens=400) # use proxy package
-tools = HANAMLToolkit(connection_context, used_tools='all', return_direct={"ts_dataset_report": False}).get_tools()
+tools = HANAMLToolkit(connection_context, used_tools='all', return_direct={"ts_dataset_report": False}).set_bas().get_tools()
 
 def process_strings(question: str, chat_history: list[str]) -> str:
     """

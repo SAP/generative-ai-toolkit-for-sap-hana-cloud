@@ -112,8 +112,15 @@ class HANAMLToolkit(BaseToolkit):
             if tool.name == tool_name:
                 self.used_tools.remove(tool)
                 break
-        else:
-            raise ValueError(f"Tool {tool_name} not found in the toolkit.")
+
+    def set_bas(self, bas=True):
+        """
+        Set the BAS mode for all tools in the toolkit.
+        """
+        for tool in self.used_tools:
+            if hasattr(tool, "bas"):
+                tool.bas = bas
+        return self
 
     def set_vectordb(self, vectordb):
         """
