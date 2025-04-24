@@ -84,13 +84,9 @@ class Correlation(BaseTool):
                 * - calculate_confint
                   - If set as True, calculate the confidence bounds of autocorrelation coefficients.
                 * - alpha
-<<<<<<< HEAD
                   - Specifies the confidence level of confidence interval defined by confidence bound,
                     which should be a positive value between 0 and 1. For example, the value of 0.1 implies
                     a 90% confidence interval.
-=======
-                  - Specifies the level of confidence for the intervals defined by confidence bounds.
->>>>>>> 14956c852d0cb0a17e3a1f920d4cfc417edf451f
                 * - bartlett
                   - If set as True, Bartlett's formula is used to calculate the confidence bounds.
     """
