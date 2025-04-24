@@ -114,11 +114,10 @@ class TimeSeriesDatasetReport(BaseTool):
 
         output_file = os.path.join(
                     destination_dir,
-                    f"{table_name}_ts_report.html",
-                )
+                    table_name)
         ur.display(save_html=output_file)
         ur.display() #directly display in jupyter
-        return json.dumps({"html_file": output_file})
+        return json.dumps({"html_file": output_file + "_report.html"})#hana-ml report will add _report.html to the file name
 
     async def _arun(
         self, table_name: str, key: str, endog: str, output_dir, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
