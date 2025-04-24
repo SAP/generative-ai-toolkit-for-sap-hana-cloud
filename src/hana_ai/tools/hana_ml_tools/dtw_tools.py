@@ -108,7 +108,7 @@ class DTW(BaseTool):
                 * - save_alignment
                   - If set as True, save the alignment information, otherwise do not save.
     """
-    name: str = "DTW"
+    name: str = "dynamic_time_warping"
     """Name of the tool."""
     description: str = "To compute dynamic time warping (DTW) distances between the query and the reference time-series."
     """Description of the tool."""
