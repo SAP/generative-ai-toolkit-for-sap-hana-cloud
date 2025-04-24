@@ -2,6 +2,6 @@
 import { callPythonStringProcessor } from './qa_bot';
 
 // Example usage
-callPythonStringProcessor('Show me all the trained models', ['First chat history is here', 'Second chat history is here'])
+callPythonStringProcessor('Create a dataset report for me on SHAMPOO_SALES_DATA_TBL', [])
   .then(result => console.log('Processed:', result))
   .catch(err => console.error('Error:', err));

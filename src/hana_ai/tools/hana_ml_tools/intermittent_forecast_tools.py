@@ -113,6 +113,19 @@ class IntermittentForecast(BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        # Check if the table exists
+        if not self.connection_context.has_table(table_name):
+            return json.dumps({
+                "error": f"Table {table_name} does not exist in the database."
+            }, cls=_CustomEncoder)
+        if key not in self.connection_context.table(table_name).columns:
+            return json.dumps({
+                "error": f"Key {key} does not exist in the table {table_name}."
+            }, cls=_CustomEncoder)
+        if endog not in self.connection_context.table(table_name).columns:
+            return json.dumps({
+                "error": f"Endog {endog} does not exist in the table {table_name}."
+            }, cls=_CustomEncoder)
         df = self.connection_context.table(table_name).select(key, endog)
         croston_tsb = CrostonTSB(
             alpha=alpha,

@@ -180,6 +180,12 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        # check fit_table exists
+        if not self.connection_context.has_table(fit_table):
+            return f"Table {fit_table} does not exist in the database."
+        # check key exists in fit_table
+        if key not in self.connection_context.table(fit_table).columns:
+            return f"Key {key} does not exist in the table {fit_table}."
         ms = ModelStorage(connection_context=self.connection_context)
         ms._create_metadata_table()
         try:

@@ -48,7 +48,8 @@ def process_strings(question: str, chat_history: list[str]) -> str:
         chat_history=chat_history,
         tools=tools,
         llm=llm,
-        verbose=False
+        verbose=False,
+        return_intermediate_steps=True,
     )
 
 if __name__ == "__main__":
@@ -74,6 +75,14 @@ if __name__ == "__main__":
         result = process_strings(input_data['question'], input_data['chat_history'])
         if isinstance(result, pd.DataFrame):
             result = result.to_dict(orient="records")
+        if isinstance(result, dict):
+            if 'output' in result:
+                if isinstance(result['output'], pd.DataFrame):
+                    result['output'] = result['output'].to_dict(orient="records")
+            if 'intermediate_steps' in result:
+                if result['intermediate_steps'] is None:
+                    result['intermediate_steps'] = ''
+
         print(json.dumps({"result": result}, ensure_ascii=False, cls=_CustomEncoder))
 
     except Exception as e:

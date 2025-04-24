@@ -99,6 +99,15 @@ class TimeSeriesDatasetReport(BaseTool):
         self, table_name: str, key: str, endog: str, output_dir: Optional[str]=None, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        # check hana has the table
+        if not self.connection_context.has_table(table_name):
+            return json.dumps({"error": f"Table {table_name} does not exist."})
+        # check key in the table
+        if key not in self.connection_context.table(table_name).columns:
+            return json.dumps({"error": f"Key {key} does not exist in table {table_name}."})
+        # check endog in the table
+        if endog not in self.connection_context.table(table_name).columns:
+            return json.dumps({"error": f"Endog {endog} does not exist in table {table_name}."})
         df = self.connection_context.table(table_name).select(key, endog)
         ur = UnifiedReport(df).build(key=key, endog=endog)
         if output_dir is None:
@@ -180,6 +189,12 @@ class ForecastLinePlot(BaseTool):
         self, predict_table_name: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        # check predict_table_name in the hana db
+        if not self.connection_context.has_table(predict_table_name):
+            return json.dumps({"error": f"Table {predict_table_name} does not exist."})
+        # check actual_table_name in the hana db
+        if actual_table_name is not None and not self.connection_context.has_table(actual_table_name):
+            return json.dumps({"error": f"Table {actual_table_name} does not exist."})
         predict_df = self.connection_context.table(predict_table_name)
         if confidence is None:
             if "YHAT_LOWER" in predict_df.columns and "YHAT_UPPER" in predict_df.columns:
