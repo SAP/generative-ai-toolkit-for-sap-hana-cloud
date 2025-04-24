@@ -24,24 +24,38 @@ export async function callPythonStringProcessor(question: string, chat_history: 
 
   return new Promise((resolve, reject) => {
     pythonProcess.on('close', (code) => {
-      // Trim output to remove stray newlines/whitespace
+      const trimmedError = errorOutput.trim();
+      if (trimmedError) {
+        reject(new Error(JSON.stringify({
+          error: 'Python script execution failed',
+          stderr: trimmedError,
+          exitCode: code
+        })));
+        return;
+      }
+
       const trimmedOutput = output.trim();
-      
       if (!trimmedOutput) {
-        reject(new Error('No output from Python script'));
+        reject(new Error(JSON.stringify({ error: 'No output from Python script' })));
         return;
       }
 
       try {
         const response = JSON.parse(trimmedOutput);
-        if (response.error) reject(new Error(response.error));
-        resolve(response.result);
+        if (response.error) {
+          reject(new Error(JSON.stringify({ error: response.error })));
+        } else {
+          resolve(response.result);
+        }
       } catch (e) {
-        reject(new Error(
-          `JSON parse failed: ${(e as Error).message}\n` +
-          `Raw output: ${trimmedOutput}\n` +
-          `Stderr: ${errorOutput}`
-        ));
+        reject(new Error(JSON.stringify({
+          error: 'JSON parse failed',
+          details: {
+            parseError: (e as Error).message,
+            rawOutput: trimmedOutput,
+            stderr: errorOutput.trim()
+          }
+        })));
       }
     });
   });

@@ -84,6 +84,7 @@ class TimeSeriesDatasetReport(BaseTool):
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = TSDatasetInput
     return_direct: bool = False
+    bas: bool = False
 
     def __init__(
         self,
@@ -94,6 +95,12 @@ class TimeSeriesDatasetReport(BaseTool):
             connection_context=connection_context,
             return_direct=return_direct
         )
+
+    def set_bas(self, bas: bool) -> None:
+        """
+        Set the bas flag to True or False.
+        """
+        self.bas = bas
 
     def _run(
         self, table_name: str, key: str, endog: str, output_dir: Optional[str]=None, run_manager: Optional[CallbackManagerForToolRun] = None
@@ -125,7 +132,8 @@ class TimeSeriesDatasetReport(BaseTool):
                     destination_dir,
                     table_name)
         ur.display(save_html=output_file)
-        ur.display() #directly display in jupyter
+        if not self.bas:
+            ur.display() #directly display in jupyter
         return json.dumps({"html_file": output_file + "_report.html"})#hana-ml report will add _report.html to the file name
 
     async def _arun(
@@ -174,6 +182,7 @@ class ForecastLinePlot(BaseTool):
     args_schema: Type[BaseModel] = ForecastLinePlotInput
     """Input schema of the tool."""
     return_direct: bool = False
+    bas: bool = False
 
     def __init__(
         self,
@@ -184,6 +193,12 @@ class ForecastLinePlot(BaseTool):
             connection_context=connection_context,
             return_direct=return_direct
         )
+
+    def set_bas(self, bas: bool) -> None:
+        """
+        Set the bas flag to True or False.
+        """
+        self.bas = bas
 
     def _run(
         self, predict_table_name: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[CallbackManagerForToolRun] = None
@@ -240,7 +255,8 @@ class ForecastLinePlot(BaseTool):
                 )
         with Path(output_file).open("w", encoding="utf-8") as f:
             f.write(fig.to_html(full_html=True))
-        fig.show() #directly display in jupyter
+        if not self.bas:
+            fig.show() #directly display in jupyter
         return json.dumps({"html_file": output_file})
 
     async def _arun(
