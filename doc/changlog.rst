@@ -1,6 +1,15 @@
 Changelog
 =========
 
+**Version 1.0.250424**
+
+``Enhancements``
+    - Added input table check and columns check to avoid stopping the reasoning.
+    - Added samples to ts_check tool.
+
+``Bug Fixes``
+    - Fixed wrong report filename issue. (hana-ml appends _report.html to the file.)
+
 **Version 1.0.250411**
 
 ``Enhancements``
