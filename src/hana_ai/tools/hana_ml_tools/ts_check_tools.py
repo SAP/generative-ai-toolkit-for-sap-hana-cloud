@@ -204,6 +204,14 @@ class TimeSeriesCheck(BaseTool):
         self, table_name: str, key: str, endog: str, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        # check table exists
+        if not self.connection_context.has_table(table_name):
+            return f"Table {table_name} does not exist."
+        # check key and endog columns exist
+        if key not in self.connection_context.table(table_name).columns:
+            return f"Key column {key} does not exist in table {table_name}."
+        if endog not in self.connection_context.table(table_name).columns:
+            return f"Endog column {endog} does not exist in table {table_name}."
         df = self.connection_context.table(table_name).select(key, endog)
         return ts_char(df, key, endog)
 

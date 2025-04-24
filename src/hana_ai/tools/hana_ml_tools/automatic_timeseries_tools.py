@@ -455,6 +455,11 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        # check predict_table exists
+        if not self.connection_context.has_table(predict_table):
+            return json.dumps({"error": f"Table {predict_table} does not exist."}, cls=_CustomEncoder)
+        if key not in self.connection_context.table(predict_table).columns:
+            return json.dumps({"error": f"Key {key} does not exist in table {predict_table}."}, cls=_CustomEncoder)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
         if hasattr(model, 'version'):
@@ -567,6 +572,10 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        if not self.connection_context.has_table(score_table):
+            return json.dumps({"error": f"Table {score_table} does not exist."}, cls=_CustomEncoder)
+        if key not in self.connection_context.table(score_table).columns:
+            return json.dumps({"error": f"Key {key} does not exist in table {score_table}."}, cls=_CustomEncoder)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
         if hasattr(model, 'version'):

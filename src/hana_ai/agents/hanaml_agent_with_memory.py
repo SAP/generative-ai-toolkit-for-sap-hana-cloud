@@ -255,7 +255,7 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
                 except Exception as e:
                     error_message = str(e)
                     response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
-    if return_intermediate_steps is True:
+    if return_intermediate_steps is True and 'intermediate_steps' not in response:
         # Add the intermediate steps to the response if requested
         response = {
             "output": response,
