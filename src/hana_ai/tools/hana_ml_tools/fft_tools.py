@@ -14,7 +14,9 @@ from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.fft import fft
+from hdbcli.dbapi import ProgrammingError
 from hana_ai.utility import remove_prefix_sharp
+from hana_ai.tools.hana_ml_tools.utility import add_stopping_hint
 
 logger = logging.getLogger(__name__)
 
@@ -133,10 +135,11 @@ class FFT(BaseTool):
         r : float=None,
         run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
         )-> str:
+        stop_msg = "Please stop the execution."
         cols = [real_col, imag_col]
         if all(col is None for col in cols):
-            msg = 'Parameter `real_col` and `imag_col` cannot both be None'
-            return json.dumps({'ValueError occurred': msg})
+            msg = 'Parameter `real_col` and `imag_col` cannot both be None.'
+            return add_stopping_hint(f'ValueError occurred: {msg}')
         if any(col is None for col in cols):
             cols.remove(None)
         num_type = 'imag' if (real_col is None and imag_col is not None) else None
@@ -152,11 +155,18 @@ class FFT(BaseTool):
                           flattop_precision=flattop_precision,
                           r=r)
         except ValueError as verr:
-            return 'ValueError occurred: ' + str(verr)
-        except TypeError as terr:
-            return 'TypeError occurred: ' + str(terr)
+            # Handles invalid parameter values (e.g., alpha not in [0,1])
+            return add_stopping_hint(f'ValueError occurred: {str(verr)}')
         except KeyError as kerr:
-            return 'KeyError occurred: ' + str(kerr)
+            # Handles missing columns in the DataFrame
+            return add_stopping_hint(f'KeyError occurred: {str(kerr)}')
+        except TypeError as terr:
+            # Handles type mismatches (e.g., non-numeric input where number expected)
+            return add_stopping_hint(f'TypeError occurred: {str(terr)}')
+        except ProgrammingError as perr:
+            # Handles invalid table name specifically
+            if 'invalid table name' in str(perr):
+                return add_stopping_hint(f'Invalid table name: Could not find table/view {table_name}')
         fft_res_tab = remove_prefix_sharp(f"{table_name}_FFT_RESULT")
         fft_res.save(fft_res_tab, force=True)
         return json.dumps({"fft_result_table" : fft_res_tab})
