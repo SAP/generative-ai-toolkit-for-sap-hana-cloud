@@ -1,6 +1,9 @@
 """
 This script is designed to process a question and chat history using the HANA AI.
 """
+import os
+
+os.environ["TQDM_DISABLE"] = "1" 
 
 import sys
 import json
@@ -15,6 +18,7 @@ from hana_ml import dataframe
 import pandas as pd
 from hana_ai.agents.hanaml_agent_with_memory import stateless_call
 from hana_ai.tools.toolkit import HANAMLToolkit
+
 
 class _CustomEncoder(json.JSONEncoder):
     """
