@@ -130,7 +130,7 @@ class TimeSeriesDatasetReport(BaseTool):
 
         output_file = os.path.join(
                     destination_dir,
-                    f"{table_name}_ts_report.html")
+                    f"{table_name}_ts_report")
         ur.display(save_html=output_file)
         if not self.bas:
             ur.display() #directly display in jupyter

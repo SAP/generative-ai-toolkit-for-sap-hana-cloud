@@ -10,4 +10,4 @@ pydantic
 pydantic-core
 generative-ai-hub-sdk[all]
 cryptography
-ipython
+ipython<9.0

@@ -11,6 +11,7 @@ The following class is available:
 import json
 import logging
 import pandas as pd
+from pydantic import ValidationError
 from langchain.agents import initialize_agent, AgentType
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain_core.chat_history import InMemoryChatMessageHistory
@@ -224,9 +225,15 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
         MessagesPlaceholder(variable_name="history", messages=chat_history),
         ("human", "{question}"),
     ])
-    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, return_intermediate_steps=return_intermediate_steps)
+    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, return_intermediate_steps=return_intermediate_steps, handle_parsing_errors=True)
     try:
         response = agent.invoke({"question": question, "history": chat_history})
+    except ValidationError as e:
+        # Parse Pydantic error details for feedback
+        error_details = "\n".join([f"{err['loc'][0]}: {err['msg']}" for err in e.errors()])
+        error_message = f"Please provide the parameters:\n {error_details}"
+        chat_history.append(("system", error_message))
+        response = {"output": error_message}
     except Exception as e:
         error_message = str(e)
         response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
