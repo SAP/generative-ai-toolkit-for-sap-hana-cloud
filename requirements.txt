@@ -1,5 +1,5 @@
 langchain
-"numpy < 2.0"
+numpy<2.0
 pandas
 hana-ml>=2.24.25042500
 langchain-community
