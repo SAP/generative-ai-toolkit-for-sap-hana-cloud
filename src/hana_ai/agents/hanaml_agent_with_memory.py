@@ -225,7 +225,17 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
         ("human", "{question}"),
     ])
     agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, return_intermediate_steps=return_intermediate_steps)
-    response = agent.invoke({"question": question, "history": chat_history})
+    try:
+        response = agent.invoke({"question": question, "history": chat_history})
+    except Exception as e:
+        error_message = str(e)
+        response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+        if return_intermediate_steps is True:
+            response = {
+                "output": response,
+                "intermediate_steps": dumps(None) if return_intermediate_steps else None
+            }
+        return response
     intermediate_steps = None
     if return_intermediate_steps is True:
         intermediate_steps = response.get("intermediate_steps")
@@ -248,10 +258,6 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
                 action_input = response.get("action_input")
                 try:
                     response = tool.run(action_input)
-                    if return_intermediate_steps is True:
-                        response = {"output": response, "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None}
-                    else:
-                        response = response
                 except Exception as e:
                     error_message = str(e)
                     response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
