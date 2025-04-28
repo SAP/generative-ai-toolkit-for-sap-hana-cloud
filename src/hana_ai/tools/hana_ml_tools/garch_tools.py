@@ -14,7 +14,9 @@ from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.garch import GARCH
+from hdbcli.dbapi import ProgrammingError
 from hana_ai.utility import remove_prefix_sharp
+from hana_ai.tools.hana_ml_tools.utility import add_stopping_hint
 
 logger = logging.getLogger(__name__)
 
@@ -116,11 +118,14 @@ class GARCHFitPredict(BaseTool):
                       thread_ratio=thread_ratio)
             out_tabs = garch.predict(horizon=forecast_length)
         except ValueError as verr:
-            return 'ValueError occurred: ' + str(verr)
+            return add_stopping_hint('ValueError occurred: ' + str(verr))
         except TypeError as terr:
-            return 'TypeError occurred: ' + str(terr)
+            return add_stopping_hint('TypeError occurred: ' + str(terr))
         except KeyError as kerr:
-            return 'KeyError occurred: ' + str(kerr)
+            return add_stopping_hint('KeyError occurred: ' + str(kerr))
+        except ProgrammingError as perr:
+            if 'invalid table name' in str(perr):
+                return add_stopping_hint(f'Invalid table name: Could not find table/view {table_name}')
         predict_result = remove_prefix_sharp(f"{table_name}_PREDICT_RESULT")
         out_tabs[0].save(predict_result, force=True)
         out_dict = {"garch_predict_result_table" : predict_result}
