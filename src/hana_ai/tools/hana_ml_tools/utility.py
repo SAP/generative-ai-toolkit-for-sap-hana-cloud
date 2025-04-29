@@ -19,3 +19,8 @@ class _CustomEncoder(json.JSONEncoder):
             return int(obj)
         # Let other types use the default handler
         return super().default(obj)
+
+
+def add_stopping_hint(x : str):
+    """Added the hint for stopping the execution when an error message is returned."""
+    return (x + ". Please stop the execution and return.").replace("..", ".")
