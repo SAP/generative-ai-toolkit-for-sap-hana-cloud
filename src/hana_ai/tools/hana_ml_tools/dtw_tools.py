@@ -15,6 +15,8 @@ from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.dtw import dtw
+from hdbcli.dbapi import ProgrammingError
+from hana_ai.tools.hana_ml_tools.utility import add_stopping_hint
 from hana_ai.utility import remove_prefix_sharp
 
 logger = logging.getLogger(__name__)
@@ -38,7 +40,7 @@ class DTWInput(BaseModel):
     " If not provide, ask the user, do not guess")
     ref_ts_order : str = Field(description="Specifies the column that contains the sequential-order of time-series in reference data." +\
     " If not provided, ask the user, do not guess")
-    ref_ts_cols : str = Field(description="Specifies the columns that contain the time-series' values in reference data. " +\
+    ref_ts_cols : Union[str, List[str]] = Field(description="Specifies the columns that contain the time-series' values in reference data. " +\
     "If not provided, the remaining columns of the reference data excluding ref_ts_id and ref_ts_order shall be used.", default=None)
     radius : int = Field(description="To restrict match curve in an area near diagonal, so that no each pair of" +\
     " subscripts in the match curve is no greater than the specified value Note that inappropriate setting of this parameter" +
@@ -125,7 +127,7 @@ class DTW(BaseTool):
             connection_context=connection_context
         )
 
-    def _run(#pylint:disable=too-many-positional-arguments
+    def _run(#pylint:disable=too-many-positional-arguments,
         self,
         query_table : str,
         query_ts_id : str,
@@ -144,30 +146,49 @@ class DTW(BaseTool):
         save_alignment : bool=None,
         run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
         )-> str:
-        query_data=self.connection_context.table(query_table)
-        query_data_cols = query_data.columns
-        if query_ts_cols is None:
-            query_ts_cols = query_data_cols.copy()
-            for col in [query_ts_id, query_ts_order]:
-                try:
-                    query_ts_cols.remove(col)
-                except Exception:
-                    msg = f'Column `{col}` not found in query data.'
-                    return f'ValueError: {msg}'
-        elif isinstance(query_ts_cols, str):
-            query_ts_cols = [query_ts_cols]
-        ref_data=self.connection_context.table(ref_table)
-        ref_data_cols = ref_data.columns
-        if ref_ts_cols is None:
-            ref_ts_cols = ref_data_cols.copy()
-            for col in [ref_ts_id, ref_ts_order]:
-                try:
-                    ref_ts_cols.remove(col)
-                except Exception:
-                    msg = f'Column `{col}` not found in reference data.'
-                    return f'ValueError: {msg}'
-        elif isinstance(ref_ts_cols, str):
-            ref_ts_cols = [ref_ts_cols]
+        err_msg = ""
+        while True:#for exit purpose when error is encountered
+            try:
+                query_data=self.connection_context.table(query_table)
+                query_data_cols = query_data.columns
+            except ProgrammingError as perr:
+                if 'invalid table name' in str(perr):
+                    err_msg = f'Invalid table name: Could not find table/view {query_table}'
+                    break
+            if query_ts_cols is None:
+                query_ts_cols = query_data_cols.copy()
+                for col in [query_ts_id, query_ts_order]:
+                    try:
+                        query_ts_cols.remove(col)
+                    except Exception:
+                        err_msg = f'ValueError: Column `{col}` not found in query table.'
+                        break
+            elif isinstance(query_ts_cols, str):
+                query_ts_cols = [query_ts_cols]
+            try:
+                ref_data=self.connection_context.table(ref_table)
+                ref_data_cols = ref_data.columns
+            except ProgrammingError as perr:
+                if 'invalid table name' in str(perr):
+                    err_msg = f'Invalid table name: Could not find table/view {ref_table}'
+                    break
+            if ref_ts_cols is None:
+                ref_ts_cols = ref_data_cols.copy()
+                for col in [ref_ts_id, ref_ts_order]:
+                    try:
+                        ref_ts_cols.remove(col)
+                    except Exception:
+                        err_msg = f'ValueError: Column `{col}` not found in reference table.'
+                        break
+            elif isinstance(ref_ts_cols, str):
+                ref_ts_cols = [ref_ts_cols]
+            if len(query_ts_cols) != len(ref_ts_cols):
+                err_msg = "ValueError: Query time-series and reference time-series " +\
+                "are different in dimensionality."
+                break
+            break
+        if err_msg != "":
+            return add_stopping_hint(err_msg)
         query_data = query_data[[query_ts_id, query_ts_order] + query_ts_cols]
         ref_data = ref_data[[ref_ts_id, ref_ts_order] + ref_ts_cols]
         try:
@@ -182,14 +203,13 @@ class DTW(BaseTool):
                           save_alignment=save_alignment)
         except ValueError as verr:
             # Handles invalid parameter values (e.g., alpha not in [0,1])
-            return f'ValueError occurred: {str(verr)}'
+            return add_stopping_hint(f'ValueError occurred: {str(verr)}')
         except KeyError as kerr:
             # Handles missing columns in the DataFrame
-            return f'KeyError occurred: {str(kerr)}'
+            return add_stopping_hint(f'KeyError occurred: {str(kerr)}')
         except TypeError as terr:
             # Handles type mismatches (e.g., non-numeric input where number expected)
-            return f'TypeError occurred: {str(terr)}'
-
+            return add_stopping_hint(f'TypeError occurred: {str(terr)}')
         res_key = "DTW_results_in_tuple" + "(" + ", ".join(dtw_out[0].columns) + ")"
         res_list = []
         for row in dtw_out[0].collect().itertuples():
