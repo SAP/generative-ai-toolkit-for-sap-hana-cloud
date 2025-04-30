@@ -15,7 +15,6 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.changepoint import BCPD
 from hdbcli.dbapi import ProgrammingError
-from hana_ai.tools.hana_ml_tools.utility import add_stopping_hint#pylint:disable=no-name-in-module
 from hana_ai.utility import remove_prefix_sharp
 
 logger = logging.getLogger(__name__)
@@ -135,17 +134,17 @@ class BayesianChangePoint(BaseTool):
                                         key=key, endog=endog)
         except ValueError as verr:
             # Handles invalid parameter values (e.g., alpha not in [0,1])
-            return add_stopping_hint(f'ValueError occurred: {str(verr)}')
+            return f'ValueError occurred: {str(verr)}'
         except KeyError as kerr:
             # Handles missing columns in the DataFrame
-            return add_stopping_hint(f'KeyError occurred: {str(kerr)}')
+            return f'KeyError occurred: {str(kerr)}'
         except TypeError as terr:
             # Handles type mismatches (e.g., non-numeric input where number expected)
-            return add_stopping_hint(f'TypeError occurred: {str(terr)}')
+            return f'TypeError occurred: {str(terr)}'
         except ProgrammingError as perr:
             # Handles invalid table name specifically
             if 'invalid table name' in str(perr):
-                return add_stopping_hint(f'Invalid table name: Could not find table/view {table_name}')
+                return f'Invalid table name: Could not find table/view {table_name}'
         cf_table = remove_prefix_sharp(f"{table_name}_CORRELATION_RESULT")
         t_cps = ', '.join([str(stmp) for stmp in list(bcpd_dfs[0].collect().iloc[:,1])])
         s_cps = ', '.join([str(stmp) for stmp in list(bcpd_dfs[1].collect().iloc[:,1])])
