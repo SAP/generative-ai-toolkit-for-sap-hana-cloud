@@ -16,7 +16,6 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.dtw import dtw
 from hdbcli.dbapi import ProgrammingError
-from hana_ai.tools.hana_ml_tools.utility import add_stopping_hint
 from hana_ai.utility import remove_prefix_sharp
 
 logger = logging.getLogger(__name__)
@@ -188,7 +187,7 @@ class DTW(BaseTool):
                 break
             break
         if err_msg != "":
-            return add_stopping_hint(err_msg)
+            return err_msg
         query_data = query_data[[query_ts_id, query_ts_order] + query_ts_cols]
         ref_data = ref_data[[ref_ts_id, ref_ts_order] + ref_ts_cols]
         try:
@@ -203,13 +202,13 @@ class DTW(BaseTool):
                           save_alignment=save_alignment)
         except ValueError as verr:
             # Handles invalid parameter values (e.g., alpha not in [0,1])
-            return add_stopping_hint(f'ValueError occurred: {str(verr)}')
+            return f'ValueError occurred: {str(verr)}'
         except KeyError as kerr:
             # Handles missing columns in the DataFrame
-            return add_stopping_hint(f'KeyError occurred: {str(kerr)}')
+            return f'KeyError occurred: {str(kerr)}'
         except TypeError as terr:
             # Handles type mismatches (e.g., non-numeric input where number expected)
-            return add_stopping_hint(f'TypeError occurred: {str(terr)}')
+            return f'TypeError occurred: {str(terr)}'
         res_key = "DTW_results_in_tuple" + "(" + ", ".join(dtw_out[0].columns) + ")"
         res_list = []
         for row in dtw_out[0].collect().itertuples():
