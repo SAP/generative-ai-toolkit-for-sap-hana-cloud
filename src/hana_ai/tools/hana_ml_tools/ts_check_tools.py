@@ -45,6 +45,13 @@ def ts_char(df, key, endog):
         The endogenous column of the DataFrame.
     """
     analysis_result = ''
+
+    # Table info
+    table_struct = json.dumps(df.get_table_structure())
+    analysis_result += f"Table structure: {table_struct}\n"
+    analysis_result += f"Key: {key}\n"
+    analysis_result += f"Endog: {endog}\n"
+
     # Index info
     analysis_result += f"Index: starts from {df[key].min()} to {df[key].max()}. Time series length is {df.count()}\n"
 
@@ -88,6 +95,11 @@ def ts_char(df, key, endog):
     analysis_result += "Seasonality Test: "
     for _, row in result.iterrows():
         analysis_result += f"The {row['STAT_NAME']} is {row['STAT_VALUE']}."
+    analysis_result += "\n"
+
+    # Restrict time series algorithms
+    supported_algorithms = ["Additive Model Forecast", "Automatic Time Series Forecast"]
+    analysis_result += f"Supported algorithms: {', '.join(supported_algorithms)}\n"
 
     return analysis_result
 

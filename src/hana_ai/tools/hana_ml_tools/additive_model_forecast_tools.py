@@ -27,6 +27,13 @@ from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
 
 logger = logging.getLogger(__name__)
 
+def _guess_fourier_order(period: int) -> int:
+    # Calculate base value and round to nearest integer
+    base_value = round(period / 36.5)
+    
+    # Apply bounds: minimum 3, maximum 10
+    return max(3, min(10, base_value))
+
 class ModelFitInput(BaseModel):
     """
     This class is used to define the schema of the inputs for fitting the model
@@ -38,7 +45,8 @@ class ModelFitInput(BaseModel):
     growth: Optional[str] = Field(description="the growth of the model chosen from {'linear', 'logistic'}, it is optional", default=None)
     logistic_growth_capacity: Optional[float] = Field(description="the logistic growth capacity of the model only valid when growth is 'logistic', it is optional", default=None)
     seasonality_mode: Optional[str] = Field(description="the seasonality mode of the model chosen from {'additive', 'multiplicative'}, it is optional", default=None)
-    seasonality: Optional[str] = Field(description="adds seasonality to the model in a json format such that each str is in json format '{\"NAME\": \"MONTHLY\", \"PERIOD\":30, \"FOURIER_ORDER\":5 }', it is optional", default=None)
+    #seasonality: Optional[str] = Field(description="adds seasonality to the model in a json format such that each str is in json format '{\"NAME\": \"MONTHLY\", \"PERIOD\":30, \"FOURIER_ORDER\":5 }', it is optional", default=None)
+    period: Union[Optional[int], Optional[list]] = Field(description="the period of the seasonality and it could also be a list of periods, it is optional", default=None)
     num_changepoints: Optional[int] = Field(description="the number of changepoints in the model, it is optional", default=None)
     changepoint_range: Optional[float] = Field(description="the proportion of history in which trend changepoints will be estimated, it is optional", default=None)
     regressor: Optional[list] = Field(description="specifies the regressor in a list of json such that ['{\"NAME\": \"X1\", \"PRIOR_SCALE\":4, \"MODE\": \"additive\" }'], it is optional", default=None)
@@ -112,8 +120,8 @@ class AdditiveModelForecastFitAndSave(BaseTool):
                   - The logistic growth capacity of the model only valid when growth is 'logistic'.
                 * - seasonality_mode
                   - The seasonality mode of the model chosen from {'additive', 'multiplicative'}.
-                * - seasonality
-                  - Adds seasonality to the model in a json format such that each str is in json format '{\"NAME\": \"MONTHLY\", \"PERIOD\":30, \"FOURIER_ORDER\":5 }'.
+                * - period
+                  - The period of the seasonality or a list of periods.
                 * - num_changepoints
                   - The number of changepoints in the model.
                 * - changepoint_range
@@ -162,7 +170,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         growth: Optional[str] = None,
         logistic_growth_capacity: Optional[float] = None,
         seasonality_mode: Optional[str] = None,
-        seasonality: Optional[str] = None,
+        period: Union[Optional[int], Optional[list]] = None,
         num_changepoints: Optional[int] = None,
         changepoint_range: Optional[float] = None,
         regressor: Optional[list] = None,
@@ -188,6 +196,16 @@ class AdditiveModelForecastFitAndSave(BaseTool):
             return f"Key {key} does not exist in the table {fit_table}."
         ms = ModelStorage(connection_context=self.connection_context)
         ms._create_metadata_table()
+        seasonality = None
+        if period:
+            if isinstance(period, list):
+                seasonality = []
+                for idx, p in enumerate(period):
+                    fo = _guess_fourier_order(p)
+                    seasonality.append(f'{{"NAME": "SEASONALITY_{idx}", "PERIOD":{p}, "FOURIER_ORDER":{fo} }}')
+            else:
+                fo = _guess_fourier_order(period)
+                seasonality = f'{{"NAME": "SEASONALITY", "PERIOD":{period}, "FOURIER_ORDER":{fo} }}'
         try:
             amf = AdditiveModelForecast(
                 growth=growth,
@@ -245,7 +263,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         growth: Optional[str] = None,
         logistic_growth_capacity: Optional[float] = None,
         seasonality_mode: Optional[str] = None,
-        seasonality: Optional[str] = None,
+        period: Union[Optional[int], Optional[list]] = None,
         num_changepoints: Optional[int] = None,
         changepoint_range: Optional[float] = None,
         regressor: Optional[list] = None,
@@ -270,7 +288,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
             growth=growth,
             logistic_growth_capacity=logistic_growth_capacity,
             seasonality_mode=seasonality_mode,
-            seasonality=seasonality,
+            period=period,
             num_changepoints=num_changepoints,
             changepoint_range=changepoint_range,
             regressor=regressor,
