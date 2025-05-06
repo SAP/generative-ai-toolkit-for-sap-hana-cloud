@@ -81,7 +81,6 @@ class ModelPredictInput(BaseModel):
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
     show_explainer: Optional[bool] = Field(description="whether to show explainer, it is optional", default=None)
-    predict_args: Optional[dict] = Field(description="the arguments for prediction, it is optional", default=None)
 
 class ModelScoreInput(BaseModel):
     """
@@ -93,7 +92,6 @@ class ModelScoreInput(BaseModel):
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
     exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
-    predict_args: Optional[dict] = Field(description="the arguments for prediction, it is optional", default=None)
 
 class AutomaticTimeSeriesFitAndSave(BaseTool):
     """
@@ -421,8 +419,6 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
                   - The exog of the dataset, it is optional
                 * - show_explainer
                   - Whether to show explainer, it is optional
-                * - predict_args
-                  - The arguments for prediction, it is optional
     """
     name: str = "automatic_timeseries_load_model_and_predict"
     """Name of the tool."""
@@ -451,7 +447,6 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
         version: str=None,
         exog: Union[str, list]=None,
         show_explainer: bool=None,
-        predict_args: dict=None,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
@@ -468,8 +463,7 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
         model.predict(data=self.connection_context.table(predict_table),
                       key=key,
                       exog=exog,
-                      show_explainer=show_explainer,
-                      predict_args=predict_args)
+                      show_explainer=show_explainer)
         ms.save_model(model=model, if_exists='replace_meta')
         predicted_results = f"{name}_{version}_PREDICTED_RESULTS"
         self.connection_context.table(model._predict_output_table_names[0]).save(predicted_results, force=True)
@@ -487,7 +481,6 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
         version: str=None,
         exog: Union[str, list]=None,
         show_explainer: bool=None,
-        predict_args: dict=None,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool asynchronously."""
@@ -498,7 +491,6 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
             version=version,
             exog=exog,
             show_explainer=show_explainer,
-            predict_args=predict_args,
             run_manager=run_manager
         )
 
@@ -538,8 +530,7 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
                   - The endog of the dataset. If not provided, ask the user. Do not guess.
                 * - exog
                   - The exog of the dataset, it is optional
-                * - predict_args
-                  - The arguments for prediction, it is optional
+
     """
     name: str = "automatic_timeseries_load_model_and_score"
     """Name of the tool."""
@@ -568,7 +559,6 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
         version: str=None,
         endog: str=None,
         exog: Union[str, list]=None,
-        predict_args: dict=None,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
@@ -584,8 +574,7 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
         model.score(data=self.connection_context.table(score_table),
                     key=key,
                     endog=endog,
-                    exog=exog,
-                    predict_args=predict_args)
+                    exog=exog)
         ms.save_model(model=model, if_exists='replace_meta')
         scored_results = f"{name}_{version}_SCORED_RESULTS"
         self.connection_context.table(model._score_output_table_names[0]).save(scored_results, force=True)
@@ -603,7 +592,6 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
         version: str=None,
         endog: str=None,
         exog: Union[str, list]=None,
-        predict_args: dict=None,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool asynchronously."""
@@ -614,6 +602,5 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
             version=version,
             endog=endog,
             exog=exog,
-            predict_args=predict_args,
             run_manager=run_manager
         )
