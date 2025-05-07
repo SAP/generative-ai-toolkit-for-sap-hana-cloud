@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TimeSeriesDatasetReport &mdash; hana.ai 1.0.25042400 documentation</title>
+  <title>TimeSeriesDatasetReport &mdash; hana.ai 1.0.25050600 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -17,7 +17,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=51dba46a"></script>
+        <script src="../_static/documentation_options.js?v=6a8d77aa"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -39,7 +39,7 @@
             hana.ai
           </a>
               <div class="version">
-                1.0.25042400
+                1.0.25050600
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -431,31 +431,34 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>(tool_input[, verbose, start_color, ...])</p></td>
 <td><p>Run the tool.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code>(input[, config])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.set_bas" title="hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.set_bas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_bas</span></code></a>(bas)</p></td>
+<td><p>Set the bas flag to True or False.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code>(input[, config])</p></td>
 <td><p>Default implementation of stream, which calls invoke.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code>()</p></td>
 <td><p>Serialize the runnable to JSON.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(input[, config])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(input[, config])</p></td>
 <td><p>Default implementation of transform, which buffers input and then calls stream.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
 <td><p>Try to update ForwardRefs on fields based on this Model, globalns and localns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_config</span></code>([config])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_config</span></code>([config])</p></td>
 <td><p>Bind config to a Runnable, returning a new Runnable.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_fallbacks</span></code>(fallbacks, *[, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_fallbacks</span></code>(fallbacks, *[, ...])</p></td>
 <td><p>Add fallbacks to a runnable, returning a new Runnable.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_listeners</span></code>(*[, on_start, on_end, on_error])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_listeners</span></code>(*[, on_start, on_end, on_error])</p></td>
 <td><p>Bind lifecycle listeners to a Runnable, returning a new Runnable.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_retry</span></code>(*[, retry_if_exception_type, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_retry</span></code>(*[, retry_if_exception_type, ...])</p></td>
 <td><p>Create a new Runnable that retries the original runnable on exceptions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_types</span></code>(*[, input_type, output_type])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_types</span></code>(*[, input_type, output_type])</p></td>
 <td><p>Bind input and output types to a Runnable, returning a new Runnable.</p></td>
 </tr>
 </tbody>
@@ -489,6 +492,12 @@
 <span class="sig-name descname"><span class="pre">return_direct</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.return_direct" title="Link to this definition"></a></dt>
 <dd><p>Whether to return the tool's output directly. Setting this to True means</p>
 <p>that after the tool is called, the AgentExecutor will stop looping.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.set_bas">
+<span class="sig-name descname"><span class="pre">set_bas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.set_bas" title="Link to this definition"></a></dt>
+<dd><p>Set the bas flag to True or False.</p>
 </dd></dl>
 
 </dd></dl>

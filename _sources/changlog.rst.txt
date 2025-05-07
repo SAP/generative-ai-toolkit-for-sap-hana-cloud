@@ -1,6 +1,12 @@
 Changelog
 =========
 
+**Version 1.0.250506**
+
+``Enhancements``
+    - Enhanced the seasonality detection for additive_model_forecast_tools.
+    - Provide table meta information and supported algorithms in ts_check tool.
+
 **Version 1.0.250424**
 
 ``Enhancements``
