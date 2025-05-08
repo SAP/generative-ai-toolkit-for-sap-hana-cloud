@@ -103,7 +103,7 @@ class HANAMLAgentWithMemory(object):
         self.memory = InMemoryChatMessageHistory(session_id=session_id)
         system_prompt = """You're an assistant skilled in data science using hana-ml tools.
         Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools.
-        Ask for missing parameters if needed. NEVER return raw JSON strings outside this structure."""
+        Ask for missing parameters if needed. The tool call parameters can refer to the previous analysis data. NEVER return raw JSON strings outside this structure."""
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
@@ -148,8 +148,9 @@ class HANAMLAgentWithMemory(object):
                                                                    })
         except Exception as e:
             error_message = str(e)
-            self.memory.add_user_message(question)
-            self.memory.add_ai_message(f"The error message is `{error_message}`.")
+            if "Error code: 429" not in error_message:
+                self.memory.add_user_message(question)
+                self.memory.add_ai_message(f"The error message is `{error_message}`.")
             response = error_message
         if isinstance(response, pd.DataFrame):
             meta = _get_pandas_meta(response)
@@ -168,7 +169,8 @@ class HANAMLAgentWithMemory(object):
                     response = json.loads(action_json)
                 except Exception as e:
                     error_message = str(e)
-                    self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
+                    if "Error code: 429" not in error_message:
+                        self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
             if isinstance(response, str) and response.strip() == "":
                 response = "I'm sorry, I don't understand. Please ask me again."
         if isinstance(response, dict) and 'action' in response and 'action_input' in response:
@@ -186,7 +188,8 @@ class HANAMLAgentWithMemory(object):
                         return response
                     except Exception as e:
                         error_message = str(e)
-                        self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
+                        if "Error code: 429" not in error_message:
+                            self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
         return response
 
 def stateless_call(llm, tools, question, chat_history=None, verbose=False, return_intermediate_steps=False):
