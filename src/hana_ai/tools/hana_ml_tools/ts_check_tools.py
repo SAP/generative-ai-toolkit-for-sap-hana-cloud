@@ -98,8 +98,8 @@ def ts_char(df, key, endog):
     analysis_result += "\n"
 
     # Restrict time series algorithms
-    supported_algorithms = ["Additive Model Forecast", "Automatic Time Series Forecast"]
-    analysis_result += f"Supported algorithms: {', '.join(supported_algorithms)}\n"
+    available_algorithms = ["Additive Model Forecast", "Automatic Time Series Forecast"]
+    analysis_result += f"Available algorithms: {', '.join(available_algorithms)}\n"
 
     return analysis_result
 
