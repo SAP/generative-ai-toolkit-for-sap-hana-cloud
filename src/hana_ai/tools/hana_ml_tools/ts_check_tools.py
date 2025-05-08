@@ -75,7 +75,7 @@ def ts_char(df, key, endog):
     result = stationarity_test(df_, key_, endog).collect()
     analysis_result += "Stationarity Test: "
     for _, row in result.iterrows():
-        analysis_result += f"The {row['STATS_NAME']} is {row['STATS_VALUE']}."
+        analysis_result += f"The `{row['STATS_NAME']}` is {row['STATS_VALUE']}."
     analysis_result += "\n"
 
     # Trend Test
@@ -94,7 +94,7 @@ def ts_char(df, key, endog):
     result = seasonal_decompose(df_, key_, endog)[0].collect()
     analysis_result += "Seasonality Test: "
     for _, row in result.iterrows():
-        analysis_result += f"The {row['STAT_NAME']} is {row['STAT_VALUE']}."
+        analysis_result += f"The `{row['STAT_NAME']}` is {row['STAT_VALUE']}."
     analysis_result += "\n"
 
     # Restrict time series algorithms
