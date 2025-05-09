@@ -40,7 +40,7 @@ class ForecastLinePlotInput(BaseModel):
     """
     The input schema for the ForecastLinePlot tool.
     """
-    predict_table_name: str = Field(description="the name of the predicted result table. If not provided, ask the user. Do not guess.")
+    predict_result: str = Field(description="the name of the predicted result table. If not provided, ask the user. Do not guess.")
     actual_table_name: Optional[str] = Field(description="the name of the actual data table, it is optional", default=None)
     confidence: Optional[tuple] = Field(description="the column names of confidence bounds, it is optional", default=None)
     output_dir: Optional[str] = Field(description="the output directory to save the line plot, it is optional", default=None)
@@ -166,7 +166,7 @@ class ForecastLinePlot(BaseTool):
 
                 * - Field
                   - Description
-                * - predict_table_name
+                * - predict_result
                   - the name of the predicted result table. If not provided, ask the user. Do not guess.
                 * - actual_table_name
                   - the name of the actual data table, it is optional
@@ -201,16 +201,16 @@ class ForecastLinePlot(BaseTool):
         self.bas = bas
 
     def _run(
-        self, predict_table_name: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[CallbackManagerForToolRun] = None
+        self, predict_result: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
-        # check predict_table_name in the hana db
-        if not self.connection_context.has_table(predict_table_name):
-            return json.dumps({"error": f"Table {predict_table_name} does not exist."})
+        # check predict_result in the hana db
+        if not self.connection_context.has_table(predict_result):
+            return json.dumps({"error": f"Table {predict_result} does not exist."})
         # check actual_table_name in the hana db
         if actual_table_name is not None and not self.connection_context.has_table(actual_table_name):
             return json.dumps({"error": f"Table {actual_table_name} does not exist."})
-        predict_df = self.connection_context.table(predict_table_name)
+        predict_df = self.connection_context.table(predict_result)
         if confidence is None:
             if "YHAT_LOWER" in predict_df.columns and "YHAT_UPPER" in predict_df.columns:
                 # check if "YHAT_LOWER" column has values
@@ -251,7 +251,7 @@ class ForecastLinePlot(BaseTool):
                 raise
         output_file = os.path.join(
                     destination_dir,
-                    f"{predict_table_name}_forecast_line_plot.html",
+                    f"{predict_result}_forecast_line_plot.html",
                 )
         with Path(output_file).open("w", encoding="utf-8") as f:
             f.write(fig.to_html(full_html=True))
@@ -260,7 +260,7 @@ class ForecastLinePlot(BaseTool):
         return json.dumps({"html_file": output_file})
 
     async def _arun(
-        self, predict_table_name: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        self, predict_result: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(predict_table_name, actual_table_name, confidence, output_dir, run_manager=run_manager)
+        return self._run(predict_result, actual_table_name, confidence, output_dir, run_manager=run_manager)
