@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.250509**
+
+``Enhancements``
+    - Output the inspect code for BAS integration.
+
 **Version 1.0.250506**
 
 ``Enhancements``

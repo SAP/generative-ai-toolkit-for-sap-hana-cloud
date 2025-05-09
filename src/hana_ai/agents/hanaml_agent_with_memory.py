@@ -9,6 +9,7 @@ The following class is available:
 
 #pylint: disable=ungrouped-imports, abstract-method
 import json
+import inspect
 import logging
 import pandas as pd
 from pydantic import ValidationError
@@ -24,6 +25,25 @@ from langchain.load.dump import dumps
 
 logging.getLogger().setLevel(logging.ERROR)
 
+def _inspect_python_code(intermediate_steps, tools):
+    try:
+        ss = json.loads(intermediate_steps)
+    except:
+        return None
+    if intermediate_steps is None:
+        return None
+    collect_tool_call = []
+
+    for step in ss:
+        for substep in step:
+            if isinstance(substep, dict) and 'type' in substep and substep['type'] == 'constructor':
+                if 'kwargs' in substep and 'tool' in substep['kwargs']:
+                    tool_name = substep['kwargs']['tool']
+                    for tool in tools:
+                        if tool.name == tool_name:
+                            collect_tool_call.append({"tool_name": tool_name, "parameters": substep['kwargs']['tool_input'], "python_code": inspect.getsource(tool._run)})
+                            break
+    return collect_tool_call
 class _ToolObservationCallbackHandler(BaseCallbackHandler):
     def __init__(self, memory_getter, max_observations=5):
         super().__init__()
@@ -229,8 +249,11 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
         ("human", "{question}"),
     ])
     agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, return_intermediate_steps=return_intermediate_steps, handle_parsing_errors=True)
+    intermediate_steps = None
     try:
         response = agent.invoke({"question": question, "history": chat_history})
+        if return_intermediate_steps is True:
+            intermediate_steps = response.get("intermediate_steps")
     except ValidationError as e:
         # Parse Pydantic error details for feedback
         error_details = "\n".join([f"{err['loc'][0]}: {err['msg']}" for err in e.errors()])
@@ -243,12 +266,11 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
         if return_intermediate_steps is True:
             response = {
                 "output": response,
-                "intermediate_steps": dumps(None) if return_intermediate_steps else None
+                "intermediate_steps": dumps(intermediate_steps) if return_intermediate_steps else None
             }
+            response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
         return response
-    intermediate_steps = None
-    if return_intermediate_steps is True:
-        intermediate_steps = response.get("intermediate_steps")
+
     if isinstance(response, dict) and 'output' in response:
         response = response['output']
     if isinstance(response, str):
@@ -277,4 +299,5 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
             "output": response,
             "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None
         }
+        response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
     return response
