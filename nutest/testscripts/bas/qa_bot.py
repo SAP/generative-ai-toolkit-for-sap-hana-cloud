@@ -78,11 +78,25 @@ if __name__ == "__main__":
         # Process and output
         result = process_strings(input_data['question'], input_data['chat_history'])
         if isinstance(result, pd.DataFrame):
-            result = result.to_dict(orient="records")
+            result = json.dumps(result.to_dict(orient="records"), ensure_ascii=False, cls=_CustomEncoder)
         if isinstance(result, dict):
             if 'output' in result:
                 if isinstance(result['output'], pd.DataFrame):
-                    result['output'] = result['output'].to_dict(orient="records")
+                    result['output'] = json.dumps(result['output'].to_dict(orient="records"), ensure_ascii=False, cls=_CustomEncoder)
+                if isinstance(result['output'], dict) and 'action' in result['output'] and 'action_input' in result['output']:
+                    response = result['output']
+                    action = response.get("action")
+                    for tool in tools:
+                        if tool.name == action:
+                            action_input = response.get("action_input")
+                            try:
+                                response = tool.run(action_input)
+                            except Exception as e:
+                                error_message = str(e)
+                                response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+                    if isinstance(response, pd.DataFrame):
+                        response = json.dumps(response.to_dict(orient="records"), ensure_ascii=False, cls=_CustomEncoder)
+                    result['output'] = response
             if 'intermediate_steps' in result:
                 if result['intermediate_steps'] is None:
                     result['intermediate_steps'] = ''

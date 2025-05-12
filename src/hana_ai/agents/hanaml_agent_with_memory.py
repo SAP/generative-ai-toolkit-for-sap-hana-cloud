@@ -33,7 +33,8 @@ def _inspect_python_code(intermediate_steps, tools):
     if intermediate_steps is None:
         return None
     collect_tool_call = []
-
+    if not isinstance(ss, list):
+        return None
     for step in ss:
         for substep in step:
             if isinstance(substep, dict) and 'type' in substep and substep['type'] == 'constructor':
@@ -41,7 +42,7 @@ def _inspect_python_code(intermediate_steps, tools):
                     tool_name = substep['kwargs']['tool']
                     for tool in tools:
                         if tool.name == tool_name:
-                            collect_tool_call.append({"tool_name": tool_name, "parameters": substep['kwargs']['tool_input'], "python_code": inspect.getsource(tool._run)})
+                            collect_tool_call.append({"tool_name": tool_name, "parameters": json.dumps(substep['kwargs']['tool_input']), "python_code": inspect.getsource(tool._run)})
                             break
     return collect_tool_call
 class _ToolObservationCallbackHandler(BaseCallbackHandler):
@@ -123,7 +124,7 @@ class HANAMLAgentWithMemory(object):
         self.memory = InMemoryChatMessageHistory(session_id=session_id)
         system_prompt = """You're an assistant skilled in data science using hana-ml tools.
         Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools.
-        Ask for missing parameters if needed. The tool call parameters can refer to the previous analysis data. NEVER return raw JSON strings outside this structure."""
+        Ask for missing parameters if needed. The tool call parameters can refer to the previous analysis data."""
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
@@ -240,8 +241,7 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
     if chat_history is None:
         chat_history = []
     system_prompt = """You're an assistant skilled in data science using hana-ml tools.
-    Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools.
-    Ask for missing parameters if needed. NEVER return raw JSON strings outside this structure."""
+    Ask for missing parameters if needed."""
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
