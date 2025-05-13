@@ -134,7 +134,7 @@ class TimeSeriesDatasetReport(BaseTool):
         ur.display(save_html=output_file)
         if not self.bas:
             ur.display() #directly display in jupyter
-        return json.dumps({"html_file": output_file + ".html"})
+        return json.dumps({"html_file": str(Path(output_file + ".html").as_posix())}, ensure_ascii=False)
 
     async def _arun(
         self, table_name: str, key: str, endog: str, output_dir, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
@@ -257,7 +257,7 @@ class ForecastLinePlot(BaseTool):
             f.write(fig.to_html(full_html=True))
         if not self.bas:
             fig.show() #directly display in jupyter
-        return json.dumps({"html_file": output_file})
+        return json.dumps({"html_file": str(Path(output_file).as_posix())}, ensure_ascii=False)
 
     async def _arun(
         self, predict_result: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[AsyncCallbackManagerForToolRun] = None

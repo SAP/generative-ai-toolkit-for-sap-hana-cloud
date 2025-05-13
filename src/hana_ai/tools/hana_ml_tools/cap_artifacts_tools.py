@@ -8,6 +8,7 @@ The following class is available:
 
 import logging
 import os
+from pathlib import Path
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
@@ -111,7 +112,7 @@ class CAPArtifactsTool(BaseTool):
             namespace=namespace
         )
         generator.generate_artifacts(model, cds_gen=cds_gen, tudf=tudf, archive=archive)
-        return "CAP artifacts generated successfully. Root directory: " + os.path.join(generator.output_dir, generator.project_name)
+        return "CAP artifacts generated successfully. Root directory: " + str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())
 
     async def _run_async(
         self, name: str, version: str, project_name: str, output_dir: str, namespace: Optional[str] = None,
