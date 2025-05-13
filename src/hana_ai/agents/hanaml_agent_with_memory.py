@@ -123,8 +123,7 @@ class HANAMLAgentWithMemory(object):
         self.tools = tools
         self.memory = InMemoryChatMessageHistory(session_id=session_id)
         system_prompt = """You're an assistant skilled in data science using hana-ml tools.
-        Always respond with a valid JSON blob containing 'action' and 'action_input' to call tools.
-        Ask for missing parameters if needed. The tool call parameters can refer to the previous analysis data."""
+        Ask for missing parameters if needed."""
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
