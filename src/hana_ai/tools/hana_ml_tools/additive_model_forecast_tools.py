@@ -6,7 +6,7 @@ The following class are available:
     * :class `AdditiveModelForecastFitAndSave`
     * :class `AdditiveModelForecastLoadModelAndPredict`
 """
-
+#pylint: disable=too-many-return-statements
 
 import json
 import logging
