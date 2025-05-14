@@ -6,7 +6,7 @@ The following class are available:
     * :class `AdditiveModelForecastFitAndSave`
     * :class `AdditiveModelForecastLoadModelAndPredict`
 """
-
+#pylint: disable=too-many-return-statements
 
 import json
 import logging
@@ -389,6 +389,10 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        if not self.connection_context.has_table(predict_table):
+            return f"Table {predict_table} does not exist in the database."
+        if key not in self.connection_context.table(predict_table).columns:
+            return f"Key {key} does not exist in the table {predict_table}."
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name=name, version=version)
         if hasattr(model, 'version'):
