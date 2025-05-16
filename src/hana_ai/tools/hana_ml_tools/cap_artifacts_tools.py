@@ -201,12 +201,9 @@ class CAPArtifactsForBASTool(BaseTool):
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
 
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-          # Create a subdirectory
-            output_dir = os.path.join(tmpdir, "hana-ai")
-            os.makedirs(output_dir)
-            print(output_dir)
+        temp_root = tempfile.gettempdir()
+        output_dir = os.path.join(temp_root, "hana-ai")
+        os.makedirs(output_dir, exist_ok=True)
         generator = HANAGeneratorForCAP(
             project_name="capproject",
             output_dir=output_dir
