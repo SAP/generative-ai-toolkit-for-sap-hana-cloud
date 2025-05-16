@@ -15,7 +15,7 @@ from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool
 from hana_ai.tools.hana_ml_tools.model_storage_tools import ListModels
 from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
-from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsTool
+from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsForBASTool, CAPArtifactsTool
 from hana_ai.tools.hana_ml_tools.intermittent_forecast_tools import IntermittentForecast
 from hana_ai.tools.hana_ml_tools.ts_visualizer_tools import ForecastLinePlot, TimeSeriesDatasetReport
 from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
@@ -120,6 +120,12 @@ class HANAMLToolkit(BaseToolkit):
         for tool in self.used_tools:
             if hasattr(tool, "bas"):
                 tool.bas = bas
+        # remove the GetCodeTemplateFromVectorDB tool if it is in the used_tools
+        for tool in self.used_tools:
+            if isinstance(tool, CAPArtifactsTool):
+                self.used_tools.remove(tool)
+                break
+        self.used_tools.append(CAPArtifactsForBASTool(connection_context=self.connection_context))
         return self
 
     def set_vectordb(self, vectordb):
