@@ -6,6 +6,8 @@ The following class is available:
     * :class `CAPArtifactsTool`
 """
 
+#pylint: disable=too-many-function-args
+
 import logging
 import os
 import tempfile
