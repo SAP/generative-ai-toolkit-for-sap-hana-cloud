@@ -154,7 +154,7 @@ class HANAMLAgentWithMemory(object):
         self.tools = tools
         self.memory = InMemoryChatMessageHistory(session_id=session_id)
         system_prompt = """You're an assistant skilled in data science using hana-ml tools.
-        Ask for missing parameters if needed."""
+        Ask for missing parameters if needed. Regardless of whether this tool has been called before, it must be called."""
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
@@ -271,7 +271,7 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
     if chat_history is None:
         chat_history = []
     system_prompt = """You're an assistant skilled in data science using hana-ml tools.
-    Ask for missing parameters if needed."""
+    Ask for missing parameters if needed. Regardless of whether this tool has been called before, it must be called."""
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
