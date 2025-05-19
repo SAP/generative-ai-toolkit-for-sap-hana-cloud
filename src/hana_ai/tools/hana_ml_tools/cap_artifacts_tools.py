@@ -8,10 +8,12 @@ The following class is available:
 
 #pylint: disable=too-many-function-args
 
+import json
 import logging
 import os
 import tempfile
 from pathlib import Path
+import platform
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
@@ -201,7 +203,7 @@ class CAPArtifactsForBASTool(BaseTool):
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
 
-        temp_root = tempfile.gettempdir()
+        temp_root = Path("/tmp" if platform.system() == "Darwin" else tempfile.gettempdir())
         output_dir = os.path.join(temp_root, "hana-ai")
         os.makedirs(output_dir, exist_ok=True)
         generator = HANAGeneratorForCAP(
@@ -209,7 +211,7 @@ class CAPArtifactsForBASTool(BaseTool):
             output_dir=output_dir
         )
         generator.generate_artifacts(model, cds_gen=cds_gen, tudf=tudf, archive=archive)
-        return "CAP artifacts generated successfully. Root directory: " + str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())
+        return json.dumps({"generated_cap_project" : str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())})
 
     async def _run_async(
         self, name: str, version: str, project_name: str, output_dir: str, namespace: Optional[str] = None,
