@@ -156,14 +156,16 @@ class HANAMLAgentWithMemory(object):
         system_prompt = """You're an assistant skilled in data science using hana-ml tools.
         Ask for missing parameters if needed. Regardless of whether this tool has been called before, it must be called."""
 
-        prompt = ChatPromptTemplate.from_messages([
+        self.prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
             MessagesPlaceholder(variable_name="history", n_messages=n_messages),
             ("human", "{question}"),
         ])
+        self.kwargs = {**kwargs}
+        self.verbose = verbose
         # Create callback handler linked to memory
         self.observation_callback = _ToolObservationCallbackHandler(lambda: self.memory, max_observations=max_observations)
-        chain: Runnable = prompt | initialize_agent(tools,
+        chain: Runnable = self.prompt | initialize_agent(tools,
                                                     llm,
                                                     agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,verbose=verbose,
                                                     callbacks=[self.observation_callback],
@@ -182,6 +184,34 @@ class HANAMLAgentWithMemory(object):
     def add_ai_message(self, content: str):
         """Add a response from the AI to the chat history."""
         self.memory.add_ai_message(content)
+
+    def set_return_direct(self, config: dict):
+        """
+        Set the return_direct flag for a specific tool.
+
+        Parameters
+        ----------
+        config : dict
+            A dictionary containing the tool name and the return_direct flag.
+            Example: {"fetch_data": True}
+        """
+        if isinstance(config, dict):
+            for idx, tool in enumerate(self.tools):
+                if tool.name in config:
+                    self.tools[idx].return_direct = config[tool.name]
+        else:
+            raise ValueError("The config parameter should be a dictionary.")
+        # 需要重新初始化agent更新工具信息
+        chain: Runnable = self.prompt | initialize_agent(self.tools,
+                                                    self.llm,
+                                                    agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,verbose=self.verbose,
+                                                    callbacks=[self.observation_callback],
+                                                    **self.kwargs)
+
+        self.agent_with_chat_history = RunnableWithMessageHistory(chain,
+                                                                  lambda session_id: self.memory,
+                                                                  input_messages_key="question",
+                                                                  history_messages_key="history")
 
     def run(self, question):
         """
