@@ -25,6 +25,37 @@ from langchain.load.dump import dumps
 
 logging.getLogger().setLevel(logging.ERROR)
 
+def _check_generated_cap_for_bas(intermediate_steps):
+    """
+    Check if the generated CAP artifacts are valid.
+
+    Parameters
+    ----------
+    intermediate_steps : str
+        The intermediate steps to check.
+
+    Returns
+    -------
+    bool
+        True if the generated CAP artifacts are valid, False otherwise.
+    """
+    try:
+        ss = json.loads(intermediate_steps)
+    except:
+        return False
+    if intermediate_steps is None:
+        return False
+    if not isinstance(ss, list):
+        return False
+    for step in ss:
+        for substep in step:
+            if isinstance(substep, dict) and 'type' in substep and substep['type'] == 'constructor':
+                if 'kwargs' in substep and 'tool' in substep['kwargs']:
+                    tool_name = substep['kwargs']['tool']
+                    if tool_name == "cap_artifacts_for_bas":
+                        return True
+    return False
+
 def _inspect_python_code(intermediate_steps, tools):
     try:
         ss = json.loads(intermediate_steps)
@@ -268,6 +299,7 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
                 "intermediate_steps": dumps(intermediate_steps) if return_intermediate_steps else None
             }
             response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
+            response["generated_cap_project"] = _check_generated_cap_for_bas(intermediate_steps)
         return response
 
     if isinstance(response, dict) and 'output' in response:
@@ -299,4 +331,5 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
             "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None
         }
         response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
+        response["generated_cap_project"] = _check_generated_cap_for_bas(intermediate_steps)
     return response
