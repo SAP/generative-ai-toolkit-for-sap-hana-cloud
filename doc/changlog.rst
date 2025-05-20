@@ -1,6 +1,15 @@
 Changelog
 =========
 
+**Version 1.0.250520**
+
+``Enhancements``
+    - Added set_return_direct function in hanaml Agent.
+
+``Bug Fixes``
+    - Fixed the prompt in hanaml Agent to enable tool cal.
+    - Fixed CAP generation temporary location in MacOS.
+
 **Version 1.0.250509**
 
 ``Enhancements``
