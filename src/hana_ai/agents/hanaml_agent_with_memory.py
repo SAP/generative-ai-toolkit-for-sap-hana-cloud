@@ -329,7 +329,7 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
                 "intermediate_steps": dumps(intermediate_steps) if return_intermediate_steps else None
             }
             response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
-            response["generated_cap_project"] = _check_generated_cap_for_bas(intermediate_steps)
+            response["generated_cap_project"] = _check_generated_cap_for_bas(response["intermediate_steps"])
         return response
 
     if isinstance(response, dict) and 'output' in response:
@@ -361,5 +361,5 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
             "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None
         }
         response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
-        response["generated_cap_project"] = _check_generated_cap_for_bas(intermediate_steps)
+        response["generated_cap_project"] = _check_generated_cap_for_bas(response["intermediate_steps"])
     return response
