@@ -25,6 +25,9 @@ from langchain.load.dump import dumps
 
 logging.getLogger().setLevel(logging.ERROR)
 
+CHATBOT_SYSTEM_PROMPT = """You're an assistant skilled in data science using hana-ml tools.
+Ask for missing parameters if needed. Regardless of whether this tool has been called before, it must be called."""
+
 def _check_generated_cap_for_bas(intermediate_steps):
     """
     Check if the generated CAP artifacts are valid.
@@ -153,8 +156,7 @@ class HANAMLAgentWithMemory(object):
         self.llm = llm
         self.tools = tools
         self.memory = InMemoryChatMessageHistory(session_id=session_id)
-        system_prompt = """You're an assistant skilled in data science using hana-ml tools.
-        Ask for missing parameters if needed. Regardless of whether this tool has been called before, it must be called."""
+        system_prompt = CHATBOT_SYSTEM_PROMPT
 
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
@@ -273,7 +275,7 @@ class HANAMLAgentWithMemory(object):
                             self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
         return response
 
-def stateless_call(llm, tools, question, chat_history=None, verbose=False, return_intermediate_steps=False):
+def stateless_call(llm, tools, question, chat_history=None, verbose=False, return_intermediate_steps=False, system_prompt=CHATBOT_SYSTEM_PROMPT):
     """
     Utility function to call the agent with chat_history input. For stateless use cases.
     This function is useful for BAS integration purposes.
@@ -300,8 +302,6 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
     """
     if chat_history is None:
         chat_history = []
-    system_prompt = """You're an assistant skilled in data science using hana-ml tools.
-    Ask for missing parameters if needed. Regardless of whether this tool has been called before, it must be called."""
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
