@@ -389,6 +389,7 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
+        predict_df = self.connection_context.table(predict_table)
         if not self.connection_context.has_table(predict_table):
             return f"Table {predict_table} does not exist in the database."
         if key not in self.connection_context.table(predict_table).columns:
@@ -398,8 +399,10 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         if hasattr(model, 'version'):
             if model.version is not None:
                 version = model.version
+        if len(predict_df.columns) == 1:
+            predict_df = predict_df.add_constant("PLACEHOLDER", 0)
         try:
-            model.predict(data=self.connection_context.table(predict_table),
+            model.predict(data=predict_df,
                         key=key,
                         exog=exog,
                         logistic_growth_capacity=logistic_growth_capacity,
