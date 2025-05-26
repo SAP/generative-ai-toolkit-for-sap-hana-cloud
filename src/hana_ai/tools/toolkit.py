@@ -22,7 +22,7 @@ from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTime
 from hana_ai.tools.hana_ml_tools.ts_check_tools import TimeSeriesCheck
 from hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools import TSOutlierDetection
 from hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools import AccuracyMeasure
-from hana_ai.tools.hana_ml_tools.unsupported_tools import ClassificationTool
+from hana_ai.tools.hana_ml_tools.unsupported_tools import ClassificationTool, RegressionTool
 
 class HANAMLToolkit(BaseToolkit):
     """
@@ -67,7 +67,8 @@ class HANAMLToolkit(BaseToolkit):
             TimeSeriesDatasetReport(connection_context=self.connection_context),
             TimeSeriesCheck(connection_context=self.connection_context),
             TSOutlierDetection(connection_context=self.connection_context),
-            ClassificationTool(connection_context=self.connection_context)
+            ClassificationTool(connection_context=self.connection_context),
+            RegressionTool(connection_context=self.connection_context)
         ]
         if isinstance(return_direct, dict):
             for tool in self.default_tools:

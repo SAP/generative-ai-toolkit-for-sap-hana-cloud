@@ -73,49 +73,49 @@ class ClassificationTool(BaseTool):
         """Use the tool asynchronously."""
         return self._run(run_manager=run_manager)
 
-    class RegressionTool(BaseTool):
-        """
-        This tool is to handle unsupported tools.
+class RegressionTool(BaseTool):
+    """
+    This tool is to handle unsupported tools.
 
-        Parameters
-        ----------
-        connection_context : ConnectionContext
-            Connection context to the HANA database.
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
 
-        Returns
-        -------
-        str
-            The message.
-        """
-        name: str = "regression_tool"
-        """Name of the tool."""
-        description: str = "To train the regression model or to predict on the regression model."
-        """Description of the tool."""
-        connection_context: ConnectionContext = None
-        """Connection context to the HANA database."""
-        args_schema: Type[BaseModel] = UnsupportedToolInput
-        """Input schema of the tool."""
+    Returns
+    -------
+    str
+        The message.
+    """
+    name: str = "regression_tool"
+    """Name of the tool."""
+    description: str = "To train the regression model or to predict on the regression model."
+    """Description of the tool."""
+    connection_context: ConnectionContext = None
+    """Connection context to the HANA database."""
+    args_schema: Type[BaseModel] = UnsupportedToolInput
+    """Input schema of the tool."""
+    return_direct: bool = True
+
+    def __init__(
+        self,
+        connection_context: ConnectionContext,
         return_direct: bool = True
+    ) -> None:
+        super().__init__(  # type: ignore[call-arg]
+            connection_context=connection_context,
+            return_direct=return_direct
+        )
 
-        def __init__(
-            self,
-            connection_context: ConnectionContext,
-            return_direct: bool = True
-        ) -> None:
-            super().__init__(  # type: ignore[call-arg]
-                connection_context=connection_context,
-                return_direct=return_direct
-            )
+    def _run(
+        self, run_manager: Optional[CallbackManagerForToolRun] = None, **kwargs: str
+    ) -> str:
+        """Use the tool."""
+        return "Currently, the machine learning models in hana.ai tools only support time series-related models."
 
-        def _run(
-            self, run_manager: Optional[CallbackManagerForToolRun] = None, **kwargs: str
-        ) -> str:
-            """Use the tool."""
-            return "Currently, the machine learning models in hana.ai tools only support time series-related models."
-
-        async def _arun(
-            self,
-            run_manager: Optional[AsyncCallbackManagerForToolRun] = None, **kwargs: str
-        ) -> str:
-            """Use the tool asynchronously."""
-            return self._run(run_manager=run_manager)
+    async def _arun(
+        self,
+        run_manager: Optional[AsyncCallbackManagerForToolRun] = None, **kwargs: str
+    ) -> str:
+        """Use the tool asynchronously."""
+        return self._run(run_manager=run_manager)
