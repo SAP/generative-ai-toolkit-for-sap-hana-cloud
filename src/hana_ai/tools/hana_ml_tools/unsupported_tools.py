@@ -72,7 +72,7 @@ class ClassificationTool(BaseTool):
     ) -> str:
         """Use the tool asynchronously."""
         return self._run(run_manager=run_manager)
-    
+
     class RegressionTool(BaseTool):
         """
         This tool is to handle unsupported tools.
