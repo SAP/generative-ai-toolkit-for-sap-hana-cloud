@@ -14,8 +14,6 @@ The generative AI toolkit for SAP HANA Cloud provides the following key capabili
 * a SmartDataFrame interface to directly interact with HANA dataframes using functions like "ask" and "transform" to explore and transform the data in a conversational manner
 * tools for leveraging the SAP HANA Cloud vectorstore and embedding services
 * components for building custom code generation tools, targeted for SAP HANA Cloud scenarios  
-         
-
   
 # Capabilities introduction
 
@@ -52,20 +50,6 @@ Provided AI-tools for streamlining usage of HANA ML functions in context of the 
 | ts_dataset_report | To generate a report for the time series data. |
 | ts_outlier_detection | To detect the outliers in the time series data. |
 | white_noise_test | To check the white noise of the time series data. |
-
-## Agent to generate HANA-ML code and execute tasks based on a SAP HANA dataframe
-A generative AI-assisted, conversational SAP HANA dataframe agent to generate HANA ML code and execute tasks based on SAP HANA dataframe.
-
-```python
-agent = create_hana_dataframe_agent(llm=llm, tools=[<####>], df=data, verbose=True)
-agent.invoke("Create Automatic Regression model on this dataframe with max_eval_time_mins=10. Provide key is ID, background_size=100 and model_table_name='my_model' in the fit function and execute it. ")
-```
-![alt](./img/agent.png)
-
-```python
-agent.invoke("create a dataset report.")
-```
-![alt](./img/dataset_report.png)
 
 ## Vector engine and Embedding generation tools
 Different Embedding functions can be used ...
@@ -121,7 +105,7 @@ cr.query("AutoML classification", top_n=1)
 ```
 
 ## Smart DataFrame
-The Smart DataFrame is agent interface to HANA dataframes, provding a conversational approach for dataframe-related tasks for exploring the data using the "ask" method. Similarly and in addition, the "transform" method adds passing back the result data as a HANA dataframe.
+The Smart DataFrame is agent interface to HANA dataframes, provding a conversational approach for dataframe-related tasks for exploring the data using the "ask" method. Similarly and in addition, the "transform" method adds passing back the result data as a HANA dataframe. Currently, it is not compatible with GPT-4o, but works with GPT-4 and other models.
 
 ```python
 from hana_ai.smart_dataframe import SmartDataFrame

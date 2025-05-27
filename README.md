@@ -4,7 +4,7 @@
 
 ## About this project
 
-Generative AI Client for SAP HANA Cloud is an extension of the existing HANA ML Python client library, mainly focusing on GenAI and related use cases. It includes many leading-edge GenAI related open source libraries and provides seamless integration with HANA ML, HANA vector engine, and other SAP GenAI Hub SDK, see our [Introduction](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/blob/main/INTRODUCTION.md) and [Documentation](https://sap.github.io/generative-ai-toolkit-for-sap-hana-cloud/).
+Generative AI Client for SAP HANA Cloud is an extension of the existing HANA ML Python client library, mainly focusing on GenAI and related use cases. It includes many leading-edge GenAI related open source libraries and provides seamless integration with HANA ML, HANA vector engine, and other SAP GenAI Hub SDK, see our [Introduction](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/blob/main/INTRODUCTION.md), [Notebook](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/blob/main/nutest/testscripts/demo/e2e_scenarios/time_series_forecast_scenario_sales_refunds.ipynb) and [Documentation](https://sap.github.io/generative-ai-toolkit-for-sap-hana-cloud/).
 
 ## Requirements and Setup
 

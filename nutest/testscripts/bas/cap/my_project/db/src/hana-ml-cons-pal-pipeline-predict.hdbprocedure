@@ -1,0 +1,15 @@
+PROCEDURE hana_ml_cons_pal_pipeline_predict(
+out out_0_hana_ml_cons_pal_pipeline_predict TABLE("ID" INT, "SCORES" VARCHAR(5000)),
+out out_1_hana_ml_cons_pal_pipeline_predict TABLE("STAT_NAME" VARCHAR(5000), "STAT_VALUE" VARCHAR(5000)))
+LANGUAGE SQLSCRIPT
+SQL SECURITY INVOKER
+AS
+BEGIN
+in_0_hana_ml_cons_pal_pipeline_predict = SELECT TOP 0 TO_INT(10) "ID" FROM DUMMY;
+in_1_hana_ml_cons_pal_pipeline_predict = SELECT * FROM HANA_ML_FIT_MODELHANAMLCONSPALAUTOMLFIT;
+CALL hana_ml_base_pal_pipeline_predict(:in_0_hana_ml_cons_pal_pipeline_predict, :in_1_hana_ml_cons_pal_pipeline_predict, out_0_hana_ml_cons_pal_pipeline_predict, out_1_hana_ml_cons_pal_pipeline_predict);
+TRUNCATE TABLE HANA_ML_PREDICT_OUTPUT0PALPIPELINEPREDICT;
+INSERT INTO HANA_ML_PREDICT_OUTPUT0PALPIPELINEPREDICT SELECT * FROM :out_0_hana_ml_cons_pal_pipeline_predict;
+TRUNCATE TABLE HANA_ML_PREDICT_OUTPUT1PALPIPELINEPREDICT;
+INSERT INTO HANA_ML_PREDICT_OUTPUT1PALPIPELINEPREDICT SELECT * FROM :out_1_hana_ml_cons_pal_pipeline_predict;
+END

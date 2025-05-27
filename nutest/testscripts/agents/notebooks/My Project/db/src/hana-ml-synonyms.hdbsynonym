@@ -1,8 +1,0 @@
-{
-    "SYSAFL::PALAUTOMLFIT": {
-        "target": {
-            "object": "PAL_AUTOML_FIT",
-            "schema": "_SYS_AFL"
-        }
-    }
-}
