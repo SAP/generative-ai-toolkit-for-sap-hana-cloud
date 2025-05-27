@@ -1,0 +1,20 @@
+PROCEDURE hana_ml_base_pal_pipeline_predict(
+in in_0_hana_ml_base_pal_pipeline_predict TABLE("ID" INT),
+in in_1_hana_ml_base_pal_pipeline_predict TABLE("ROW_INDEX" INT, "MODEL_CONTENT" VARCHAR(5000)),
+out out_0_hana_ml_base_pal_pipeline_predict TABLE("ID" INT, "SCORES" VARCHAR(5000)),
+out out_1_hana_ml_base_pal_pipeline_predict TABLE("STAT_NAME" VARCHAR(5000), "STAT_VALUE" VARCHAR(5000)))
+LANGUAGE SQLSCRIPT
+SQL SECURITY INVOKER
+AS
+BEGIN
+DECLARE param_name VARCHAR(5000) ARRAY;
+DECLARE int_value INTEGER ARRAY;
+DECLARE double_value DOUBLE ARRAY;
+DECLARE string_value VARCHAR(5000) ARRAY;
+params = UNNEST(:param_name, :int_value, :double_value, :string_value);
+in_0 = SELECT * FROM :in_0_hana_ml_base_pal_pipeline_predict;
+in_1 = SELECT * FROM :in_1_hana_ml_base_pal_pipeline_predict;
+CALL "SYSAFL::PALPIPELINEPREDICT"(:in_0, :in_1, :params, out_0, out_1);
+out_0_hana_ml_base_pal_pipeline_predict = SELECT * FROM :out_0;
+out_1_hana_ml_base_pal_pipeline_predict = SELECT * FROM :out_1;
+END
