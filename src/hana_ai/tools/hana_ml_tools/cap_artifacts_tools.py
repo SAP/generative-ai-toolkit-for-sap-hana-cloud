@@ -196,7 +196,7 @@ class CAPArtifactsForBASTool(BaseTool):
 
     def _run(
         self, name: str, version: str,
-        cds_gen: Optional[bool] = False, tudf: Optional[bool] = False, archive: Optional[bool] = False,
+        cds_gen: Optional[bool] = False, tudf: Optional[bool] = False, archive: Optional[bool] = True,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
@@ -215,7 +215,7 @@ class CAPArtifactsForBASTool(BaseTool):
 
     async def _run_async(
         self, name: str, version: str, project_name: str, output_dir: str, namespace: Optional[str] = None,
-        cds_gen: Optional[bool] = False, tudf: Optional[bool] = False, archive: Optional[bool] = False,
+        cds_gen: Optional[bool] = False, tudf: Optional[bool] = False, archive: Optional[bool] = True,
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool asynchronously."""
