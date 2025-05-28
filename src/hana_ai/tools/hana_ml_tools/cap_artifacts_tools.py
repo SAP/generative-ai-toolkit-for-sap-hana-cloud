@@ -202,8 +202,9 @@ class CAPArtifactsForBASTool(BaseTool):
         """Use the tool."""
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
-
-        temp_root = Path("/tmp" if platform.system() == "Darwin" else tempfile.gettempdir())
+        # if archive is None:
+        #     archive = True
+        temp_root = Path(tempfile.gettempdir())
         output_dir = os.path.join(temp_root, "hana-ai")
         os.makedirs(output_dir, exist_ok=True)
         generator = HANAGeneratorForCAP(
