@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AdditiveModelForecastFitAndSave &mdash; hana.ai 1.0.25052000 documentation</title>
+  <title>AdditiveModelForecastFitAndSave &mdash; hana.ai 1.0.25053000 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -17,7 +17,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=b08fb409"></script>
+        <script src="../_static/documentation_options.js?v=a2498813"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -39,7 +39,7 @@
             hana.ai
           </a>
               <div class="version">
-                1.0.25052000
+                1.0.25053000
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -347,14 +347,15 @@
 </dd>
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">InputType</span></code></dt><dd><p>The type of input this runnable accepts specified as a type annotation.</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">InputType</span></code></dt><dd><p>The type of input this Runnable accepts specified as a type annotation.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutputType</span></code></dt><dd><p>The type of output this runnable produces specified as a type annotation.</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutputType</span></code></dt><dd><p>The type of output this Runnable produces specified as a type annotation.</p>
 </dd>
-<dt><strong>args</strong></dt><dd></dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_specs</span></code></dt><dd><p>List configurable fields for this runnable.</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">args</span></code></dt><dd><p>The arguments of the tool.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">input_schema</span></code></dt><dd><p>The type of input this runnable accepts specified as a pydantic model.</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_specs</span></code></dt><dd><p>List configurable fields for this Runnable.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">input_schema</span></code></dt><dd><p>The type of input this Runnable accepts specified as a pydantic model.</p>
 </dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_single_input</span></code></dt><dd><p>Whether the tool only accepts a single input.</p>
 </dd>
@@ -362,8 +363,13 @@
 </dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_secrets</span></code></dt><dd><p>A map of constructor argument names to secret ids.</p>
 </dd>
-<dt><strong>name</strong></dt><dd></dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_schema</span></code></dt><dd><p>The type of output this runnable produces specified as a pydantic model.</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_extra</span></code></dt><dd><p>Get extra fields set during validation.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_fields_set</span></code></dt><dd><p>Returns the set of fields that have been explicitly set on this model instance.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_schema</span></code></dt><dd><p>The type of output this Runnable produces specified as a pydantic model.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">tool_call_schema</span></code></dt><dd><p>The schema for a tool call.</p>
 </dd>
 </dl>
 </dd>
@@ -371,35 +377,38 @@
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code>()</p></td>
-<td><p>Configuration for this pydantic object.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(tool_input[, callbacks])</p></td>
+<td><p><div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.1.47: </span>Use <code class="xref py py-meth docutils literal notranslate"><span class="pre">invoke()</span></code> instead. It will not be removed until langchain-core==1.0.</p>
+</div>
+</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(tool_input[, callbacks])</p></td>
-<td><p>[<em>Deprecated</em>] Make tool callable.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch</span></code>(inputs[, config, return_exceptions])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch</span></code>(inputs[, config, return_exceptions])</p></td>
 <td><p>Default implementation runs ainvoke in parallel using asyncio.gather.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch_as_completed</span></code>(inputs[, config, ...])</p></td>
-<td><p>Run ainvoke in parallel on a list of inputs, yielding results as they complete.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">abatch_as_completed</span></code>(inputs[, config, ...])</p></td>
+<td><p>Run ainvoke in parallel on a list of inputs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ainvoke</span></code>(input[, config])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ainvoke</span></code>(input[, config])</p></td>
 <td><p>Default implementation of ainvoke, calls invoke from a thread.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">arun</span></code>(tool_input[, verbose, start_color, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">arun</span></code>(tool_input[, verbose, start_color, ...])</p></td>
 <td><p>Run the tool asynchronously.</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_tool</span></code>([args_schema, name, description, ...])</p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign</span></code>(**kwargs)</p></td>
-<td><p>Assigns new fields to the dict output of this runnable.</p></td>
+<td><p>Assigns new fields to the dict output of this Runnable.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream</span></code>(input[, config])</p></td>
 <td><p>Default implementation of astream, which calls ainvoke.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream_events</span></code>(input[, config, ...])</p></td>
-<td><p>[<em>Beta</em>] Generate a stream of events.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream_events</span></code>(input[, config, version, ...])</p></td>
+<td><p>Generate a stream of events.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">astream_log</span></code>(input[, config, diff, ...])</p></td>
-<td><p>Stream all output from a runnable, as reported to the callback system.</p></td>
+<td><p>Stream all output from a Runnable, as reported to the callback system.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">atransform</span></code>(input[, config])</p></td>
 <td><p>Default implementation of atransform, which buffers input and calls astream.</p></td>
@@ -408,31 +417,31 @@
 <td><p>Default implementation runs invoke in parallel using a thread pool executor.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_as_completed</span></code>(inputs[, config, ...])</p></td>
-<td><p>Run invoke in parallel on a list of inputs, yielding results as they complete.</p></td>
+<td><p>Run invoke in parallel on a list of inputs.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bind</span></code>(**kwargs)</p></td>
 <td><p>Bind arguments to a Runnable, returning a new Runnable.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_schema</span></code>(*[, include])</p></td>
-<td><p>The type of config this runnable accepts specified as a pydantic model.</p></td>
+<td><p>The type of config this Runnable accepts specified as a pydantic model.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configurable_alternatives</span></code>(which, *[, ...])</p></td>
-<td><p>Configure alternatives for runnables that can be set at runtime.</p></td>
+<td><p>Configure alternatives for Runnables that can be set at runtime.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configurable_fields</span></code>(**kwargs)</p></td>
-<td><p>Configure particular runnable fields at runtime.</p></td>
+<td><p>Configure particular Runnable fields at runtime.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">construct</span></code>([_fields_set])</p></td>
-<td><p>Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
+<td><p>Returns a copy of the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
-<td><p>Duplicate a model, optionally choose which fields to include, exclude and change.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_config_jsonschema</span></code>(*[, include])</p></td>
+<td><p>Get a JSON schema that represents the config of the Runnable.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>(*[, include, exclude, by_alias, ...])</p></td>
-<td><p>Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_graph</span></code>([config])</p></td>
+<td><p>Return a graph representation of this Runnable.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_graph</span></code>([config])</p></td>
-<td><p>Return a graph representation of this runnable.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_input_jsonschema</span></code>([config])</p></td>
+<td><p>Get a JSON schema that represents the input to the Runnable.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_input_schema</span></code>([config])</p></td>
 <td><p>The tool's input schema.</p></td>
@@ -441,70 +450,119 @@
 <td><p>Get the namespace of the langchain object.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code>([suffix, name])</p></td>
-<td><p>Get the name of the runnable.</p></td>
+<td><p>Get the name of the Runnable.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_output_schema</span></code>([config])</p></td>
-<td><p>Get a pydantic model that can be used to validate output to the runnable.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_output_jsonschema</span></code>([config])</p></td>
+<td><p>Get a JSON schema that represents the output of the Runnable.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">invoke</span></code>(input[, config])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_output_schema</span></code>([config])</p></td>
+<td><p>Get a pydantic model that can be used to validate output to the Runnable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">invoke</span></code>(input[, config])</p></td>
 <td><p>Transform a single input into an output.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_lc_serializable</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_lc_serializable</span></code>()</p></td>
 <td><p>Is this class serializable?</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">json</span></code>(*[, include, exclude, by_alias, ...])</p></td>
-<td><p>Generate a JSON representation of the model, <cite>include</cite> and <cite>exclude</cite> arguments as per <cite>dict()</cite>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lc_id</span></code>()</p></td>
 <td><p>A unique identifier for this class for serialization purposes.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map</span></code>()</p></td>
-<td><p>Return a new Runnable that maps a list of inputs to a list of outputs, by calling invoke() with each input.</p></td>
+<td><p>Return a new Runnable that maps a list of inputs to a list of outputs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick</span></code>(keys)</p></td>
-<td><p>Pick keys from the dict output of this runnable.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_construct</span></code>([_fields_set])</p></td>
+<td><p>Creates a new instance of the <cite>Model</cite> class with validated data.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe</span></code>(*others[, name])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_copy</span></code>(*[, update, deep])</p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.10/concepts/serialization/#model_copy">https://docs.pydantic.dev/2.10/concepts/serialization/#model_copy</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dump</span></code>(*[, mode, include, exclude, ...])</p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.10/concepts/serialization/#modelmodel_dump">https://docs.pydantic.dev/2.10/concepts/serialization/#modelmodel_dump</a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dump_json</span></code>(*[, indent, include, ...])</p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.10/concepts/serialization/#modelmodel_dump_json">https://docs.pydantic.dev/2.10/concepts/serialization/#modelmodel_dump_json</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_json_schema</span></code>([by_alias, ref_template, ...])</p></td>
+<td><p>Generates a JSON schema for a model class.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_parametrized_name</span></code>(params)</p></td>
+<td><p>Compute the class name for parametrizations of generic classes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_post_init</span></code>(_BaseModel__context)</p></td>
+<td><p>Override this method to perform additional initialization after <cite>__init__</cite> and <cite>model_construct</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_rebuild</span></code>(*[, force, raise_errors, ...])</p></td>
+<td><p>Try to rebuild the pydantic-core schema for the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate</span></code>(obj, *[, strict, ...])</p></td>
+<td><p>Validate a pydantic model instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.10/concepts/json/#json-parsing">https://docs.pydantic.dev/2.10/concepts/json/#json-parsing</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_strings</span></code>(obj, *[, strict, context])</p></td>
+<td><p>Validate the given object with string data against the Pydantic model.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick</span></code>(keys)</p></td>
+<td><p>Pick keys from the output dict of this Runnable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe</span></code>(*others[, name])</p></td>
 <td><p>Compose this Runnable with Runnable-like objects to make a RunnableSequence.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">raise_deprecation</span></code>(values)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">raise_deprecation</span></code>(values)</p></td>
 <td><p>Raise deprecation warning if callback_manager is used.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>(tool_input[, verbose, start_color, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>(tool_input[, verbose, start_color, ...])</p></td>
 <td><p>Run the tool.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code>(input[, config])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code>(input[, config])</p></td>
 <td><p>Default implementation of stream, which calls invoke.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code>()</p></td>
-<td><p>Serialize the runnable to JSON.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code>()</p></td>
+<td><p>Serialize the Runnable to JSON.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(input[, config])</p></td>
-<td><p>Default implementation of transform, which buffers input and then calls stream.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(input[, config])</p></td>
+<td><p>Default implementation of transform, which buffers input and calls astream.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
-<td><p>Try to update ForwardRefs on fields based on this Model, globalns and localns.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_alisteners</span></code>(*[, on_start, on_end, on_error])</p></td>
+<td><p>Bind async lifecycle listeners to a Runnable, returning a new Runnable.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_config</span></code>([config])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_config</span></code>([config])</p></td>
 <td><p>Bind config to a Runnable, returning a new Runnable.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_fallbacks</span></code>(fallbacks, *[, ...])</p></td>
-<td><p>Add fallbacks to a runnable, returning a new Runnable.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_fallbacks</span></code>(fallbacks, *[, ...])</p></td>
+<td><p>Add fallbacks to a Runnable, returning a new Runnable.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_listeners</span></code>(*[, on_start, on_end, on_error])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_listeners</span></code>(*[, on_start, on_end, on_error])</p></td>
 <td><p>Bind lifecycle listeners to a Runnable, returning a new Runnable.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_retry</span></code>(*[, retry_if_exception_type, ...])</p></td>
-<td><p>Create a new Runnable that retries the original runnable on exceptions.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_retry</span></code>(*[, retry_if_exception_type, ...])</p></td>
+<td><p>Create a new Runnable that retries the original Runnable on exceptions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_types</span></code>(*[, input_type, output_type])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_types</span></code>(*[, input_type, output_type])</p></td>
 <td><p>Bind input and output types to a Runnable, returning a new Runnable.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>construct</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>dict</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>json</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>update_forward_refs</strong></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.name" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.name" title="Link to this definition"></a></dt>
 <dd><p>Name of the tool.</p>
 </dd></dl>
 
@@ -524,13 +582,28 @@
 <dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.args_schema">
 <span class="sig-name descname"><span class="pre">args_schema</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseModel</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.args_schema" title="Link to this definition"></a></dt>
 <dd><p>Pydantic model class to validate and parse the tool's input arguments.</p>
+<p>Args schema should be either:</p>
+<ul class="simple">
+<li><p>A subclass of pydantic.BaseModel.</p></li>
+</ul>
+<p>or
+- A subclass of pydantic.v1.BaseModel if accessing v1 namespace in pydantic 2
+or
+- a JSON schema dict</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.return_direct">
 <span class="sig-name descname"><span class="pre">return_direct</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.return_direct" title="Link to this definition"></a></dt>
-<dd><p>Whether to return the tool's output directly. Setting this to True means</p>
-<p>that after the tool is called, the AgentExecutor will stop looping.</p>
+<dd><p>Whether to return the tool's output directly.</p>
+<p>Setting this to True means
+that after the tool is called, the AgentExecutor will stop looping.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True,</span> <span class="pre">'extra':</span> <span class="pre">'ignore',</span> <span class="pre">'protected_namespaces':</span> <span class="pre">()}</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 </dd></dl>

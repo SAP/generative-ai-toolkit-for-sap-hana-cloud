@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HANAMLToolkit &mdash; hana.ai 1.0.25052000 documentation</title>
+  <title>HANAMLToolkit &mdash; hana.ai 1.0.25053000 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -17,7 +17,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=b08fb409"></script>
+        <script src="../_static/documentation_options.js?v=a2498813"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -39,7 +39,7 @@
             hana.ai
           </a>
               <div class="version">
-                1.0.25052000
+                1.0.25053000
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -284,6 +284,16 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLAgentWithMemory</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">toos</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;hana_ai_test&#39;</span><span class="p">,</span> <span class="n">n_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_extra</span></code></dt><dd><p>Get extra fields set during validation.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_fields_set</span></code></dt><dd><p>Returns the set of fields that have been explicitly set on this model instance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -293,23 +303,47 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.add_custom_tool" title="hana_ai.tools.toolkit.HANAMLToolkit.add_custom_tool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_custom_tool</span></code></a>(tool)</p></td>
 <td><p>Add a custom tool to the toolkit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">construct</span></code>([_fields_set])</p></td>
-<td><p>Creates a new model setting __dict__ and __fields_set__ from trusted or pre-validated data.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
+<td><p>Returns a copy of the model.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
-<td><p>Duplicate a model, optionally choose which fields to include, exclude and change.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.delete_tool" title="hana_ai.tools.toolkit.HANAMLToolkit.delete_tool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_tool</span></code></a>(tool_name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.delete_tool" title="hana_ai.tools.toolkit.HANAMLToolkit.delete_tool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_tool</span></code></a>(tool_name)</p></td>
 <td><p>Delete a tool from the toolkit.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>(*[, include, exclude, by_alias, ...])</p></td>
-<td><p>Generate a dictionary representation of the model, optionally specifying which fields to include or exclude.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.get_tools" title="hana_ai.tools.toolkit.HANAMLToolkit.get_tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tools</span></code></a>()</p></td>
 <td><p>Get the tools in the toolkit.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">json</span></code>(*[, include, exclude, by_alias, ...])</p></td>
-<td><p>Generate a JSON representation of the model, <cite>include</cite> and <cite>exclude</cite> arguments as per <cite>dict()</cite>.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_construct</span></code>([_fields_set])</p></td>
+<td><p>Creates a new instance of the <cite>Model</cite> class with validated data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_copy</span></code>(*[, update, deep])</p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.10/concepts/serialization/#model_copy">https://docs.pydantic.dev/2.10/concepts/serialization/#model_copy</a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dump</span></code>(*[, mode, include, exclude, ...])</p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.10/concepts/serialization/#modelmodel_dump">https://docs.pydantic.dev/2.10/concepts/serialization/#modelmodel_dump</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dump_json</span></code>(*[, indent, include, ...])</p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.10/concepts/serialization/#modelmodel_dump_json">https://docs.pydantic.dev/2.10/concepts/serialization/#modelmodel_dump_json</a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_json_schema</span></code>([by_alias, ref_template, ...])</p></td>
+<td><p>Generates a JSON schema for a model class.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_parametrized_name</span></code>(params)</p></td>
+<td><p>Compute the class name for parametrizations of generic classes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_post_init</span></code>(_BaseModel__context)</p></td>
+<td><p>Override this method to perform additional initialization after <cite>__init__</cite> and <cite>model_construct</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_rebuild</span></code>(*[, force, raise_errors, ...])</p></td>
+<td><p>Try to rebuild the pydantic-core schema for the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate</span></code>(obj, *[, strict, ...])</p></td>
+<td><p>Validate a pydantic model instance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
+<td><p>Usage docs: <a class="reference external" href="https://docs.pydantic.dev/2.10/concepts/json/#json-parsing">https://docs.pydantic.dev/2.10/concepts/json/#json-parsing</a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_strings</span></code>(obj, *[, strict, context])</p></td>
+<td><p>Validate the given object with string data against the Pydantic model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.set_bas" title="hana_ai.tools.toolkit.HANAMLToolkit.set_bas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_bas</span></code></a>([bas])</p></td>
 <td><p>Set the BAS mode for all tools in the toolkit.</p></td>
@@ -317,8 +351,21 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb" title="hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vectordb</span></code></a>(vectordb)</p></td>
 <td><p>Set the vector database.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_forward_refs</span></code>(**localns)</p></td>
-<td><p>Try to update ForwardRefs on fields based on this Model, globalns and localns.</p></td>
+</tbody>
+</table>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>construct</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>dict</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>json</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>update_forward_refs</strong></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -378,6 +425,12 @@
 <dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.Config">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.Config" title="Link to this definition"></a></dt>
 <dd><p>Configuration for this pydantic object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 <dl class="py method">
