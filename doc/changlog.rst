@@ -1,6 +1,12 @@
 Changelog
 =========
 
+**Version 1.0.250530**
+
+``Enhancements``
+    - Added unsupported tools check (classfication, regression).
+    - BAS integration enhancements.
+
 **Version 1.0.250520**
 
 ``Enhancements``
