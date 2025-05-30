@@ -5,7 +5,15 @@ The following class is available:
 
     * :class `HANAMLToolkit`
 """
-from typing import List, Optional
+try:
+    from mcp.server.fastmcp import FastMCP
+except ImportError:
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "mcp"])
+    from mcp.server.fastmcp import FastMCP
+import logging
+from typing import Optional, List, Optional
 from hana_ml import ConnectionContext
 from langchain.agents.agent_toolkits.base import BaseToolkit
 from langchain.tools import BaseTool
@@ -141,6 +149,70 @@ class HANAMLToolkit(BaseToolkit):
             Vector database.
         """
         self.vectordb = vectordb
+
+    def launch_mcp_server(
+        self,
+        server_name: str = "HANATools",
+        version: str = "1.0",
+        transport: str = "stdio",
+        sse_port: int = 8080,
+        auth_token: Optional[str] = None
+    ):
+        """
+        启动MCP服务器并注册所有工具
+        
+        参数:
+        - server_name: MCP服务名称 [2](@ref)
+        - version: 服务版本号
+        - transport: 传输协议 (stdio/sse/http) [3](@ref)
+        - sse_port: SSE协议使用的端口 (transport="sse"时生效)
+        - auth_token: 认证令牌 (生产环境必填) [7](@ref)
+        """
+        # 初始化MCP实例
+        mcp = FastMCP(name=server_name, version=version)
+        
+        # 获取所有工具
+        tools = self.get_tools()
+        
+        # 动态注册工具
+        for tool in tools:
+            # 解决闭包变量捕获问题
+            current_tool = tool
+            
+            # 创建工具包装函数
+            def tool_wrapper(**kwargs):
+                try:
+                    return current_tool._run(**kwargs)
+                except Exception as e:
+                    logging.error(f"Tool {current_tool.name} failed: {str(e)}")
+                    return {"error": str(e), "tool": current_tool.name}
+            
+            # 设置函数元数据
+            tool_wrapper.__name__ = current_tool.name
+            tool_wrapper.__doc__ = current_tool.description
+            
+            # 设置参数类型注解
+            if hasattr(current_tool, 'args_schema') and current_tool.args_schema:
+                tool_wrapper.__annotations__ = {
+                    param.name: param.annotation 
+                    for param in current_tool.args_schema.__fields__.values()
+                }
+            
+            # 注册到MCP
+            mcp.tool()(tool_wrapper)
+            logging.info(f"✅ Registered tool: {current_tool.name}")
+        
+        # 安全配置
+        server_args = {"transport": transport}
+        if transport == "sse":
+            server_args["port"] = sse_port
+        if auth_token:
+            server_args["auth_token"] = auth_token  # 生产环境认证 [7](@ref)
+            logging.info("🔐 Authentication enabled")
+        
+        # 启动服务器
+        logging.info(f"🚀 Starting MCP server '{server_name}' with {len(tools)} tools...")
+        mcp.run(**server_args)
 
     class Config:
         """Configuration for this pydantic object."""
