@@ -99,6 +99,8 @@ class FetchDataTool(BaseTool):
             results = self.connection_context.table(table_name).tail(last_n).collect()
         else:
             results = self.connection_context.table(table_name).collect()
+        if not self.return_direct:
+            results = results.to_string(index=False)
         return results
 
     async def _arun(
