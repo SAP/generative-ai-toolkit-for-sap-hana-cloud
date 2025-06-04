@@ -5,15 +5,20 @@ The following class is available:
 
     * :class `HANAMLToolkit`
 """
+import sys
+import socket
+from contextlib import closing
+import logging
+import threading
+import time
+from typing import Optional, List
 try:
     from mcp.server.fastmcp import FastMCP
 except ImportError:
     import subprocess
-    import sys
     subprocess.check_call([sys.executable, "-m", "pip", "install", "mcp"])
     from mcp.server.fastmcp import FastMCP
-import logging
-from typing import Optional, List, Optional
+
 from hana_ml import ConnectionContext
 from langchain.agents.agent_toolkits.base import BaseToolkit
 from langchain.tools import BaseTool
@@ -150,70 +155,138 @@ class HANAMLToolkit(BaseToolkit):
         """
         self.vectordb = vectordb
 
+    def is_port_available(self, port: int) -> bool:
+        """检查端口是否可用"""
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            try:
+                s.bind(('127.0.0.1', port))
+                return True
+            except OSError:
+                return False
+
     def launch_mcp_server(
         self,
         server_name: str = "HANATools",
         version: str = "1.0",
         transport: str = "stdio",
-        sse_port: int = 8080,
-        auth_token: Optional[str] = None
+        sse_port: int = 8001,
+        auth_token: Optional[str] = None,
+        max_retries: int = 5
     ):
         """
         启动MCP服务器并注册所有工具
         
         参数:
-        - server_name: MCP服务名称 [2](@ref)
+        - server_name: MCP服务名称
         - version: 服务版本号
-        - transport: 传输协议 (stdio/sse/http) [3](@ref)
-        - sse_port: SSE协议使用的端口 (transport="sse"时生效)
-        - auth_token: 认证令牌 (生产环境必填) [7](@ref)
+        - transport: 传输协议 (stdio/sse/http)
+        - sse_port: SSE协议使用的端口
+        - auth_token: 认证令牌
+        - max_retries: 最大端口重试次数
         """
-        # 初始化MCP实例
-        mcp = FastMCP(name=server_name, version=version)
+        attempts = 0
+        original_port = sse_port
+        port = sse_port
         
-        # 获取所有工具
-        tools = self.get_tools()
-        
-        # 动态注册工具
-        for tool in tools:
-            # 解决闭包变量捕获问题
-            current_tool = tool
+        while attempts < max_retries:
+            # 初始化MCP配置
+            server_settings = {
+                "name": server_name,
+                "version": version,
+                "host": "127.0.0.1"
+            }
             
-            # 创建工具包装函数
-            def tool_wrapper(**kwargs):
+            # 更新端口设置
+            if transport == "sse":
+                # 检查端口可用性
+                if not self.is_port_available(port):
+                    logging.warning(f"⚠️  Port {port} occupied, trying next port")
+                    port += 1
+                    attempts += 1
+                    time.sleep(0.2)
+                    continue
+                    
+                server_settings.update({
+                    "port": port,
+                    "sse_path": '/sse'
+                })
+            
+            # 创建MCP实例
+            mcp = FastMCP(**server_settings)
+            
+            # 获取并注册所有工具
+            tools = self.get_tools()
+            registered_tools = []
+            for tool in tools:
+                # 使用默认参数绑定当前工具
+                def create_tool_wrapper(wrapped_tool=tool):
+                    def tool_wrapper(**kwargs):
+                        try:
+                            return wrapped_tool._run(**kwargs)
+                        except Exception as e:
+                            logging.error(f"Tool {wrapped_tool.name} failed: {str(e)}")
+                            return {"error": str(e), "tool": wrapped_tool.name}
+                    return tool_wrapper
+                
+                tool_wrapper = create_tool_wrapper()
+                tool_wrapper.__name__ = tool.name
+                tool_wrapper.__doc__ = tool.description
+                
+                # 设置正确的参数类型注解
+                if hasattr(tool, 'args_schema') and tool.args_schema:
+                    if hasattr(tool.args_schema, 'model_fields'):
+                        # Pydantic v2 的访问方式
+                        annotations = {
+                            k: v.annotation 
+                            for k, v in tool.args_schema.model_fields.items()
+                        }
+                    else:
+                        # Pydantic v1 的访问方式
+                        annotations = tool.args_schema.__annotations__
+                    
+                    tool_wrapper.__annotations__ = annotations
+                
+                mcp.tool()(tool_wrapper)
+                registered_tools.append(tool.name)
+                logging.info(f"✅ Registered tool: {tool.name}")
+            
+            # 安全配置
+            server_args = {"transport": transport}
+            if transport == "stdio" and not hasattr(sys.stdout, 'buffer'):
+                logging.warning("⚠️  Unsupported stdio, switching to SSE")
+                transport = "sse"
+                port = original_port  # 重置端口重试
+                attempts = 0         # 重置尝试次数
+                continue
+            
+            if auth_token:
+                server_args["auth_token"] = auth_token
+                logging.info("🔐 Authentication enabled")
+            
+            # 启动服务器线程
+            def run_server(mcp_instance, server_args):
                 try:
-                    return current_tool._run(**kwargs)
+                    logging.info(f"🚀 Starting MCP server on port {port}...")
+                    mcp_instance.run(**server_args)
                 except Exception as e:
-                    logging.error(f"Tool {current_tool.name} failed: {str(e)}")
-                    return {"error": str(e), "tool": current_tool.name}
+                    logging.error(f"Server crashed: {str(e)}")
+                    # 这里不再自动重启，由外部监控
             
-            # 设置函数元数据
-            tool_wrapper.__name__ = current_tool.name
-            tool_wrapper.__doc__ = current_tool.description
+            logging.info("Starting MCP server in background thread...")
+            server_thread = threading.Thread(
+                target=run_server,
+                args=(mcp, server_args),
+                name=f"MCP-Server-Port-{port}",
+                daemon=True
+            )
+            server_thread.start()
+            logging.info(f"🚀 MCP server started on port {port} with tools: {registered_tools}")
+            return  # 成功启动，退出函数
             
-            # 设置参数类型注解
-            if hasattr(current_tool, 'args_schema') and current_tool.args_schema:
-                tool_wrapper.__annotations__ = {
-                    param.name: param.annotation 
-                    for param in current_tool.args_schema.__fields__.values()
-                }
-            
-            # 注册到MCP
-            mcp.tool()(tool_wrapper)
-            logging.info(f"✅ Registered tool: {current_tool.name}")
-        
-        # 安全配置
-        server_args = {"transport": transport}
-        if transport == "sse":
-            server_args["port"] = sse_port
-        if auth_token:
-            server_args["auth_token"] = auth_token  # 生产环境认证 [7](@ref)
-            logging.info("🔐 Authentication enabled")
-        
-        # 启动服务器
-        logging.info(f"🚀 Starting MCP server '{server_name}' with {len(tools)} tools...")
-        mcp.run(**server_args)
-
+        # 所有尝试失败
+        logging.error(f"❌ Failed to start server after {max_retries} attempts")
+        raise RuntimeError(f"Could not find available port in range {original_port}-{original_port + max_retries}")
+    
     class Config:
         """Configuration for this pydantic object."""
 
