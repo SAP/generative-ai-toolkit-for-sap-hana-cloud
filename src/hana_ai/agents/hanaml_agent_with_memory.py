@@ -229,9 +229,6 @@ class HANAMLAgentWithMemory(object):
                                                            config={**self.config,  # Preserve session_id
                                                                    "callbacks": [self.observation_callback]
                                                                    })
-            print(type(response))
-            if isinstance(response, dict) and 'output' in response:
-                print(type(response['output']))
         except Exception as e:
             error_message = str(e)
             if "Error code: 429" not in error_message:
