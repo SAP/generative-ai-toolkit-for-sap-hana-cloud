@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 def _guess_fourier_order(period: int) -> int:
     # Calculate base value and round to nearest integer
-    base_value = round(period / 36.5)
+    base_value = round(float(period) / 36.5)
 
     # Apply bounds: minimum 3, maximum 10
     return max(3, min(10, base_value))
