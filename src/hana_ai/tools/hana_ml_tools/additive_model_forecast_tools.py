@@ -12,11 +12,6 @@ import json
 import logging
 from typing import Optional, Type, Union
 from pydantic import BaseModel, Field
-
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -163,31 +158,41 @@ class AdditiveModelForecastFitAndSave(BaseTool):
 
     def _run(
         self,
-        fit_table: str,
-        key: str,
-        name: str,
-        version: Optional[str] = None,
-        growth: Optional[str] = None,
-        logistic_growth_capacity: Optional[float] = None,
-        seasonality_mode: Optional[str] = None,
-        period: Union[Optional[int], Optional[list]] = None,
-        num_changepoints: Optional[int] = None,
-        changepoint_range: Optional[float] = None,
-        regressor: Optional[list] = None,
-        changepoints: Optional[list] = None,
-        yearly_seasonality: Optional[str] = None,
-        weekly_seasonality: Optional[str] = None,
-        daily_seasonality: Optional[str] = None,
-        seasonality_prior_scale: Optional[float] = None,
-        holiday_prior_scale: Optional[float] = None,
-        changepoint_prior_scale: Optional[float] = None,
-        endog: Optional[str] = None,
-        exog: Union[Optional[str], Optional[list]] = None,
-        holiday_table: Optional[str] = None,
-        categorical_variable: Union[Optional[str], Optional[list]] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        fit_table = kwargs.get("fit_table", None)
+        if fit_table is None:
+            return "Training table is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "key is required"
+        name = kwargs.get("name", None)
+        if name is None:
+            return "Model name is required"
+        version = kwargs.get("version", None)
+        growth = kwargs.get("growth", None)
+        logistic_growth_capacity = kwargs.get("logistic_growth_capacity", None)
+        seasonality_mode = kwargs.get("seasonality_mode", None)
+        period = kwargs.get("period", None)
+        num_changepoints = kwargs.get("num_changepoints", None)
+        changepoint_range = kwargs.get("changepoint_range", None)
+        regressor = kwargs.get("regressor", None)
+        changepoints = kwargs.get("changepoints", None)
+        yearly_seasonality = kwargs.get("yearly_seasonality", None)
+        weekly_seasonality = kwargs.get("weekly_seasonality", None)
+        daily_seasonality = kwargs.get("daily_seasonality", None)
+        seasonality_prior_scale = kwargs.get("seasonality_prior_scale", None)
+        holiday_prior_scale = kwargs.get("holiday_prior_scale", None)
+        changepoint_prior_scale = kwargs.get("changepoint_prior_scale", None)
+        endog = kwargs.get("endog", None)
+        exog = kwargs.get("exog", None)
+        holiday_table = kwargs.get("holiday_table", None)
+        categorical_variable = kwargs.get("categorical_variable", None)
+
         # check fit_table exists
         if not self.connection_context.has_table(fit_table):
             return f"Table {fit_table} does not exist in the database."
@@ -256,54 +261,9 @@ class AdditiveModelForecastFitAndSave(BaseTool):
 
     async def _arun(
         self,
-        fit_table: str,
-        key: str,
-        name: str,
-        version: Optional[str] = None,
-        growth: Optional[str] = None,
-        logistic_growth_capacity: Optional[float] = None,
-        seasonality_mode: Optional[str] = None,
-        period: Union[Optional[int], Optional[list]] = None,
-        num_changepoints: Optional[int] = None,
-        changepoint_range: Optional[float] = None,
-        regressor: Optional[list] = None,
-        changepoints: Optional[list] = None,
-        yearly_seasonality: Optional[str] = None,
-        weekly_seasonality: Optional[str] = None,
-        daily_seasonality: Optional[str] = None,
-        seasonality_prior_scale: Optional[float] = None,
-        holiday_prior_scale: Optional[float] = None,
-        changepoint_prior_scale: Optional[float] = None,
-        endog: Optional[str] = None,
-        exog: Union[Optional[str], Optional[list]] = None,
-        holiday_table: Optional[str] = None,
-        categorical_variable: Union[Optional[str], Optional[list]] = None,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
-        return self._run(
-            fit_table=fit_table,
-            key=key,
-            name=name,
-            version=version,
-            growth=growth,
-            logistic_growth_capacity=logistic_growth_capacity,
-            seasonality_mode=seasonality_mode,
-            period=period,
-            num_changepoints=num_changepoints,
-            changepoint_range=changepoint_range,
-            regressor=regressor,
-            changepoints=changepoints,
-            yearly_seasonality=yearly_seasonality,
-            weekly_seasonality=weekly_seasonality,
-            daily_seasonality=daily_seasonality,
-            seasonality_prior_scale=seasonality_prior_scale,
-            holiday_prior_scale=holiday_prior_scale,
-            changepoint_prior_scale=changepoint_prior_scale,
-            endog=endog,
-            exog=exog,
-            holiday_table=holiday_table,
-            categorical_variable=categorical_variable,
-            run_manager=run_manager
+        return self._run(**kwargs
         )
 
 class AdditiveModelForecastLoadModelAndPredict(BaseTool):
@@ -374,21 +334,31 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
 
     def _run(
         self,
-        predict_table: str,
-        key: str,
-        name: str,
-        version: Optional[str] = None,
-        exog: Union[Optional[str], Optional[list]] = None,
-        logistic_growth_capacity: Optional[float] = None,
-        interval_width: Optional[float] = None,
-        uncertainty_samples: Optional[int] = None,
-        show_explainer: Optional[bool] = None,
-        decompose_seasonality: Optional[bool] = None,
-        decompose_holiday: Optional[bool] = None,
-        add_placeholder: Optional[bool] = True,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        predict_table = kwargs.get("predict_table", None)
+        if predict_table is None:
+            return "Prediction table is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        name = kwargs.get("name", None)
+        if name is None:
+            return "Model name is required"
+        version = kwargs.get("version", None)
+        exog = kwargs.get("exog", None)
+        logistic_growth_capacity = kwargs.get("logistic_growth_capacity", None)
+        interval_width = kwargs.get("interval_width", None)
+        uncertainty_samples = kwargs.get("uncertainty_samples", None)
+        show_explainer = kwargs.get("show_explainer", None)
+        decompose_seasonality = kwargs.get("decompose_seasonality", None)
+        decompose_holiday = kwargs.get("decompose_holiday", None)
+        add_placeholder = kwargs.get("add_placeholder", True)
+
         predict_df = self.connection_context.table(predict_table)
         if not self.connection_context.has_table(predict_table):
             return f"Table {predict_table} does not exist in the database."
@@ -403,15 +373,15 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
             predict_df = predict_df.add_constant("PLACEHOLDER", 0)
         try:
             model.predict(data=predict_df,
-                        key=key,
-                        exog=exog,
-                        logistic_growth_capacity=logistic_growth_capacity,
-                        interval_width=interval_width,
-                        uncertainty_samples=uncertainty_samples,
-                        show_explainer=show_explainer,
-                        decompose_seasonality=decompose_seasonality,
-                        decompose_holiday=decompose_holiday,
-                        add_placeholder=add_placeholder)
+                          key=key,
+                          exog=exog,
+                          logistic_growth_capacity=logistic_growth_capacity,
+                          interval_width=interval_width,
+                          uncertainty_samples=uncertainty_samples,
+                          show_explainer=show_explainer,
+                          decompose_seasonality=decompose_seasonality,
+                          decompose_holiday=decompose_holiday,
+                          add_placeholder=add_placeholder)
         except ValueError as ve:
             # Handles invalid parameter values (e.g., alpha not in [0,1])
             return f"ValueError occurred: {str(ve)}"
@@ -437,32 +407,8 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
 
     async def _arun(
         self,
-        predict_table: str,
-        key: str,
-        name: str,
-        version: Optional[str] = None,
-        exog: Union[Optional[str], Optional[list]] = None,
-        logistic_growth_capacity: Optional[float] = None,
-        interval_width: Optional[float] = None,
-        uncertainty_samples: Optional[int] = None,
-        show_explainer: Optional[bool] = None,
-        decompose_seasonality: Optional[bool] = None,
-        decompose_holiday: Optional[bool] = None,
-        add_placeholder: Optional[bool] = True,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         return self._run(
-            predict_table=predict_table,
-            key=key,
-            name=name,
-            version=version,
-            exog=exog,
-            logistic_growth_capacity=logistic_growth_capacity,
-            interval_width=interval_width,
-            uncertainty_samples=uncertainty_samples,
-            show_explainer=show_explainer,
-            decompose_seasonality=decompose_seasonality,
-            decompose_holiday=decompose_holiday,
-            add_placeholder=add_placeholder,
-            run_manager=run_manager
+            **kwargs
         )

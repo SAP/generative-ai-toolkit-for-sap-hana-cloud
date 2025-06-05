@@ -10,10 +10,6 @@ import logging
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -79,30 +75,28 @@ class ListModels(BaseTool):
 
     def _run(
         self,
-        name: Optional[str] = None,
-        version: Optional[int] = None,
-        display_type: Optional[str] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
+        **kwargs
     ) -> str:
         """
         Run the tool.
 
         Parameters
         ----------
-        name : str, optional
-            Name of the model to search for, it is optional.
-        version : int, optional
-            Version of the model to search for, it is optional.
-        display_type : str, optional
-            Display type of the searched model information chosen from {'complete', 'simple', 'no_reports'}, it is optional.
-        run_manager : CallbackManagerForToolRun, optional
-            Callback manager for tool run.
+        kwargs : dict
+            Dictionary containing the parameters for the tool.
 
         Returns
         -------
         pandas.DataFrame
             The list of models in the model storage.
         """
+        name = kwargs.get("name", None)
+        version = kwargs.get("version", None)
+        display_type = kwargs.get("display_type", None)
+
+        if display_type not in {None, "complete", "simple", "no_reports"}:
+            return "Invalid display_type. Choose from {'complete', 'simple', 'no_reports'}."
+
         ms = ModelStorage(self.connection_context)
         return ms.list_models(
             name=name,
@@ -112,10 +106,7 @@ class ListModels(BaseTool):
 
     async def _run_async(
         self,
-        name: Optional[str] = None,
-        version: Optional[int] = None,
-        display_type: Optional[str] = None,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
+        **kwargs
     ) -> str:
         """
         Asynchronous run of the tool.
@@ -137,8 +128,5 @@ class ListModels(BaseTool):
             The list of models in the model storage.
         """
         return self._run(
-            name=name,
-            version=version,
-            display_type=display_type,
-            run_manager=run_manager,
+            **kwargs
         )

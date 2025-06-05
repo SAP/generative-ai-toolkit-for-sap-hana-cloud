@@ -15,10 +15,6 @@ import logging
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -213,9 +209,23 @@ class TimeSeriesCheck(BaseTool):
         )
 
     def _run(
-        self, table_name: str, key: str, endog: str, run_manager: Optional[CallbackManagerForToolRun] = None
+        self,
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Table name is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+
         # check table exists
         if not self.connection_context.has_table(table_name):
             return f"Table {table_name} does not exist."
@@ -228,10 +238,10 @@ class TimeSeriesCheck(BaseTool):
         return ts_char(df, key, endog)
 
     async def _arun(
-        self, table_name: str, key: str, endog: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        self, **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(table_name, key, endog, run_manager=run_manager)
+        return self._run(**kwargs)
 
 class StationarityTest(BaseTool):
     """
@@ -293,16 +303,33 @@ class StationarityTest(BaseTool):
 
     def _run(
         self,
-        table_name: str,
-        key: str,
-        endog: str,
-        method: Optional[str] = None,
-        mode: Optional[str] = None,
-        lag: Optional[int] = None,
-        probability: Optional[float] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Table name is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+        method = kwargs.get("method", None)
+        mode = kwargs.get("mode", None)
+        lag = kwargs.get("lag", None)
+        probability = kwargs.get("probability", None)
+        # check table exists
+        if not self.connection_context.has_table(table_name):
+            return f"Table {table_name} does not exist."
+        # check key and endog columns exist
+        if key not in self.connection_context.table(table_name).columns:
+            return f"Key column {key} does not exist in table {table_name}."
+        if endog not in self.connection_context.table(table_name).columns:
+            return f"Endog column {endog} does not exist in table {table_name}."
         df = self.connection_context.table(table_name).select(key, endog)
         result = stationarity_test(data=df,
                                    key=key,
@@ -318,17 +345,10 @@ class StationarityTest(BaseTool):
 
     async def _arun(
         self,
-        table_name: str,
-        key: str,
-        endog: str,
-        method: Optional[str] = None,
-        mode: Optional[str] = None,
-        lag: Optional[int] = None,
-        probability: Optional[float] = None,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(table_name, key, endog, method, mode, lag, probability, run_manager=run_manager)
+        return self._run(**kwargs)
 
 class TrendTest(BaseTool):
     """
@@ -386,14 +406,30 @@ class TrendTest(BaseTool):
 
     def _run(
         self,
-        table_name: str,
-        key: str,
-        endog: str,
-        method: Optional[str] = None,
-        alpha: Optional[float] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Table name is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+        method = kwargs.get("method", None)
+        alpha = kwargs.get("alpha", None)
+        if not self.connection_context.has_table(table_name):
+            return f"Table {table_name} does not exist."
+        # check key and endog columns exist
+        if key not in self.connection_context.table(table_name).columns:
+            return f"Key column {key} does not exist in table {table_name}."
+        if endog not in self.connection_context.table(table_name).columns:
+            return f"Endog column {endog} does not exist in table {table_name}."
         df = self.connection_context.table(table_name).select(key, endog)
         result = trend_test(data=df,
                             key=key,
@@ -413,15 +449,10 @@ class TrendTest(BaseTool):
 
     async def _arun(
         self,
-        table_name: str,
-        key: str,
-        endog: str,
-        method: Optional[str] = None,
-        alpha: Optional[float] = None,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(table_name, key, endog, method, alpha, run_manager=run_manager)
+        return self._run(**kwargs)
 
 class SeasonalityTest(BaseTool):
     """
@@ -495,22 +526,38 @@ class SeasonalityTest(BaseTool):
 
     def _run(
         self,
-        table_name: str,
-        key: str,
-        endog: str,
-        alpha: Optional[float] = None,
-        decompose_type: Optional[str] = None,
-        extrapolation: Optional[bool] = None,
-        smooth_width: Optional[int] = None,
-        auxiliary_normalitytest: Optional[bool] = None,
-        periods: Optional[int] = None,
-        decompose_method: Optional[str] = None,
-        stl_robust: Optional[bool] = None,
-        stl_seasonal_average: Optional[bool] = None,
-        smooth_method_non_seasonal: Optional[str] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Table name is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+        alpha = kwargs.get("alpha", None)
+        decompose_type = kwargs.get("decompose_type", None)
+        extrapolation = kwargs.get("extrapolation", None)
+        smooth_width = kwargs.get("smooth_width", None)
+        auxiliary_normalitytest = kwargs.get("auxiliary_normalitytest", None)
+        periods = kwargs.get("periods", None)
+        decompose_method = kwargs.get("decompose_method", None)
+        stl_robust = kwargs.get("stl_robust", None)
+        stl_seasonal_average = kwargs.get("stl_seasonal_average", None)
+        smooth_method_non_seasonal = kwargs.get("smooth_method_non_seasonal", None)
+        if not self.connection_context.has_table(table_name):
+            return f"Table {table_name} does not exist."
+        # check key and endog columns exist
+        if key not in self.connection_context.table(table_name).columns:
+            return f"Key column {key} does not exist in table {table_name}."
+        if endog not in self.connection_context.table(table_name).columns:
+            return f"Endog column {endog} does not exist in table {table_name}."
         df = self.connection_context.table(table_name).select(key, endog)
         result = seasonal_decompose(data=df,
                                     key=key,
@@ -532,23 +579,10 @@ class SeasonalityTest(BaseTool):
 
     async def _arun(
         self,
-        table_name: str,
-        key: str,
-        endog: str,
-        alpha: Optional[float] = None,
-        decompose_type: Optional[str] = None,
-        extrapolation: Optional[bool] = None,
-        smooth_width: Optional[int] = None,
-        auxiliary_normalitytest: Optional[bool] = None,
-        periods: Optional[int] = None,
-        decompose_method: Optional[str] = None,
-        stl_robust: Optional[bool] = None,
-        stl_seasonal_average: Optional[bool] = None,
-        smooth_method_non_seasonal: Optional[str] = None,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(table_name, key, endog, alpha, decompose_type, extrapolation, smooth_width, auxiliary_normalitytest, periods, decompose_method, stl_robust, stl_seasonal_average, smooth_method_non_seasonal, run_manager=run_manager)
+        return self._run(**kwargs)
 
 class WhiteNoiseTest(BaseTool):
     """
@@ -608,15 +642,32 @@ class WhiteNoiseTest(BaseTool):
 
     def _run(
         self,
-        table_name: str,
-        key: str,
-        endog: str,
-        lag: Optional[int] = None,
-        probability: Optional[float] = None,
-        model_df: Optional[int] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Table name is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+        lag = kwargs.get("lag", None)
+        probability = kwargs.get("probability", None)
+        model_df = kwargs.get("model_df", None)
+        # check table exists
+        if not self.connection_context.has_table(table_name):
+            return f"Table {table_name} does not exist."
+        # check key and endog columns exist
+        if key not in self.connection_context.table(table_name).columns:
+            return f"Key column {key} does not exist in table {table_name}."
+        if endog not in self.connection_context.table(table_name).columns:
+            return f"Endog column {endog} does not exist in table {table_name}."
         df = self.connection_context.table(table_name).select(key, endog)
         result = white_noise_test(data=df,
                                   key=key,
@@ -631,13 +682,7 @@ class WhiteNoiseTest(BaseTool):
 
     async def _arun(
         self,
-        table_name: str,
-        key: str,
-        endog: str,
-        lag: Optional[int] = None,
-        probability: Optional[float] = None,
-        model_df: Optional[int] = None,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(table_name, key, endog, lag, probability, model_df, run_manager=run_manager)
+        return self._run(**kwargs)

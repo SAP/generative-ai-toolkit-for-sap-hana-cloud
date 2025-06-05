@@ -9,13 +9,9 @@ The following class are available:
 """
 # pylint: disable=unused-argument
 
-from typing import Optional, Type
+from typing import Type
 from pydantic import BaseModel
 from langchain.tools import BaseTool
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 
 from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 
@@ -55,9 +51,17 @@ class GetCodeTemplateFromVectorDB(BaseTool):
         self.vectordb = vectordb
 
     def _run(
-        self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
+        self,
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        query = kwargs.get("query", None)
+        if query is None:
+            return "Query is required"
+
         if self.vectordb is None:
             raise ValueError("No vector database set.")
         model = self.vectordb
@@ -66,7 +70,7 @@ class GetCodeTemplateFromVectorDB(BaseTool):
         return result
 
     async def _arun(
-        self, query: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        self, **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        raise NotImplementedError("Does not support async")
+        return self._run(**kwargs)

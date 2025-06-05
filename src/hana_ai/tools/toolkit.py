@@ -168,6 +168,7 @@ class HANAMLToolkit(BaseToolkit):
         self,
         server_name: str = "HANATools",
         version: str = "1.0",
+        host: str = "127.0.0.1",
         transport: str = "stdio",
         sse_port: int = 8001,
         auth_token: Optional[str] = None,
@@ -187,33 +188,33 @@ class HANAMLToolkit(BaseToolkit):
         attempts = 0
         original_port = sse_port
         port = sse_port
-        
+
         while attempts < max_retries:
             # 初始化MCP配置
             server_settings = {
                 "name": server_name,
                 "version": version,
-                "host": "127.0.0.1"
+                "host": host
             }
-            
+
             # 更新端口设置
             if transport == "sse":
                 # 检查端口可用性
                 if not self.is_port_available(port):
-                    logging.warning(f"⚠️  Port {port} occupied, trying next port")
+                    logging.warning("⚠️  Port %s occupied, trying next port", port)
                     port += 1
                     attempts += 1
                     time.sleep(0.2)
                     continue
-                    
+
                 server_settings.update({
                     "port": port,
                     "sse_path": '/sse'
                 })
-            
+
             # 创建MCP实例
             mcp = FastMCP(**server_settings)
-            
+
             # 获取并注册所有工具
             tools = self.get_tools()
             registered_tools = []
@@ -224,32 +225,32 @@ class HANAMLToolkit(BaseToolkit):
                         try:
                             return wrapped_tool._run(**kwargs)
                         except Exception as e:
-                            logging.error(f"Tool {wrapped_tool.name} failed: {str(e)}")
+                            logging.error("Tool %s failed: %s", wrapped_tool.name, str(e))
                             return {"error": str(e), "tool": wrapped_tool.name}
                     return tool_wrapper
-                
+
                 tool_wrapper = create_tool_wrapper()
                 tool_wrapper.__name__ = tool.name
                 tool_wrapper.__doc__ = tool.description
-                
+
                 # 设置正确的参数类型注解
                 if hasattr(tool, 'args_schema') and tool.args_schema:
                     if hasattr(tool.args_schema, 'model_fields'):
                         # Pydantic v2 的访问方式
                         annotations = {
-                            k: v.annotation 
+                            k: v.annotation
                             for k, v in tool.args_schema.model_fields.items()
                         }
                     else:
                         # Pydantic v1 的访问方式
                         annotations = tool.args_schema.__annotations__
-                    
+
                     tool_wrapper.__annotations__ = annotations
-                
+
                 mcp.tool()(tool_wrapper)
                 registered_tools.append(tool.name)
-                logging.info(f"✅ Registered tool: {tool.name}")
-            
+                logging.info("✅ Registered tool: %s", tool.name)
+
             # 安全配置
             server_args = {"transport": transport}
             if transport == "stdio" and not hasattr(sys.stdout, 'buffer'):
@@ -258,20 +259,20 @@ class HANAMLToolkit(BaseToolkit):
                 port = original_port  # 重置端口重试
                 attempts = 0         # 重置尝试次数
                 continue
-            
+
             if auth_token:
                 server_args["auth_token"] = auth_token
                 logging.info("🔐 Authentication enabled")
-            
+
             # 启动服务器线程
             def run_server(mcp_instance, server_args):
                 try:
-                    logging.info(f"🚀 Starting MCP server on port {port}...")
+                    logging.info("🚀 Starting MCP server on port %s...", port)
                     mcp_instance.run(**server_args)
                 except Exception as e:
-                    logging.error(f"Server crashed: {str(e)}")
+                    logging.error("Server crashed: %s", str(e))
                     # 这里不再自动重启，由外部监控
-            
+
             logging.info("Starting MCP server in background thread...")
             server_thread = threading.Thread(
                 target=run_server,
@@ -280,13 +281,13 @@ class HANAMLToolkit(BaseToolkit):
                 daemon=True
             )
             server_thread.start()
-            logging.info(f"🚀 MCP server started on port {port} with tools: {registered_tools}")
+            logging.info("🚀 MCP server started on port %s with tools: %s", port, registered_tools)
             return  # 成功启动，退出函数
-            
+
         # 所有尝试失败
-        logging.error(f"❌ Failed to start server after {max_retries} attempts")
+        logging.error("❌ Failed to start server after %s attempts", max_retries)
         raise RuntimeError(f"Could not find available port in range {original_port}-{original_port + max_retries}")
-    
+
     class Config:
         """Configuration for this pydantic object."""
 

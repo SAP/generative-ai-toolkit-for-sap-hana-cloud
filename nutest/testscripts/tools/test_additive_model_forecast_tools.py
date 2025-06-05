@@ -48,6 +48,6 @@ class TestAdditiveModelForecastTools(TestML_BaseTestClass):
         self.assertTrue(result['predicted_results_table']=="HANAI_MODEL_1_PREDICTED_RESULT")
 
         tool = ForecastLinePlot(connection_context=self.conn)
-        result = json.loads(tool.run({"predict_table_name": "HANAI_MODEL_1_PREDICTED_RESULT", "actual_table_name": "#HANAI_DATA_TBL_RAW"}))
+        result = json.loads(tool.run({"predict_result": "HANAI_MODEL_1_PREDICTED_RESULT", "actual_table_name": "#HANAI_DATA_TBL_RAW"}))
 
         self.conn.drop_table('HANAI_MODEL_1_PREDICTED_RESULT')

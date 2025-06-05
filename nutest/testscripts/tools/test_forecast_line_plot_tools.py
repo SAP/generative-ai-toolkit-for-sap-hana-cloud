@@ -48,7 +48,7 @@ class TestForecastLinePlotTools(TestML_BaseTestClass):
         tool = AutomaticTimeseriesLoadModelAndPredict(connection_context=self.conn)
         tool.run({"predict_table": "#HANAI_DATA_TBL_PREDICT_RAW", "key": "TIMESTAMP", "name": "AUTOML_MODEL", "version": 1})
         tool = ForecastLinePlot(connection_context=self.conn)
-        result = json.loads(tool.run({"predict_table_name": "AUTOML_MODEL_1_PREDICTED_RESULTS", "actual_table_name": "#HANAI_DATA_TBL_RAW"}))
-        expected_result = {'html_file': 'C:\\Users\\I308290\\AppData\\Local\\Temp\\hanaml_chart\\AUTOML_MODEL_1_PREDICTED_RESULTS_forecast_line_plot.html'}
+        result = json.loads(tool.run({"predict_result": "AUTOML_MODEL_1_PREDICTED_RESULTS", "actual_table_name": "#HANAI_DATA_TBL_RAW"}))
+        expected_result = {'html_file': 'C:/users/I308290/AppData/Local/Temp/hanaml_chart/AUTOML_MODEL_1_PREDICTED_RESULTS_forecast_line_plot.html'}
         self.assertTrue(result['html_file']==expected_result['html_file'])
         self.assertTrue(Path(result['html_file']).exists())
