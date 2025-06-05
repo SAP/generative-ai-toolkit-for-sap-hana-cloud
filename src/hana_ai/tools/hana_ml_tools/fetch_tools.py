@@ -10,10 +10,6 @@ import logging
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -80,22 +76,32 @@ class FetchDataTool(BaseTool):
         )
 
     def _run(
-        self, table_name: str, top_n: Optional[int] = None, last_n: Optional[int] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        self, **kwargs
     ) -> str:
         """Use the tool."""
+        # 从kwargs字典中提取参数
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        table_name = kwargs.get("table_name", None)
+        top_n = kwargs.get("top_n")
+        last_n = kwargs.get("last_n")
+
+        # 参数校验
+        if table_name is None:
+            return "table_name is required"
         if top_n:
             results = self.connection_context.table(table_name).head(top_n).collect()
         elif last_n:
             results = self.connection_context.table(table_name).tail(last_n).collect()
         else:
             results = self.connection_context.table(table_name).collect()
+        if not self.return_direct:
+            results = results.to_string(index=False)
         return results
 
     async def _arun(
-        self, table_name: str, top_n: Optional[int] = None, last_n: Optional[int] = None,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        self, **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(table_name, top_n, last_n, run_manager=run_manager
+        return self._run(**kwargs
         )

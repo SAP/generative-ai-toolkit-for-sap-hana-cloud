@@ -12,9 +12,6 @@ import json
 from typing import Type, List, Union
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -104,20 +101,36 @@ class AccuracyMeasure(BaseTool):
             return_direct=return_direct
         )
 
-    def _run(#pylint:disable=too-many-positional-arguments
+    def _run(
         self,
-        predict_table : str,
-        actual_table : str,
-        predict_key : str,
-        actual_key : str,
-        predict_target : str,
-        actual_target : str,
-        evaluation_metric : Union[str, List[str]],
-        ignore_zero : bool=None,
-        alpha1 : float=None,
-        alpha2 : float=None,
-        run_manager: CallbackManagerForToolRun=None#pylint:disable=unused-argument
-        )-> str:
+        **kwargs
+    ) -> str:
+        """Use the tool."""
+
+        predict_table = kwargs.get("predict_table", None)
+        if predict_table is None:
+            return "Prediction table is required"
+        actual_table = kwargs.get("actual_table", None)
+        if actual_table is None:
+            return "Actual table is required"
+        predict_key = kwargs.get("predict_key", None)
+        if predict_key is None:
+            return "Prediction key is required"
+        actual_key = kwargs.get("actual_key", None)
+        if actual_key is None:
+            return "Actual key is required"
+        predict_target = kwargs.get("predict_target", None)
+        if predict_target is None:
+            return "Prediction target is required"
+        actual_target = kwargs.get("actual_target", None)
+        if actual_target is None:
+            return "Actual target is required"
+        evaluation_metric = kwargs.get("evaluation_metric", None)
+        if evaluation_metric is None:
+            return "Evaluation metric is required"
+        ignore_zero = kwargs.get("ignore_zero", None)
+        alpha1 = kwargs.get("alpha1", None)
+        alpha2 = kwargs.get("alpha2", None)
         err_msg = []
         # check table existence
         if not self.connection_context.has_table(predict_table):
@@ -163,29 +176,9 @@ class AccuracyMeasure(BaseTool):
 
     async def _arun(
         self,
-        predict_table : str,
-        actual_table : str,
-        predict_key : str,
-        actual_key : str,
-        predict_target : str,
-        actual_target : str,
-        evaluation_metric : Union[str, List[str]],
-        ignore_zero : bool=None,
-        alpha1 : float=None,
-        alpha2 : float=None,
-        run_manager: CallbackManagerForToolRun=None#pylint:disable=unused-argument
+        **kwargs,
     ) -> str:
         """Use the tool asynchronously."""
         return self._run(
-            predict_table=predict_table,
-            actual_table=actual_table,
-            predict_key=predict_key,
-            actual_key=actual_key,
-            predict_target=predict_target,
-            actual_target=actual_target,
-            evaluation_metric=evaluation_metric,
-            ignore_zero=ignore_zero,
-            alpha1=alpha1,
-            alpha2=alpha2,
-            run_manager=run_manager
+            **kwargs
         )

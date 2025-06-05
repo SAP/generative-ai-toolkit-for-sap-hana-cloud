@@ -9,10 +9,7 @@ import json
 import logging
 from typing import Optional, Type
 from pydantic import BaseModel, Field
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
+
 from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.outlier_detection import OutlierDetectionTS
@@ -157,23 +154,50 @@ class TSOutlierDetection(BaseTool):
         )
 
     def _run(
-        self, table_name: str, key: str, endog: str, auto: Optional[bool] = None,
-        detect_intermittent_ts: Optional[bool] = None, smooth_method: Optional[str] = None,
-        window_size: Optional[int] = None, loess_lag: Optional[int] = None,
-        current_value_flag: Optional[bool] = None, outlier_method: Optional[str] = None,
-        threshold: Optional[float] = None, detect_seasonality: Optional[bool] = None,
-        alpha: Optional[float] = None, extrapolation: Optional[bool] = None,
-        periods: Optional[int] = None, random_state: Optional[int] = None,
-        n_estimators: Optional[int] = None, max_samples: Optional[int] = None,
-        bootstrap: Optional[bool] = None, contamination: Optional[float] = None,
-        minpts: Optional[int] = None, eps: Optional[float] = None,
-        distance_method: Optional[str] = None, dbscan_normalization: Optional[bool] = None,
-        dbscan_outlier_from_cluster: Optional[bool] = None, thread_ratio: Optional[float] = None,
-        residual_usage: Optional[str] = None, voting_config: Optional[dict] = None,
-        voting_outlier_method_criterion: Optional[float] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+      self,
+      **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Table name is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+
+        auto = kwargs.get("auto", None)
+        detect_intermittent_ts = kwargs.get("detect_intermittent_ts", None)
+        smooth_method = kwargs.get("smooth_method", None)
+        window_size = kwargs.get("window_size", None)
+        loess_lag = kwargs.get("loess_lag", None)
+        current_value_flag = kwargs.get("current_value_flag", None)
+        outlier_method = kwargs.get("outlier_method", None)
+        threshold = kwargs.get("threshold", None)
+        detect_seasonality = kwargs.get("detect_seasonality", None)
+        alpha = kwargs.get("alpha", None)
+        extrapolation = kwargs.get("extrapolation", None)
+        periods = kwargs.get("periods", None)
+        random_state = kwargs.get("random_state", None)
+        n_estimators = kwargs.get("n_estimators", None)
+        max_samples = kwargs.get("max_samples", None)
+        bootstrap = kwargs.get("bootstrap", None)
+        contamination = kwargs.get("contamination", None)
+        minpts = kwargs.get("minpts", None)
+        eps = kwargs.get("eps", None)
+        distance_method = kwargs.get("distance_method", None)
+        dbscan_normalization = kwargs.get("dbscan_normalization", None)
+        dbscan_outlier_from_cluster = kwargs.get("dbscan_outlier_from_cluster", None)
+        thread_ratio = kwargs.get("thread_ratio", None)
+        residual_usage = kwargs.get("residual_usage", None)
+        voting_config = kwargs.get("voting_config", None)
+        voting_outlier_method_criterion = kwargs.get("voting_outlier_method_criterion", None)
+
         # Check if the table exists
         if not self.connection_context.has_table(table_name):
             return json.dumps({
@@ -228,30 +252,9 @@ class TSOutlierDetection(BaseTool):
         return json.dumps(results, cls=_CustomEncoder)
 
     async def _arun(
-        self, table_name: str, key: str, endog: str, auto: Optional[bool] = None,
-        detect_intermittent_ts: Optional[bool] = None, smooth_method: Optional[str] = None,
-        window_size: Optional[int] = None, loess_lag: Optional[int] = None,
-        current_value_flag: Optional[bool] = None, outlier_method: Optional[str] = None,
-        threshold: Optional[float] = None, detect_seasonality: Optional[bool] = None,
-        alpha: Optional[float] = None, extrapolation: Optional[bool] = None,
-        periods: Optional[int] = None, random_state: Optional[int] = None,
-        n_estimators: Optional[int] = None, max_samples: Optional[int] = None,
-        bootstrap: Optional[bool] = None, contamination: Optional[float] = None,
-        minpts: Optional[int] = None, eps: Optional[float] = None,
-        distance_method: Optional[str] = None, dbscan_normalization: Optional[bool] = None,
-        dbscan_outlier_from_cluster: Optional[bool] = None, thread_ratio: Optional[float] = None,
-        residual_usage: Optional[str] = None, voting_config: Optional[dict] = None,
-        voting_outlier_method_criterion: Optional[float] = None,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        self, **kwargs
     ) -> str:
         """Use the tool asynchronously."""
         return self._run(
-            table_name, key, endog, auto=auto, detect_intermittent_ts=detect_intermittent_ts, smooth_method=smooth_method,
-            window_size=window_size, loess_lag=loess_lag, current_value_flag=current_value_flag, outlier_method=outlier_method,
-            threshold=threshold, detect_seasonality=detect_seasonality, alpha=alpha, extrapolation=extrapolation,
-            periods=periods, random_state=random_state, n_estimators=n_estimators, max_samples=max_samples,
-            bootstrap=bootstrap, contamination=contamination, minpts=minpts, eps=eps, distance_method=distance_method,
-            dbscan_normalization=dbscan_normalization, dbscan_outlier_from_cluster=dbscan_outlier_from_cluster,
-            thread_ratio=thread_ratio, residual_usage=residual_usage, voting_config=voting_config,
-            voting_outlier_method_criterion=voting_outlier_method_criterion, run_manager=run_manager
+            **kwargs
         )

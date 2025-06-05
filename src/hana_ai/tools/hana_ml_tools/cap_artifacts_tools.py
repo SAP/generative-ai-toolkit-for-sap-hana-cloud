@@ -13,14 +13,9 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-import platform
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -114,11 +109,29 @@ class CAPArtifactsTool(BaseTool):
         )
 
     def _run(
-        self, name: str, version: str, project_name: str, output_dir: str, namespace: Optional[str] = None,
-        cds_gen: Optional[bool] = False, tudf: Optional[bool] = False, archive: Optional[bool] = False,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+      self,
+      **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        name = kwargs.get("name", None)
+        if name is None:
+            return "Model name is required"
+        version = kwargs.get("version", None)
+        if version is None:
+            return "Model version is required"
+        project_name = kwargs.get("project_name", None)
+        if project_name is None:
+            return "Project name is required"
+        output_dir = kwargs.get("output_dir", None)
+        if output_dir is None:
+            return "Output directory is required"
+        namespace = kwargs.get("namespace", None)
+        cds_gen = kwargs.get("cds_gen", False)
+        tudf = kwargs.get("tudf", False)
+        archive = kwargs.get("archive", False)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
 
@@ -131,12 +144,10 @@ class CAPArtifactsTool(BaseTool):
         return "CAP artifacts generated successfully. Root directory: " + str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())
 
     async def _run_async(
-        self, name: str, version: str, project_name: str, output_dir: str, namespace: Optional[str] = None,
-        cds_gen: Optional[bool] = False, tudf: Optional[bool] = False, archive: Optional[bool] = False,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        self, **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(name, version, project_name, output_dir, namespace, cds_gen, tudf, archive, run_manager)
+        return self._run(**kwargs)
 
 
 
@@ -195,11 +206,22 @@ class CAPArtifactsForBASTool(BaseTool):
         )
 
     def _run(
-        self, name: str, version: str,
-        cds_gen: Optional[bool] = False, tudf: Optional[bool] = False, archive: Optional[bool] = True,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+      self,
+      **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        name = kwargs.get("name", None)
+        if name is None:
+            return "Model name is required"
+        version = kwargs.get("version", None)
+        if version is None:
+            return "Model version is required"
+        cds_gen = kwargs.get("cds_gen", False)
+        tudf = kwargs.get("tudf", False)
+        archive = kwargs.get("archive", True)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
         # if archive is None:
@@ -215,9 +237,8 @@ class CAPArtifactsForBASTool(BaseTool):
         return json.dumps({"generated_cap_project" : str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())})
 
     async def _run_async(
-        self, name: str, version: str, project_name: str, output_dir: str, namespace: Optional[str] = None,
-        cds_gen: Optional[bool] = False, tudf: Optional[bool] = False, archive: Optional[bool] = True,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        self, **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(name, version, project_name, output_dir, namespace, cds_gen, tudf, archive, run_manager)
+        return self._run(**kwargs
+        )

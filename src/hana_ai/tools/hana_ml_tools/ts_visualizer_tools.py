@@ -15,10 +15,6 @@ import tempfile
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -103,9 +99,23 @@ class TimeSeriesDatasetReport(BaseTool):
         self.bas = bas
 
     def _run(
-        self, table_name: str, key: str, endog: str, output_dir: Optional[str]=None, run_manager: Optional[CallbackManagerForToolRun] = None
+        self,
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Table name is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+        output_dir = kwargs.get("output_dir", None)
         # check hana has the table
         if not self.connection_context.has_table(table_name):
             return json.dumps({"error": f"Table {table_name} does not exist."})
@@ -137,10 +147,10 @@ class TimeSeriesDatasetReport(BaseTool):
         return json.dumps({"html_file": str(Path(output_file + ".html").as_posix())}, ensure_ascii=False)
 
     async def _arun(
-        self, table_name: str, key: str, endog: str, output_dir, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        self, **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(table_name, key, endog, output_dir, run_manager=run_manager)
+        return self._run(**kwargs)
 
 class ForecastLinePlot(BaseTool):
     """
@@ -201,9 +211,19 @@ class ForecastLinePlot(BaseTool):
         self.bas = bas
 
     def _run(
-        self, predict_result: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[CallbackManagerForToolRun] = None
+        self,
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        predict_result = kwargs.get("predict_result", None)
+        if predict_result is None:
+            return "Prediction result table is required"
+        actual_table_name = kwargs.get("actual_table_name", None)
+        confidence = kwargs.get("confidence", None)
+        output_dir = kwargs.get("output_dir", None)
         # check predict_result in the hana db
         if not self.connection_context.has_table(predict_result):
             return json.dumps({"error": f"Table {predict_result} does not exist."})
@@ -260,7 +280,8 @@ class ForecastLinePlot(BaseTool):
         return json.dumps({"html_file": str(Path(output_file).as_posix())}, ensure_ascii=False)
 
     async def _arun(
-        self, predict_result: str, actual_table_name: Optional[str]=None, confidence: Optional[tuple]=None, output_dir: Optional[str]=None, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+        self, **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(predict_result, actual_table_name, confidence, output_dir, run_manager=run_manager)
+        return self._run(**kwargs
+        )

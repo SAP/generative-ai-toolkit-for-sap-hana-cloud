@@ -254,8 +254,14 @@ class HANAMLAgentWithMemory(object):
                     error_message = str(e)
                     if "Error code: 429" not in error_message:
                         self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
+            if "action" in response and "action_input" in response:
+                try:
+                    response = json.loads(response)
+                except:
+                    pass
             if isinstance(response, str) and response.strip() == "":
                 response = "I'm sorry, I don't understand. Please ask me again."
+
         if isinstance(response, dict) and 'action' in response and 'action_input' in response:
             action = response.get("action")
             for tool in self.tools:
@@ -308,7 +314,7 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
         MessagesPlaceholder(variable_name="history", messages=chat_history),
         ("human", "{question}"),
     ])
-    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, return_intermediate_steps=return_intermediate_steps, handle_parsing_errors=True)
+    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, return_intermediate_steps=return_intermediate_steps)
     intermediate_steps = None
     try:
         response = agent.invoke({"question": question, "history": chat_history})
@@ -342,6 +348,11 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
             except Exception as e:
                 error_message = str(e)
                 response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+        if "action" in response and "action_input" in response:
+            try:
+                response = json.loads(response)
+            except:
+                pass
         if isinstance(response, str) and response.strip() == "":
             response = "I'm sorry, I don't understand. Please ask me again."
     if isinstance(response, dict) and 'action' in response and 'action_input' in response:

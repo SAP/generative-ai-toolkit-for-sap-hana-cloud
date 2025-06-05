@@ -13,9 +13,6 @@ import logging
 from typing import Optional, Type, Union
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -210,46 +207,64 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         )
 
     def _run(
-        self,
-        fit_table: str,
-        key: str,
-        endog: str,
-        name: str,
-        version: Optional[str]=None,
-        scorings: Optional[dict]=None,
-        generations: Optional[int]=None,
-        population_size: Optional[int]=None,
-        offspring_size: Optional[int]=None,
-        elite_number: Optional[int]=None,
-        min_layer: Optional[int]=None,
-        max_layer: Optional[int]=None,
-        mutation_rate: Optional[float]=None,
-        crossover_rate: Optional[float]=None,
-        random_seed: Optional[int]=None,
-        config_dict: Optional[dict]=None,
-        progress_indicator_id: Optional[str]=None,
-        fold_num: Optional[int]=None,
-        resampling_method: Optional[str]=None,
-        max_eval_time_mins: Optional[float]=None,
-        early_stop: Optional[int]=None,
-        percentage: Optional[float]=None,
-        gap_num: Optional[int]=None,
-        connections: Union[Optional[dict], Optional[str]]=None,
-        alpha: Optional[float]=None,
-        delta: Optional[float]=None,
-        top_k_connections: Optional[int]=None,
-        top_k_pipelines: Optional[int]=None,
-        fine_tune_pipeline: Optional[bool]=None,
-        fine_tune_resource: Optional[int]=None,
-        exog: Union[Optional[str], Optional[list]]=None,
-        categorical_variable: Union[Optional[str], Optional[list]]=None,
-        background_size: Optional[int]=None,
-        background_sampling_seed: Optional[int]=None,
-        use_explain: Optional[bool]=None,
-        workload_class: Optional[str]=None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+      self,
+      **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        fit_table = kwargs.get("fit_table", None)
+        if fit_table is None:
+            return "Fit table is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+        name = kwargs.get("name", None)
+        if name is None:
+            return "Model name is required"
+        version = kwargs.get("version", None)
+        scorings = kwargs.get("scorings", None)
+        generations = kwargs.get("generations", None)
+        population_size = kwargs.get("population_size", None)
+        offspring_size = kwargs.get("offspring_size", None)
+        elite_number = kwargs.get("elite_number", None)
+        min_layer = kwargs.get("min_layer", None)
+        max_layer = kwargs.get("max_layer", None)
+        mutation_rate = kwargs.get("mutation_rate", None)
+        crossover_rate = kwargs.get("crossover_rate", None)
+        random_seed = kwargs.get("random_seed", None)
+        config_dict = kwargs.get("config_dict", None)
+        progress_indicator_id = kwargs.get("progress_indicator_id", None)
+        fold_num = kwargs.get("fold_num", None)
+        resampling_method = kwargs.get("resampling_method", None)
+        max_eval_time_mins = kwargs.get("max_eval_time_mins", None)
+        early_stop = kwargs.get("early_stop", None)
+        percentage = kwargs.get("percentage", None)
+        gap_num = kwargs.get("gap_num", None)
+        connections = kwargs.get("connections", None)
+        alpha = kwargs.get("alpha", None)
+        delta = kwargs.get("delta", None)
+        top_k_connections = kwargs.get("top_k_connections", None)
+        top_k_pipelines = kwargs.get("top_k_pipelines", None)
+        fine_tune_pipeline = kwargs.get("fine_tune_pipeline", None)
+        fine_tune_resource = kwargs.get("fine_tune_resource", None)
+        exog = kwargs.get("exog", None)
+        categorical_variable = kwargs.get("categorical_variable", None)
+        background_size = kwargs.get("background_size", None)
+        background_sampling_seed = kwargs.get("background_sampling_seed", None)
+        use_explain = kwargs.get("use_explain", None)
+        workload_class = kwargs.get("workload_class", None)
+
+        fit_df = self.connection_context.table(fit_table)
+        if not self.connection_context.has_table(fit_table):
+            return f"Table {fit_table} does not exist in the database."
+        if key not in self.connection_context.table(fit_table).columns:
+            return f"Key {key} does not exist in the table {fit_table}."
+
         auto_ts = AutomaticTimeSeries(
             scorings=scorings,
             generations=generations,
@@ -281,7 +296,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
             auto_ts.enable_workload_class(workload_class)
         else:
             auto_ts.disable_workload_class_check()
-        auto_ts.fit(self.connection_context.table(fit_table),
+        auto_ts.fit(fit_df,
                     key=key,
                     endog=endog,
                     exog=exog,
@@ -304,83 +319,11 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
 
     async def _arun(
         self,
-        fit_table: str,
-        key: str,
-        endog: str,
-        name: str,
-        version: Optional[str]=None,
-        scorings: Optional[dict]=None,
-        generations: Optional[int]=None,
-        population_size: Optional[int]=None,
-        offspring_size: Optional[int]=None,
-        elite_number: Optional[int]=None,
-        min_layer: Optional[int]=None,
-        max_layer: Optional[int]=None,
-        mutation_rate: Optional[float]=None,
-        crossover_rate: Optional[float]=None,
-        random_seed: Optional[int]=None,
-        config_dict: Optional[dict]=None,
-        progress_indicator_id: Optional[str]=None,
-        fold_num: Optional[int]=None,
-        resampling_method: Optional[str]=None,
-        max_eval_time_mins: Optional[float]=None,
-        early_stop: Optional[int]=None,
-        percentage: Optional[float]=None,
-        gap_num: Optional[int]=None,
-        connections: Union[Optional[dict], Optional[str]]=None,
-        alpha: Optional[float]=None,
-        delta: Optional[float]=None,
-        top_k_connections: Optional[int]=None,
-        top_k_pipelines: Optional[int]=None,
-        fine_tune_pipeline: Optional[bool]=None,
-        fine_tune_resource: Optional[int]=None,
-        exog: Union[Optional[str], Optional[list]]=None,
-        categorical_variable: Union[Optional[str], Optional[list]]=None,
-        background_size: Optional[int]=None,
-        background_sampling_seed: Optional[int]=None,
-        use_explain: Optional[bool]=None,
-        workload_class: Optional[str]=None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool asynchronously."""
         self._run(
-            fit_table=fit_table,
-            key=key,
-            endog=endog,
-            name=name,
-            version=version,
-            scorings=scorings,
-            generations=generations,
-            population_size=population_size,
-            offspring_size=offspring_size,
-            elite_number=elite_number,
-            min_layer=min_layer,
-            max_layer=max_layer,
-            mutation_rate=mutation_rate,
-            crossover_rate=crossover_rate,
-            random_seed=random_seed,
-            config_dict=config_dict,
-            progress_indicator_id=progress_indicator_id,
-            fold_num=fold_num,
-            resampling_method=resampling_method,
-            max_eval_time_mins=max_eval_time_mins,
-            early_stop=early_stop,
-            percentage=percentage,
-            gap_num=gap_num,
-            connections=connections,
-            alpha=alpha,
-            delta=delta,
-            top_k_connections=top_k_connections,
-            top_k_pipelines=top_k_pipelines,
-            fine_tune_pipeline=fine_tune_pipeline,
-            fine_tune_resource=fine_tune_resource,
-            exog=exog,
-            categorical_variable=categorical_variable,
-            background_size=background_size,
-            background_sampling_seed=background_sampling_seed,
-            use_explain=use_explain,
-            workload_class=workload_class,
-            run_manager=run_manager
+            **kwargs
         )
 
 class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
@@ -440,16 +383,25 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
         )
 
     def _run(
-        self,
-        predict_table: str,
-        key: str,
-        name: str,
-        version: str=None,
-        exog: Union[str, list]=None,
-        show_explainer: bool=None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+      self,
+      **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        predict_table = kwargs.get("predict_table", None)
+        if predict_table is None:
+            return "Prediction table is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        name = kwargs.get("name", None)
+        if name is None:
+            return "Model name is required"
+        version = kwargs.get("version", None)
+        exog = kwargs.get("exog", None)
+        show_explainer = kwargs.get("show_explainer", None)
         # check predict_table exists
         if not self.connection_context.has_table(predict_table):
             return json.dumps({"error": f"Table {predict_table} does not exist."}, cls=_CustomEncoder)
@@ -475,23 +427,11 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
 
     async def _arun(
         self,
-        predict_table: str,
-        key: str,
-        name: str,
-        version: str=None,
-        exog: Union[str, list]=None,
-        show_explainer: bool=None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool asynchronously."""
         self._run(
-            predict_table=predict_table,
-            key=key,
-            name=name,
-            version=version,
-            exog=exog,
-            show_explainer=show_explainer,
-            run_manager=run_manager
+            **kwargs
         )
 
 class AutomaticTimeseriesLoadModelAndScore(BaseTool):
@@ -552,16 +492,27 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
         )
 
     def _run(
-        self,
-        score_table: str,
-        key: str,
-        name: str,
-        version: str=None,
-        endog: str=None,
-        exog: Union[str, list]=None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+      self,
+      **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        score_table = kwargs.get("score_table", None)
+        if score_table is None:
+            return "Score table is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        name = kwargs.get("name", None)
+        if name is None:
+            return "Model name is required"
+        version = kwargs.get("version", None)
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+        exog = kwargs.get("exog", None)
         if not self.connection_context.has_table(score_table):
             return json.dumps({"error": f"Table {score_table} does not exist."}, cls=_CustomEncoder)
         if key not in self.connection_context.table(score_table).columns:
@@ -586,21 +537,9 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
 
     async def _arun(
         self,
-        score_table: str,
-        key: str,
-        name: str,
-        version: str=None,
-        endog: str=None,
-        exog: Union[str, list]=None,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        **kwargs
     ) -> str:
         """Use the tool asynchronously."""
         self._run(
-            score_table=score_table,
-            key=key,
-            name=name,
-            version=version,
-            endog=endog,
-            exog=exog,
-            run_manager=run_manager
+            **kwargs
         )

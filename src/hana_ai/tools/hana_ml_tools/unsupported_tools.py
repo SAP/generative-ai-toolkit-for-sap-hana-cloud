@@ -10,10 +10,6 @@ import logging
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -61,17 +57,17 @@ class ClassificationTool(BaseTool):
         )
 
     def _run(
-        self, run_manager: Optional[CallbackManagerForToolRun] = None, **kwargs: str
+        self, **kwargs
     ) -> str:
         """Use the tool."""
         return "Currently, the machine learning models in hana.ai tools only support time series-related models."
 
     async def _arun(
         self,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None, **kwargs: str
+        **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(run_manager=run_manager)
+        return self._run(**kwargs)
 
 class RegressionTool(BaseTool):
     """
@@ -108,14 +104,14 @@ class RegressionTool(BaseTool):
         )
 
     def _run(
-        self, run_manager: Optional[CallbackManagerForToolRun] = None, **kwargs: str
+        self, **kwargs
     ) -> str:
         """Use the tool."""
         return "Currently, the machine learning models in hana.ai tools only support time series-related models."
 
     async def _arun(
         self,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None, **kwargs: str
+        **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(run_manager=run_manager)
+        return self._run(**kwargs)

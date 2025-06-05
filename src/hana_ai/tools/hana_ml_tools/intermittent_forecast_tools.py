@@ -11,9 +11,6 @@ import logging
 from typing import List, Optional, Type, Union
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -106,13 +103,30 @@ class IntermittentForecast(BaseTool):
         )
 
     def _run(
-        self, table_name: str, key: str, endog: str, alpha: float = 0.1,
-        beta: float = 0.1, forecast_num: int = 1, method: str = "sporadic",
-        accuracy_measure: Union[str, List] = None, ignore_zero: bool = False,
-        remove_leading_zeros: bool = False,
-        run_manager: Optional[CallbackManagerForToolRun] = None
+        self,
+        **kwargs
     ) -> str:
         """Use the tool."""
+
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Table name is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "Key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endog is required"
+        alpha = kwargs.get("alpha", 0.1)
+        beta = kwargs.get("beta", 0.1)
+        forecast_num = kwargs.get("forecast_num", 1)
+        method = kwargs.get("method", "sporadic")
+        accuracy_measure = kwargs.get("accuracy_measure", None)
+        ignore_zero = kwargs.get("ignore_zero", False)
+        remove_leading_zeros = kwargs.get("remove_leading_zeros", False)
+
         # Check if the table exists
         if not self.connection_context.has_table(table_name):
             return json.dumps({
@@ -154,14 +168,8 @@ class IntermittentForecast(BaseTool):
         return json.dumps(outputs, cls=_CustomEncoder)
 
     async def _run_async(
-        self, table_name: str, key: str, endog: str, alpha: float = 0.1,
-        beta: float = 0.1, forecast_num: int = 1, method: str = "sporadic",
-        accuracy_measure: Union[str, List] = None, ignore_zero: bool = False,
-        remove_leading_zeros: bool = False,
-        run_manager: Optional[CallbackManagerForToolRun] = None
-    ) -> str:
+        self, **kwargs) -> str:
         """Use the tool asynchronously."""
         return self._run(
-            table_name, key, endog, alpha, beta, forecast_num, method,
-            accuracy_measure, ignore_zero, remove_leading_zeros, run_manager=run_manager
+            **kwargs
         )
