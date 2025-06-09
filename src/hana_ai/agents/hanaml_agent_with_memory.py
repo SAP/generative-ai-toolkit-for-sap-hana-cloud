@@ -13,7 +13,7 @@ import inspect
 import logging
 import pandas as pd
 from pydantic import ValidationError
-from langchain.agents import initialize_agent, AgentType
+from langchain.agents import initialize_agent, AgentType, Tool
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.messages.base import BaseMessage
@@ -86,6 +86,8 @@ class _ToolObservationCallbackHandler(BaseCallbackHandler):
         self.max_observations = max_observations  # Set your desired limit here
 
     def on_tool_end(self, output: str, **kwargs):
+        if kwargs.get("name") == "delete_chat_history":
+            return  # 跳过记录
         memory = self.memory_getter()
         # Get all current observations in chronological order
         current_obs = [msg for msg in memory.messages if self._is_observation(msg)]
@@ -154,10 +156,21 @@ class HANAMLAgentWithMemory(object):
     """
     def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, max_observations=5, verbose=False, **kwargs):
         self.llm = llm
-        self.tools = tools
+        self.tools = list(tools)
         self.memory = InMemoryChatMessageHistory(session_id=session_id)
         system_prompt = CHATBOT_SYSTEM_PROMPT
-
+        # Add the delete_chat_history tool
+        delete_tool = Tool(
+            name="delete_chat_history",
+            func=self.delete_chat_history_tool,
+            description=(
+                "Use this tool ONLY when the user explicitly requests to delete ALL chat history. "
+                "This action cannot be undone. Do NOT call this tool for any other reason. "
+                "Input must ALWAYS be an empty string (''). Example usage: delete_chat_history('')"
+            ),
+            return_direct=True
+        )
+        self.tools.append(delete_tool)
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
             MessagesPlaceholder(variable_name="history", n_messages=n_messages),
@@ -167,7 +180,7 @@ class HANAMLAgentWithMemory(object):
         self.verbose = verbose
         # Create callback handler linked to memory
         self.observation_callback = _ToolObservationCallbackHandler(lambda: self.memory, max_observations=max_observations)
-        chain: Runnable = self.prompt | initialize_agent(tools,
+        chain: Runnable = self.prompt | initialize_agent(self.tools,
                                                     llm,
                                                     agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,verbose=verbose,
                                                     callbacks=[self.observation_callback],
@@ -214,6 +227,20 @@ class HANAMLAgentWithMemory(object):
                                                                   lambda session_id: self.memory,
                                                                   input_messages_key="question",
                                                                   history_messages_key="history")
+
+    def delete_chat_history_tool(self, _input=""):
+        """
+        Delete chat history tool.
+        """
+        # 清除内存中的聊天记录
+        self.memory.clear()
+        # 重置回调处理器
+        self.observation_callback = _ToolObservationCallbackHandler(
+            lambda: self.memory,
+            self.observation_callback.max_observations
+        )
+        return "Chat history has been deleted successfully."
+
 
     def run(self, question):
         """
