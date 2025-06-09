@@ -43,6 +43,7 @@ Provided AI-tools for streamlining usage of HANA ML functions in context of the 
 | forecast_line_plot | To generate line plot for the forecasted result. |
 | intermittent_forecast | To forecast the intermittent time series data. |
 | list_models | To list the models in the model storage. |
+| delete_models | To delete the model from the model storage. |
 | seasonality_test | To check the seasonality of the time series data. |
 | stationarity_test | To check the stationarity of the time series data. |
 | trend_test | To check the trend of the time series data. |

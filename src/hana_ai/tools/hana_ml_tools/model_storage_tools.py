@@ -25,6 +25,13 @@ class ListModelsInput(BaseModel):
     version: Optional[int] = Field(description="Version of the model to search for, it is optional.", default=None)
     display_type: Optional[str] = Field(description="Display type of the searched model information chosen from {'complete', 'simple', 'no_reports'}, it is optional.", default=None)
 
+class DeleteModelInput(BaseModel):
+    """
+    Input for the DeleteModel tool.
+    """
+    name: str = Field(description="Name of the model to delete.")
+    version: Optional[int] = Field(description="Version of the model to delete, it is optional.", default=None)
+
 class ListModels(BaseTool):
     """
     Tool to list all models in the model storage.
@@ -130,3 +137,35 @@ class ListModels(BaseTool):
         return self._run(
             **kwargs
         )
+
+class DeleteModels(BaseTool):
+    """
+    Tool to delete a model from the model storage.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        Confirmation message indicating the model has been deleted.
+    """
+
+    name: str = "delete_models"
+    description: str = "Delete models from the model storage."
+    args_schema: Type[DeleteModelInput] = DeleteModelInput
+    connection_context: ConnectionContext
+
+    def _run(self, **kwargs) -> str:
+        name = kwargs.get("name")
+        version = kwargs.get("version", None)
+
+        ms = ModelStorage(self.connection_context)
+        if version:
+            ms.delete_model(name=name, version=version)
+            return f"Model {name} with version {version} has been deleted."
+        else:
+            ms.delete_models(name=name)
+            return f"Model {name} has been deleted."
