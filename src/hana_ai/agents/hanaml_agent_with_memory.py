@@ -229,6 +229,9 @@ class HANAMLAgentWithMemory(object):
                                                                   history_messages_key="history")
 
     def delete_chat_history_tool(self, _input=""):
+        """
+        Delete chat history tool.
+        """
         # 清除内存中的聊天记录
         self.memory.clear()
         # 重置回调处理器
