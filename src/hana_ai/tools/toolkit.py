@@ -176,15 +176,26 @@ class HANAMLToolkit(BaseToolkit):
         max_retries: int = 5
     ):
         """
-        启动MCP服务器并注册所有工具
-        
-        参数:
-        - server_name: MCP服务名称
-        - version: 服务版本号
-        - transport: 传输协议 (stdio/sse/http)
-        - sse_port: SSE协议使用的端口
-        - auth_token: 认证令牌
-        - max_retries: 最大端口重试次数
+        Launch the MCP server with the specified configuration.
+        This method initializes the MCP server, registers all tools, and starts the server in a background thread.
+        If the specified port is occupied, it will try the next port up to `max_retries` times.
+
+        Parameters
+        ----------
+        server_name : str
+            Name of the server. Default is "HANATools".
+        version : str
+            Version of the server. Default is "1.0".
+        host : str
+            Host address for the server.
+        transport : str
+            Transport protocol to use. Default is "stdio". Can be "sse" for Server-Sent Events.
+        sse_port : int
+            Port to use for SSE transport. Default is 8001.
+        auth_token : str, optional
+            Authentication token for the server. If provided, the server will require this token for access.
+        max_retries : int
+            Maximum number of retries to find an available port. Default is 5.
         """
         attempts = 0
         original_port = sse_port
