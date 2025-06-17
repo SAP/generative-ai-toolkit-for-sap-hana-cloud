@@ -1,6 +1,12 @@
 Changelog
 =========
 
+**Version 1.0.250617**
+
+``New Functions``
+    - Added `launch_mcp_server` function to hanaml toolkit.
+    - Added model deletion tool and chat history deletion tool to hanaml Agent.
+
 **Version 1.0.250530**
 
 ``Enhancements``

@@ -1,25 +1,23 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HANAMLToolkit &mdash; hana.ai 1.0.25053000 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+  <title>HANAMLToolkit &mdash; hana.ai 1.0.25061700 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7dc6ce7e" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=a2498813"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=d57f4662"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             hana.ai
           </a>
-              <div class="version">
-                1.0.25053000
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -262,7 +257,7 @@
 <h1>HANAMLToolkit<a class="headerlink" href="#hanamltoolkit" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.toolkit.</span></span><span class="sig-name descname"><span class="pre">HANAMLToolkit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">used_tools</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.toolkit.</span></span><span class="sig-name descname"><span class="pre">HANAMLToolkit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">used_tools</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit" title="Link to this definition"></a></dt>
 <dd><p>Toolkit for interacting with HANA SQL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -273,20 +268,8 @@
 </dd>
 </dl>
 </dd>
-</dl>
-<p class="rubric">Examples</p>
-<p>Assume cc is a connection to a SAP HANA instance:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hana_ai.tools.toolkit</span> <span class="kn">import</span> <span class="n">HANAMLToolkit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hana_ai.agents.hanaml_agent_with_memory</span> <span class="kn">import</span> <span class="n">HANAMLAgentWithMemory</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLAgentWithMemory</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">toos</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;hana_ai_test&#39;</span><span class="p">,</span> <span class="n">n_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_extra</span></code></dt><dd><p>Get extra fields set during validation.</p>
 </dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_fields_set</span></code></dt><dd><p>Returns the set of fields that have been explicitly set on this model instance.</p>
@@ -311,6 +294,12 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.get_tools" title="hana_ai.tools.toolkit.HANAMLToolkit.get_tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tools</span></code></a>()</p></td>
 <td><p>Get the tools in the toolkit.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.is_port_available" title="hana_ai.tools.toolkit.HANAMLToolkit.is_port_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_port_available</span></code></a>(port)</p></td>
+<td><p>检查端口是否可用</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server" title="hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch_mcp_server</span></code></a>([server_name, version, ...])</p></td>
+<td><p>Launch the MCP server with the specified configuration.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_construct</span></code>([_fields_set])</p></td>
 <td><p>Creates a new instance of the <cite>Model</cite> class with validated data.</p></td>
@@ -369,6 +358,16 @@
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<p>Assume cc is a connection to a SAP HANA instance:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.toolkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLToolkit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hanaml_agent_with_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLAgentWithMemory</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLAgentWithMemory</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">toos</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;hana_ai_test&#39;</span><span class="p">,</span> <span class="n">n_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.add_custom_tool">
 <span class="sig-name descname"><span class="pre">add_custom_tool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseTool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.add_custom_tool" title="Link to this definition"></a></dt>
@@ -421,9 +420,43 @@
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.is_port_available">
+<span class="sig-name descname"><span class="pre">is_port_available</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.is_port_available" title="Link to this definition"></a></dt>
+<dd><p>检查端口是否可用</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server">
+<span class="sig-name descname"><span class="pre">launch_mcp_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HANATools'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'1.0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stdio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sse_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server" title="Link to this definition"></a></dt>
+<dd><p>Launch the MCP server with the specified configuration.
+This method initializes the MCP server, registers all tools, and starts the server in a background thread.
+If the specified port is occupied, it will try the next port up to <cite>max_retries</cite> times.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>server_name</strong><span class="classifier">str</span></dt><dd><p>Name of the server. Default is &quot;HANATools&quot;.</p>
+</dd>
+<dt><strong>version</strong><span class="classifier">str</span></dt><dd><p>Version of the server. Default is &quot;1.0&quot;.</p>
+</dd>
+<dt><strong>host</strong><span class="classifier">str</span></dt><dd><p>Host address for the server.</p>
+</dd>
+<dt><strong>transport</strong><span class="classifier">str</span></dt><dd><p>Transport protocol to use. Default is &quot;stdio&quot;. Can be &quot;sse&quot; for Server-Sent Events.</p>
+</dd>
+<dt><strong>sse_port</strong><span class="classifier">int</span></dt><dd><p>Port to use for SSE transport. Default is 8001.</p>
+</dd>
+<dt><strong>auth_token</strong><span class="classifier">str, optional</span></dt><dd><p>Authentication token for the server. If provided, the server will require this token for access.</p>
+</dd>
+<dt><strong>max_retries</strong><span class="classifier">int</span></dt><dd><p>Maximum number of retries to find an available port. Default is 5.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.Config">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.Config" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.Config" title="Link to this definition"></a></dt>
 <dd><p>Configuration for this pydantic object.</p>
 </dd></dl>
 
