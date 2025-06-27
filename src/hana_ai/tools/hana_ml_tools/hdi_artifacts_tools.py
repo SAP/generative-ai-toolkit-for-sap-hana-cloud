@@ -126,7 +126,7 @@ class HDIArtifactsTool(BaseTool):
         )
         generator.generate_artifacts(model)
         # Convert the generated CAP artifacts to HDI artifacts
-        convert_cap_to_hdi(cap_dir, output_dir, archive=archive)
+        convert_cap_to_hdi(os.path.join(cap_dir, project_name), os.path.join(output_dir, project_name), archive=archive)
         return "HDI artifacts generated successfully. Root directory: " + str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())
 
     async def _run_async(
