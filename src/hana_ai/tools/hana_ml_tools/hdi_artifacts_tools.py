@@ -20,7 +20,7 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.model_storage import ModelStorage
 from hana_ml.artifacts.generators.hana import HANAGeneratorForCAP
-from hana_ml.artifacts.generators.convert_cap_to_hdi import convert_cap_to_hdi
+from .utility import convert_cap_to_hdi
 
 logger = logging.getLogger(__name__)
 
