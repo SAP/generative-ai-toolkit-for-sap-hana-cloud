@@ -14,8 +14,6 @@ The following classes are available:
 from typing import List
 import uuid
 
-import pandas as pd
-
 import subprocess
 import sys
 
@@ -24,6 +22,8 @@ try:
 except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "generative-ai-hub-sdk[all]"])
     from gen_ai_hub.proxy.langchain import init_embedding_model as gen_ai_hub_embedding_model
+
+import pandas as pd
 from langchain.embeddings.base import Embeddings
 from hana_ml.dataframe import ConnectionContext, create_dataframe_from_pandas
 from hana_ml.text.pal_embeddings import PALEmbeddings
