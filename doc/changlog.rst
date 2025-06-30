@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.250630**
+
+``New Functions``
+    - Added hdi artifacts tool.
+
 **Version 1.0.250617**
 
 ``New Functions``

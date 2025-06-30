@@ -35,6 +35,7 @@ from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTime
 from hana_ai.tools.hana_ml_tools.ts_check_tools import TimeSeriesCheck
 from hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools import TSOutlierDetection
 from hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools import AccuracyMeasure
+from hana_ai.tools.hana_ml_tools.hdi_artifacts_tools import HDIArtifactsTool
 from hana_ai.tools.hana_ml_tools.unsupported_tools import ClassificationTool, RegressionTool
 
 class HANAMLToolkit(BaseToolkit):
@@ -73,11 +74,12 @@ class HANAMLToolkit(BaseToolkit):
             AutomaticTimeseriesLoadModelAndPredict(connection_context=self.connection_context),
             AutomaticTimeseriesLoadModelAndScore(connection_context=self.connection_context),
             CAPArtifactsTool(connection_context=self.connection_context),
+            DeleteModels(connection_context=self.connection_context),
             FetchDataTool(connection_context=self.connection_context),
             ForecastLinePlot(connection_context=self.connection_context),
             IntermittentForecast(connection_context=self.connection_context),
             ListModels(connection_context=self.connection_context),
-            DeleteModels(connection_context=self.connection_context),
+            HDIArtifactsTool(connection_context=self.connection_context),
             TimeSeriesDatasetReport(connection_context=self.connection_context),
             TimeSeriesCheck(connection_context=self.connection_context),
             TSOutlierDetection(connection_context=self.connection_context),

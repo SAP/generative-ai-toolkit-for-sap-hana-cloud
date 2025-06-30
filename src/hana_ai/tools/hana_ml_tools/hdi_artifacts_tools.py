@@ -75,7 +75,7 @@ class HDIArtifactsTool(BaseTool):
     """
     name: str = "hdi_artifacts"
     """Name of the tool."""
-    description: str = "To generate HDI artifacts for a given model from model storage. "
+    description: str = "To generate HDI artifacts for a given model from model storage."
     """Description of the tool."""
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""

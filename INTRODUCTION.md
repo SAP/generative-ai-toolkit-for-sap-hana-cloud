@@ -39,11 +39,12 @@ Provided AI-tools for streamlining usage of HANA ML functions in context of the 
 | automatic_timeseries_load_model_and_score | To load an AutomaticTimeseries model and score the model. |
 | accuracy_measure | To compute the accuracy measure using true and predict tables. |
 | cap_artifacts | To generate CAP artifacts from the model in the model storage. |
+| delete_models | To delete the model from the model storage. |
 | fetch_data | To fetch the data from the HANA database.|
 | forecast_line_plot | To generate line plot for the forecasted result. |
+| hdi_artifacts | To generate HDI artifacts for a given model from model storage. |
 | intermittent_forecast | To forecast the intermittent time series data. |
 | list_models | To list the models in the model storage. |
-| delete_models | To delete the model from the model storage. |
 | seasonality_test | To check the seasonality of the time series data. |
 | stationarity_test | To check the stationarity of the time series data. |
 | trend_test | To check the trend of the time series data. |
