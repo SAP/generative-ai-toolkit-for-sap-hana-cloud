@@ -20,7 +20,7 @@ import sys
 try:
     from gen_ai_hub.proxy.langchain import init_embedding_model as gen_ai_hub_embedding_model
 except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "generative-ai-hub-sdk[all]"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "sap-ai-sdk-gen[all]"])
     from gen_ai_hub.proxy.langchain import init_embedding_model as gen_ai_hub_embedding_model
 
 import pandas as pd
