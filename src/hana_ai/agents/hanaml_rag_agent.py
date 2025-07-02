@@ -7,16 +7,17 @@ The following class is available:
 """
 
 import re
-from typing import List, Any
+from typing import Dict, List, Any, Optional, Tuple, Union
 from datetime import datetime
 import logging
 import pandas as pd
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
 from langchain.agents import Tool, AgentExecutor, create_openai_functions_agent
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate
-from langchain.schema import SystemMessage, HumanMessage, AIMessage
+from langchain.schema import SystemMessage, HumanMessage, AIMessage, AgentAction, AgentFinish
+from langchain_core.callbacks.manager import CallbackManagerForChainRun
+from langchain_core.tools import BaseTool
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
 
@@ -26,6 +27,41 @@ from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+class FormatSafeAgentExecutor(AgentExecutor):
+    """
+    An AgentExecutor that safely formats the output of the agent to ensure
+    that the observation is always a list of objects, even if it was originally
+    a string. This is useful for ensuring compatibility with downstream
+    components that expect a specific format.
+    """
+    def _take_next_step(
+        self,
+        name_to_tool_map: Dict[str, BaseTool],
+        color_mapping: Dict[str, str],
+        inputs: Dict[str, str],
+        intermediate_steps: List[Tuple[AgentAction, str]],
+        run_manager: Optional[CallbackManagerForChainRun] = None,
+    ) -> Union[AgentFinish, List[Tuple[AgentAction, str]]]:
+        # 调用原始逻辑获取下一步动作
+        next_step = super()._take_next_step(
+            name_to_tool_map, color_mapping, inputs, intermediate_steps, run_manager
+        )
+
+        # 仅处理AgentAction（工具调用结果）
+        if isinstance(next_step, list):
+            formatted_steps = []
+            for action, observation in next_step:
+                # 关键转换：将字符串observation转为对象数组
+                if isinstance(observation, str):
+                    formatted_obs = [{"type": "text", "text": observation}]
+                    formatted_steps.append((action, formatted_obs))
+                else:
+                    formatted_steps.append((action, observation))
+            return formatted_steps
+
+        return next_step  # AgentFinish直接返回
 
 class HANAMLRAGAgent:
     """
@@ -194,8 +230,8 @@ class HANAMLRAGAgent:
 
         # Add messages with metadata
         self.long_term_store.add_messages([
-            HumanMessage(content=user_input, metadata={"timestamp": current_time}),
-            AIMessage(content=response_str, metadata={"timestamp": current_time})
+            HumanMessage(content=[{"type": "text", "text": user_input}], metadata={"timestamp": current_time}),
+            AIMessage(content=[{"type": "text", "text": str(response)}], metadata={"timestamp": current_time})
         ])
 
         # Create documents for vector store
@@ -255,31 +291,27 @@ class HANAMLRAGAgent:
 
         return [content for content, _ in combined[:3]]
 
-    def _build_context(self, user_input: str) -> ChatPromptTemplate:
-        """Build combined context from short-term and long-term memory"""
-        # Get short-term memory
+    def _build_context(self, user_input: str) -> SystemMessage:
+        # 获取短时记忆并转换格式
         short_term_history = self.short_term_memory.load_memory_variables({})["chat_history"]
-        short_term_str = "\n".join([
-            f"{msg.type.capitalize()}: {msg.content}"
-            for msg in short_term_history
-        ]) if short_term_history else "No recent conversation history."
+        formatted_history = []
+        for msg in short_term_history:
+            if isinstance(msg, (HumanMessage, AIMessage)):
+                formatted_history.append({"type": "text", "text": f"{msg.type}: {msg.content}"})
 
-        # Get relevant long-term memories
+        # 获取长时记忆
         long_term_context = self._retrieve_relevant_memories(user_input)
-        long_term_str = "\n".join(long_term_context) if long_term_context else "No relevant historical context found."
+        long_term_str = "\n".join(long_term_context) if long_term_context else ""
 
-        # Create system message with context
-        context_message = SystemMessage(
-            content=f"CONVERSATION CONTEXT:\n"
-                    f"Recent Chat History:\n{short_term_str}\n\n"
-                    f"Relevant Long-term Memories:\n{long_term_str}\n\n"
-                    "GUIDELINES:\n"
-                    "1. Prioritize tool usage when appropriate\n"
-                    "2. When tools return tabular data, format as Markdown tables\n"
-                    "3. For large outputs, summarize key insights\n"
-        )
-
-        return context_message
+        # 构建内容块
+        context_content = [
+            {"type": "text", "text": "CONVERSATION CONTEXT:"},
+            {"type": "text", "text": "Recent Chat History:"},
+            *formatted_history,
+            {"type": "text", "text": f"Relevant Long-term Memories: {long_term_str}"},
+            {"type": "text", "text": "GUIDELINES:\n1. Prioritize tool usage..."}
+        ]
+        return SystemMessage(content=context_content)
 
     def _initialize_agent(self):
         """Initialize agent with tool integration and context handling"""
@@ -295,7 +327,7 @@ class HANAMLRAGAgent:
         self.agent = create_openai_functions_agent(self.llm, self.tools, prompt)
 
         # Create executor with memory integration
-        self.executor = AgentExecutor(
+        self.executor = FormatSafeAgentExecutor(
             agent=self.agent,
             tools=self.tools,
             max_iterations=self.max_iterations,
@@ -360,8 +392,11 @@ class HANAMLRAGAgent:
             self.clear_short_term_memory()
             return "Short-term memory has been cleared."
         context_str = self._build_long_term_context(user_input)  # Returns string
-        combined_input = f"Context:\n{context_str}\n\nQuestion: {user_input}"
-
-        agent_input = {"input": combined_input}  # Single key
+        agent_input = {
+            "input": [{
+                "type": "text", 
+                "text": f"Context:\n{context_str}\n\nQuestion: {user_input}"
+            }]
+        }
         response = self.executor.invoke(agent_input)
         return response['output']
