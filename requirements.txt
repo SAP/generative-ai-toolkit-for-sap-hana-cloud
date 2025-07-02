@@ -1,5 +1,5 @@
 langchain
-numpy<2.0
+numpy
 pandas
 hana-ml>=2.25.25062301
 langchain-community
@@ -9,4 +9,6 @@ langchain-text-splitters
 pydantic
 pydantic-core
 cryptography
-ipython<9.0
+ipython
+sentence_transformers
+deprecated

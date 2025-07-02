@@ -11,6 +11,7 @@ The following class is available:
 import json
 import inspect
 import logging
+from deprecated import deprecated
 import pandas as pd
 from pydantic import ValidationError
 from langchain.agents import initialize_agent, AgentType, Tool
@@ -124,6 +125,8 @@ def _get_pandas_meta(df):
         columns = df.columns.tolist()
         return json.dumps({"columns": columns})
     return ''
+
+@deprecated(version="1.0.25070200", reason="Use HANAMLRagAgent instead")
 class HANAMLAgentWithMemory(object):
     """
     A chatbot that can remember the chat history and use it to generate responses.
