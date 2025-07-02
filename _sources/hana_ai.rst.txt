@@ -39,8 +39,8 @@ Prerequisites
   - **Python Machine Learning Client for SAP HANA** version 2.24 or higher : Install it using ``pip install -U hana-ml``.
     For more details, refer to the `Documentation <https://help.sap.com/doc/cd94b08fe2e041c2ba778374572ddba9/latest/en-US/hana_ml.html>`_.
 
-  - **Generative-AI-Hub-SDK**: Install it using ``pip install "generative-ai-hub-sdk[all]"``.
-    For comprehensive instructions, see the `SAP Learning Unit on Using Generative-AI-Hub-SDK <https://learning.sap.com/learning-journeys/solving-your-business-problems-using-prompts-and-llms-in-sap-s-generative-ai-hub/identifying-the-need-for-using-generative-ai-hub-sdk>`_.
+  - **SAP-AI-SDK-GEN**: Install it using ``pip install "sap-ai-sdk-gen[all]"``.
+    For comprehensive instructions, see the `SAP Help Documentation on Using SAP-AI-SDK-GEN <https://help.sap.com/doc/generative-ai-hub-sdk/CLOUD/en-US/_reference/README_sphynx.html>`_.
 
   - Ensure that you have access to generative AI hub and deployed models in SAP Business Technology Platform. For more information, see the `Create a Deployment for a Generative AI Model <https://help.sap.com/docs/sap-ai-core/sap-ai-core-service-guide/create-deployment-for-generative-ai-model-in-sap-ai-core>`_.
 
