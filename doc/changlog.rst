@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.25070200**
+
+``New Functions``
+    - Added `HANAMLRagAgent` class to enable Retrieval-Augmented Generation (RAG) capabilities, leveraging a hybrid short-term and long-term memory architecture with CrossEncoder reranking techniques.
+
 **Version 1.0.250630**
 
 ``New Functions``

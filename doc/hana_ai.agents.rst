@@ -36,3 +36,13 @@ hanaml_agent_with_memory
    :template: class.rst
 
    hanaml_agent_with_memory.HANAMLAgentWithMemory
+
+.. _hanaml_rag_agent-label:
+
+hanaml_rag_agent
+----------------
+.. autosummary::
+   :toctree: agents/
+   :template: class.rst
+
+   hanaml_rag_agent.HANAMLRAGAgent

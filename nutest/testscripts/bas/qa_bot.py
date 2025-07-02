@@ -17,7 +17,7 @@ try:
     from gen_ai_hub.proxy.langchain import init_llm
 except ImportError:
     import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "generative-ai-hub-sdk[all]"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "sap-ai-sdk-gen[all]"])
     from gen_ai_hub.proxy.langchain import init_llm
 from hana_ml import dataframe
 import pandas as pd
