@@ -13,18 +13,25 @@ session_manager = {}
 session_lock = threading.Lock()
 
 def create_agent_session(session_id):
-    """创建新的代理会话"""
+    """
+    Create a new HANAMLRAGAgent session.
+
+    Parameters
+    ----------
+    session_id : str
+        Unique identifier for the session.
+    """
     connection_context = dataframe.ConnectionContext(userkey="RaysKey")
     tools = HANAMLToolkit(connection_context, used_tools='all').get_tools()
     llm = init_llm('gpt-4.1', temperature=0.0, max_tokens=1800)
-    return HANAMLRAGAgent(tools=tools, llm=llm)
+    return HANAMLRAGAgent(tools=tools, llm=llm,
+                          vectorstore_path=f"chat_history_vectorstore_{session_id}",
+                          long_term_db=f"sqlite:///chat_history_{session_id}.db")
 
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     """
-    RESTful API 聊天端点
-    请求格式: {"session_id": "可选会话ID", "message": "用户消息"}
-    响应格式: {"response": "AI回复", "memory_status": {...}}
+    Handle chat requests to the chatbot service.
     """
     data = request.get_json()
     message = data.get('message')
@@ -57,7 +64,14 @@ def chat_endpoint():
 
 @app.route('/sessions/<session_id>', methods=['DELETE'])
 def delete_session(session_id):
-    """删除指定会话"""
+    """
+    Delete a specific session by session_id.
+
+    Parameter
+    ---------
+    session_id : str
+        Unique identifier for the session to be deleted.
+    """
     with session_lock:
         if session_id in session_manager:
             del session_manager[session_id]
