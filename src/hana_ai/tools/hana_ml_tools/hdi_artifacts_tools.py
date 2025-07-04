@@ -64,11 +64,11 @@ class HDIArtifactsTool(BaseTool):
                 * - version
                   - The version of the model in model storage. If not provided, ask the user. Do not guess.
                 * - project_name
-                  - The name of the project for CAP project. If not provided, ask the user. Do not guess.
+                  - The name of the project for HDI project. If not provided, ask the user. Do not guess.
                 * - output_dir
-                  - The output directory for CAP project. If not provided, ask the user. Do not guess.
+                  - The output directory for HDI project. If not provided, ask the user. Do not guess.
                 * - namespace
-                  - The namespace for CAP project, it is optional.
+                  - The namespace for HDI project, it is optional.
                 * - archive
                   - Whether to archive the output directory if output_dir has content, default is True.
 
