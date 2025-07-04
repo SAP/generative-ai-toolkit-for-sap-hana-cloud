@@ -74,7 +74,7 @@ class HANAMLRAGAgent:
                  memory_window: int = 10,
                  long_term_db: str = "sqlite:///chat_history.db",
                  long_term_memory_limit: int = 1000,
-                 skip_large_data_threshold: int = 1000,
+                 skip_large_data_threshold: int = 10000,
                  chunk_size: int = 500,
                  chunk_overlap: int = 50,
                  forget_percentage: float = 0.1,
