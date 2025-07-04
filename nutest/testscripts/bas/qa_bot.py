@@ -3,8 +3,6 @@ This script is designed to process a question and chat history using the HANA AI
 """
 import os
 
-from hana_ai.agents.hanaml_rag_agent import stateless_chat
-
 os.environ["TQDM_DISABLE"] = "1" 
 
 import sys
@@ -23,7 +21,7 @@ except ImportError:
     from gen_ai_hub.proxy.langchain import init_llm
 from hana_ml import dataframe
 import pandas as pd
-
+from hana_ai.agents.hanaml_agent_with_memory import stateless_call
 from hana_ai.tools.toolkit import HANAMLToolkit
 
 
@@ -54,11 +52,13 @@ def process_strings(question: str, chat_history: list[str]) -> str:
     """
     Process the input question and chat history using the HANA AI.
     """
-    return stateless_chat(
-        query=question,
-        memory=chat_history,
+    return stateless_call(
+        question=question,
+        chat_history=chat_history,
         tools=tools,
-        llm=llm
+        llm=llm,
+        verbose=False,
+        return_intermediate_steps=True,
     )
 
 if __name__ == "__main__":
@@ -82,10 +82,26 @@ if __name__ == "__main__":
 
         # Process and output
         result = process_strings(input_data['question'], input_data['chat_history'])
+        if isinstance(result, pd.DataFrame):
+            result = json.dumps(result.to_dict(orient="records"), ensure_ascii=False, cls=_CustomEncoder)
         if isinstance(result, dict):
             if 'output' in result:
                 if isinstance(result['output'], pd.DataFrame):
                     result['output'] = json.dumps(result['output'].to_dict(orient="records"), ensure_ascii=False, cls=_CustomEncoder)
+                if isinstance(result['output'], dict) and 'action' in result['output'] and 'action_input' in result['output']:
+                    response = result['output']
+                    action = response.get("action")
+                    for tool in tools:
+                        if tool.name == action:
+                            action_input = response.get("action_input")
+                            try:
+                                response = tool.run(action_input)
+                            except Exception as e:
+                                error_message = str(e)
+                                response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+                    if isinstance(response, pd.DataFrame):
+                        response = json.dumps(response.to_dict(orient="records"), ensure_ascii=False, cls=_CustomEncoder)
+                    result['output'] = response
             if 'intermediate_steps' in result:
                 if result['intermediate_steps'] is None:
                     result['intermediate_steps'] = ''

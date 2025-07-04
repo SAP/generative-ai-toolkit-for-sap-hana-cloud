@@ -9,11 +9,10 @@ The following class is available:
 
 #pylint: disable=ungrouped-imports, abstract-method
 import json
-import inspect
 import logging
 from deprecated import deprecated
 import pandas as pd
-from pydantic import ValidationError
+#from pydantic import ValidationError
 from langchain.agents import initialize_agent, AgentType, Tool
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain_core.chat_history import InMemoryChatMessageHistory
@@ -22,64 +21,15 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.schema.messages import AIMessage
-from langchain.load.dump import dumps
+#from langchain.load.dump import dumps
+from hana_ai.agents.hanaml_rag_agent import stateless_chat
+#from hana_ai.agents.utilities import _inspect_python_code, _check_generated_cap_for_bas
 
 logging.getLogger().setLevel(logging.ERROR)
 
 CHATBOT_SYSTEM_PROMPT = """You're an assistant skilled in data science using hana-ml tools.
 Ask for missing parameters if needed. Regardless of whether this tool has been called before, it must be called."""
 
-def _check_generated_cap_for_bas(intermediate_steps):
-    """
-    Check if the generated CAP artifacts are valid.
-
-    Parameters
-    ----------
-    intermediate_steps : str
-        The intermediate steps to check.
-
-    Returns
-    -------
-    bool
-        True if the generated CAP artifacts are valid, False otherwise.
-    """
-    try:
-        ss = json.loads(intermediate_steps)
-    except:
-        return False
-    if intermediate_steps is None:
-        return False
-    if not isinstance(ss, list):
-        return False
-    for step in ss:
-        for substep in step:
-            if isinstance(substep, dict) and 'type' in substep and substep['type'] == 'constructor':
-                if 'kwargs' in substep and 'tool' in substep['kwargs']:
-                    tool_name = substep['kwargs']['tool']
-                    if tool_name == "cap_artifacts_for_bas":
-                        return True
-    return False
-
-def _inspect_python_code(intermediate_steps, tools):
-    try:
-        ss = json.loads(intermediate_steps)
-    except:
-        return None
-    if intermediate_steps is None:
-        return None
-    collect_tool_call = []
-    if not isinstance(ss, list):
-        return None
-    for step in ss:
-        for substep in step:
-            if isinstance(substep, dict) and 'type' in substep and substep['type'] == 'constructor':
-                if 'kwargs' in substep and 'tool' in substep['kwargs']:
-                    tool_name = substep['kwargs']['tool']
-                    for tool in tools:
-                        if tool.name == tool_name:
-                            collect_tool_call.append({"tool_name": tool_name, "parameters": json.dumps(substep['kwargs']['tool_input']), "python_code": inspect.getsource(tool._run)})
-                            break
-    return collect_tool_call
 class _ToolObservationCallbackHandler(BaseCallbackHandler):
     def __init__(self, memory_getter, max_observations=5):
         super().__init__()
@@ -339,68 +289,72 @@ def stateless_call(llm, tools, question, chat_history=None, verbose=False, retur
     if chat_history is None:
         chat_history = []
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),
-        MessagesPlaceholder(variable_name="history", messages=chat_history),
-        ("human", "{question}"),
-    ])
-    agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, return_intermediate_steps=return_intermediate_steps)
-    intermediate_steps = None
-    try:
-        response = agent.invoke({"question": question, "history": chat_history})
-        if return_intermediate_steps is True:
-            intermediate_steps = response.get("intermediate_steps")
-    except ValidationError as e:
-        # Parse Pydantic error details for feedback
-        error_details = "\n".join([f"{err['loc'][0]}: {err['msg']}" for err in e.errors()])
-        error_message = f"Please provide the parameters:\n {error_details}"
-        chat_history.append(("system", error_message))
-        response = {"output": error_message}
-    except Exception as e:
-        error_message = str(e)
-        response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
-        if return_intermediate_steps is True:
-            response = {
-                "output": response,
-                "intermediate_steps": dumps(intermediate_steps) if return_intermediate_steps else None
-            }
-            response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
-            response["generated_cap_project"] = _check_generated_cap_for_bas(response["intermediate_steps"])
-        return response
+    # prompt = ChatPromptTemplate.from_messages([
+    #     ("system", system_prompt),
+    #     MessagesPlaceholder(variable_name="history", messages=chat_history),
+    #     ("human", "{question}"),
+    # ])
+    # agent: Runnable = prompt | initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=verbose, return_intermediate_steps=return_intermediate_steps)
+    # intermediate_steps = None
+    # try:
+    #     response = agent.invoke({"question": question, "history": chat_history})
+    #     if return_intermediate_steps is True:
+    #         intermediate_steps = response.get("intermediate_steps")
+    # except ValidationError as e:
+    #     # Parse Pydantic error details for feedback
+    #     error_details = "\n".join([f"{err['loc'][0]}: {err['msg']}" for err in e.errors()])
+    #     error_message = f"Please provide the parameters:\n {error_details}"
+    #     chat_history.append(("system", error_message))
+    #     response = {"output": error_message}
+    # except Exception as e:
+    #     error_message = str(e)
+    #     response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+    #     if return_intermediate_steps is True:
+    #         response = {
+    #             "output": response,
+    #             "intermediate_steps": dumps(intermediate_steps) if return_intermediate_steps else None
+    #         }
+    #         response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
+    #         response["generated_cap_project"] = _check_generated_cap_for_bas(response["intermediate_steps"])
+    #     return response
 
-    if isinstance(response, dict) and 'output' in response:
-        response = response['output']
-    if isinstance(response, str):
-        if response.startswith("Action:"): # force to call tool if return a Action string
-            action_json = response[7:]
-            try:
-                response = json.loads(action_json)
-            except Exception as e:
-                error_message = str(e)
-                response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
-        if "action" in response and "action_input" in response:
-            try:
-                response = json.loads(response)
-            except:
-                pass
-        if isinstance(response, str) and response.strip() == "":
-            response = "I'm sorry, I don't understand. Please ask me again."
-    if isinstance(response, dict) and 'action' in response and 'action_input' in response:
-        action = response.get("action")
-        for tool in tools:
-            if tool.name == action:
-                action_input = response.get("action_input")
-                try:
-                    response = tool.run(action_input)
-                except Exception as e:
-                    error_message = str(e)
-                    response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
-    if return_intermediate_steps is True and 'intermediate_steps' not in response:
-        # Add the intermediate steps to the response if requested
-        response = {
-            "output": response,
-            "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None
-        }
-        response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
-        response["generated_cap_project"] = _check_generated_cap_for_bas(response["intermediate_steps"])
+    # if isinstance(response, dict) and 'output' in response:
+    #     response = response['output']
+    # if isinstance(response, str):
+    #     if response.startswith("Action:"): # force to call tool if return a Action string
+    #         action_json = response[7:]
+    #         try:
+    #             response = json.loads(action_json)
+    #         except Exception as e:
+    #             error_message = str(e)
+    #             response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+    #     if "action" in response and "action_input" in response:
+    #         try:
+    #             response = json.loads(response)
+    #         except:
+    #             pass
+    #     if isinstance(response, str) and response.strip() == "":
+    #         response = "I'm sorry, I don't understand. Please ask me again."
+    # if isinstance(response, dict) and 'action' in response and 'action_input' in response:
+    #     action = response.get("action")
+    #     for tool in tools:
+    #         if tool.name == action:
+    #             action_input = response.get("action_input")
+    #             try:
+    #                 response = tool.run(action_input)
+    #             except Exception as e:
+    #                 error_message = str(e)
+    #                 response = f"The error message is `{error_message}`. Please display the error message, and then analyze the error message and provide the solution."
+    # if return_intermediate_steps is True and 'intermediate_steps' not in response:
+    #     # Add the intermediate steps to the response if requested
+    #     response = {
+    #         "output": response,
+    #         "intermediate_steps": dumps(intermediate_steps) if intermediate_steps else None
+    #     }
+    #     response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
+    #     response["generated_cap_project"] = _check_generated_cap_for_bas(response["intermediate_steps"])
+    response = stateless_chat(query=question,
+                              tools=tools,
+                              llm=llm,
+                              memory=chat_history)
     return response

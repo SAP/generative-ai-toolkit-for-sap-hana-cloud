@@ -18,13 +18,14 @@ from langchain.agents import Tool, AgentExecutor, create_openai_functions_agent
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate
 from langchain.schema import SystemMessage, HumanMessage, AIMessage, AgentAction, AgentFinish
+from langchain.load.dump import dumps
 from langchain_core.callbacks.manager import CallbackManagerForChainRun
 from langchain_core.tools import BaseTool
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
-from langchain.load.dump import dumps
+
 from sentence_transformers import CrossEncoder
-from hana_ai.agents.hanaml_agent_with_memory import _check_generated_cap_for_bas, _inspect_python_code
+from hana_ai.agents.utilities import _check_generated_cap_for_bas, _inspect_python_code
 from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
 
 # Configure logging
@@ -431,8 +432,7 @@ def stateless_chat(
         """
         Build the system context message with long-term memory integration.
         """
-        # 过滤空记忆并截取最近10条
-        valid_memories = [m for m in memory if m.strip()][-10:]
+        valid_memories = [m for m in memory if m.strip()]
         memory_block = "\n".join([f"- {m}" for m in valid_memories]) if valid_memories else "No long-term memory available."
 
         context_content = [
