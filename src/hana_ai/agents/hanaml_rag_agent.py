@@ -399,4 +399,5 @@ class HANAMLRAGAgent:
             }]
         }
         response = self.executor.invoke(agent_input)
+        self._update_long_term_memory(user_input, response['output'])
         return response['output']
