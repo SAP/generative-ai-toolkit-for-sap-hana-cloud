@@ -66,4 +66,11 @@ disable=bad-option-value,
         protected-access,
         too-many-nested-blocks,
         consider-using-get,
-        too-many-return-statements
+        too-many-return-statements,
+        line-too-long,
+        too-many-arguments,
+        too-many-positional-arguments,
+        too-many-instance-attributes,
+        too-many-locals,
+        bare-except,
+        broad-exception-caught

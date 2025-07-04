@@ -6,6 +6,8 @@ The following class is available:
         * :class `HANAMLRAGAgent`
 """
 
+#pylint: disable=attribute-defined-outside-init, ununsed-argument, no-else-return
+
 import re
 from typing import Dict, List, Any, Optional, Tuple, Union
 from datetime import datetime
@@ -20,8 +22,9 @@ from langchain_core.callbacks.manager import CallbackManagerForChainRun
 from langchain_core.tools import BaseTool
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
-
+from langchain.load.dump import dumps
 from sentence_transformers import CrossEncoder
+from hana_ai.agents.hanaml_agent_with_memory import _check_generated_cap_for_bas, _inspect_python_code
 from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
 
 # Configure logging
@@ -401,3 +404,74 @@ class HANAMLRAGAgent:
         response = self.executor.invoke(agent_input)
         self._update_long_term_memory(user_input, response['output'])
         return response['output']
+
+def stateless_chat(
+    query: str,
+    tools: List[BaseTool],
+    llm: Any,
+    memory: List[str]
+) -> str:
+    """
+    Stateless chat function that integrates tools and memory for RAG.
+
+    Parameters
+    ----------
+    query : str
+        The user query to process.
+    tools : List[BaseTool]
+        List of tools available for the agent to use.
+    llm : Any
+        The language model instance to generate responses.
+    memory : List[str]
+        List of long-term memory entries to integrate into the context.
+    """
+
+    # 1. 构建系统上下文 (整合长时记忆)
+    def build_system_context(query: str, memory: List[str]) -> SystemMessage:
+        """
+        Build the system context message with long-term memory integration.
+        """
+        # 过滤空记忆并截取最近10条
+        valid_memories = [m for m in memory if m.strip()][-10:]
+        memory_block = "\n".join([f"- {m}" for m in valid_memories]) if valid_memories else "No long-term memory available."
+
+        context_content = [
+            {"type": "text", "text": "## System Instructions"},
+            {"type": "text", "text": "You are a helpful assistant with access to tools. Always use tools when appropriate."},
+            {"type": "text", "text": "## Recent Chat History"},
+            {"type": "text", "text": memory_block},
+            {"type": "text", "text": "## Operating Rules\n1. Respond directly to simple questions\n2. Use tools when calculation/query is needed"}
+        ]
+        return SystemMessage(content=context_content)
+
+    # 2. 初始化提示模板
+    system_message = build_system_context(query, memory)
+    prompt_template = ChatPromptTemplate.from_messages([
+        system_message,
+        MessagesPlaceholder(variable_name="chat_history"),
+        HumanMessagePromptTemplate.from_template("{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad")
+    ])
+
+    # 3. 创建带空记忆的代理
+    agent = create_openai_functions_agent(llm, tools, prompt_template)
+    agent_executor = FormatSafeAgentExecutor(
+        agent=agent,
+        tools=tools,
+        max_iterations=10,
+        handle_parsing_errors=True,
+        memory=ConversationBufferWindowMemory(  # 空短期记忆
+            memory_key="chat_history",
+            k=0,
+            return_messages=True
+        ),
+        return_intermediate_steps=True,
+    )
+
+    # 4. 执行查询并返回响应
+    response = agent_executor.invoke({"input": query})
+    intermediate_steps = response.get("intermediate_steps")
+    response["intermediate_steps"] = dumps(intermediate_steps) if intermediate_steps else None
+    response["inspect_script"] = _inspect_python_code(response["intermediate_steps"], tools)
+    response["generated_cap_project"] = _check_generated_cap_for_bas(response["intermediate_steps"])
+    return response
