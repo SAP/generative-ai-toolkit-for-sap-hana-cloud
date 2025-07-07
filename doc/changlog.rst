@@ -1,7 +1,16 @@
 Changelog
 =========
 
-**Version 1.0.25070200**
+**Version 1.0.250707**
+
+``Enhancements``
+    - Added `vector_store_type` parameter to `HANAMLRAGAgent` class to support different vector store types, including "hanadb" and "faiss".
+    - Improved the `HANAMLRAGAgent` class to handle vector store initialization and updates more efficiently.
+
+``Bug Fixes``
+    - Fixed the parameter issues in `HANAMLRAGAgent` class by adding rerank_candidates and rerank_k parameters.
+
+**Version 1.0.250702**
 
 ``New Functions``
     - Added `HANAMLRagAgent` class to enable Retrieval-Augmented Generation (RAG) capabilities, leveraging a hybrid short-term and long-term memory architecture with CrossEncoder reranking techniques.
