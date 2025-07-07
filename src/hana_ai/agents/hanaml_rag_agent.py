@@ -153,6 +153,21 @@ class HANAMLRAGAgent:
             Similarity score threshold for retrieval.
 
             Defaults to 0.5.
+        vector_store_type : str
+            Type of vector store to use for long-term memory. Options are 'faiss' or 'hanadb'.
+
+            Defaults to 'faiss'.
+        hana_connection_context : Any
+            HANA connection context for HANA DB vector store. Required if vector_store_type is 'hanadb'.
+
+        hana_vector_table : str
+            Name of the HANA vector table to use for long-term memory.
+
+            Defaults to "HANA_AI_CHAT_HISTORY".
+        drop_existing_hana_vector_table : bool
+            Whether to drop the existing HANA vector table before creating a new one.
+
+            Defaults to False.
         verbose : bool
             Whether to enable verbose logging.
 
@@ -202,7 +217,14 @@ class HANAMLRAGAgent:
         self._initialize_vectorstore()
 
     def delete_message_long_term_store(self, message_id) -> None:
-        """Delete a specific message by its ID"""
+        """
+        Delete a specific message by its 
+
+        Parameters
+        ----------
+        message_id : str
+            The ID of the message to delete from long-term memory.
+        """
         long_term_store = self.long_term_store
         try:
             long_term_store._create_table_if_not_exists()

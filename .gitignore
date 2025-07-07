@@ -140,3 +140,10 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# bas/node_modules
+nutest/testscripts/bas/node_modules/
+
+# e2e_scenarios/chat_history
+nutest/testscripts/demo/e2e_scenarios/chat_history_vectorstore
+nutest/testscripts/demo/e2e_scenarios/chat_history.db
