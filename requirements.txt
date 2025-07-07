@@ -6,6 +6,7 @@ langchain-community
 langchain-core
 langchain-experimental
 langchain-text-splitters
+langchain-hana
 pydantic
 pydantic-core
 cryptography
