@@ -27,7 +27,7 @@ tools = HANAMLToolkit(cc, used_tools='all').get_tools()
 chatbot = HANAMLRAGAgent(llm=llm, tools=tools, verbose=True, vector_store_type="hanadb", hana_connection_context=cc)
 
 ```
-<img src="./img/chatbotwithtoolkit.png" alt="image" width="800" height="auto">
+<img src="./doc/image/chatbotwithtoolkit.png" alt="image" width="800" height="auto">
 
 ## Library of tools for HANA-ML 
 Provided AI-tools for streamlining usage of HANA ML functions in context of the conversational agent.
@@ -89,7 +89,7 @@ code_tool.set_vectordb(self.vectordb)
 ```python
 hana_vec.query("AutoML classification", top_n=1)
 ```
-![alt](./img/code_template.png)
+![alt](./doc/image/code_template.png)
 
 ### Working with multiple Vector Stores
 Union of multiple vector stores is possible
@@ -117,14 +117,14 @@ sdf = SmartDataFrame(hana_df)
 sdf.configure(tools=[code_tool], llm=llm)
 sdf.ask("Show the samples of the dataset", verbose=True)
 ```
-![alt](./img/smartdf_ask.png)
+![alt](./doc/image/smartdf_ask.png)
 
 ```python
 new_df = sdf.transform("Get first two rows", verbose=True)
 new_df.collect()
 ```
-![alt](./img/smartdf_transform.png)
-![alt](./img/smartdf_res.png)
+![alt](./doc/image/smartdf_transform.png)
+![alt](./doc/image/smartdf_res.png)
 
 
 
