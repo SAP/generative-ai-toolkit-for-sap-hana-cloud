@@ -261,11 +261,64 @@ class HANAMLRAGAgent:
         if len(self.long_term_store.messages) > self.long_term_memory_limit:
             # Calculate number of oldest messages to remove
             num_to_remove = int(self.long_term_memory_limit * self.forget_percentage)
-
-            # Implement actual deletion logic here
-            # This is placeholder for actual database deletion
-            logger.info("Should remove %d oldest memories", num_to_remove)
-            # In practice: Delete oldest records from database
+            # 1. Delete from SQL database
+            try:
+                # Get sorted list of messages by timestamp
+                sorted_messages = sorted(
+                    self.long_term_store.messages,
+                    key=lambda msg: msg.metadata.get('timestamp', '1970-01-01')
+                )
+                # Delete oldest messages from SQL store
+                for msg in sorted_messages[:num_to_remove]:
+                    self.long_term_store.delete_message(msg.id)
+                logger.info(f"Deleted {num_to_remove} oldest memories from SQL store")
+            except Exception as e:
+                logger.error(f"Error deleting from SQL store: {str(e)}")
+            # 2. Rebuild vectorstore from remaining messages
+            try:
+                # Get remaining messages after deletion
+                remaining_messages = self.long_term_store.messages
+                # Skip if no messages left
+                if not remaining_messages:
+                    self.vectorstore = FAISS.from_texts(
+                        [""],
+                        embedding=self.embeddings
+                    )
+                    return
+                # Recreate documents from remaining messages
+                splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=self.chunk_size,
+                    chunk_overlap=self.chunk_overlap,
+                )
+                documents = []
+                for i in range(0, len(remaining_messages), 2):
+                    if i+1 >= len(remaining_messages):
+                        break  # Skip incomplete pairs
+                    user_msg = remaining_messages[i]
+                    ai_msg = remaining_messages[i+1]
+                    # Create combined document
+                    text = f"User: {user_msg.content}\nAssistant: {ai_msg.content}"
+                    metadata = {"timestamp": user_msg.metadata.get('timestamp', '')}
+                    # Split and add to documents
+                    docs = splitter.create_documents(
+                        texts=[text],
+                        metadatas=[metadata]
+                    )
+                    documents.extend(docs)
+                # Rebuild vectorstore
+                self.vectorstore = FAISS.from_documents(
+                    documents,
+                    self.embeddings
+                )
+                self.vectorstore.save_local(self.vectorstore_path)
+                logger.info(f"Rebuilt vectorstore with {len(documents)} documents")
+            except Exception as e:
+                logger.error(f"Error rebuilding vectorstore: {str(e)}")
+                # Fallback to empty vectorstore
+                self.vectorstore = FAISS.from_texts(
+                    [""],
+                    embedding=self.embeddings
+                )
 
     def _retrieve_relevant_memories(self, query: str) -> List[str]:
         """Retrieve relevant memories using RAG with reranking"""
