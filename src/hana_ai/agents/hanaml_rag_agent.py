@@ -24,6 +24,7 @@ from langchain_core.callbacks.manager import CallbackManagerForChainRun
 from langchain_core.tools import BaseTool
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores.hanavector import HanaDB
 
 from sentence_transformers import CrossEncoder
 from hana_ai.agents.utilities import _check_generated_cap_for_bas, _inspect_python_code
@@ -75,7 +76,7 @@ class HANAMLRAGAgent:
     def __init__(self,
                  tools: List[Tool],
                  llm: Any,
-                 vectorstore_path: str = "chat_history_vectorstore",
+                 vectorstore_path: str = "chat_history_vectorstore", # FAISS vectorstore path
                  memory_window: int = 10,
                  long_term_db: str = "sqlite:///chat_history.db",
                  long_term_memory_limit: int = 1000,
@@ -85,8 +86,13 @@ class HANAMLRAGAgent:
                  forget_percentage: float = 0.1,
                  max_iterations: int = 10,
                  cross_encoder: CrossEncoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2'),
-                 rerank_k: int = 10,
+                 rerank_candidates: int = 20,
+                 rerank_k: int = 3,
                  score_threshold: float = 0.5,
+                 vector_store_type = "faiss", # 'faiss' or 'hanadb'
+                 hana_connection_context = None, # Required if vector_store is 'hanadb'
+                 hana_vector_table: str = "HANA_AI_CHAT_HISTORY",
+                 drop_existing_hana_vector_table: bool = False,
                  verbose: bool = False):
         """
         Initialize the chatbot with integrated tools and memory systems.
@@ -134,11 +140,15 @@ class HANAMLRAGAgent:
         cross_encoder : CrossEncoder
             Cross-encoder model for reranking retrieved documents.
 
-            Defaults to a pre-trained cross-encoder model 'cross-encoder/ms-marco-MiniLM-L-6-v2'.            
+            Defaults to a pre-trained cross-encoder model 'cross-encoder/ms-marco-MiniLM-L-6-v2'.
+        rerank_candidates : int
+            Number of candidate documents to retrieve for reranking.
+
+            Defaults to 20.           
         rerank_k : int
             Number of documents to retrieve for reranking.
 
-            Defaults to 10.
+            Defaults to 3.
         score_threshold : float
             Similarity score threshold for retrieval.
 
@@ -159,10 +169,15 @@ class HANAMLRAGAgent:
         self.chunk_overlap = chunk_overlap
         self.forget_percentage = forget_percentage
         self.max_iterations = max_iterations
+        self.rerank_candidates = rerank_candidates
         self.rerank_k = rerank_k
         self.score_threshold = score_threshold
         self.verbose = verbose
         self.cross_encoder = cross_encoder
+        self.vectorstore_type = vector_store_type
+        self.hana_connection_context = hana_connection_context
+        self.hana_vector_table = hana_vector_table
+        self.drop_existing_hana_vector_table = drop_existing_hana_vector_table
 
         # Initialize memory systems
         self._initialize_memory()
@@ -201,7 +216,7 @@ class HANAMLRAGAgent:
         except Exception as e:
             logger.error("Failed to delete message with ID %s: %s", message_id, str(e))
 
-    def _initialize_vectorstore(self):
+    def _initialize_faiss_vectorstore(self):
         """Initialize or load FAISS vectorstore for long-term memory"""
         # Create embeddings service
         self.embeddings = GenAIHubEmbeddings()
@@ -222,6 +237,34 @@ class HANAMLRAGAgent:
             )
             self.vectorstore.save_local(self.vectorstore_path)
             logger.info("Created new vectorstore at %s", self.vectorstore_path)
+
+    def _initialize_hanadb_vectorstore(self):
+        """Initialize or load HANA DB vectorstore for long-term memory"""
+        if not self.hana_connection_context:
+            raise ValueError("HANA connection context is required for HANA DB vectorstore")
+
+        # Create embeddings service
+        self.embeddings = GenAIHubEmbeddings()
+
+        # Initialize or load HANA vectorstore
+        if self.drop_existing_hana_vector_table:
+            self.hana_connection_context.drop_table(self.hana_vector_table)
+        try:
+            self.vectorstore = HanaDB(
+                embedding=self.embeddings,
+                connection=self.hana_connection_context.connection,
+                table_name=self.hana_vector_table
+            )
+            logger.info("Initialized HANA DB vectorstore with table %s", self.hana_vector_table)
+        except Exception as e:
+            logger.error("Failed to initialize HANA DB vectorstore: %s", str(e))
+            raise e
+
+    def _initialize_vectorstore(self):
+        if self.vectorstore_type.lower() == "faiss":
+            self._initialize_faiss_vectorstore()
+        else:
+            self._initialize_hanadb_vectorstore()
 
     def _should_store(self, text: str) -> bool:
         """Determine if text should be stored in memory"""
@@ -296,10 +339,19 @@ class HANAMLRAGAgent:
                 remaining_messages = self.long_term_store.messages
                 # Skip if no messages left
                 if not remaining_messages:
-                    self.vectorstore = FAISS.from_texts(
-                        [""],
-                        embedding=self.embeddings
-                    )
+                    if self.vectorstore_type.lower() == "faiss":
+                        self.vectorstore = FAISS.from_texts(
+                            [""],
+                            embedding=self.embeddings
+                        )
+                    else:
+                        self.hana_connection_context.drop_table(self.hana_vector_table)
+                        self.vectorstore = HanaDB.from_texts(
+                            texts=[""],
+                            embedding=self.embeddings,
+                            connection=self.hana_connection_context.connection,
+                            table_name=self.hana_vector_table
+                        )
                     return
                 # Recreate documents from remaining messages
                 splitter = RecursiveCharacterTextSplitter(
@@ -322,28 +374,53 @@ class HANAMLRAGAgent:
                     )
                     documents.extend(docs)
                 # Rebuild vectorstore
-                self.vectorstore = FAISS.from_documents(
-                    documents,
-                    self.embeddings
-                )
-                self.vectorstore.save_local(self.vectorstore_path)
+                if self.vectorstore_type.lower() == "faiss":
+                    self.vectorstore = FAISS.from_documents(
+                        documents,
+                        self.embeddings
+                    )
+                    self.vectorstore.save_local(self.vectorstore_path)
+                else:
+                    self.hana_connection_context.drop_table(self.hana_vector_table)
+                    self.vectorstore = HanaDB.from_documents(
+                        documents,
+                        self.embeddings,
+                        connection=self.hana_connection_context.connection,
+                        table_name=self.hana_vector_table
+                    )
                 logger.info("Rebuilt vectorstore with %s documents", len(documents))
             except Exception as e:
                 logger.error("Error rebuilding vectorstore: %s", str(e))
                 # Fallback to empty vectorstore
-                self.vectorstore = FAISS.from_texts(
-                    [""],
-                    embedding=self.embeddings
-                )
+                if self.vectorstore_type.lower() == "faiss":
+                    self.vectorstore = FAISS.from_texts(
+                        [""],
+                        embedding=self.embeddings
+                    )
+                else:
+                    self.hana_connection_context.drop_table(self.hana_vector_table)
+                    self.vectorstore = HanaDB.from_texts(
+                        texts=[""],
+                        embedding=self.embeddings,
+                        connection=self.hana_connection_context.connection,
+                        table_name=self.hana_vector_table
+                    )
 
     def _retrieve_relevant_memories(self, query: str) -> List[str]:
         """Retrieve relevant memories using RAG with reranking"""
         # Retrieve candidate documents
-        candidate_docs = self.vectorstore.similarity_search_with_score(
-            query=query,
-            k=self.rerank_k,
-            score_threshold=self.score_threshold
-        )
+        if self.vectorstore_type.lower() == "faiss":
+            candidate_docs = self.vectorstore.similarity_search_with_score(
+                query=query,
+                k=self.rerank_candidates,
+                score_threshold=self.score_threshold
+            )
+        else:
+            candidate_docs = self.vectorstore.similarity_search_with_relevance_scores(
+                query=query,
+                k=self.rerank_candidates,
+                score_threshold=self.score_threshold
+            )
 
         if not candidate_docs:
             return []
@@ -362,7 +439,7 @@ class HANAMLRAGAgent:
         combined = list(zip(doc_contents, rerank_scores))
         combined.sort(key=lambda x: x[1], reverse=True)
 
-        return [content for content, _ in combined[:3]]
+        return [content for content, _ in combined[:self.rerank_k]]
 
     def _build_context(self, user_input: str) -> SystemMessage:
         # 获取短时记忆并转换格式
@@ -437,8 +514,17 @@ class HANAMLRAGAgent:
             logger.error("Unexpected error clearing SQL store: %s", str(e))
 
         # 重建空向量库（无需前置检查）
-        self.vectorstore = FAISS.from_texts([""], embedding=self.embeddings)  # 空文本占位
-        self.vectorstore.save_local(self.vectorstore_path)
+        if self.vectorstore_type.lower() == "faiss":
+            self.vectorstore = FAISS.from_texts([""], embedding=self.embeddings)  # 空文本占位
+            self.vectorstore.save_local(self.vectorstore_path)
+        else:
+            self.hana_connection_context.drop_table(self.hana_vector_table)
+            self.vectorstore = HanaDB.from_texts(
+                texts=[""],
+                embedding=self.embeddings,
+                connection=self.hana_connection_context.connection,
+                table_name=self.hana_vector_table
+            )
         logger.info("Long-term memory cleared and vectorstore reset.")
 
     def clear_short_term_memory(self):
