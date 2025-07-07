@@ -13,6 +13,7 @@ from typing import Dict, List, Any, Optional, Tuple, Union
 from datetime import datetime
 import logging
 import pandas as pd
+from sqlalchemy import delete
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.agents import Tool, AgentExecutor, create_openai_functions_agent
 from langchain.memory import ConversationBufferWindowMemory
@@ -185,6 +186,18 @@ class HANAMLRAGAgent:
         # Initialize RAG vectorstore
         self._initialize_vectorstore()
 
+    def delete_message_long_term_store(self, message_id) -> None:
+        """Delete a specific message by its ID"""
+        long_term_store = self.long_term_store
+        long_term_store._create_table_if_not_exists()
+        with long_term_store._make_sync_session() as session:
+            stmt = delete(long_term_store.sql_model_class).where(
+                long_term_store.sql_model_class.id == message_id,
+                getattr(long_term_store.sql_model_class, long_term_store.session_id_field_name) == long_term_store.session_id
+            )
+            session.execute(stmt)
+            session.commit()
+
     def _initialize_vectorstore(self):
         """Initialize or load FAISS vectorstore for long-term memory"""
         # Create embeddings service
@@ -270,10 +283,10 @@ class HANAMLRAGAgent:
                 )
                 # Delete oldest messages from SQL store
                 for msg in sorted_messages[:num_to_remove]:
-                    self.long_term_store.delete_message(msg.id)
-                logger.info(f"Deleted {num_to_remove} oldest memories from SQL store")
+                    self.delete_message_long_term_store(msg.id)
+                logger.info("Deleted %s oldest memories from SQL store", num_to_remove)
             except Exception as e:
-                logger.error(f"Error deleting from SQL store: {str(e)}")
+                logger.error("Error deleting from SQL store: %s", str(e))
             # 2. Rebuild vectorstore from remaining messages
             try:
                 # Get remaining messages after deletion
@@ -311,9 +324,9 @@ class HANAMLRAGAgent:
                     self.embeddings
                 )
                 self.vectorstore.save_local(self.vectorstore_path)
-                logger.info(f"Rebuilt vectorstore with {len(documents)} documents")
+                logger.info("Rebuilt vectorstore with %s documents", len(documents))
             except Exception as e:
-                logger.error(f"Error rebuilding vectorstore: {str(e)}")
+                logger.error("Error rebuilding vectorstore: %s", str(e))
                 # Fallback to empty vectorstore
                 self.vectorstore = FAISS.from_texts(
                     [""],
