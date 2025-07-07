@@ -310,7 +310,8 @@ class HANAMLRAGAgent:
 
         # Update vector store
         self.vectorstore.add_documents(documents)
-        self.vectorstore.save_local(self.vectorstore_path)
+        if self.vectorstore_type.lower() == "faiss":
+            self.vectorstore.save_local(self.vectorstore_path)
 
         # Clean up oldest memories if needed
         self._forget_old_memories()
