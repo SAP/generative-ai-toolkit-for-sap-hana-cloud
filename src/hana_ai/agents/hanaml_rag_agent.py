@@ -338,6 +338,9 @@ class HANAMLRAGAgent:
         # Clean up oldest memories if needed
         self._forget_old_memories()
 
+    def _forget_past_messages_in_hana_db(self, timestamp: str):
+        self.vectorstore.delete(filter={"timestamp": {"$lte": timestamp}})
+
     def _forget_old_memories(self):
         """Remove oldest memories when storage limit is exceeded"""
         if len(self.long_term_store.messages) > self.long_term_memory_limit:
@@ -351,83 +354,61 @@ class HANAMLRAGAgent:
                     key=lambda msg: msg.metadata.get('timestamp', '1970-01-01')
                 )
                 # Delete oldest messages from SQL store
+                last_timestamp = '1970-01-01'
                 for msg in sorted_messages[:num_to_remove]:
                     self.delete_message_long_term_store(msg.id)
+                    last_timestamp = msg.metadata.get('timestamp', last_timestamp)
                 logger.info("Deleted %s oldest memories from SQL store", num_to_remove)
             except Exception as e:
                 logger.error("Error deleting from SQL store: %s", str(e))
-            # 2. Rebuild vectorstore from remaining messages
-            try:
-                # Get remaining messages after deletion
-                remaining_messages = self.long_term_store.messages
-                # Skip if no messages left
-                if not remaining_messages:
-                    if self.vectorstore_type.lower() == "faiss":
+            # 2. Rebuild vectorstore from remaining messages in Faiss
+            if self.vectorstore_type.lower() == "faiss":
+                try:
+                    # Get remaining messages after deletion
+                    remaining_messages = self.long_term_store.messages
+                    # Skip if no messages left
+                    if not remaining_messages:
                         self.vectorstore = FAISS.from_texts(
                             [""],
                             embedding=self.embeddings
                         )
-                    else:
-                        self.hana_connection_context.drop_table(self.hana_vector_table)
-                        self.vectorstore = HanaDB.from_texts(
-                            texts=[""],
-                            embedding=self.embeddings,
-                            connection=self.hana_connection_context.connection,
-                            table_name=self.hana_vector_table
-                        )
-                    return
-                # Recreate documents from remaining messages
-                splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=self.chunk_size,
-                    chunk_overlap=self.chunk_overlap,
-                )
-                documents = []
-                for i in range(0, len(remaining_messages), 2):
-                    if i+1 >= len(remaining_messages):
-                        break  # Skip incomplete pairs
-                    user_msg = remaining_messages[i]
-                    ai_msg = remaining_messages[i+1]
-                    # Create combined document
-                    text = f"User: {user_msg.content}\nAssistant: {ai_msg.content}"
-                    metadata = {"timestamp": user_msg.metadata.get('timestamp', '')}
-                    # Split and add to documents
-                    docs = splitter.create_documents(
-                        texts=[text],
-                        metadatas=[metadata]
+                        return
+                    # Recreate documents from remaining messages
+                    splitter = RecursiveCharacterTextSplitter(
+                        chunk_size=self.chunk_size,
+                        chunk_overlap=self.chunk_overlap,
                     )
-                    documents.extend(docs)
-                # Rebuild vectorstore
-                if self.vectorstore_type.lower() == "faiss":
+                    documents = []
+                    for i in range(0, len(remaining_messages), 2):
+                        if i+1 >= len(remaining_messages):
+                            break  # Skip incomplete pairs
+                        user_msg = remaining_messages[i]
+                        ai_msg = remaining_messages[i+1]
+                        # Create combined document
+                        text = f"User: {user_msg.content}\nAssistant: {ai_msg.content}"
+                        metadata = {"timestamp": user_msg.metadata.get('timestamp', '')}
+                        # Split and add to documents
+                        docs = splitter.create_documents(
+                            texts=[text],
+                            metadatas=[metadata]
+                        )
+                        documents.extend(docs)
+                    # Rebuild vectorstore
                     self.vectorstore = FAISS.from_documents(
                         documents,
                         self.embeddings
                     )
                     self.vectorstore.save_local(self.vectorstore_path)
-                else:
-                    self.hana_connection_context.drop_table(self.hana_vector_table)
-                    self.vectorstore = HanaDB.from_documents(
-                        documents,
-                        self.embeddings,
-                        connection=self.hana_connection_context.connection,
-                        table_name=self.hana_vector_table
-                    )
-                logger.info("Rebuilt vectorstore with %s documents", len(documents))
-            except Exception as e:
-                logger.error("Error rebuilding vectorstore: %s", str(e))
-                # Fallback to empty vectorstore
-                if self.vectorstore_type.lower() == "faiss":
+                    logger.info("Rebuilt vectorstore with %s documents", len(documents))
+                except Exception as e:
+                    logger.error("Error rebuilding vectorstore: %s", str(e))
+                    # Fallback to empty vectorstore
                     self.vectorstore = FAISS.from_texts(
                         [""],
                         embedding=self.embeddings
                     )
-                else:
-                    self.hana_connection_context.drop_table(self.hana_vector_table)
-                    self.vectorstore = HanaDB.from_texts(
-                        texts=[""],
-                        embedding=self.embeddings,
-                        connection=self.hana_connection_context.connection,
-                        table_name=self.hana_vector_table
-                    )
+            else:
+                self._forget_past_messages_in_hana_db(last_timestamp)
 
     def _retrieve_relevant_memories(self, query: str) -> List[str]:
         """Retrieve relevant memories using RAG with reranking"""
