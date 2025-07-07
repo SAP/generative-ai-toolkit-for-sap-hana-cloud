@@ -189,14 +189,17 @@ class HANAMLRAGAgent:
     def delete_message_long_term_store(self, message_id) -> None:
         """Delete a specific message by its ID"""
         long_term_store = self.long_term_store
-        long_term_store._create_table_if_not_exists()
-        with long_term_store._make_sync_session() as session:
-            stmt = delete(long_term_store.sql_model_class).where(
-                long_term_store.sql_model_class.id == message_id,
-                getattr(long_term_store.sql_model_class, long_term_store.session_id_field_name) == long_term_store.session_id
-            )
-            session.execute(stmt)
-            session.commit()
+        try:
+            long_term_store._create_table_if_not_exists()
+            with long_term_store._make_sync_session() as session:
+                stmt = delete(long_term_store.sql_model_class).where(
+                    long_term_store.sql_model_class.id == message_id,
+                    getattr(long_term_store.sql_model_class, long_term_store.session_id_field_name) == long_term_store.session_id
+                )
+                session.execute(stmt)
+                session.commit()
+        except Exception as e:
+            logger.error("Failed to delete message with ID %s: %s", message_id, str(e))
 
     def _initialize_vectorstore(self):
         """Initialize or load FAISS vectorstore for long-term memory"""
