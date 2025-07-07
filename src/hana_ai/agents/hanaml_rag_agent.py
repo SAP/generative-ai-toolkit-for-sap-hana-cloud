@@ -13,6 +13,7 @@ from typing import Dict, List, Any, Optional, Tuple, Union
 from datetime import datetime
 import logging
 import pandas as pd
+from sqlalchemy import delete
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.agents import Tool, AgentExecutor, create_openai_functions_agent
 from langchain.memory import ConversationBufferWindowMemory
@@ -185,6 +186,21 @@ class HANAMLRAGAgent:
         # Initialize RAG vectorstore
         self._initialize_vectorstore()
 
+    def delete_message_long_term_store(self, message_id) -> None:
+        """Delete a specific message by its ID"""
+        long_term_store = self.long_term_store
+        try:
+            long_term_store._create_table_if_not_exists()
+            with long_term_store._make_sync_session() as session:
+                stmt = delete(long_term_store.sql_model_class).where(
+                    long_term_store.sql_model_class.id == message_id,
+                    getattr(long_term_store.sql_model_class, long_term_store.session_id_field_name) == long_term_store.session_id
+                )
+                session.execute(stmt)
+                session.commit()
+        except Exception as e:
+            logger.error("Failed to delete message with ID %s: %s", message_id, str(e))
+
     def _initialize_vectorstore(self):
         """Initialize or load FAISS vectorstore for long-term memory"""
         # Create embeddings service
@@ -261,11 +277,64 @@ class HANAMLRAGAgent:
         if len(self.long_term_store.messages) > self.long_term_memory_limit:
             # Calculate number of oldest messages to remove
             num_to_remove = int(self.long_term_memory_limit * self.forget_percentage)
-
-            # Implement actual deletion logic here
-            # This is placeholder for actual database deletion
-            logger.info("Should remove %d oldest memories", num_to_remove)
-            # In practice: Delete oldest records from database
+            # 1. Delete from SQL database
+            try:
+                # Get sorted list of messages by timestamp
+                sorted_messages = sorted(
+                    self.long_term_store.messages,
+                    key=lambda msg: msg.metadata.get('timestamp', '1970-01-01')
+                )
+                # Delete oldest messages from SQL store
+                for msg in sorted_messages[:num_to_remove]:
+                    self.delete_message_long_term_store(msg.id)
+                logger.info("Deleted %s oldest memories from SQL store", num_to_remove)
+            except Exception as e:
+                logger.error("Error deleting from SQL store: %s", str(e))
+            # 2. Rebuild vectorstore from remaining messages
+            try:
+                # Get remaining messages after deletion
+                remaining_messages = self.long_term_store.messages
+                # Skip if no messages left
+                if not remaining_messages:
+                    self.vectorstore = FAISS.from_texts(
+                        [""],
+                        embedding=self.embeddings
+                    )
+                    return
+                # Recreate documents from remaining messages
+                splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=self.chunk_size,
+                    chunk_overlap=self.chunk_overlap,
+                )
+                documents = []
+                for i in range(0, len(remaining_messages), 2):
+                    if i+1 >= len(remaining_messages):
+                        break  # Skip incomplete pairs
+                    user_msg = remaining_messages[i]
+                    ai_msg = remaining_messages[i+1]
+                    # Create combined document
+                    text = f"User: {user_msg.content}\nAssistant: {ai_msg.content}"
+                    metadata = {"timestamp": user_msg.metadata.get('timestamp', '')}
+                    # Split and add to documents
+                    docs = splitter.create_documents(
+                        texts=[text],
+                        metadatas=[metadata]
+                    )
+                    documents.extend(docs)
+                # Rebuild vectorstore
+                self.vectorstore = FAISS.from_documents(
+                    documents,
+                    self.embeddings
+                )
+                self.vectorstore.save_local(self.vectorstore_path)
+                logger.info("Rebuilt vectorstore with %s documents", len(documents))
+            except Exception as e:
+                logger.error("Error rebuilding vectorstore: %s", str(e))
+                # Fallback to empty vectorstore
+                self.vectorstore = FAISS.from_texts(
+                    [""],
+                    embedding=self.embeddings
+                )
 
     def _retrieve_relevant_memories(self, query: str) -> List[str]:
         """Retrieve relevant memories using RAG with reranking"""

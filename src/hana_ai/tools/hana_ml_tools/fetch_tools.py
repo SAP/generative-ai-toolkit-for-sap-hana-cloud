@@ -96,7 +96,7 @@ class FetchDataTool(BaseTool):
         else:
             results = self.connection_context.table(table_name).collect()
         if not self.return_direct:
-            results = results.to_string(index=False)
+            results = results.to_markdown(index=False)
         return results
 
     async def _arun(

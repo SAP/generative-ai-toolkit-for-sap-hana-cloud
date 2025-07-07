@@ -10,7 +10,7 @@ The following class is available:
 #pylint: disable=ungrouped-imports, abstract-method
 import json
 import logging
-from deprecated import deprecated
+import warnings
 import pandas as pd
 #from pydantic import ValidationError
 from langchain.agents import initialize_agent, AgentType, Tool
@@ -76,7 +76,6 @@ def _get_pandas_meta(df):
         return json.dumps({"columns": columns})
     return ''
 
-@deprecated(version="1.0.25070200", reason="Use HANAMLRagAgent instead")
 class HANAMLAgentWithMemory(object):
     """
     A chatbot that can remember the chat history and use it to generate responses.
@@ -108,6 +107,9 @@ class HANAMLAgentWithMemory(object):
     >>> chatbot.run(question="Analyze the data from the table MYTEST.")
     """
     def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, max_observations=5, verbose=False, **kwargs):
+        with warnings.catch_warnings():
+            warnings.simplefilter("always")
+            warnings.warn("HANAMLAgentWithMemory has been deprecated. Please use HANAMLRAGAgent instead.", DeprecationWarning, stacklevel=2)
         self.llm = llm
         self.tools = list(tools)
         self.memory = InMemoryChatMessageHistory(session_id=session_id)
@@ -193,7 +195,6 @@ class HANAMLAgentWithMemory(object):
             self.observation_callback.max_observations
         )
         return "Chat history has been deleted successfully."
-
 
     def run(self, question):
         """
