@@ -11,5 +11,4 @@ pydantic
 pydantic-core
 cryptography
 ipython
-sentence_transformers
 deprecated

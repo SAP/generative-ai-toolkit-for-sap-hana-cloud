@@ -26,7 +26,10 @@ from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
 from langchain_community.vectorstores.hanavector import HanaDB
 
-from sentence_transformers import CrossEncoder
+try:
+    from sentence_transformers import CrossEncoder
+except ImportError:
+    pass
 from hana_ai.agents.utilities import _check_generated_cap_for_bas, _inspect_python_code
 from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
 
