@@ -30,9 +30,17 @@ try:
     from sentence_transformers import CrossEncoder
 except ImportError:
     class CrossEncoder:
+        """
+        Dummy CrossEncoder class for compatibility when sentence_transformers is not installed.
+        This class simulates the behavior of a cross-encoder by returning zeros for all predictions.
+        This is useful for testing purposes or when the actual model is not available.
+        """
         def __init__(self, model_name):
             self.model_name = model_name
         def predict(self, pairs):
+            """
+            Simulate the prediction of similarity scores for pairs of texts.
+            """
             # Dummy implementation, returns zeros
             return [0.0 for _ in pairs]
 from hana_ai.agents.utilities import _check_generated_cap_for_bas, _inspect_python_code
