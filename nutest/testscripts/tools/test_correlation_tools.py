@@ -26,7 +26,7 @@ class TestCorrelationTools(TestML_BaseTestClass):
         self._dropTableIgnoreError("#CORRELATION_SIM_DATA_TBL")
         super(TestCorrelationTools, self).tearDown()
 
-    def test_fft_tools(self):
+    def test_correlation_tools(self):
         tool = Correlation(connection_context=self.conn)
         cc = self.conn
         tool_input1 = dict(table_name="#CORRELATION_SIM_DATA_TBL",
@@ -53,7 +53,7 @@ class TestCorrelationTools(TestML_BaseTestClass):
                               y='YVAL',
                               calculate_confint=True)
         err_result = tool.run(tool_input=tool_input_err)
-        msg = "confidence intervals are only applicable to the autocorrelation of one time-series."
+        msg = "confidence intervals are only applicable to the autocorrelation of one time-series"
         self.assertTrue(msg in err_result)
         tool_input_err2 = dict(table_name="#CORRELATION_SIM_DATA_TBL",
                                key="ID", x='XVAL',
