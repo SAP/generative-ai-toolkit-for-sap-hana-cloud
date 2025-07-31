@@ -7,10 +7,6 @@ from typing import Type, Annotated
 from pydantic import BaseModel, Field
 from annotated_types import Interval
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -99,31 +95,39 @@ class Correlation(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = CorrelationInput
-    #return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
-    def _run(#pylint:disable=too-many-positional-arguments
+    def _run(#pylint:disable=too-many-return-statements
         self,
-        table_name : str,
-        key : str,
-        x : str,
-        y : str=None,
-        thread_ratio : float=None,
-        method : str=None,
-        max_lag : int=None,
-        calculate_pacf : bool=None,
-        calculate_confint : bool=False,
-        alpha : Annotated[float, Interval(gt=0, lt=1)]=None,
-        bartlett : bool=None,
-        run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
-        ) -> str:
+        **kwargs) -> str:
+        if "kwargs" in kwargs:
+            kwargs = kwargs.get("kwargs")
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Input table name (`table_name`) is required"
+        key, x = kwargs.get("key", None), kwargs.get("x", None)
+        if key is None:
+            return "key is required"
+        if x is None:
+            return "x (the 1st time-series) is required"
+        y = kwargs.get("y", None)
+        thread_ratio = kwargs.get("thread_ratio", None)
+        method = kwargs.get("method", None)
+        max_lag = kwargs.get("max_lag", None)
+        calculate_pacf = kwargs.get("calculate_pacf", None)
+        calculate_confint = kwargs.get("calculate_confint", None)
+        alpha = kwargs.get("alpha", None)
+        bartlett = kwargs.get("bartlett", None)
         if calculate_confint and y is not None:
             msg = "Since confidence intervals are only applicable to the autocorrelation of one time-series, " +\
             "the value of `calculate_confint` needs to be changed to False to proceed."
@@ -153,28 +157,8 @@ class Correlation(BaseTool):
         cf_coef.save(cf_table, force=True)
         return json.dumps({"correlation_result_table" : cf_table})
 
-    async def _arun(self,#pylint:disable=too-many-positional-arguments
-                    table_name : str,
-                    key : str,
-                    x : str,
-                    y : str=None,
-                    thread_ratio : float=None,
-                    method : str=None,
-                    max_lag : int=None,
-                    calculate_pacf : bool=None,
-                    calculate_confint : bool=False,
-                    alpha : Annotated[float, Interval(gt=0, lt=1)]=None,
-                    bartlett : bool=None,
-                    run_manager: AsyncCallbackManagerForToolRun = None#pylint:disable=unused-argument
+    async def _arun(self,
+                    **kwargs
                     )-> str:
         """Use the tool asynchronously."""
-        return self._run(table_name=table_name,
-                         key=key, x=x, y=y,
-                         thread_ratio=thread_ratio,
-                         method=method,
-                         max_lag=max_lag,
-                         calculate_pacf=calculate_pacf,
-                         calculate_confint=calculate_confint,
-                         alpha=alpha,
-                         bartlett=bartlett,
-                         run_manager=run_manager)
+        return self._run(**kwargs)
