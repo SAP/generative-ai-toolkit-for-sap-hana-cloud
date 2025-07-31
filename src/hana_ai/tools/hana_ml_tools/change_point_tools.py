@@ -6,10 +6,6 @@ import logging
 from typing import Type
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -98,28 +94,39 @@ class BayesianChangePoint(BaseTool):
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct: bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct = return_direct
         )
 
-    def _run(#pylint:disable=too-many-positional-arguments
+    def _run(#pylint:disable=too-many-return-statements
         self,
-        table_name : str,
-        key : str,
-        max_tcp : int,
-        max_scp : int,
-        endog : str,
-        trend_order : int=None,
-        max_harmonic_order : int=None,
-        min_period : int=None,
-        max_period : int=None,
-        random_seed : int=None,
-        max_iter : int=None,
-        interval_ratio : float=None,
-        run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
-        ) -> str:
+        **kwargs) -> str:
+        if "kwargs" in kwargs:
+            kwargs = kwargs.get("kwargs")
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Input table name (`table_name`) is required"
+        key, endog = kwargs.get("key", None), kwargs.get("endog", None)
+        if key is None:
+            return "key is required"
+        if endog is None:
+            return "endog is required"
+        max_tcp, max_scp = kwargs.get("max_tcp", None), kwargs.get("max_scp", None)
+        if max_tcp is None:
+            return "Maximum number of trend change-points (`max_tcp`) is required"
+        if max_scp is None:
+            return "Maximum number of seasonal change-points (`max_scp`) is required"
+        trend_order = kwargs.get("trend_order", None)
+        max_harmonic_order =  kwargs.get("max_harmonic_order", None)
+        min_period = kwargs.get("min_period", None)
+        max_period = kwargs.get("max_period", None)
+        random_seed = kwargs.get("random_seed", None)
+        max_iter = kwargs.get("max_iter", None)
+        interval_ratio = kwargs.get("interval_ratio", None)
         try:
             bcpd = BCPD(max_tcp=max_tcp,
                         max_scp=max_scp,
@@ -155,32 +162,7 @@ class BayesianChangePoint(BaseTool):
         result_dict["bcpd_decomposed_table"] = decompose_tbl
         return json.dumps(result_dict)
 
-    async def _arun(#pylint:disable=too-many-positional-arguments
+    async def _arun(
         self,
-        table_name : str,
-        key : str,
-        max_tcp : int,
-        max_scp : int,
-        endog : str,
-        trend_order : int=None,
-        max_harmonic_order : int=None,
-        min_period : int=None,
-        max_period : int=None,
-        random_seed : int=None,
-        max_iter : int=None,
-        interval_ratio : float=None,
-        run_manager: AsyncCallbackManagerForToolRun = None#pylint:disable=unused-argument
-        ) -> str:
-        return self._run(table_name=table_name,
-                         key=key,
-                         endog=endog,
-                         max_tcp=max_tcp,
-                         max_scp=max_scp,
-                         trend_order=trend_order,
-                         max_harmonic_order=max_harmonic_order,
-                         min_period=min_period,
-                         max_period=max_period,
-                         random_seed=random_seed,
-                         max_iter=max_iter,
-                         interval_ratio=interval_ratio,
-                         run_manager=run_manager)
+        **kwargs) -> str:
+        return self._run(**kwargs)
