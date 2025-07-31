@@ -6,10 +6,6 @@ import logging
 from typing import Type
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -106,34 +102,41 @@ class FFT(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = FFTInput
-    #return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
-    def _run(#pylint:disable=too-many-positional-arguments
+    def _run(#pylint:disable=too-many-return-statements
         self,
-        table_name : str,
-        key : str,
-        real_col : str=None,
-        imag_col : str=None,
-        inverse : bool=None,
-        window : str=None,
-        window_start : int=None,
-        window_length : int=None,
-        alpha : float=None,
-        beta : float=None,
-        attenuation : float=None,
-        flattop_mode : str=None,
-        flattop_precision : str=None,
-        r : float=None,
-        run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
-        )-> str:
+        **kwargs)-> str:
+        if "kwargs" in kwargs:
+            kwargs = kwargs.get("kwargs")
+        table_name = kwargs.get("table_name")
+        if table_name is None:
+            return "Table name (`table_name`) is required"
+        key = kwargs.get("key")
+        if key is None:
+            return "key is required"
+        real_col = kwargs.get("real_col", None)
+        imag_col = kwargs.get("imag_col", None)
+        inverse = kwargs.get("inverse", None)
+        window = kwargs.get("window", None)
+        window_start = kwargs.get("window_start", None)
+        window_length = kwargs.get("window_length", None)
+        alpha = kwargs.get("alpha", None)
+        beta = kwargs.get("beta", None)
+        attenuation = kwargs.get("attenuation", None)
+        flattop_mode = kwargs.get("flattop_mode", None)
+        flattop_precision = kwargs.get("flattop_precision", None)
+        r = kwargs.get("r", None)
         cols = [real_col, imag_col]
         if all(col is None for col in cols):
             msg = 'Parameter `real_col` and `imag_col` cannot both be None.'
@@ -169,36 +172,6 @@ class FFT(BaseTool):
         fft_res.save(fft_res_tab, force=True)
         return json.dumps({"fft_result_table" : fft_res_tab})
 
-    async def _arun(self,#pylint:disable=too-many-positional-arguments
-                    table_name : str,
-                    key : str,
-                    real_col : str=None,
-                    imag_col : str=None,
-                    inverse : bool=None,
-                    window : str=None,
-                    window_start : int=None,
-                    window_length : int=None,
-                    alpha : float=None,
-                    beta : float=None,
-                    attenuation : float=None,
-                    flattop_mode : str=None,
-                    flattop_precision : str=None,
-                    r : float=None,
-                    run_manager: AsyncCallbackManagerForToolRun = None#pylint:disable=unused-argument
-                    )-> str:
+    async def _arun(self, **kwargs)-> str:
         """Use the tool asynchronously."""
-        return self._run(table_name=table_name,
-                         key=key,
-                         real_col=real_col,
-                         imag_col=imag_col,
-                         inverse=inverse,
-                         window=window,
-                         window_start=window_start,
-                         window_length=window_length,
-                         alpha=alpha,
-                         beta=beta,
-                         attenuation=attenuation,
-                         flattop_mode=flattop_mode,
-                         flattop_precision=flattop_precision,
-                         r=r,
-                         run_manager=run_manager)
+        return self._run(**kwargs)
