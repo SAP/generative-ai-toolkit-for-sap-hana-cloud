@@ -7,10 +7,6 @@ from typing import Type, List, Tuple, Union, Annotated
 from annotated_types import Interval
 from pydantic import BaseModel, Field
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -116,35 +112,49 @@ class DTW(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = DTWInput
-    #return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct : bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
-        )
+            connection_context=connection_context,
+            return_direct=return_direct)
 
-    def _run(#pylint:disable=too-many-positional-arguments,
+    def _run(#pylint:disable=too-many-return-statements
         self,
-        query_table : str,
-        query_ts_id : str,
-        query_ts_order : str,
-        ref_table : str,
-        ref_ts_id : str,
-        ref_ts_order : str,
-        query_ts_cols : Union[str, List[str]]=None,
-        ref_ts_cols : Union[str, List[str]]=None,
-        radius : int=None,
-        thread_ratio : float=None,
-        distance_method : str=None,
-        minkowski_power : float=None,
-        alignment_method : str=None,
-        step_pattern : Union[Annotated[int, Interval(ge=1, le=5)], List[Union[step_pt, Tuple[step_pt,...]]]]=None,
-        save_alignment : bool=None,
-        run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
-        )-> str:
+        **kwargs)-> str:
+        if "kwargs" in kwargs:
+            kwargs = kwargs.get("kwargs")
+        query_table = kwargs.get("query_table", None)
+        if query_table is None:
+            return "Query table (`query_table`) is required"
+        query_ts_id = kwargs.get("query_ts_id", None)
+        if query_ts_id is None:
+            return "Column name for query time-series' IDs (`query_ts_id`) is required"
+        query_ts_order = kwargs.get("query_ts_order", None)
+        if query_ts_order is None:
+            return "Column name for query time-series' order (`query_ts_order`) is required"
+        ref_table = kwargs.get("ref_table", None)
+        if ref_table is None:
+            return "Reference table (`ref_table`) is required"
+        ref_ts_id = kwargs.get("ref_ts_id", None)
+        if ref_ts_id is None:
+            return "Column name for reference time-series's IDs (`ref_ts_id`) is required"
+        ref_ts_order = kwargs.get("ref_ts_order", None)
+        if ref_ts_order is None:
+            return "Column name for reference time-series' order (`ref_ts_order`) is required"
+        query_ts_cols = kwargs.get("query_ts_cols", None)
+        ref_ts_cols = kwargs.get("ref_ts_cols", None)
+        radius = kwargs.get("radius", None)
+        thread_ratio = kwargs.get("thread_ratio", None)
+        distance_method = kwargs.get("distance_method", None)
+        minkowski_power = kwargs.get("minkowski_power", None)
+        alignment_method = kwargs.get("alignment_method", None)
+        step_pattern = kwargs.get("step_pattern", None)
+        save_alignment = kwargs.get("save_alignment", None)
         err_msg = ""
         while True:#for exit purpose when error is encountered
             try:
@@ -228,35 +238,6 @@ class DTW(BaseTool):
         return json.dumps(out_dict)
 
     async def _arun(self,#pylint:disable=too-many-positional-arguments
-                    query_table : str,
-                    query_ts_id : str,
-                    query_ts_order : str,
-                    ref_table : str,
-                    ref_ts_id : str,
-                    ref_ts_order : str,
-                    query_ts_cols : Union[str, List[str]]=None,
-                    ref_ts_cols : Union[str, List[str]]=None,
-                    radius : int=None,
-                    thread_ratio : float=None,
-                    distance_method : str=None,
-                    minkowski_power : float=None,
-                    alignment_method : str=None,
-                    step_pattern : Union[Annotated[int, Interval(ge=1, le=5)], List[Union[step_pt, Tuple[step_pt,...]]]]=None,
-                    save_alignment : bool=None,
-                    run_manager: AsyncCallbackManagerForToolRun = None#pylint:disable=unused-argument
-                    )-> str:
+                    **kwargs)-> str:
         """Use the tool asynchronously."""
-        return self._run(query_table=query_table,
-                         query_ts_id=query_ts_id,
-                         query_ts_order=query_ts_order,
-                         ref_table=ref_table,
-                         ref_ts_id=ref_ts_id,
-                         ref_ts_order=ref_ts_order,
-                         radius=radius,
-                         thread_ratio=thread_ratio,
-                         distance_method=distance_method,
-                         minkowski_power=minkowski_power,
-                         alignment_method=alignment_method,
-                         step_pattern=step_pattern,
-                         save_alignment=save_alignment,
-                         run_manager=run_manager)
+        return self._run(**kwargs)
