@@ -6,10 +6,6 @@ import logging
 from typing import Type
 from pydantic import BaseModel, Field, ConfigDict
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
@@ -50,7 +46,7 @@ class GARCHFitPredict(BaseTool):
     Returns
     -------
     str
-        The result string containing the forecast result table name and statistics. 
+        The result string containing the forecast result table name and statistics.
 
         .. note::
 
@@ -87,29 +83,37 @@ class GARCHFitPredict(BaseTool):
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
     args_schema: Type[BaseModel] = GARCHInput
-    return_direct: bool = True
+    return_direct: bool = False
 
     def __init__(
         self,
-        connection_context: ConnectionContext
+        connection_context: ConnectionContext,
+        return_direct : bool = False
     ) -> None:
         super().__init__(  # type: ignore[call-arg]
-            connection_context=connection_context
+            connection_context=connection_context,
+            return_direct=return_direct
         )
 
-    def _run(#pylint:disable=too-many-positional-arguments
-        self,
-        table_name : str,
-        key : str,
-        endog : str,
-        p : int = None,
-        q : int = None,
-        model_type : str = None,
-        thread_ratio : float = None,
-        forecast_length : int = None,
-        run_manager: CallbackManagerForToolRun = None#pylint:disable=unused-argument
-    ) -> str:
+    def _run(self,#pylint:disable=too-many-return-statements
+             **kwargs) -> str:
         """Use the tool."""
+        if "kwargs" in kwargs:
+            kwargs = kwargs.get("kwargs")
+        table_name = kwargs.get("table_name", None)
+        if table_name is None:
+            return "Input table name is required"
+        key = kwargs.get("key", None)
+        if key is None:
+            return "key is required"
+        endog = kwargs.get("endog", None)
+        if endog is None:
+            return "Endogenous variable (`endog`) is required"
+        p = kwargs.get("p", None)
+        q = kwargs.get("q", None)
+        model_type = kwargs.get("model_type", None)
+        thread_ratio = kwargs.get("thread_ratio", None)
+        forecast_length = kwargs.get("forecast_length", None)
         try:
             garch = GARCH(p=p, q=q, model_type=model_type)
             garch.fit(data=self.connection_context.table(table_name)[[key, endog]],
@@ -133,22 +137,6 @@ class GARCHFitPredict(BaseTool):
                 out_dict[row["STAT_NAME"]] = row["STAT_VALUE"]
         return json.dumps(out_dict)
 
-    async def _arun(#pylint:disable=too-many-positional-arguments
-        self,
-        table_name : str,
-        key : str,
-        endog : str,
-        p : int = None,
-        q : int = None,
-        model_type : str = None,
-        thread_ratio : float = None,
-        forecast_length : int = None,
-        run_manager: AsyncCallbackManagerForToolRun = None
-    ) -> str:
-        return self._run(table_name=table_name,
-                         key=key, endog=endog,
-                         p=p, q=q,
-                         model_type=model_type,
-                         thread_ratio=thread_ratio,
-                         forecast_length=forecast_length,
-                         run_manager=run_manager)
+    async def _arun(self, **kwargs) -> str:
+        """The asynchronous run"""
+        return self._run(**kwargs)
