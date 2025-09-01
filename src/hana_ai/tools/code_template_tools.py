@@ -52,16 +52,9 @@ class GetCodeTemplateFromVectorDB(BaseTool):
 
     def _run(
         self,
-        **kwargs
+        query
     ) -> str:
         """Use the tool."""
-
-        if "kwargs" in kwargs:
-            kwargs = kwargs["kwargs"]
-        query = kwargs.get("query", None)
-        if query is None:
-            return "Query is required"
-
         if self.vectordb is None:
             raise ValueError("No vector database set.")
         model = self.vectordb
@@ -70,7 +63,7 @@ class GetCodeTemplateFromVectorDB(BaseTool):
         return result
 
     async def _arun(
-        self, **kwargs
+        self, query
     ) -> str:
         """Use the tool asynchronously."""
-        return self._run(**kwargs)
+        return self._run(query)
