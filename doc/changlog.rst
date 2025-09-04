@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.250904**
+
+``Bug Fixes``
+    - Fixed the issue of calling code template tool.
+
 **Version 1.0.250707**
 
 ``Enhancements``
