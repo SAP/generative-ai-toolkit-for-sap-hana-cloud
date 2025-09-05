@@ -49,8 +49,8 @@ class FetchDataTool(BaseTool):
 
                 * - Field
                   - Description
-                * - table_name
-                  - The name of the table. If not provided, ask the user. Do not guess.
+                * - select_statement
+                  - The select_statement of dataframe. If not provided, ask the user. Do not guess.
                 * - top_n
                   - The number of rows to fetch, it is optional
                 * - last_n
