@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import logging
 from datetime import datetime, date
+import pandas as pd
 from pandas import Timestamp
 from numpy import int64
 
