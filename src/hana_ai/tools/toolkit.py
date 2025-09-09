@@ -37,6 +37,8 @@ from hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools import TSOutlierDete
 from hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools import AccuracyMeasure
 from hana_ai.tools.hana_ml_tools.hdi_artifacts_tools import HDIArtifactsTool
 from hana_ai.tools.hana_ml_tools.unsupported_tools import ClassificationTool, RegressionTool
+from hana_ai.tools.hana_ml_tools.ts_make_predict_table import TSMakeFutureTableTool
+from hana_ai.tools.hana_ml_tools.select_statement_to_table_tools import SelectStatementToTableTool
 
 class HANAMLToolkit(BaseToolkit):
     """
@@ -84,7 +86,9 @@ class HANAMLToolkit(BaseToolkit):
             TimeSeriesCheck(connection_context=self.connection_context),
             TSOutlierDetection(connection_context=self.connection_context),
             ClassificationTool(connection_context=self.connection_context),
-            RegressionTool(connection_context=self.connection_context)
+            RegressionTool(connection_context=self.connection_context),
+            TSMakeFutureTableTool(connection_context=self.connection_context),
+            SelectStatementToTableTool(connection_context=self.connection_context)
         ]
         if isinstance(return_direct, dict):
             for tool in self.default_tools:
