@@ -1,6 +1,12 @@
 Changelog
 =========
 
+**Version 1.0.250909**
+
+``New Functions``
+    - Added `TSMakeFutureTableTool` to create a future table for time series forecasting.
+    - Added `SelectStatementToTableTool` to execute a SELECT SQL statement and store the result in a new table.
+
 **Version 1.0.250904**
 
 ``Bug Fixes``
