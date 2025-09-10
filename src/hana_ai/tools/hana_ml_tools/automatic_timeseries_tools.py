@@ -427,7 +427,7 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
                       exog=exog,
                       show_explainer=show_explainer)
         ms.save_model(model=model, if_exists='replace_meta')
-        predicted_results = f"{name}_{version}_PREDICTED_RESULTS"
+        predicted_results = f"PREDICT_RESULT_{predict_table}_{name}_{version}" if predict_schema is None else f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"
         self.connection_context.table(model._predict_output_table_names[0]).save(predicted_results, force=True)
         stats = self.connection_context.table(model._predict_output_table_names[1]).collect()
         outputs = {"predicted_results_table": predicted_results}
@@ -538,7 +538,7 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
                     endog=endog,
                     exog=exog)
         ms.save_model(model=model, if_exists='replace_meta')
-        scored_results = f"{name}_{version}_SCORED_RESULTS"
+        scored_results = f"SCORE_RESULT_{score_table}_{name}_{version}" if score_schema is None else f"SCORE_RESULT_{score_schema}_{score_table}_{name}_{version}"
         self.connection_context.table(model._score_output_table_names[0]).save(scored_results, force=True)
         stats = self.connection_context.table(model._score_output_table_names[1]).collect()
         outputs = {"scored_results_table": scored_results}

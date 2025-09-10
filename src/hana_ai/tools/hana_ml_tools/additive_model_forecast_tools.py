@@ -417,11 +417,15 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
             return f"TypeError occurred: {str(te)}"
 
         ms.save_model(model=model, if_exists='replace_meta')
-        predicted_results = [f"{name}_{version}_PREDICTED_RESULT"]
+        if predict_schema:
+          predicted_results = [f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"]
+        else:
+          predicted_results = [f"PREDICT_RESULT_{predict_table}_{name}_{version}"]
         self.connection_context.table(model._predict_output_table_names[0]).save(predicted_results[0])
         if show_explainer is True:
             predicted_results.append(
-                f"{name}_{version}_DECOMPOSED_AND_REASON_CODE"
+                f"REASON_CODE_{predict_schema}_{predict_table}_{name}_{version}" if predict_schema else
+                f"REASON_CODE_{predict_table}_{name}_{version}"
             )
             self.connection_context.table(model._predict_output_table_names[1]).save(predicted_results[1])
             return json.dumps({"predicted_results_table": predicted_results[0], "decomposed_and_reason_code_table": predicted_results[1]})
