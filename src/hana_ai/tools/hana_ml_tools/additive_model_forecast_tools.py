@@ -269,7 +269,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         amf.name = name
         amf.version = generate_model_storage_version(ms, version, name)
         ms.save_model(model=amf, if_exists='replace')
-        return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version}, cls=_CustomEncoder)
+        return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": amf.version}, cls=_CustomEncoder)
 
     async def _arun(
         self,

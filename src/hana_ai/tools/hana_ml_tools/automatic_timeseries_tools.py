@@ -314,7 +314,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         ms = ModelStorage(connection_context=self.connection_context)
         auto_ts.version = generate_model_storage_version(ms, version, name)
         ms.save_model(model=auto_ts, if_exists='replace')
-        return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version}, cls=_CustomEncoder)
+        return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": auto_ts.version}, cls=_CustomEncoder)
 
     async def _arun(
         self,
