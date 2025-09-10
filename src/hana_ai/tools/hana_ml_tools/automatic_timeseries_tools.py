@@ -19,7 +19,7 @@ from hana_ml import ConnectionContext
 from hana_ml.model_storage import ModelStorage
 from hana_ml.algorithms.pal.auto_ml import AutomaticTimeSeries
 
-from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, generate_model_storage_version
 
 logger = logging.getLogger(__name__)
 
@@ -312,14 +312,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
                     use_explain=use_explain)
         auto_ts.name = name
         ms = ModelStorage(connection_context=self.connection_context)
-        ms._create_metadata_table()
-        if version is None:
-            version = ms._get_new_version_no(name)
-            if version is None:
-                version = 1
-            else:
-                version = int(version)
-        auto_ts.version = version
+        auto_ts.version = generate_model_storage_version(ms, version, name)
         ms.save_model(model=auto_ts, if_exists='replace')
         return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version}, cls=_CustomEncoder)
 

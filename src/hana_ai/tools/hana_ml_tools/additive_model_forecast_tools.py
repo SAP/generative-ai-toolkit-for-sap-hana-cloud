@@ -18,7 +18,7 @@ from hana_ml import ConnectionContext
 from hana_ml.model_storage import ModelStorage
 from hana_ml.algorithms.pal.tsa.additive_model_forecast import AdditiveModelForecast
 
-from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, generate_model_storage_version
 
 logger = logging.getLogger(__name__)
 
@@ -219,7 +219,6 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         if key not in self.connection_context.table(fit_table, schema=fit_schema).columns:
             return f"Key {key} does not exist in the table {fit_table}."
         ms = ModelStorage(connection_context=self.connection_context)
-        ms._create_metadata_table()
         seasonality = None
         if period:
             if isinstance(period, list):
@@ -268,13 +267,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
             return f"TypeError occurred: {str(te)}"
 
         amf.name = name
-        if version is None:
-            version = ms._get_new_version_no(name)
-            if version is None:
-                version = 1
-            else:
-                version = int(version)
-        amf.version = version
+        amf.version = generate_model_storage_version(ms, version, name)
         ms.save_model(model=amf, if_exists='replace')
         return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": version}, cls=_CustomEncoder)
 
