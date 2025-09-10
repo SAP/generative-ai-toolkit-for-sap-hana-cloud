@@ -17,7 +17,6 @@ from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.exponential_smoothing import CrostonTSB
 
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
-from hana_ai.utility import remove_prefix_sharp
 
 logger = logging.getLogger(__name__)
 
