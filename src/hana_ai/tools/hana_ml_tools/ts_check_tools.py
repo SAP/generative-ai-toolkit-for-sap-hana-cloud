@@ -106,6 +106,7 @@ class TSCheckInput(BaseModel):
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
+    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
 
 class StationarityTestInput(BaseModel):
     """
@@ -114,6 +115,7 @@ class StationarityTestInput(BaseModel):
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
+    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
     method: Optional[str] = Field(description="the method of the stationarity test chosen from {'kpss', 'adf'}, it is optional", default=None)
     mode: Optional[str] = Field(description="the mode of the stationarity test chosen from {'level', 'trend', 'no'}, it is optional", default=None)
     lag: Optional[int] = Field(description="the lag of the stationarity test, it is optional", default=None)
@@ -126,6 +128,7 @@ class TrendTestInput(BaseModel):
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
+    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
     method: Optional[str] = Field(description="the method of the trend test chosen from {'mk', 'difference-sign'}, it is optional", default=None)
     alpha: Optional[float] = Field(description="the significance level for the trend test, it is optional", default=None)
 
@@ -136,6 +139,7 @@ class SeasonalityTestInput(BaseModel):
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
+    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
     alpha: Optional[float] = Field(description="the criterion for the autocorrelation coefficient, it is optional", default=None)
     decompose_type: Optional[str] = Field(description="the type of decomposition chosen from {'additive', 'multiplicative', 'auto'}, it is optional", default=None)
     extrapolation: Optional[bool] = Field(description="whether to extrapolate the endpoints or not, it is optional", default=None)
@@ -154,6 +158,7 @@ class WhiteNoiseTestInput(BaseModel):
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
+    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
     lag: Optional[int] = Field(description="specifies the lag autocorrelation coefficient that the statistic will be based on, it is optional", default=None)
     probability: Optional[float] = Field(description="the confidence level used for chi-square distribution., it is optional", default=None)
     model_df: Optional[int] = Field(description="the degree of freedom of the model, it is optional", default=None)
@@ -188,6 +193,8 @@ class TimeSeriesCheck(BaseTool):
                   - the key of the dataset. If not provided, ask the user. Do not guess.
                 * - endog
                   - the endog of the dataset. If not provided, ask the user. Do not guess
+                * - schema
+                  - the schema of the table, it is optional
     """
     name: str = "ts_check"
     """Name of the tool."""
@@ -225,16 +232,16 @@ class TimeSeriesCheck(BaseTool):
         endog = kwargs.get("endog", None)
         if endog is None:
             return "Endog is required"
-
+        schema = kwargs.get("schema", None)
         # check table exists
-        if not self.connection_context.has_table(table_name):
+        if not self.connection_context.has_table(table_name, schema=schema):
             return f"Table {table_name} does not exist."
         # check key and endog columns exist
-        if key not in self.connection_context.table(table_name).columns:
+        if key not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Key column {key} does not exist in table {table_name}."
-        if endog not in self.connection_context.table(table_name).columns:
+        if endog not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Endog column {endog} does not exist in table {table_name}."
-        df = self.connection_context.table(table_name).select(key, endog)
+        df = self.connection_context.table(table_name, schema=schema).select(key, endog)
         return ts_char(df, key, endog)
 
     async def _arun(
@@ -273,6 +280,8 @@ class StationarityTest(BaseTool):
                   - the key of the dataset. If not provided, ask the user. Do not guess.
                 * - endog
                   - the endog of the dataset. If not provided, ask the user. Do not guess
+                * - schema
+                  - the schema of the table, it is optional
                 * - method
                   - the method of the stationarity test chosen from {'kpss', 'adf'}, it is optional
                 * - mode
@@ -318,19 +327,20 @@ class StationarityTest(BaseTool):
         endog = kwargs.get("endog", None)
         if endog is None:
             return "Endog is required"
+        schema = kwargs.get("schema", None)
         method = kwargs.get("method", None)
         mode = kwargs.get("mode", None)
         lag = kwargs.get("lag", None)
         probability = kwargs.get("probability", None)
         # check table exists
-        if not self.connection_context.has_table(table_name):
+        if not self.connection_context.has_table(table_name, schema=schema):
             return f"Table {table_name} does not exist."
         # check key and endog columns exist
-        if key not in self.connection_context.table(table_name).columns:
+        if key not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Key column {key} does not exist in table {table_name}."
-        if endog not in self.connection_context.table(table_name).columns:
+        if endog not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Endog column {endog} does not exist in table {table_name}."
-        df = self.connection_context.table(table_name).select(key, endog)
+        df = self.connection_context.table(table_name, schema=schema).select(key, endog)
         result = stationarity_test(data=df,
                                    key=key,
                                    endog=endog,
@@ -380,6 +390,8 @@ class TrendTest(BaseTool):
                   - the key of the dataset. If not provided, ask the user. Do not guess.
                 * - endog
                   - the endog of the dataset. If not provided, ask the user. Do not guess
+                * - schema
+                  - the schema of the table, it is optional
                 * - method
                   - the method of the trend test chosen from {'mk', 'difference-sign'}, it is optional
                 * - alpha
@@ -423,14 +435,15 @@ class TrendTest(BaseTool):
             return "Endog is required"
         method = kwargs.get("method", None)
         alpha = kwargs.get("alpha", None)
-        if not self.connection_context.has_table(table_name):
+        schema = kwargs.get("schema", None)
+        if not self.connection_context.has_table(table_name, schema=schema):
             return f"Table {table_name} does not exist."
         # check key and endog columns exist
-        if key not in self.connection_context.table(table_name).columns:
+        if key not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Key column {key} does not exist in table {table_name}."
-        if endog not in self.connection_context.table(table_name).columns:
+        if endog not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Endog column {endog} does not exist in table {table_name}."
-        df = self.connection_context.table(table_name).select(key, endog)
+        df = self.connection_context.table(table_name, schema=schema).select(key, endog)
         result = trend_test(data=df,
                             key=key,
                             endog=endog,
@@ -484,6 +497,8 @@ class SeasonalityTest(BaseTool):
                   - the key of the dataset. If not provided, ask the user. Do not guess.
                 * - endog
                   - the endog of the dataset. If not provided, ask the user. Do not guess
+                * - schema
+                  - the schema of the table, it is optional
                 * - alpha
                   - the criterion for the autocorrelation coefficient, it is optional
                 * - decompose_type
@@ -541,6 +556,7 @@ class SeasonalityTest(BaseTool):
         endog = kwargs.get("endog", None)
         if endog is None:
             return "Endog is required"
+        schema = kwargs.get("schema", None)
         alpha = kwargs.get("alpha", None)
         decompose_type = kwargs.get("decompose_type", None)
         extrapolation = kwargs.get("extrapolation", None)
@@ -551,14 +567,14 @@ class SeasonalityTest(BaseTool):
         stl_robust = kwargs.get("stl_robust", None)
         stl_seasonal_average = kwargs.get("stl_seasonal_average", None)
         smooth_method_non_seasonal = kwargs.get("smooth_method_non_seasonal", None)
-        if not self.connection_context.has_table(table_name):
+        if not self.connection_context.has_table(table_name, schema=schema):
             return f"Table {table_name} does not exist."
         # check key and endog columns exist
-        if key not in self.connection_context.table(table_name).columns:
+        if key not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Key column {key} does not exist in table {table_name}."
-        if endog not in self.connection_context.table(table_name).columns:
+        if endog not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Endog column {endog} does not exist in table {table_name}."
-        df = self.connection_context.table(table_name).select(key, endog)
+        df = self.connection_context.table(table_name, schema=schema).select(key, endog)
         result = seasonal_decompose(data=df,
                                     key=key,
                                     endog=endog,
@@ -614,6 +630,8 @@ class WhiteNoiseTest(BaseTool):
                   - the key of the dataset. If not provided, ask the user. Do not guess.
                 * - endog
                   - the endog of the dataset. If not provided, ask the user. Do not guess
+                * - schema
+                  - the schema of the table, it is optional
                 * - lag
                   - specifies the lag autocorrelation coefficient that the statistic will be based on, it is optional
                 * - probability
@@ -660,15 +678,16 @@ class WhiteNoiseTest(BaseTool):
         lag = kwargs.get("lag", None)
         probability = kwargs.get("probability", None)
         model_df = kwargs.get("model_df", None)
+        schema = kwargs.get("schema", None)
         # check table exists
-        if not self.connection_context.has_table(table_name):
+        if not self.connection_context.has_table(table_name, schema=schema):
             return f"Table {table_name} does not exist."
         # check key and endog columns exist
-        if key not in self.connection_context.table(table_name).columns:
+        if key not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Key column {key} does not exist in table {table_name}."
-        if endog not in self.connection_context.table(table_name).columns:
+        if endog not in self.connection_context.table(table_name, schema=schema).columns:
             return f"Endog column {endog} does not exist in table {table_name}."
-        df = self.connection_context.table(table_name).select(key, endog)
+        df = self.connection_context.table(table_name, schema=schema).select(key, endog)
         result = white_noise_test(data=df,
                                   key=key,
                                   endog=endog,

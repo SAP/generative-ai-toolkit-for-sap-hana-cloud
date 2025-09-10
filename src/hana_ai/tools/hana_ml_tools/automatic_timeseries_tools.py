@@ -30,6 +30,7 @@ class ModelFitInput(BaseModel):
     fit_table: str = Field(description="the table to fit the model. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model in model storage. If not provided, ask the user. Do not guess.")
     version: Optional[int] = Field(description="the version of the model in model storage, it is optional", default=None)
+    fit_schema: Optional[str] = Field(description="the schema of the fit_table, it is optional", default=None)
     # init args
     scorings: Optional[dict] = Field(description="the scorings for the model, e.g. {'MAE':-1.0, 'EVAR':1.0} and it supports EVAR, MAE, MAPE, MAX_ERROR, MSE, R2, RMSE, WMAPE, LAYERS, SPEC, TIME, and it is optional", default=None)
     generations: Optional[int] = Field(description="the number of iterations of the pipeline optimization., it is optional", default=None)
@@ -74,6 +75,7 @@ class ModelPredictInput(BaseModel):
     predict_table: str = Field(description="the table to predict. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model. If not provided, ask the user. Do not guess.")
     version: Optional[int] = Field(description="the version of the model, it is optional", default=None)
+    predict_schema: Optional[str] = Field(description="the schema of the predict_table, it is optional", default=None)
     # fit args
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
@@ -86,6 +88,7 @@ class ModelScoreInput(BaseModel):
     score_table: str = Field(description="the table to score. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model. If not provided, ask the user. Do not guess.")
     version: Optional[int] = Field(description="the version of the model, it is optional", default=None)
+    score_schema: Optional[str] = Field(description="the schema of the score_table, it is optional", default=None)
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
     exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
@@ -116,6 +119,8 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
                   - Description
                 * - fit_table
                   - The table to fit the model. If not provided, ask the user. Do not guess.
+                * - fit_schema
+                  - The schema of the fit_table, it is optional.
                 * - name
                   - The name of the model in model storage. If not provided, ask the user. Do not guess.
                 * - version
@@ -226,6 +231,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         name = kwargs.get("name", None)
         if name is None:
             return "Model name is required"
+        fit_schema = kwargs.get("fit_schema", None)
         version = kwargs.get("version", None)
         scorings = kwargs.get("scorings", None)
         generations = kwargs.get("generations", None)
@@ -259,10 +265,10 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         use_explain = kwargs.get("use_explain", None)
         workload_class = kwargs.get("workload_class", None)
 
-        fit_df = self.connection_context.table(fit_table)
-        if not self.connection_context.has_table(fit_table):
+        fit_df = self.connection_context.table(fit_table, schema=fit_schema)
+        if not self.connection_context.has_table(fit_table, schema=fit_schema):
             return f"Table {fit_table} does not exist in the database."
-        if key not in self.connection_context.table(fit_table).columns:
+        if key not in self.connection_context.table(fit_table, schema=fit_schema).columns:
             return f"Key {key} does not exist in the table {fit_table}."
 
         auto_ts = AutomaticTimeSeries(
@@ -352,6 +358,8 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
                   - Description
                 * - predict_table
                   - The table to predict. If not provided, ask the user. Do not guess.
+                * - predict_schema
+                  - The schema of the predict_table, it is optional.
                 * - name
                   - The name of the model. If not provided, ask the user. Do not guess.
                 * - version
@@ -403,16 +411,18 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
         exog = kwargs.get("exog", None)
         show_explainer = kwargs.get("show_explainer", None)
         # check predict_table exists
-        if not self.connection_context.has_table(predict_table):
+        predict_schema = kwargs.get("predict_schema", None)
+        if not self.connection_context.has_table(predict_table, schema=predict_schema):
             return json.dumps({"error": f"Table {predict_table} does not exist."}, cls=_CustomEncoder)
-        if key not in self.connection_context.table(predict_table).columns:
+        if key not in self.connection_context.table(predict_table, schema=predict_schema).columns:
             return json.dumps({"error": f"Key {key} does not exist in table {predict_table}."}, cls=_CustomEncoder)
+
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
         if hasattr(model, 'version'):
             if model.version is not None:
                 version = model.version
-        model.predict(data=self.connection_context.table(predict_table),
+        model.predict(data=self.connection_context.table(predict_table, schema=predict_schema),
                       key=key,
                       exog=exog,
                       show_explainer=show_explainer)
@@ -513,16 +523,17 @@ class AutomaticTimeseriesLoadModelAndScore(BaseTool):
         if endog is None:
             return "Endog is required"
         exog = kwargs.get("exog", None)
-        if not self.connection_context.has_table(score_table):
+        score_schema = kwargs.get("score_schema", None)
+        if not self.connection_context.has_table(score_table, schema=score_schema):
             return json.dumps({"error": f"Table {score_table} does not exist."}, cls=_CustomEncoder)
-        if key not in self.connection_context.table(score_table).columns:
+        if key not in self.connection_context.table(score_table, schema=score_schema).columns:
             return json.dumps({"error": f"Key {key} does not exist in table {score_table}."}, cls=_CustomEncoder)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
         if hasattr(model, 'version'):
             if model.version is not None:
                 version = model.version
-        model.score(data=self.connection_context.table(score_table),
+        model.score(data=self.connection_context.table(score_table, schema=score_schema),
                     key=key,
                     endog=endog,
                     exog=exog)

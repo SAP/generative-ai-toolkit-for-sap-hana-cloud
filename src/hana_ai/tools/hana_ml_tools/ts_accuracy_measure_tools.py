@@ -9,7 +9,7 @@ The following class is available:
 
 # build custom tool for accuracy measure from PAL function
 import json
-from typing import Type, List, Union
+from typing import Type, List, Union, Optional
 from pydantic import BaseModel, Field
 
 from langchain_core.tools import BaseTool
@@ -29,6 +29,8 @@ class AccuracyMeasureInput(BaseModel):
     actual_key: str = Field(description="should be the key column name of the actual result. If not provided, ask the user, do not guess")
     predict_target: str = Field(description="should be the target column name of the prediction result. If not provided, ask the user, do not guess")
     actual_target: str = Field(description="should be the target column name of the actual result. If not provided, ask the user, do not guess")
+    predict_schema: Optional[str] = Field(description="the schema of the prediction table, it is optional", default=None)
+    actual_schema: Optional[str] = Field(description="the schema of the actual table, it is optional", default=None)
     evaluation_metric : Union[str,  List[str]] = Field(description="Specifies the accuracy measures to compute, it could be one or a list of the" +\
     " following options : 'mpe', 'mse', 'rmse', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape' and 'spec'." + \
     " If not provided, ask the user, do not guess")
@@ -72,6 +74,10 @@ class AccuracyMeasure(BaseTool):
                   - The target column name of the prediction result.
                 * - actual_target
                   - The target column name of the actual result.
+                * - predict_schema
+                  - The schema of the prediction table, it is optional
+                * - actual_schema
+                  - The schema of the actual table, it is optional
                 * - evaluation_metric
                   - The accuracy measures to compute. It could be one or a list of the following options: 'mpe', 'mse', 'rmse', 'et', 'mad', 'mase', 'wmape', 'smape', 'mape' and 'spec'.
                 * - ignore_zero
@@ -128,26 +134,28 @@ class AccuracyMeasure(BaseTool):
         evaluation_metric = kwargs.get("evaluation_metric", None)
         if evaluation_metric is None:
             return "Evaluation metric is required"
+        predict_schema = kwargs.get("predict_schema", None)
+        actual_schema = kwargs.get("actual_schema", None)
         ignore_zero = kwargs.get("ignore_zero", None)
         alpha1 = kwargs.get("alpha1", None)
         alpha2 = kwargs.get("alpha2", None)
         err_msg = []
         # check table existence
-        if not self.connection_context.has_table(predict_table):
+        if not self.connection_context.has_table(predict_table, schema=predict_schema):
             err_msg.append(f"predict_table error: Table {predict_table} does not exist.")
-        if not self.connection_context.has_table(actual_table):
+        if not self.connection_context.has_table(actual_table, schema=actual_schema):
             err_msg.append(f"actual_table error: Table {actual_table} does not exist.")
         if len(err_msg) > 0:
             return "\n".join(err_msg)
         # check column existence
         err_msg = []
-        if predict_key not in self.connection_context.table(predict_table).columns:
+        if predict_key not in self.connection_context.table(predict_table, schema=predict_schema).columns:
             err_msg.append(f"predict_key error: Column {predict_key} does not exist in table {predict_table}.")
-        if actual_key not in self.connection_context.table(actual_table).columns:
+        if actual_key not in self.connection_context.table(actual_table, schema=actual_schema).columns:
             err_msg.append(f"actual_key error: Column {actual_key} does not exist in table {actual_table}.")
-        if predict_target not in self.connection_context.table(predict_table).columns:
+        if predict_target not in self.connection_context.table(predict_table, schema=predict_schema).columns:
             err_msg.append(f"predict_target error: Column {predict_target} does not exist in table {predict_table}.")
-        if actual_target not in self.connection_context.table(actual_table).columns:
+        if actual_target not in self.connection_context.table(actual_table, schema=actual_schema).columns:
             err_msg.append(f"actual_target error: Column {actual_target} does not exist in table {actual_table}.")
         if len(err_msg) > 0:
             return "\n".join(err_msg)
@@ -157,9 +165,9 @@ class AccuracyMeasure(BaseTool):
         m_actual_key = actual_key + "_actual"
         m_predict_key = predict_key + "_predict"
         m_actual_key_int = m_actual_key + "_int"
-        prepared_input = self.connection_context.table(predict_table)\
+        prepared_input = self.connection_context.table(predict_table, schema=predict_schema)\
             .rename_columns({predict_target: m_predict_target, predict_key: m_predict_key})\
-                .join(self.connection_context.table(actual_table)\
+                .join(self.connection_context.table(actual_table, schema=actual_schema)\
                     .rename_columns({actual_target: m_actual_target, actual_key: m_actual_key}),\
                          f'"{m_actual_key}"="{m_predict_key}"')[[m_actual_key, m_actual_target, m_predict_target]]\
                              .cast({m_actual_target: 'DOUBLE', m_predict_target: 'DOUBLE'})\

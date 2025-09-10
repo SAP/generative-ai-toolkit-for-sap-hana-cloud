@@ -36,6 +36,7 @@ class ModelFitInput(BaseModel):
     fit_table: str = Field(description="the table to fit the model. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model in model storage. If not provided, ask the user. Do not guess.")
     version: Optional[int] = Field(description="the version of the model in model storage, it is optional", default=None)
+    fit_schema: Optional[str] = Field(description="the schema of the fit_table, it is optional", default=None)
     # init args
     growth: Optional[str] = Field(description="the growth of the model chosen from {'linear', 'logistic'}, it is optional", default=None)
     logistic_growth_capacity: Optional[float] = Field(description="the logistic growth capacity of the model only valid when growth is 'logistic', it is optional", default=None)
@@ -57,6 +58,7 @@ class ModelFitInput(BaseModel):
     endog: Optional[str] = Field(description="the endog of the dataset, it is optional", default=None)
     exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
     holiday_table: Optional[str] = Field(description="the table of the holiday, it is optional", default=None)
+    holiday_schema: Optional[str] = Field(description="the schema of the holiday_table, it is optional", default=None)
     categorical_variable: Union[Optional[str], Optional[list]] = Field(description="the categorical variable of the dataset, it is optional", default=None)
 
 class ModelPredictInput(BaseModel):
@@ -66,6 +68,7 @@ class ModelPredictInput(BaseModel):
     predict_table: str = Field(description="the table to predict. If not provided, ask the user. Do not guess.")
     name: str = Field(description="the name of the model. If not provided, ask the user. Do not guess.")
     version: Optional[int] = Field(description="the version of the model, it is optional", default=None)
+    predict_schema: Optional[str] = Field(description="the schema of the predict_table, it is optional", default=None)
     # predict args
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     exog: Union[Optional[str], Optional[list]] = Field(description="the exog of the dataset, it is optional", default=None)
@@ -103,12 +106,24 @@ class AdditiveModelForecastFitAndSave(BaseTool):
                   - Description
                 * - fit_table
                   - The name of the table containing the training data.
+                * - fit_schema
+                  - The schema of the fit_table, it is optional.
                 * - key
                   - The key column in the training table.
+                * - endog
+                  - The endogenous variable column in the training table.
+                * - exog
+                  - External regressors to include in the model.
+                * - holiday_table
+                  - The name of the table containing holiday data, it is optional.
+                * - holiday_schema
+                  - The schema of the holiday_table, it is optional.
                 * - name
                   - The name of the model to save.
                 * - version
                   - The version of the model to save.
+                * - categorical_variable
+                  - The categorical variable columns in the training table.
                 * - growth
                   - The growth of the model chosen from {'linear', 'logistic'}.
                 * - logistic_growth_capacity
@@ -135,6 +150,8 @@ class AdditiveModelForecastFitAndSave(BaseTool):
                   - The parameter modulating the strength of the seasonality model.
                 * - holiday_prior_scale
                   - The parameter modulating the strength of the holiday model.
+                * - changepoint_prior_scale
+                  - The parameter modulating the flexibility of the automatic changepoint selection.
 
     """
     name: str = "additive_model_forecast_fit_and_save"
@@ -173,6 +190,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         name = kwargs.get("name", None)
         if name is None:
             return "Model name is required"
+        fit_schema = kwargs.get("fit_schema", None)
         version = kwargs.get("version", None)
         growth = kwargs.get("growth", None)
         logistic_growth_capacity = kwargs.get("logistic_growth_capacity", None)
@@ -191,13 +209,14 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         endog = kwargs.get("endog", None)
         exog = kwargs.get("exog", None)
         holiday_table = kwargs.get("holiday_table", None)
+        holiday_schema = kwargs.get("holiday_schema", None)
         categorical_variable = kwargs.get("categorical_variable", None)
 
         # check fit_table exists
-        if not self.connection_context.has_table(fit_table):
+        if not self.connection_context.has_table(fit_table, schema=fit_schema):
             return f"Table {fit_table} does not exist in the database."
         # check key exists in fit_table
-        if key not in self.connection_context.table(fit_table).columns:
+        if key not in self.connection_context.table(fit_table, schema=fit_schema).columns:
             return f"Key {key} does not exist in the table {fit_table}."
         ms = ModelStorage(connection_context=self.connection_context)
         ms._create_metadata_table()
@@ -229,8 +248,8 @@ class AdditiveModelForecastFitAndSave(BaseTool):
                 changepoint_prior_scale=changepoint_prior_scale)
             holiday_df = None
             if holiday_table is not None:
-                holiday_df = self.connection_context.table(holiday_table)
-            amf.fit(data=self.connection_context.table(fit_table),
+                holiday_df = self.connection_context.table(holiday_table, schema=holiday_schema)
+            amf.fit(data=self.connection_context.table(fit_table, schema=fit_schema),
                   key=key,
                   endog=endog,
                   exog=exog,
@@ -292,6 +311,8 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
                   - Description
                 * - predict_table
                   - The name of the table containing the prediction data.
+                * - predict_schema
+                  - The schema of the predict_table, it is optional.
                 * - key
                   - The key column in the prediction table.
                 * - name
@@ -349,6 +370,7 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         name = kwargs.get("name", None)
         if name is None:
             return "Model name is required"
+        predict_schema = kwargs.get("predict_schema", None)
         version = kwargs.get("version", None)
         exog = kwargs.get("exog", None)
         logistic_growth_capacity = kwargs.get("logistic_growth_capacity", None)
@@ -359,10 +381,10 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         decompose_holiday = kwargs.get("decompose_holiday", None)
         add_placeholder = kwargs.get("add_placeholder", True)
 
-        predict_df = self.connection_context.table(predict_table)
-        if not self.connection_context.has_table(predict_table):
+        predict_df = self.connection_context.table(predict_table, schema=predict_schema)
+        if not self.connection_context.has_table(predict_table, schema=predict_schema):
             return f"Table {predict_table} does not exist in the database."
-        if key not in self.connection_context.table(predict_table).columns:
+        if key not in self.connection_context.table(predict_table, schema=predict_schema).columns:
             return f"Key {key} does not exist in the table {predict_table}."
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name=name, version=version)

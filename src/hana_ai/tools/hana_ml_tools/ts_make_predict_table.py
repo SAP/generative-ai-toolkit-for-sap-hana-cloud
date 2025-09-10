@@ -94,6 +94,7 @@ class MakeFutureTableToolInput(BaseModel):
     The input schema for the SelectStatementToTableTool.
     """
     train_table: str = Field(description="The name of the training table in HANA")
+    train_schema: str = Field(default=None, description="The schema of the training table, it is optional")
     key: str = Field(default=None, description="The index defined in the training data.")
     periods: int = Field(default=1, description="The number of rows created in the predict dataframe.")
     increment_type: str = Field(default='seconds', description="The increment type of the time series. Options are 'seconds', 'days', 'months', 'years'.")
@@ -140,6 +141,7 @@ class TSMakeFutureTableTool(BaseTool):
         """Use the tool."""
         # 从kwargs字典中提取参数
         train_table = kwargs.get('train_table')
+        train_schema = kwargs.get('train_schema', None)
         key = kwargs.get('key', None)
         periods = kwargs.get('periods', 1)
         increment_type = kwargs.get('increment_type', 'seconds')
@@ -148,7 +150,7 @@ class TSMakeFutureTableTool(BaseTool):
         predict_table = kwargs.get('predict_table', predict_table_gen)
         try:
             # 读取训练数据
-            train_data = self.connection_context.table(train_table)
+            train_data = self.connection_context.table(train_table, schema=train_schema)
             # 创建预测数据
             predict_data = make_future_dataframe(train_data, key, periods, increment_type)
             # 将预测数据保存到HANA表中
