@@ -411,9 +411,9 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
 
         ms.save_model(model=model, if_exists='replace_meta')
         if predict_schema:
-          predicted_results = [f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"]
+            predicted_results = [f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"]
         else:
-          predicted_results = [f"PREDICT_RESULT_{predict_table}_{name}_{version}"]
+            predicted_results = [f"PREDICT_RESULT_{predict_table}_{name}_{version}"]
         self.connection_context.table(model._predict_output_table_names[0]).save(predicted_results[0])
         if show_explainer is True:
             predicted_results.append(

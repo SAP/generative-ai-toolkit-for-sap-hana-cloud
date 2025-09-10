@@ -100,6 +100,7 @@ def add_stopping_hint(x : str):
     return (x + ". Please stop the execution and return.").replace("..", ".")
 
 def generate_model_storage_version(ms : ModelStorage, version: Union[int, str, None], name: str) -> int:
+    """Generate the model storage version."""
     ms._create_metadata_table()
     if version is None:
         version = ms._get_new_version_no(name)
