@@ -203,15 +203,15 @@ class GenAIHubEmbeddings(Embeddings):
 
     Parameters
     ----------
-    deployment_id: str
-        Deployment ID. Defaults to 'text-embedding-ada-002'.
+    model_id: str
+        Model ID. Defaults to 'text-embedding-ada-002'.
     """
     model: Embeddings
-    def __init__(self, deployment_id='text-embedding-ada-002', **kwargs):
+    def __init__(self, model_id='text-embedding-ada-002', **kwargs):
         """
         Init embedding service from llm_commons.
         """
-        self.model = gen_ai_hub_embedding_model(deployment_id, **kwargs)
+        self.model = gen_ai_hub_embedding_model(model_id, **kwargs)
 
     def __call__(self, input):
         result = []
