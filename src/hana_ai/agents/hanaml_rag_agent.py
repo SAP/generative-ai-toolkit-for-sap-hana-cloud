@@ -289,8 +289,7 @@ class HANAMLRAGAgent:
         long_term_store = self.long_term_store
         try:
             long_term_store._create_table_if_not_exists()
-            # alter column session_id to NVARCHAR(5000)
-            
+
             with long_term_store._make_sync_session() as session:
                 stmt = delete(long_term_store.sql_model_class).where(
                     long_term_store.sql_model_class.id == message_id,
