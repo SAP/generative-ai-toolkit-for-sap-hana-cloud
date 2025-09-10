@@ -95,9 +95,8 @@ class HANAMLRAGAgent:
     def __init__(self,
                  tools: List[Tool],
                  llm: Any,
-                 vectorstore_path: str = "chat_history_vectorstore", # FAISS vectorstore path
                  memory_window: int = 10,
-                 long_term_db: str = "sqlite:///chat_history.db",
+                 long_term_db: str = None,
                  long_term_memory_limit: int = 1000,
                  skip_large_data_threshold: int = 10000,
                  chunk_size: int = 500,
@@ -111,6 +110,7 @@ class HANAMLRAGAgent:
                  score_threshold: float = 0.5,
                  vector_store_type = "hanadb", # 'faiss' or 'hanadb'
                  hana_vector_table: str = None,
+                 vectorstore_path: str = "chat_history_vectorstore", # FAISS vectorstore path
                  drop_existing_hana_vector_table: bool = False,
                  verbose: bool = False):
         """
@@ -122,8 +122,6 @@ class HANAMLRAGAgent:
             List of LangChain tools to be used by the agent.
         llm : Any
             Language model instance to be used for generating responses.
-        vectorstore_path : str
-            Path to store the vectorstore for long-term memory.
         memory_window : int
             Number of recent conversations to keep in short-term memory.
 
@@ -131,7 +129,7 @@ class HANAMLRAGAgent:
         long_term_db : str
             Connection string for long-term memory storage.
 
-            Defaults to "sqlite:///chat_history.db".
+            Defaults to HANA table "HANAAI_LONG_TERM_DB_{user}". If hana connection is not provided, a local SQLite database "sqlite:///chat_history_{user}.db" will be used.
         long_term_memory_limit : int
             Maximum number of long-term memory entries to retain.
 
@@ -159,7 +157,7 @@ class HANAMLRAGAgent:
         cross_encoder : CrossEncoder
             Cross-encoder model for reranking retrieved documents.
 
-            Defaults to a pre-trained cross-encoder model 'cross-encoder/ms-marco-MiniLM-L-6-v2'.
+            Defaults to HANA cross-encoder model. If the HANA cross-encoder is not available, the sentence_transformer model 'cross-encoder/ms-marco-MiniLM-L-6-v2' will be used.
         embedding_service : Embeddings
             Embedding service for generating text embeddings.
 
@@ -179,12 +177,14 @@ class HANAMLRAGAgent:
         vector_store_type : str
             Type of vector store to use for long-term memory. Options are 'faiss' or 'hanadb'.
 
-            Defaults to 'faiss'.
+            Defaults to 'hanadb'.
 
         hana_vector_table : str
             Name of the HANA vector table to use for long-term memory.
 
-            Defaults to "HANA_AI_CHAT_HISTORY_{connection_id}".
+            Defaults to "HANA_AI_CHAT_HISTORY_{user}".
+        vectorstore_path : str
+            Path to store the vectorstore for long-term memory when vector_store_type is "hanadb".
         drop_existing_hana_vector_table : bool
             Whether to drop the existing HANA vector table before creating a new one.
 
@@ -222,14 +222,21 @@ class HANAMLRAGAgent:
             else:
                 self.cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
         self.hana_vector_table = hana_vector_table
+        self.user = ''
         if self.hana_vector_table is None:
             if self.hana_connection_context:
-                user = _get_user_info(self.hana_connection_context)
-                self.hana_vector_table = f"HANA_AI_CHAT_HISTORY_{user}"
+                self.user = _get_user_info(self.hana_connection_context)
+                self.hana_vector_table = f"HANA_AI_CHAT_HISTORY_{self.user}"
         self.drop_existing_hana_vector_table = drop_existing_hana_vector_table
         self.embedding_service = embedding_service
         if self.embedding_service is None:
             self.embedding_service = HANAVectorEmbeddings(self.hana_connection_context) if self.hana_connection_context else GenAIHubEmbeddings()
+        if self.long_term_db is None:
+            if self.hana_connection_context:
+                self.long_term_db = self.hana_connection_context.to_sqlalchemy()
+            else:
+                self.long_term_db = f"sqlite:///chat_history_{self.user}.db"
+
         # Initialize memory systems
         self._initialize_memory()
 
@@ -245,10 +252,28 @@ class HANAMLRAGAgent:
             return_messages=True
         )
         # Long-term memory storage
-        self.long_term_store = SQLChatMessageHistory(
-            connection_string=self.long_term_db,
-            session_id="global_session"
-        )
+        if isinstance(self.long_term_db, str):
+            self.long_term_store = SQLChatMessageHistory(
+                connection_string=self.long_term_db,
+                session_id="global_session"
+            )
+        else:
+            table_name = f"HANAAI_LONG_TERM_DB_{self.user}"
+            if not self.hana_connection_context.has_table(table_name):
+                self.hana_connection_context.create_table(
+                    table_name,
+                    table_structure={
+                        "ID": "INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+                        "SESSION_ID": "NVARCHAR(5000)",
+                        "MESSAGE": "NCLOB",
+                    }
+                )
+            self.long_term_store = SQLChatMessageHistory(
+                connection=self.long_term_db,
+                table_name=table_name,
+                session_id="global_session"
+            )
+
         # Initialize RAG vectorstore
         self._initialize_vectorstore()
 
@@ -264,6 +289,8 @@ class HANAMLRAGAgent:
         long_term_store = self.long_term_store
         try:
             long_term_store._create_table_if_not_exists()
+            # alter column session_id to NVARCHAR(5000)
+            
             with long_term_store._make_sync_session() as session:
                 stmt = delete(long_term_store.sql_model_class).where(
                     long_term_store.sql_model_class.id == message_id,
