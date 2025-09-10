@@ -20,9 +20,9 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate
 from langchain.schema import SystemMessage, HumanMessage, AIMessage, AgentAction, AgentFinish
 from langchain.load.dump import dumps
+from langchain.embeddings.base import Embeddings
 from langchain_core.callbacks.manager import CallbackManagerForChainRun
 from langchain_core.tools import BaseTool
-from langchain.embeddings.base import Embeddings
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
 from langchain_community.vectorstores.hanavector import HanaDB
