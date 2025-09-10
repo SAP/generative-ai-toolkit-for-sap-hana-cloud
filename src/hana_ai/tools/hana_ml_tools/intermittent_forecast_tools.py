@@ -28,6 +28,7 @@ class IntermittentForecastInput(BaseModel):
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
+    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
     alpha: Optional[float] = Field(description="Smoothing parameter for demand, it is optional", default=0.1)
     beta: Optional[float] = Field(description="Smoothing parameter for probability, it is optional", default=0.1)
     forecast_num: Optional[int] = Field(description="Number of values to be forecast, it is optional", default=1)
@@ -119,6 +120,7 @@ class IntermittentForecast(BaseTool):
         endog = kwargs.get("endog", None)
         if endog is None:
             return "Endog is required"
+        schema = kwargs.get("schema", None)
         alpha = kwargs.get("alpha", 0.1)
         beta = kwargs.get("beta", 0.1)
         forecast_num = kwargs.get("forecast_num", 1)
@@ -128,19 +130,19 @@ class IntermittentForecast(BaseTool):
         remove_leading_zeros = kwargs.get("remove_leading_zeros", False)
 
         # Check if the table exists
-        if not self.connection_context.has_table(table_name):
+        if not self.connection_context.has_table(table_name, schema=schema):
             return json.dumps({
                 "error": f"Table {table_name} does not exist in the database."
             }, cls=_CustomEncoder)
-        if key not in self.connection_context.table(table_name).columns:
+        if key not in self.connection_context.table(table_name, schema=schema).columns:
             return json.dumps({
                 "error": f"Key {key} does not exist in the table {table_name}."
             }, cls=_CustomEncoder)
-        if endog not in self.connection_context.table(table_name).columns:
+        if endog not in self.connection_context.table(table_name, schema=schema).columns:
             return json.dumps({
                 "error": f"Endog {endog} does not exist in the table {table_name}."
             }, cls=_CustomEncoder)
-        df = self.connection_context.table(table_name).select(key, endog)
+        df = self.connection_context.table(table_name, schema=schema).select(key, endog)
         croston_tsb = CrostonTSB(
             alpha=alpha,
             beta=beta,

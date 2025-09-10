@@ -30,6 +30,7 @@ class TSDatasetInput(BaseModel):
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
+    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
     output_dir: Optional[str] = Field(description="the output directory to save the report, it is optional", default=None)
 
 class ForecastLinePlotInput(BaseModel):
@@ -37,7 +38,9 @@ class ForecastLinePlotInput(BaseModel):
     The input schema for the ForecastLinePlot tool.
     """
     predict_result: str = Field(description="the name of the predicted result table. If not provided, ask the user. Do not guess.")
-    actual_table_name: Optional[str] = Field(description="the name of the actual data table, it is optional", default=None)
+    actual_table: Optional[str] = Field(description="the name of the actual data table, it is optional", default=None)
+    predict_schema: Optional[str] = Field(description="the schema of the predicted result table, it is optional", default=None)
+    actual_schema: Optional[str] = Field(description="the schema of the actual data table, it is optional", default=None)
     confidence: Optional[tuple] = Field(description="the column names of confidence bounds, it is optional", default=None)
     output_dir: Optional[str] = Field(description="the output directory to save the line plot, it is optional", default=None)
 
@@ -115,17 +118,18 @@ class TimeSeriesDatasetReport(BaseTool):
         endog = kwargs.get("endog", None)
         if endog is None:
             return "Endog is required"
+        schema = kwargs.get("schema", None)
         output_dir = kwargs.get("output_dir", None)
         # check hana has the table
-        if not self.connection_context.has_table(table_name):
+        if not self.connection_context.has_table(table_name, schema=schema):
             return json.dumps({"error": f"Table {table_name} does not exist."})
         # check key in the table
-        if key not in self.connection_context.table(table_name).columns:
+        if key not in self.connection_context.table(table_name, schema=schema).columns:
             return json.dumps({"error": f"Key {key} does not exist in table {table_name}."})
         # check endog in the table
-        if endog not in self.connection_context.table(table_name).columns:
+        if endog not in self.connection_context.table(table_name, schema=schema).columns:
             return json.dumps({"error": f"Endog {endog} does not exist in table {table_name}."})
-        df = self.connection_context.table(table_name).select(key, endog)
+        df = self.connection_context.table(table_name, schema=schema).select(key, endog)
         ur = UnifiedReport(df).build(key=key, endog=endog)
         if output_dir is None:
             destination_dir = os.path.join(tempfile.gettempdir(), "hanaml_report")
@@ -178,7 +182,7 @@ class ForecastLinePlot(BaseTool):
                   - Description
                 * - predict_result
                   - the name of the predicted result table. If not provided, ask the user. Do not guess.
-                * - actual_table_name
+                * - actual_table
                   - the name of the actual data table, it is optional
                 * - confidence
                   - the column names of confidence bounds, it is optional
@@ -219,18 +223,20 @@ class ForecastLinePlot(BaseTool):
         if "kwargs" in kwargs:
             kwargs = kwargs["kwargs"]
         predict_result = kwargs.get("predict_result", None)
+        predict_schema = kwargs.get("predict_schema", None)
         if predict_result is None:
             return "Prediction result table is required"
-        actual_table_name = kwargs.get("actual_table_name", None)
+        actual_table = kwargs.get("actual_table", None)
+        actual_schema = kwargs.get("actual_schema", None)
         confidence = kwargs.get("confidence", None)
         output_dir = kwargs.get("output_dir", None)
         # check predict_result in the hana db
-        if not self.connection_context.has_table(predict_result):
+        if not self.connection_context.has_table(predict_result, schema=predict_schema):
             return json.dumps({"error": f"Table {predict_result} does not exist."})
-        # check actual_table_name in the hana db
-        if actual_table_name is not None and not self.connection_context.has_table(actual_table_name):
-            return json.dumps({"error": f"Table {actual_table_name} does not exist."})
-        predict_df = self.connection_context.table(predict_result)
+        # check actual_table in the hana db
+        if actual_table is not None and not self.connection_context.has_table(actual_table, schema=actual_schema):
+            return json.dumps({"error": f"Table {actual_table} does not exist."})
+        predict_df = self.connection_context.table(predict_result, schema=predict_schema)
         if confidence is None:
             if "YHAT_LOWER" in predict_df.columns and "YHAT_UPPER" in predict_df.columns:
                 # check if "YHAT_LOWER" column has values
@@ -255,10 +261,10 @@ class ForecastLinePlot(BaseTool):
                     else:
                         confidence = confidence + ("PI2_LOWER", "PI2_UPPER")
 
-        if actual_table_name is None:
+        if actual_table is None:
             fig = forecast_line_plot(predict_df, confidence=confidence)
         else:
-            fig = forecast_line_plot(predict_df, self.connection_context.table(actual_table_name), confidence)
+            fig = forecast_line_plot(predict_df, self.connection_context.table(actual_table, schema=actual_schema), confidence)
         if output_dir is None:
             destination_dir = os.path.join(tempfile.gettempdir(), "hanaml_chart")
         else:
