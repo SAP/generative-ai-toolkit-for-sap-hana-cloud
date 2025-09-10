@@ -17,7 +17,6 @@ from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.exponential_smoothing import CrostonTSB
 
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
-from hana_ai.utility import remove_prefix_sharp
 
 logger = logging.getLogger(__name__)
 
@@ -158,10 +157,8 @@ class IntermittentForecast(BaseTool):
             key=key,
             endog=endog
         )
-        predicted_results = f"{table_name}_INTERMITTENT_FORECAST_RESULT"
-        result.save(remove_prefix_sharp(predicted_results), force=True)
         outputs = {
-            "predicted_result_table": remove_prefix_sharp(predicted_results),
+            "result_select_statement": result.select_statement,
         }
         for _, row in croston_tsb.stats_.collect().iterrows():
             outputs[row[croston_tsb.stats_.columns[0]]] = row[croston_tsb.stats_.columns[1]]
