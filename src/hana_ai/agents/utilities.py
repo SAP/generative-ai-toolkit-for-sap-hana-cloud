@@ -56,3 +56,11 @@ def _inspect_python_code(intermediate_steps, tools):
                             collect_tool_call.append({"tool_name": tool_name, "parameters": json.dumps(substep['kwargs']['tool_input']), "python_code": inspect.getsource(tool._run)})
                             break
     return collect_tool_call
+
+def _get_user_info(connection_context):
+    if connection_context.userkey:
+        user = connection_context.userkey
+    else:
+        conn_config = str(connection_context.connection).replace('<dbapi.Connection Connection object : ', '').replace('>', '').split(',')
+        user = conn_config[2]
+    return user

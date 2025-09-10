@@ -24,7 +24,7 @@ from hana_ai.tools.toolkit import HANAMLToolkit
 from hana_ai.agents.hanaml_rag_agent import HANAMLRAGAgent
 
 tools = HANAMLToolkit(cc, used_tools='all').get_tools()
-chatbot = HANAMLRAGAgent(llm=llm, tools=tools, verbose=True, vector_store_type="hanadb", hana_connection_context=cc)
+chatbot = HANAMLRAGAgent(llm=llm, tools=tools, verbose=True, vector_store_type="hanadb")
 
 ```
 <img src="./doc/image/chatbotwithtoolkit.png" alt="image" width="800" height="auto">
