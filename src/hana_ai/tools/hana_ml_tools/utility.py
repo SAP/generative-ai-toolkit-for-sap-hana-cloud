@@ -7,9 +7,10 @@ import json
 from pathlib import Path
 import logging
 from datetime import datetime, date
+from typing import Union
 from pandas import Timestamp
 from numpy import int64
-
+from hana_ml.model_storage import ModelStorage
 #pylint: disable=too-many-nested-blocks, unexpected-keyword-arg, invalid-name
 
 logger = logging.getLogger(__name__)
@@ -97,3 +98,14 @@ class _CustomEncoder(json.JSONEncoder):
 def add_stopping_hint(x : str):
     """Added the hint for stopping the execution when an error message is returned."""
     return (x + ". Please stop the execution and return.").replace("..", ".")
+
+def generate_model_storage_version(ms : ModelStorage, version: Union[int, str, None], name: str) -> int:
+    """Generate the model storage version."""
+    ms._create_metadata_table()
+    if version is None:
+        version = ms._get_new_version_no(name)
+        if version is None:
+            version = 1
+        else:
+            version = int(version)
+    return version
