@@ -112,7 +112,8 @@ class HANAMLRAGAgent:
                  hana_vector_table: str = None,
                  vectorstore_path: str = "chat_history_vectorstore", # FAISS vectorstore path
                  drop_existing_hana_vector_table: bool = False,
-                 verbose: bool = False):
+                 verbose: bool = False,
+                 **kwargs):
         """
         Initialize the chatbot with integrated tools and memory systems.
 
