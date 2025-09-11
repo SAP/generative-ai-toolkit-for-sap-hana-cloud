@@ -98,11 +98,11 @@ class HANAMLRAGAgent:
                  memory_window: int = 10,
                  long_term_db: str = None,
                  long_term_memory_limit: int = 1000,
-                 skip_large_data_threshold: int = 10000,
+                 skip_large_data_threshold: int = 100000,
                  chunk_size: int = 500,
                  chunk_overlap: int = 50,
                  forget_percentage: float = 0.1,
-                 max_iterations: int = 10,
+                 max_iterations: int = 20,
                  cross_encoder: CrossEncoder = None,
                  embedding_service: Embeddings = None,
                  rerank_candidates: int = 20,
@@ -353,18 +353,7 @@ class HANAMLRAGAgent:
 
     def _should_store(self, text: str) -> bool:
         """Determine if text should be stored in memory"""
-        # Skip DataFrame conversions
-        if isinstance(text, pd.DataFrame):
-            return False
-
-        # Skip large texts
-        if isinstance(text, str) and len(text) > self.skip_large_data_threshold:
-            return False
-
-        # Skip Markdown tables
-        if isinstance(text, str) and re.search(r'\|\s*.*\s*\|.*\n(\|\s*:?[-]+\s*:?\|\s*)+\n', text):
-            return False
-
+        # condition for the future expansion
         return True
 
     def _update_long_term_memory(self, user_input: str, response: Any):
