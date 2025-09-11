@@ -1,6 +1,21 @@
 Changelog
 =========
 
+**Version dev**
+
+``Enhancements``
+    - Added HANA table schema support for tools.
+    - Improved output information for outlier detections.
+    - Removed the hana_connection_context parameter from the `HANAMLRAGAgent` class and infer it from the tools.
+    - Refine the default value of `max_iterations` parameter of `HANAMLRAGAgent` class parameters from 10 to 20.
+    - Change the default value of `vector_store_type` parameter of `HANAMLRAGAgent` class from "faiss" to "hanadb".
+    - Change the default value of `long_term_db` parameter of `HANAMLRAGAgent` class from sqlite to HANA DB.
+    - Added the `embedding_service` parameter to the `HANAMLRAGAgent` class to allow users to pass their own embedding service. The default embedding service has been changed from `GenAIHubEmbeddings` to `HANAVectorEmbeddings`.
+    - Added `PAL CrossEncoder` as the default cross-encoder model for reranking in the `HANAMLRAGAgent` class. If it is not available, it will fall back to `sentence-transformers/all-MiniLM-L6-v2`.
+    - Added `session_id` parameter to the `HANAMLRAGAgent` class to support multiple sessions in long-term memory. By default, it is set to "global_session".
+    - Removed the restriction to save memory into long term memory when the result is pandas data or large data. Now, all the results will be saved into long term memory with chunking and embeddings.
+    - Deprecated the code template tool and python REPL tool in `SmartDataFrame` class. Users can use the tools from `df_tools` instead.
+
 **Version 1.0.250909**
 
 ``New Functions``
