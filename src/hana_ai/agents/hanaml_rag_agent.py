@@ -8,7 +8,6 @@ The following class is available:
 
 #pylint: disable=attribute-defined-outside-init, ununsed-argument, no-else-return
 
-import re
 from typing import Dict, List, Any, Optional, Tuple, Union
 from datetime import datetime
 import logging
