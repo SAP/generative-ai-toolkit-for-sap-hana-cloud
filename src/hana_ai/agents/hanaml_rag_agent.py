@@ -112,7 +112,9 @@ class HANAMLRAGAgent:
                  hana_vector_table: str = None,
                  vectorstore_path: str = "chat_history_vectorstore", # FAISS vectorstore path
                  drop_existing_hana_vector_table: bool = False,
-                 verbose: bool = False):
+                 verbose: bool = False,
+                 session_id: str = "global_session",
+                 **kwargs):
         """
         Initialize the chatbot with integrated tools and memory systems.
 
@@ -193,6 +195,10 @@ class HANAMLRAGAgent:
             Whether to enable verbose logging.
 
             Defaults to False.
+        session_id : str
+            Session ID for long-term memory storage.
+
+            Defaults to "global_session".
         """
         self.llm = llm
         self.tools = tools
@@ -236,7 +242,7 @@ class HANAMLRAGAgent:
                 self.long_term_db = self.hana_connection_context.to_sqlalchemy()
             else:
                 self.long_term_db = f"sqlite:///chat_history_{self.user}.db"
-
+        self.session_id = session_id
         # Initialize memory systems
         self._initialize_memory()
 
@@ -255,7 +261,7 @@ class HANAMLRAGAgent:
         if isinstance(self.long_term_db, str):
             self.long_term_store = SQLChatMessageHistory(
                 connection_string=self.long_term_db,
-                session_id="global_session"
+                session_id=self.session_id
             )
         else:
             table_name = f"HANAAI_LONG_TERM_DB_{self.user}"
@@ -271,7 +277,7 @@ class HANAMLRAGAgent:
             self.long_term_store = SQLChatMessageHistory(
                 connection=self.long_term_db,
                 table_name=table_name,
-                session_id="global_session"
+                session_id=self.session_id
             )
 
         # Initialize RAG vectorstore
