@@ -139,7 +139,7 @@ class HANAMLRAGAgent:
         skip_large_data_threshold : int
             Skip storing texts longer than this threshold.
 
-            Defaults to 1000.
+            Defaults to 100000.
         chunk_size : int
             Text chunk size for embeddings.
 
@@ -155,7 +155,7 @@ class HANAMLRAGAgent:
         max_iterations : int
             Maximum number of iterations for agent execution.
 
-            Defaults to 10.
+            Defaults to 20.
         cross_encoder : CrossEncoder
             Cross-encoder model for reranking retrieved documents.
 
