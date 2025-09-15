@@ -1,3 +1,9 @@
+"""
+The following class is available:
+
+    * :class `TSOutlierDetection`
+
+"""
 import logging
 import json
 from typing import Optional, Type
