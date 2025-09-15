@@ -1,18 +1,8 @@
-"""
-This module contains the functions for time series outlier detection.
-
-The following classes are available:
-
-    * :class `TSOutlierDetectionInput`
-"""
-import copy
 import logging
 import json
 from typing import Optional, Type
 from pydantic import BaseModel, Field
-
 from langchain_core.tools import BaseTool
-
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.outlier_detection import OutlierDetectionTS
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
@@ -201,7 +191,6 @@ class TSOutlierDetection(BaseTool):
         voting_config = kwargs.get("voting_config", None)
         voting_outlier_method_criterion = kwargs.get("voting_outlier_method_criterion", None)
 
-
         # Check if key and endog columns exist in the result of select_statement
         df_check = self.connection_context.sql(select_statement)
         columns = df_check.columns
@@ -244,7 +233,7 @@ class TSOutlierDetection(BaseTool):
         result = odt.fit_predict(df,
                                  key=key,
                                  endog=endog)
-        
+
         outliers = result.filter("IS_OUTLIER = 1").collect()[result.columns[0]].tolist()
         results = {
             "outliers": outliers,
