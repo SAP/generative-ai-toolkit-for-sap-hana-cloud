@@ -1,6 +1,4 @@
 """
-This module is used to generate a report for the time series dataset.
-
 The following classes are available:
 
     * :class `TimeSeriesDatasetReport`
@@ -220,7 +218,7 @@ class ForecastLinePlot(BaseTool):
                 return json.dumps({"error": f"Failed to execute actual_select_statement: {e}"})
         if confidence is None:
             if "YHAT_LOWER" in predict_df.columns and "YHAT_UPPER" in predict_df.columns:
-                  if not predict_df["YHAT_LOWER"].collect()["YHAT_LOWER"].isnull().all():
+                if not predict_df["YHAT_LOWER"].collect()["YHAT_LOWER"].isnull().all():
                     confidence = ("YHAT_LOWER", "YHAT_UPPER")
             elif "LO80" in predict_df.columns and "HI80" in predict_df.columns:
                 if not predict_df["LO80"].collect()["LO80"].isnull().all():
