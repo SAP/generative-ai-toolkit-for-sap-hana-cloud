@@ -30,7 +30,7 @@ class SmartDataFrame(DataFrame):
     >>> from hana_ai.smart_dataframe import SmartDataFrame
 
     >>> sdf = SmartDataFrame(dataframe=hana_df)
-    >>> sdf.configure(tools=[code_tool], llm=llm, verbose=True)
+    >>> sdf.configure(llm=llm, verbose=True)
     >>> sdf.ask(question="Show the samples of the dataset")
     >>> new_sdf = sdf.transform(question="Get last two rows")
     """
