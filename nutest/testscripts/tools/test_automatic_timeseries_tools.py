@@ -45,14 +45,16 @@ class TestAutomaticTimeSeriesTools(TestML_BaseTestClass):
 
     def test_load_model_and_predict(self):
         tool = AutomaticTimeseriesLoadModelAndPredict(connection_context=self.conn)
+        self.conn.drop_table("PREDICT_RESULT_#HANAI_DATA_TBL_PREDICT_RAW_AUTOML_MODEL_1")
         result = json.loads(tool.run({"predict_table": "#HANAI_DATA_TBL_PREDICT_RAW", "key": "TIMESTAMP", "name": "AUTOML_MODEL", "version": 1}))
         print(result)
-        self.assertTrue(result['predicted_results_table']=="AUTOML_MODEL_1_PREDICTED_RESULTS")
-        self.conn.drop_table('AUTOML_MODEL_1_PREDICTED_RESULTS')
+        self.assertTrue(result['predicted_results_table']=="PREDICT_RESULT_#HANAI_DATA_TBL_PREDICT_RAW_AUTOML_MODEL_1")
+        self.conn.drop_table('PREDICT_RESULT_#HANAI_DATA_TBL_PREDICT_RAW_AUTOML_MODEL_1')
 
     def test_load_model_and_score(self):
         tool = AutomaticTimeseriesLoadModelAndScore(connection_context=self.conn)
+        self.conn.drop_table("SCORE_RESULT_#HANAI_DATA_TBL_SCORE_RAW_AUTOML_MODEL_1")
         result = json.loads(tool.run({"score_table": "#HANAI_DATA_TBL_SCORE_RAW", "key": "TIMESTAMP", "endog": "VALUE", "name": "AUTOML_MODEL", "version": 1}))
-        print(result)
-        self.assertTrue(result['scored_results_table']=="AUTOML_MODEL_1_SCORED_RESULTS")
-        self.conn.drop_table('AUTOML_MODEL_1_SCORED_RESULTS')
+        print(result['scored_results_table'])
+        self.assertTrue(result['scored_results_table']=="SCORE_RESULT_#HANAI_DATA_TBL_SCORE_RAW_AUTOML_MODEL_1")
+        self.conn.drop_table("SCORE_RESULT_#HANAI_DATA_TBL_SCORE_RAW_AUTOML_MODEL_1")
