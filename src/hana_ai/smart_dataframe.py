@@ -12,6 +12,9 @@ from langchain.schema import SystemMessage
 from langchain.tools import BaseTool
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from hana_ml.dataframe import DataFrame
+from hana_ai.tools.df_tools.fetch_tools import FetchDataTool
+from hana_ai.tools.df_tools.ts_outlier_detection_tools import TSOutlierDetection
+from hana_ai.tools.df_tools.ts_visualizer_tools import TimeSeriesDatasetReport
 
 class SmartDataFrame(DataFrame):
     """
@@ -44,7 +47,7 @@ class SmartDataFrame(DataFrame):
 
     def configure(self,
                   llm: BaseLLM,
-                  tools: List[BaseTool],
+                  tools: List[BaseTool] = None,
                   verbose: bool = False,
                   **kwargs):
         """
@@ -54,10 +57,19 @@ class SmartDataFrame(DataFrame):
         ----------
         llm : BaseLLM
             LLM.
-        toolkit : HANAMLToolkit
-            Toolkit.
+        toolkit : List of BaseTool, optional
+            The dataframe toos to be used.
+
+            Defaults to df_tools.
         """
+        conn = self._dataframe.connection_context
         self.llm = llm
+        if tools is None:
+            tools = [
+                FetchDataTool(conn),
+                TimeSeriesDatasetReport(conn),
+                TSOutlierDetection(conn)
+            ]
         self.tools = tools
         self.ask_tools = tools
         self.transform_tools = []
