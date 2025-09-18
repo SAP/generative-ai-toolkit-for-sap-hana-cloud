@@ -14,7 +14,7 @@ Changelog
     - Added `PAL CrossEncoder` as the default cross-encoder model for reranking in the `HANAMLRAGAgent` class. If it is not available, it will fall back to `sentence-transformers/all-MiniLM-L6-v2`.
     - Added `session_id` parameter to the `HANAMLRAGAgent` class to support multiple sessions in long-term memory. By default, it is set to "global_session".
     - Removed the restriction to save memory into long term memory when the result is pandas data or large data. Now, all the results will be saved into long term memory with chunking and embeddings.
-    - Deprecated the code template tool and python REPL tool in `SmartDataFrame` class. Users can use the tools from `df_tools` instead.
+    - Deprecated the code template tool and python REPL tool in `SmartDataFrame` class. Users can use the tools from `df_tools` as default tools instead.
 
 **Version 1.0.250909**
 
