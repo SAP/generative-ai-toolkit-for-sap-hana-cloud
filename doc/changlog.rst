@@ -1,7 +1,7 @@
 Changelog
 =========
 
-**Version dev**
+**Version 1.0.250918**
 
 ``Enhancements``
     - Added HANA table schema support for tools.
