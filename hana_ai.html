@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generative AI Toolkit for SAP HANA Cloud &mdash; hana.ai 1.0.25090900 documentation</title>
+  <title>Generative AI Toolkit for SAP HANA Cloud &mdash; hana.ai 1.0.25091800 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=19f9ca80"></script>
+      <script src="_static/documentation_options.js?v=7aeabcc3"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -303,7 +303,7 @@ For comprehensive instructions, see the <a class="reference external" href="http
 <span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.toolkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLToolkit</span>
 
 <span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
-<span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLRAGAgent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vector_store_type</span><span class="o">=</span><span class="s2">&quot;hanadb&quot;</span><span class="p">,</span> <span class="n">hana_connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">)</span>
+<span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLRAGAgent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vector_store_type</span><span class="o">=</span><span class="s2">&quot;hanadb&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="_images/chatbotwithtoolkit.png"><img alt="A chatbot with HANAML Toolkit." src="_images/chatbotwithtoolkit.png" style="width: 960.0px; height: 480.0px;" />

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SeasonalityTest &mdash; hana.ai 1.0.25090900 documentation</title>
+  <title>SeasonalityTest &mdash; hana.ai 1.0.25091800 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=19f9ca80"></script>
+      <script src="../_static/documentation_options.js?v=7aeabcc3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -512,34 +512,37 @@
 <tr class="row-even"><td><p>endog</p></td>
 <td><p>the endog of the dataset. If not provided, ask the user. Do not guess</p></td>
 </tr>
-<tr class="row-odd"><td><p>alpha</p></td>
+<tr class="row-odd"><td><p>schema</p></td>
+<td><p>the schema of the table, it is optional</p></td>
+</tr>
+<tr class="row-even"><td><p>alpha</p></td>
 <td><p>the criterion for the autocorrelation coefficient, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>decompose_type</p></td>
+<tr class="row-odd"><td><p>decompose_type</p></td>
 <td><p>the type of decomposition chosen from {'additive', 'multiplicative', 'auto'}, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>extrapolation</p></td>
+<tr class="row-even"><td><p>extrapolation</p></td>
 <td><p>whether to extrapolate the endpoints or not, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>smooth_width</p></td>
+<tr class="row-odd"><td><p>smooth_width</p></td>
 <td><p>the width of the smoothing window, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>auxiliary_normalitytest</p></td>
+<tr class="row-even"><td><p>auxiliary_normalitytest</p></td>
 <td><p>specifies whether to use normality test to identify model types, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>periods</p></td>
+<tr class="row-odd"><td><p>periods</p></td>
 <td><p>the length of the periods, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>decompose_method</p></td>
+<tr class="row-even"><td><p>decompose_method</p></td>
 <td><p>the method of decomposition chosen from {'stl', 'traditional'}, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>stl_robust</p></td>
+<tr class="row-odd"><td><p>stl_robust</p></td>
 <td><p>whether to use robust decomposition or not only valid for 'stl' decompose method, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>stl_seasonal_average</p></td>
+<tr class="row-even"><td><p>stl_seasonal_average</p></td>
 <td><p>whether to use seasonal average or not only valid for 'stl' decompose method, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>smooth_method_non_seasonal</p></td>
+<tr class="row-odd"><td><p>smooth_method_non_seasonal</p></td>
 <td><p>the method of smoothing for non-seasonal component chosen from {'moving_average', 'super_smoother'}, it is optional</p></td>
 </tr>
 </tbody>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AdditiveModelForecastLoadModelAndPredict &mdash; hana.ai 1.0.25090900 documentation</title>
+  <title>AdditiveModelForecastLoadModelAndPredict &mdash; hana.ai 1.0.25091800 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=19f9ca80"></script>
+      <script src="../_static/documentation_options.js?v=7aeabcc3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -506,34 +506,37 @@
 <tr class="row-even"><td><p>predict_table</p></td>
 <td><p>The name of the table containing the prediction data.</p></td>
 </tr>
-<tr class="row-odd"><td><p>key</p></td>
+<tr class="row-odd"><td><p>predict_schema</p></td>
+<td><p>The schema of the predict_table, it is optional.</p></td>
+</tr>
+<tr class="row-even"><td><p>key</p></td>
 <td><p>The key column in the prediction table.</p></td>
 </tr>
-<tr class="row-even"><td><p>name</p></td>
+<tr class="row-odd"><td><p>name</p></td>
 <td><p>The name of the model to load.</p></td>
 </tr>
-<tr class="row-odd"><td><p>version</p></td>
+<tr class="row-even"><td><p>version</p></td>
 <td><p>The version of the model to load.</p></td>
 </tr>
-<tr class="row-even"><td><p>exog</p></td>
+<tr class="row-odd"><td><p>exog</p></td>
 <td><p>External regressors to include in the prediction.</p></td>
 </tr>
-<tr class="row-odd"><td><p>logistic_growth_capacity</p></td>
+<tr class="row-even"><td><p>logistic_growth_capacity</p></td>
 <td><p>Capacity for logistic growth.</p></td>
 </tr>
-<tr class="row-even"><td><p>interval_width</p></td>
+<tr class="row-odd"><td><p>interval_width</p></td>
 <td><p>Width of the prediction intervals.</p></td>
 </tr>
-<tr class="row-odd"><td><p>uncertainty_samples</p></td>
+<tr class="row-even"><td><p>uncertainty_samples</p></td>
 <td><p>Number of uncertainty samples to draw.</p></td>
 </tr>
-<tr class="row-even"><td><p>show_explainer</p></td>
+<tr class="row-odd"><td><p>show_explainer</p></td>
 <td><p>Whether to show the explainer.</p></td>
 </tr>
-<tr class="row-odd"><td><p>decompose_seasonality</p></td>
+<tr class="row-even"><td><p>decompose_seasonality</p></td>
 <td><p>Whether to decompose seasonality.</p></td>
 </tr>
-<tr class="row-even"><td><p>decompose_holiday</p></td>
+<tr class="row-odd"><td><p>decompose_holiday</p></td>
 <td><p>Whether to decompose holiday effects.</p></td>
 </tr>
 </tbody>

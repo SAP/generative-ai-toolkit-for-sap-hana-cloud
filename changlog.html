@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; hana.ai 1.0.25090900 documentation</title>
+  <title>Changelog &mdash; hana.ai 1.0.25091800 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=19f9ca80"></script>
+      <script src="_static/documentation_options.js?v=7aeabcc3"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -261,6 +261,23 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<p><strong>Version 1.0.250918</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">Enhancements</span></code></dt><dd><ul class="simple">
+<li><p>Added HANA table schema support for tools.</p></li>
+<li><p>Improved output information for outlier detections.</p></li>
+<li><p>Removed the hana_connection_context parameter from the <cite>HANAMLRAGAgent</cite> class and infer it from the tools.</p></li>
+<li><p>Refine the default value of <cite>max_iterations</cite> parameter of <cite>HANAMLRAGAgent</cite> class parameters from 10 to 20.</p></li>
+<li><p>Change the default value of <cite>vector_store_type</cite> parameter of <cite>HANAMLRAGAgent</cite> class from &quot;faiss&quot; to &quot;hanadb&quot;.</p></li>
+<li><p>Change the default value of <cite>long_term_db</cite> parameter of <cite>HANAMLRAGAgent</cite> class from sqlite to HANA DB.</p></li>
+<li><p>Added the <cite>embedding_service</cite> parameter to the <cite>HANAMLRAGAgent</cite> class to allow users to pass their own embedding service. The default embedding service has been changed from <cite>GenAIHubEmbeddings</cite> to <cite>HANAVectorEmbeddings</cite>.</p></li>
+<li><p>Added <cite>PAL CrossEncoder</cite> as the default cross-encoder model for reranking in the <cite>HANAMLRAGAgent</cite> class. If it is not available, it will fall back to <cite>sentence-transformers/all-MiniLM-L6-v2</cite>.</p></li>
+<li><p>Added <cite>session_id</cite> parameter to the <cite>HANAMLRAGAgent</cite> class to support multiple sessions in long-term memory. By default, it is set to &quot;global_session&quot;.</p></li>
+<li><p>Removed the restriction to save memory into long term memory when the result is pandas data or large data. Now, all the results will be saved into long term memory with chunking and embeddings.</p></li>
+<li><p>Deprecated the code template tool and python REPL tool in <cite>SmartDataFrame</cite> class. Users can use the tools from <cite>df_tools</cite> as default tools instead.</p></li>
+</ul>
+</dd>
+</dl>
 <p><strong>Version 1.0.250909</strong></p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Functions</span></code></dt><dd><ul class="simple">

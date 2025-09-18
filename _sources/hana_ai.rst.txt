@@ -53,7 +53,7 @@ HANAML Toolkit is a set of tools to analyze data and build machine learning mode
     from hana_ai.tools.toolkit import HANAMLToolkit
 
     tools = HANAMLToolkit(connection_context=cc, used_tools='all').get_tools()
-    chatbot = HANAMLRAGAgent(llm=llm, tools=tools, verbose=True, vector_store_type="hanadb", hana_connection_context=cc)
+    chatbot = HANAMLRAGAgent(llm=llm, tools=tools, verbose=True, vector_store_type="hanadb")
 
 .. image:: image/chatbotwithtoolkit.png
    :width: 1200px

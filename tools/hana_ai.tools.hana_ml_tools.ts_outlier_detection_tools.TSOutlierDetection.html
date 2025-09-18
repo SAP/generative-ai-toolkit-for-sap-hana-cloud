@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TSOutlierDetection &mdash; hana.ai 1.0.25090900 documentation</title>
+  <title>TSOutlierDetection &mdash; hana.ai 1.0.25091800 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=19f9ca80"></script>
+      <script src="../_static/documentation_options.js?v=7aeabcc3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -512,82 +512,85 @@
 <tr class="row-even"><td><p>endog</p></td>
 <td><p>the endog of the dataset. If not provided, ask the user. Do not guess.</p></td>
 </tr>
-<tr class="row-odd"><td><p>auto</p></td>
+<tr class="row-odd"><td><p>schema</p></td>
+<td><p>the schema of the table, it is optional</p></td>
+</tr>
+<tr class="row-even"><td><p>auto</p></td>
 <td><p>whether to use auto outlier detection, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>detect_intermittent_ts</p></td>
+<tr class="row-odd"><td><p>detect_intermittent_ts</p></td>
 <td><p>whether to detect intermittent time series, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>smooth_method</p></td>
+<tr class="row-even"><td><p>smooth_method</p></td>
 <td><p>the smoothing method for the time series chosen from {'no', 'median', 'loess'}, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>window_size</p></td>
+<tr class="row-odd"><td><p>window_size</p></td>
 <td><p>odd number, the window size for median filter, not less than 3, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>loess_lag</p></td>
+<tr class="row-even"><td><p>loess_lag</p></td>
 <td><p>odd number, the lag for LOESS, not less than 3, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>current_value_flag</p></td>
+<tr class="row-odd"><td><p>current_value_flag</p></td>
 <td><p>whether to take the current data point when using LOESS smoothing method, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>outlier_method</p></td>
+<tr class="row-even"><td><p>outlier_method</p></td>
 <td><p>the outlier detection method chosen from {'z1', 'z2', 'mad', 'iqr', 'isolationforest', 'dbscan'}, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>threshold</p></td>
+<tr class="row-odd"><td><p>threshold</p></td>
 <td><p>the threshold for outlier detection, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>detect_seasonality</p></td>
+<tr class="row-even"><td><p>detect_seasonality</p></td>
 <td><p>whether to detect seasonality, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>alpha</p></td>
+<tr class="row-odd"><td><p>alpha</p></td>
 <td><p>the criterion for the autocorrelation coefficient, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>extrapolation</p></td>
+<tr class="row-even"><td><p>extrapolation</p></td>
 <td><p>whether to extrapolate the endpoints, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>periods</p></td>
+<tr class="row-odd"><td><p>periods</p></td>
 <td><p>the number of periods for seasonality, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>random_state</p></td>
+<tr class="row-even"><td><p>random_state</p></td>
 <td><p>specifies the seed for random number generator only valid for isolationforest, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>n_estimators</p></td>
+<tr class="row-odd"><td><p>n_estimators</p></td>
 <td><p>the number of trees in the forest only valid for isolationforest, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>max_samples</p></td>
+<tr class="row-even"><td><p>max_samples</p></td>
 <td><p>specifies the number of samples to draw from input to train each tree only valid for isolationforest, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>bootstrap</p></td>
+<tr class="row-odd"><td><p>bootstrap</p></td>
 <td><p>whether to use bootstrap samples when building trees only valid for isolationforest, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>contamination</p></td>
+<tr class="row-even"><td><p>contamination</p></td>
 <td><p>the proportion of outliers in the data set only valid for isolationforest, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>minpts</p></td>
+<tr class="row-odd"><td><p>minpts</p></td>
 <td><p>the number of points in a neighborhood for a point to be considered as a core point only valid for dbscan, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>eps</p></td>
+<tr class="row-even"><td><p>eps</p></td>
 <td><p>the maximum distance between two samples for one to be considered as in the neighborhood of the other only valid for dbscan, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>distance_method</p></td>
+<tr class="row-odd"><td><p>distance_method</p></td>
 <td><p>the distance method for dbscan chosen from {'manhattan', 'euclidean', 'minkowski', 'chebyshev', 'standardized_euclidean', 'cosine'}, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>dbscan_normalization</p></td>
+<tr class="row-even"><td><p>dbscan_normalization</p></td>
 <td><p>whether to normalize the data before dbscan, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>dbscan_outlier_from_cluster</p></td>
+<tr class="row-odd"><td><p>dbscan_outlier_from_cluster</p></td>
 <td><p>specifies how to take outliers from DBSCAN result, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>thread_ratio</p></td>
+<tr class="row-even"><td><p>thread_ratio</p></td>
 <td><p>the ratio of threads to use for parallel processing, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>residual_usage</p></td>
+<tr class="row-odd"><td><p>residual_usage</p></td>
 <td><p>specifies which residual to output chosen from {'outlier_detection', 'outlier_correction'}, it is optional</p></td>
 </tr>
-<tr class="row-odd"><td><p>voting_config</p></td>
+<tr class="row-even"><td><p>voting_config</p></td>
 <td><p>the configuration for voting, it is optional</p></td>
 </tr>
-<tr class="row-even"><td><p>voting_outlier_method_criterion</p></td>
+<tr class="row-odd"><td><p>voting_outlier_method_criterion</p></td>
 <td><p>the criterion for voting outlier method, it is optional</p></td>
 </tr>
 </tbody>
