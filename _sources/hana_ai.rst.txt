@@ -86,7 +86,7 @@ Create a HANA dataframe agent and execute a task. ::
 
     from hana_ai.agents.hana_dataframe_agent import create_hana_dataframe_agent
 
-    agent = create_hana_dataframe_agent(llm=llm, tools=[code_tool], df=data, verbose=True)
+    agent = create_hana_dataframe_agent(llm=llm, df=data, verbose=True)
     agent.invoke("Create Automatic Regression model on this dataframe with max_eval_time_mins=10. Provide key is ID, background_size=100 and model_table_name='my_model' in the fit function and execute it. ")
 
 .. image:: image/agent.png
@@ -113,7 +113,7 @@ Smart DataFrame is a HANA dataframe Agent to interact with HANA data. ::
     from hana_ai.smart_dataframe import SmartDataFrame
 
     sdf = SmartDataFrame(dataframe=hana_df)
-    sdf.configure(tools=[code_tool], llm=llm)
+    sdf.configure(llm=llm)
     new_df = sdf.transform(question="Get first two rows", verbose=True)
     new_df.collect()
 
