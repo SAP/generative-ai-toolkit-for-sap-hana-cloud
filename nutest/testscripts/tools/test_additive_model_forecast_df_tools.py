@@ -50,3 +50,4 @@ class TestAdditiveModelForecastTools(TestML_BaseTestClass):
 
 if __name__ == "__main__":
     unittest.main()
+
