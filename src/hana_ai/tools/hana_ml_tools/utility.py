@@ -109,3 +109,21 @@ def generate_model_storage_version(ms : ModelStorage, version: Union[int, str, N
         else:
             version = int(version)
     return version
+
+def _create_temp_table(conn, select_statement: str, tool_name: str):
+    """
+    Create a temporary table in the HANA database.
+    Parameters
+    ----------
+    conn : Connection
+        The HANA connection object.
+    select_statement : str
+        The SQL select statement to create the temporary table.
+    tool_name : str
+        The name of the tool to create a unique temporary table name.
+    """
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
+    table_name = f"#{tool_name}_{timestamp}".upper()
+    create_temp_table_sql = f"CREATE LOCAL TEMPORARY TABLE {table_name} AS ({select_statement})"
+    conn.execute_sql(create_temp_table_sql)
+    return f"SELECT * FROM {table_name}"

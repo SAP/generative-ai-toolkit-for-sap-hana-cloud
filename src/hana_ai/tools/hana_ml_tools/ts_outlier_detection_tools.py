@@ -14,7 +14,7 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.outlier_detection import OutlierDetectionTS
 
-from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, _create_temp_table
 logger = logging.getLogger(__name__)
 
 class TSOutlierDetectionInput(BaseModel):
@@ -248,7 +248,7 @@ class TSOutlierDetection(BaseTool):
         outliers = result.filter("IS_OUTLIER = 1").collect()[result.columns[0]].tolist()
         results = {
             "outliers": outliers,
-            "result_select_statement": result.select_statement
+            "result_select_statement": _create_temp_table(self.connection_context, result.select_statement, self.name)
         }
         for _, row in odt.stats_.collect().iterrows():
             results[row[odt.stats_.columns[0]]] = row[odt.stats_.columns[1]]
