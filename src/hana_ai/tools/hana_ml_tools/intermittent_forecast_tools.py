@@ -16,7 +16,7 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.exponential_smoothing import CrostonTSB
 
-from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, _create_temp_table
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +158,7 @@ class IntermittentForecast(BaseTool):
             endog=endog
         )
         outputs = {
-            "result_select_statement": result.select_statement,
+            "result_select_statement": _create_temp_table(self.connection_context, result.select_statement, self.name)
         }
         for _, row in croston_tsb.stats_.collect().iterrows():
             outputs[row[croston_tsb.stats_.columns[0]]] = row[croston_tsb.stats_.columns[1]]
