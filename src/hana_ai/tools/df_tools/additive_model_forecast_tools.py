@@ -388,13 +388,16 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         if show_explainer is True:
             return json.dumps({"predicted_results_select_statement": _create_temp_table(self.connection_context,
                                                                                         model.forecast_result.select_statement,
-                                                                                        self.name),
+                                                                                        self.name,
+                                                                                        additional_info="PREDICTED_RESULTS"),
                                "decomposed_and_reason_code_select_statement": _create_temp_table(self.connection_context,
                                                                                                  model.reason_code.select_statement,
-                                                                                                 self.name)})
+                                                                                                 self.name,
+                                                                                                 additional_info="REASON_CODE")})
         return json.dumps({"predicted_results_select_statement": _create_temp_table(self.connection_context,
                                                                                     model.forecast_result.select_statement,
-                                                                                    self.name)})
+                                                                                    self.name,
+                                                                                    additional_info="PREDICTED_RESULTS")})
 
     async def _arun(
         self,
