@@ -16,6 +16,8 @@ from hana_ai.tools.df_tools.fetch_tools import FetchDataTool
 from hana_ai.tools.df_tools.ts_outlier_detection_tools import TSOutlierDetection
 from hana_ai.tools.df_tools.ts_visualizer_tools import TimeSeriesDatasetReport
 from hana_ai.tools.df_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
+from hana_ai.tools.df_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
+from hana_ai.tools.df_tools.intermittent_forecast_tools import IntermittentForecast
 
 class SmartDataFrame(DataFrame):
     """
@@ -72,7 +74,10 @@ class SmartDataFrame(DataFrame):
                 TSOutlierDetection(conn),
                 AutomaticTimeSeriesFitAndSave(conn),
                 AutomaticTimeseriesLoadModelAndPredict(conn),
-                AutomaticTimeseriesLoadModelAndScore(conn)
+                AutomaticTimeseriesLoadModelAndScore(conn),
+                AdditiveModelForecastFitAndSave(conn),
+                AdditiveModelForecastLoadModelAndPredict(conn),
+                IntermittentForecast(conn)
             ]
         self.tools = tools
         self.ask_tools = tools

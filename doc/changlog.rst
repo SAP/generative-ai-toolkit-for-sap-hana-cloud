@@ -1,6 +1,12 @@
 Changelog
 =========
 
+**Version 1.0.250923**
+
+``Enhancements``
+    - Enhanced the outputs of tools when select_statement is too large by creating temporary tables with unique names.
+    - Added additive_model_forecast_tools and intermittent_forecast df tools to the default tools in SmartDataFrame.
+
 **Version 1.0.250918**
 
 ``Enhancements``
