@@ -43,4 +43,3 @@ class TestTSMakePredictTableTools(TestML_BaseTestClass):
         tool = TSMakeFutureTableForMassiveForecastTool(connection_context=self.conn)
         result = tool.run({"train_table": "#HANAI_DATA_TBL_RAW", "key": "TIMESTAMP", "group_key": "GROUP_ID"})
         self.assertTrue(result.startswith('Successfully created the forecast input table'))
-        print(result)
