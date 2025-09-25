@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.dev**
+
+``Enhancements``
+    - Added MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeseriesLoadModelAndPredict, and MassiveAutomaticTimeseriesLoadModelAndScore tools to support massive time series model training, prediction, and scoring with group_key parameter.
+
 **Version 1.0.250923**
 
 ``Enhancements``
