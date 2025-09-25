@@ -7,7 +7,6 @@ The following classes are available:
     * :class `TSMakeFutureTableForMassiveForecastTool`
 """
 
-from datetime import datetime
 import logging
 from typing import Optional, Type
 import uuid
