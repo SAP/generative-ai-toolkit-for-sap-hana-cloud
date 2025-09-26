@@ -21,7 +21,7 @@ class FetchDataInput(BaseModel):
     The input schema for the FetchDataTool.
     """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
-    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
+    schema_name: Optional[str] = Field(description="the schema name of the table, it is optional", default=None)
     top_n: Optional[int] = Field(description="the number of rows to fetch, it is optional", default=None)
     last_n: Optional[int] = Field(description="the number of rows to fetch from the end of the table, it is optional", default=None)
 
@@ -51,8 +51,8 @@ class FetchDataTool(BaseTool):
                   - Description
                 * - table_name
                   - The name of the table. If not provided, ask the user. Do not guess.
-                * - schema
-                  - The schema of the table, it is optional
+                * - schema_name
+                  - The schema name of the table, it is optional
                 * - top_n
                   - The number of rows to fetch, it is optional
                 * - last_n
@@ -86,7 +86,7 @@ class FetchDataTool(BaseTool):
         if "kwargs" in kwargs:
             kwargs = kwargs["kwargs"]
         table_name = kwargs.get("table_name", None)
-        schema = kwargs.get("schema", None)
+        schema_name = kwargs.get("schema_name", None)
         top_n = kwargs.get("top_n")
         last_n = kwargs.get("last_n")
 
@@ -94,11 +94,11 @@ class FetchDataTool(BaseTool):
         if table_name is None:
             return "table_name is required"
         if top_n:
-            results = self.connection_context.table(table_name, schema=schema).head(top_n).collect()
+            results = self.connection_context.table(table_name, schema=schema_name).head(top_n).collect()
         elif last_n:
-            results = self.connection_context.table(table_name, schema=schema).tail(last_n).collect()
+            results = self.connection_context.table(table_name, schema=schema_name).tail(last_n).collect()
         else:
-            results = self.connection_context.table(table_name, schema=schema).collect()
+            results = self.connection_context.table(table_name, schema=schema_name).collect()
         if not self.return_direct:
             results = results.to_markdown(index=False)
         return results

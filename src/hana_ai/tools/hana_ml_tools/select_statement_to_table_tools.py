@@ -21,7 +21,7 @@ class SelectStatementToTableInput(BaseModel):
     """
     table_name: str = Field(description="The name of the target table in HANA")
     select_statement: str = Field(description="The SQL select statement. It must be provided. ")
-    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
+    schema_name: Optional[str] = Field(description="the schema_name of the table, it is optional", default=None)
 
 class SelectStatementToTableTool(BaseTool):
     """
@@ -81,7 +81,7 @@ class SelectStatementToTableTool(BaseTool):
             kwargs = kwargs["kwargs"]
         table_name = kwargs.get("table_name")
         select_statement = kwargs.get("select_statement")
-        schema = kwargs.get("schema", None)
+        schema_name = kwargs.get("schema_name", None)
 
         # 参数校验
         if not table_name:
@@ -90,7 +90,7 @@ class SelectStatementToTableTool(BaseTool):
             return "Error: select_statement is required"
 
         # 调用核心存储函数
-        return SelectStatement_to_table(select_statement, self.connection_context, table_name, schema)
+        return SelectStatement_to_table(select_statement, self.connection_context, table_name, schema_name)
 
     async def _arun(
         self, **kwargs
@@ -101,7 +101,7 @@ class SelectStatementToTableTool(BaseTool):
 def SelectStatement_to_table(select_statement: str,
                              connection_context: ConnectionContext,
                              table_name: str,
-                             schema: str) -> str:
+                             schema_name: str) -> str:
     """
     Stores SelectStatement data (list of dictionaries) into a HANA table
     
@@ -113,8 +113,8 @@ def SelectStatement_to_table(select_statement: str,
         HANA database connection context
     table_name : str
         Target table name in HANA
-    schema : str
-        The schema of the table, it is optional
+    schema_name : str
+        The schema_name of the table, it is optional
         
     Returns
     -------
@@ -124,7 +124,7 @@ def SelectStatement_to_table(select_statement: str,
     try:
         # 将SelectStatement数据转换为Pandas DataFrame
 
-        connection_context.sql(select_statement).smart_save(table_name, schema=schema)
+        connection_context.sql(select_statement).smart_save(table_name, schema=schema_name)
 
         return f"Successfully save the data to '{table_name}'"
 
