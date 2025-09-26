@@ -3,7 +3,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
-from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict
+from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeSeriesLoadModelAndPredict
 from hana_ai.tools.hana_ml_tools.ts_visualizer_tools import ForecastLinePlot
 from testML_BaseTestClass import TestML_BaseTestClass
 from hana_ml.model_storage import ModelStorage
@@ -45,7 +45,7 @@ class TestForecastLinePlotTools(TestML_BaseTestClass):
     def test_forecast_line_plot(self):
         tool = AutomaticTimeSeriesFitAndSave(connection_context=self.conn)
         tool.run({"fit_table": "#HANAI_DATA_TBL_RAW", "key": "TIMESTAMP", "endog": "VALUE", "name": "AUTOML_MODEL", "version": 1, 'fold_num': 2})
-        tool = AutomaticTimeseriesLoadModelAndPredict(connection_context=self.conn)
+        tool = AutomaticTimeSeriesLoadModelAndPredict(connection_context=self.conn)
         tool.run({"predict_table": "#HANAI_DATA_TBL_PREDICT_RAW", "key": "TIMESTAMP", "name": "AUTOML_MODEL", "version": 1})
         tool = ForecastLinePlot(connection_context=self.conn)
         result = json.loads(tool.run({"predict_result": "AUTOML_MODEL_1_PREDICTED_RESULTS", "actual_table_name": "#HANAI_DATA_TBL_RAW"}))

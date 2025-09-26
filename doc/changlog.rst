@@ -4,10 +4,15 @@ Changelog
 **Version 1.0.dev**
 
 ``Enhancements``
-    - Added MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeseriesLoadModelAndPredict, and MassiveAutomaticTimeseriesLoadModelAndScore tools to support massive time series model training, prediction, and scoring with group_key parameter.
+    - Added MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeSeriesLoadModelAndPredict, and MassiveAutomaticTimeSeriesLoadModelAndScore tools to support massive time series model training, prediction, and scoring with group_key parameter.
     - Added MassiveTSOutlierDetection tool to support massive time series outlier detection with group_key parameter.
     - Added TSMakeFutureTableForMassiveForecastTool to create future tables for massive time series forecasting with group_key parameter.
     - Added MassiveTimeSeriesCheck tool to perform time series analysis and generate reports for multiple time series with group_key parameter.
+    - Updated HANAMLToolkit to include the new massive time series tools.
+
+``API Changes``
+    - Modified SelectStatementToTableTool to include a 'force' parameter that allows overwriting existing tables.
+    - Changed "Timeseries" to "TimeSeries" in class names for consistency.
 
 **Version 1.0.250923**
 

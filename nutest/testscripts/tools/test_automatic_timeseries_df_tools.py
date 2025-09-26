@@ -1,6 +1,6 @@
 #unittest for Automatic timeseries tools
 import json
-from hana_ai.tools.df_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
+from hana_ai.tools.df_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeSeriesLoadModelAndPredict, AutomaticTimeSeriesLoadModelAndScore
 from testML_BaseTestClass import TestML_BaseTestClass
 from hana_ml.model_storage import ModelStorage
 
@@ -44,13 +44,13 @@ class TestAutomaticTimeSeriesDFTools(TestML_BaseTestClass):
         self.assertTrue(int(result['model_storage_version'])==1)
 
     def test_load_model_and_predict(self):
-        tool = AutomaticTimeseriesLoadModelAndPredict(connection_context=self.conn)
+        tool = AutomaticTimeSeriesLoadModelAndPredict(connection_context=self.conn)
         result = json.loads(tool.run({"predict_select_statement": "SELECT * FROM #HANAI_DATA_TBL_PREDICT_RAW", "key": "TIMESTAMP", "name": "AUTOML_MODEL", "version": 1}))
         print(result['predicted_results_select_statement'])
         self.assertTrue("PAL_AUTOML_RESULT" in result['predicted_results_select_statement'])
 
     def test_load_model_and_score(self):
-        tool = AutomaticTimeseriesLoadModelAndScore(connection_context=self.conn)
+        tool = AutomaticTimeSeriesLoadModelAndScore(connection_context=self.conn)
         result = json.loads(tool.run({"score_select_statement": "SELECT * FROM #HANAI_DATA_TBL_SCORE_RAW", "key": "TIMESTAMP", "endog": "VALUE", "name": "AUTOML_MODEL", "version": 1}))
         self.assertTrue("PAL_PIPELINE_SCORE_RESULT_TBL" in result['scored_results_select_statement'])
 

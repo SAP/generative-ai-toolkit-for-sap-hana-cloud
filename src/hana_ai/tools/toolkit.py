@@ -31,14 +31,16 @@ from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveMo
 from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsForBASTool, CAPArtifactsTool
 from hana_ai.tools.hana_ml_tools.intermittent_forecast_tools import IntermittentForecast
 from hana_ai.tools.hana_ml_tools.ts_visualizer_tools import ForecastLinePlot, TimeSeriesDatasetReport
-from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
-from hana_ai.tools.hana_ml_tools.ts_check_tools import TimeSeriesCheck
+from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeSeriesLoadModelAndPredict, AutomaticTimeSeriesLoadModelAndScore
+from hana_ai.tools.hana_ml_tools.ts_check_tools import TimeSeriesCheck, MassiveTimeSeriesCheck
 from hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools import TSOutlierDetection
 from hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools import AccuracyMeasure
 from hana_ai.tools.hana_ml_tools.hdi_artifacts_tools import HDIArtifactsTool
 from hana_ai.tools.hana_ml_tools.unsupported_tools import ClassificationTool, RegressionTool
-from hana_ai.tools.hana_ml_tools.ts_make_predict_table import TSMakeFutureTableTool
+from hana_ai.tools.hana_ml_tools.ts_make_predict_table import TSMakeFutureTableTool, TSMakeFutureTableForMassiveForecastTool
 from hana_ai.tools.hana_ml_tools.select_statement_to_table_tools import SelectStatementToTableTool
+from hana_ai.tools.hana_ml_tools.massive_automatic_timeseries_tools import MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeSeriesLoadModelAndPredict, MassiveAutomaticTimeSeriesLoadModelAndScore
+from hana_ai.tools.hana_ml_tools.massive_ts_outlier_detection_tools import MassiveTSOutlierDetection
 
 class HANAMLToolkit(BaseToolkit):
     """
@@ -73,8 +75,8 @@ class HANAMLToolkit(BaseToolkit):
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),
             AdditiveModelForecastLoadModelAndPredict(connection_context=self.connection_context),
             AutomaticTimeSeriesFitAndSave(connection_context=self.connection_context),
-            AutomaticTimeseriesLoadModelAndPredict(connection_context=self.connection_context),
-            AutomaticTimeseriesLoadModelAndScore(connection_context=self.connection_context),
+            AutomaticTimeSeriesLoadModelAndPredict(connection_context=self.connection_context),
+            AutomaticTimeSeriesLoadModelAndScore(connection_context=self.connection_context),
             CAPArtifactsTool(connection_context=self.connection_context),
             DeleteModels(connection_context=self.connection_context),
             FetchDataTool(connection_context=self.connection_context),
@@ -88,7 +90,13 @@ class HANAMLToolkit(BaseToolkit):
             ClassificationTool(connection_context=self.connection_context),
             RegressionTool(connection_context=self.connection_context),
             TSMakeFutureTableTool(connection_context=self.connection_context),
-            SelectStatementToTableTool(connection_context=self.connection_context)
+            SelectStatementToTableTool(connection_context=self.connection_context),
+            MassiveAutomaticTimeSeriesFitAndSave(connection_context=self.connection_context),
+            MassiveAutomaticTimeSeriesLoadModelAndPredict(connection_context=self.connection_context),
+            MassiveAutomaticTimeSeriesLoadModelAndScore(connection_context=self.connection_context),
+            MassiveTimeSeriesCheck(connection_context=self.connection_context),
+            TSMakeFutureTableForMassiveForecastTool(connection_context=self.connection_context),
+            MassiveTSOutlierDetection(connection_context=self.connection_context)
         ]
         if isinstance(return_direct, dict):
             for tool in self.default_tools:

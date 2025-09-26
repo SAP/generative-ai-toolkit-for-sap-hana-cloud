@@ -1,6 +1,6 @@
 #unittest for Automatic timeseries tools
 import json
-from hana_ai.tools.hana_ml_tools.massive_automatic_timeseries_tools import MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeseriesLoadModelAndPredict, MassiveAutomaticTimeseriesLoadModelAndScore
+from hana_ai.tools.hana_ml_tools.massive_automatic_timeseries_tools import MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeSeriesLoadModelAndPredict, MassiveAutomaticTimeSeriesLoadModelAndScore
 from testML_BaseTestClass import TestML_BaseTestClass
 from hana_ml.model_storage import ModelStorage
 
@@ -51,7 +51,7 @@ class TestAutomaticTimeSeriesTools(TestML_BaseTestClass):
         self.assertTrue(int(result['model_storage_version'])==1)
 
     def test_load_model_and_predict(self):
-        tool = MassiveAutomaticTimeseriesLoadModelAndPredict(connection_context=self.conn)
+        tool = MassiveAutomaticTimeSeriesLoadModelAndPredict(connection_context=self.conn)
         self.conn.drop_table("PREDICT_RESULT_#HANAI_DATA_TBL_PREDICT_RAW_AUTOML_MODEL_1")
         result = json.loads(tool.run({"predict_table": "#HANAI_DATA_TBL_PREDICT_RAW", "key": "TIMESTAMP", "group_key": "GROUP_ID", "name": "AUTOML_MODEL", "version": 1}))
         print(result)
@@ -59,7 +59,7 @@ class TestAutomaticTimeSeriesTools(TestML_BaseTestClass):
         self.conn.drop_table('PREDICT_RESULT_#HANAI_DATA_TBL_PREDICT_RAW_AUTOML_MODEL_1')
 
     def test_load_model_and_score(self):
-        tool = MassiveAutomaticTimeseriesLoadModelAndScore(connection_context=self.conn)
+        tool = MassiveAutomaticTimeSeriesLoadModelAndScore(connection_context=self.conn)
         self.conn.drop_table("SCORE_RESULT_#HANAI_DATA_TBL_SCORE_RAW_AUTOML_MODEL_1")
         result = json.loads(tool.run({"score_table": "#HANAI_DATA_TBL_SCORE_RAW", "key": "TIMESTAMP", "group_key": "GROUP_ID", "endog": "VALUE", "name": "AUTOML_MODEL", "version": 1}))
         print(result['scored_results_table'])

@@ -4,8 +4,8 @@ This module contains the tools for automatic timeseries.
 The following class are available:
 
     * :class `AutomaticTimeSeriesFitAndSave`
-    * :class `AutomaticTimeseriesLoadModelAndPredict`
-    * :class `AutomaticTimeseriesLoadModelAndScore`
+    * :class `AutomaticTimeSeriesLoadModelAndPredict`
+    * :class `AutomaticTimeSeriesLoadModelAndScore`
 """
 
 import json
@@ -325,7 +325,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
             **kwargs
         )
 
-class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
+class AutomaticTimeSeriesLoadModelAndPredict(BaseTool):
     """
     This tool load model from model storage and do the prediction.
 
@@ -437,7 +437,7 @@ class AutomaticTimeseriesLoadModelAndPredict(BaseTool):
             **kwargs
         )
 
-class AutomaticTimeseriesLoadModelAndScore(BaseTool):
+class AutomaticTimeSeriesLoadModelAndScore(BaseTool):
     """
     This tool load model from model storage and do the scoring.
 

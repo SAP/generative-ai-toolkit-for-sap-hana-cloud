@@ -142,7 +142,7 @@ class MassiveTSOutlierDetection(BaseTool):
     """
     name: str = "massive_ts_outlier_detection"
     """Name of the tool."""
-    description: str = "To detect outliers in massive time series data. "
+    description: str = "To detect outliers in massive time series data or outliers per group(group_key Column). "
     """Description of the tool."""
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""

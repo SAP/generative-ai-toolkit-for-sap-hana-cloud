@@ -1,7 +1,7 @@
 #unittest for HDI Artifacts tools
 import os
 import shutil
-from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeseriesLoadModelAndPredict, AutomaticTimeseriesLoadModelAndScore
+from hana_ai.tools.hana_ml_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeSeriesLoadModelAndPredict, AutomaticTimeSeriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.hdi_artifacts_tools import HDIArtifactsTool
 from testML_BaseTestClass import TestML_BaseTestClass
 from hana_ml.model_storage import ModelStorage
@@ -51,9 +51,9 @@ class TestHDIArtifactsTool(TestML_BaseTestClass):
         #check if the CDS files are created
         self.assertTrue(os.path.exists(os.path.join('.', 'HDI_OUTPUT_DIR', 'HDI_PROJECT', 'srv')))
         self.assertTrue(os.path.exists(os.path.join('.', 'HDI_OUTPUT_DIR', 'HDI_PROJECT', 'db', 'src', 'hana-ml-base-pal-automl-fit.hdbprocedure')))
-        tool = AutomaticTimeseriesLoadModelAndPredict(connection_context=self.conn)
+        tool = AutomaticTimeSeriesLoadModelAndPredict(connection_context=self.conn)
         tool.run({"predict_table": "#HANAI_DATA_TBL_PREDICT_RAW", "key": "TIMESTAMP", "name": "AUTOML_MODEL", "version": 1})
-        tool = AutomaticTimeseriesLoadModelAndScore(connection_context=self.conn)
+        tool = AutomaticTimeSeriesLoadModelAndScore(connection_context=self.conn)
         tool.run({"score_table": "#HANAI_DATA_TBL_SCORE_RAW", "key": "TIMESTAMP", "endog": "VALUE", "name": "AUTOML_MODEL", "version": 1})
         tool = HDIArtifactsTool(connection_context=self.conn)
         result =tool.run({"name": "AUTOML_MODEL", "version": 1, "project_name": "HDI_PROJECT", "output_dir": "HDI_OUTPUT_DIR"})
