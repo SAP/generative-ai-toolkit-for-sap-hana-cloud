@@ -10,6 +10,10 @@ Changelog
     - Added MassiveTimeSeriesCheck tool to perform time series analysis and generate reports for multiple time series with group_key parameter.
     - Updated HANAMLToolkit to include the new massive time series tools.
 
+``API Changes``
+    - Modified SelectStatementToTableTool to include a 'force' parameter that allows overwriting existing tables.
+    - Changed "Timeseries" to "TimeSeries" in class names for consistency.
+
 **Version 1.0.250923**
 
 ``Enhancements``
