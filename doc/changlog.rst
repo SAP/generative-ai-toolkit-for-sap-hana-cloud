@@ -5,6 +5,8 @@ Changelog
 
 ``Enhancements``
     - Added MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeseriesLoadModelAndPredict, and MassiveAutomaticTimeseriesLoadModelAndScore tools to support massive time series model training, prediction, and scoring with group_key parameter.
+    - Added MassiveTSOutlierDetection tool to support massive time series outlier detection with group_key parameter.
+    - Added TSMakeFutureTableForMassiveForecastTool to create future tables for massive time series forecasting with group_key parameter.
 
 **Version 1.0.250923**
 
