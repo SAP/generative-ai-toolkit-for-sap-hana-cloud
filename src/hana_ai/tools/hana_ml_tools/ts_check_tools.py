@@ -99,12 +99,110 @@ def ts_char(df, key, endog):
 
     return analysis_result
 
+def ts_char_massive(df, group_key, key, endog):
+    """
+    This function is used to get the characteristics of multiple time series data grouped by group_key.
+
+    Parameters
+    ----------
+    df : DataFrame
+        The input DataFrame.
+    group_key : str
+        The column used to group multiple time series.
+    key : str
+        The key column (time index) of the DataFrame.
+    endog : str
+        The endogenous column of the DataFrame.
+    """
+    # 获取所有分组
+    groups = df.select(group_key).distinct().collect()[group_key].to_list()
+    analysis_result = f"Time Series Analysis Report ({len(groups)} groups)\n"
+    analysis_result += "=" * 60 + "\n\n"
+
+    # 遍历每个分组
+    for i, group_val in enumerate(groups):
+        if isinstance(group_val, str):
+            df_group = df.filter(f'"{group_key}" = \'{group_val}\'')
+        else:
+            df_group = df.filter(f'"{group_key}" = {group_val}')
+
+        analysis_result += f"Group {i+1}/{len(groups)}: {group_key} = {group_val}\n"
+        analysis_result += "-" * 60 + "\n"
+
+        # 表结构信息
+        table_struct = json.dumps(df_group.get_table_structure())
+        analysis_result += f"• Table structure: {table_struct}\n"
+        analysis_result += f"• Key: {key}\n"
+        analysis_result += f"• Endog: {endog}\n"
+
+        # 索引信息
+        analysis_result += f"Index: starts from {df_group[key].min()} to {df_group[key].max()}. Time series length is {df_group.count()}\n"
+
+        # 处理非整数类型的时间键
+        key_col_type = df_group.get_table_structure()[key]
+        key_ = key
+        df_ = df_group
+        if 'INT' not in key_col_type.upper():
+            key_ = "NEW_" + key
+            df_ = df_group.add_id(key_, ref_col=key)
+
+        # Intermitent Test
+        zero_values = df_.filter(f'"{endog}" = 0').count()
+        total_values = df_.count()
+        if total_values == 0:
+            zero_proportion = 1
+        else:
+            zero_proportion = zero_values / total_values
+        analysis_result += f"Intermittent Test: proportion of zero values is {zero_proportion}\n"
+
+        # Stationarity Test
+        result = stationarity_test(df_, key_, endog).collect()
+        analysis_result += "Stationarity Test: "
+        for _, row in result.iterrows():
+            analysis_result += f"The `{row['STATS_NAME']}` is {row['STATS_VALUE']}."
+        analysis_result += "\n"
+
+        # Trend Test
+        result = trend_test(df_, key_, endog)[0].collect()
+        for _, row in result.iterrows():
+            if row['STAT_NAME'] == 'TREND':
+                if row['STAT_VALUE'] == 1:
+                    analysis_result += 'Trend Test:' + " Upward trend."
+                elif row['STAT_VALUE'] == -1:
+                    analysis_result += 'Trend Test:' + " Downward trend."
+                else:
+                    analysis_result += 'Trend Test:' + " No trend."
+        analysis_result += "\n"
+
+        # Seasonality Test
+        result = seasonal_decompose(df_, key_, endog)[0].collect()
+        analysis_result += "Seasonality Test: "
+        for _, row in result.iterrows():
+            analysis_result += f"The `{row['STAT_NAME']}` is {row['STAT_VALUE']}."
+        analysis_result += "\n"
+
+        # Restrict time series algorithms
+        available_algorithms = ["Additive Model Forecast", "Automatic Time Series Forecast"]
+        analysis_result += f"Available algorithms: {', '.join(available_algorithms)}\n"
+
+    return analysis_result
+
 class TSCheckInput(BaseModel):
     """
     The input schema for the TimeSeriesCheckTool.
     """
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
+    endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
+    schema_name: Optional[str] = Field(description="the schema_name of the table, it is optional", default=None)
+
+class MassiveTSCheckInput(BaseModel):
+    """
+    The input schema for the TimeSeriesCheckTool.
+    """
+    table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
+    key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
+    group_key: str = Field(description="the group key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
     schema_name: Optional[str] = Field(description="the schema_name of the table, it is optional", default=None)
 
@@ -243,6 +341,124 @@ class TimeSeriesCheck(BaseTool):
             return f"Endog column {endog} does not exist in table {table_name}."
         df = self.connection_context.table(table_name, schema=schema_name).select(key, endog)
         return ts_char(df, key, endog)
+
+    async def _arun(
+        self, **kwargs
+    ) -> str:
+        """Use the tool asynchronously."""
+        return self._run(**kwargs)
+
+class MassiveTimeSeriesCheck(BaseTool):
+    """
+    This tool performs time series analysis for multiple grouped time series data, 
+    including stationarity, intermittency, trend and seasonality tests.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        Connection context to the HANA database.
+
+    Returns
+    -------
+    str
+        The characteristics report for multiple time series groups.
+
+        .. note::
+
+            args_schema is used to define the schema of the inputs as follows:
+
+            .. list-table::
+                :widths: 15 50
+                :header-rows: 1
+
+                * - Field
+                  - Description
+                * - table_name
+                  - The name of the table. If not provided, ask the user. Do not guess.
+                * - group_key
+                  - The column used to group multiple time series. Required.
+                * - key
+                  - The time key column. If not provided, ask the user. Do not guess.
+                * - endog
+                  - The endogenous variable column. If not provided, ask the user. Do not guess.
+                * - schema_name
+                  - The schema name of the table (optional)
+    """
+    name: str = "massive_ts_check"
+    """Name of the tool."""
+    description: str = (
+        "Performs comprehensive time series analysis for multiple grouped time series, "
+        "including stationarity, intermittency, trend and seasonality tests."
+    )
+    """Description of the tool."""
+    connection_context: ConnectionContext = None
+    """Connection context to the HANA database."""
+    args_schema: Type[BaseModel] = MassiveTSCheckInput
+    return_direct: bool = False
+
+    def __init__(
+        self,
+        connection_context: ConnectionContext,
+        return_direct: bool = False
+    ) -> None:
+        super().__init__(  # type: ignore[call-arg]
+            connection_context=connection_context,
+            return_direct=return_direct
+        )
+
+    def _run(
+        self,
+        **kwargs
+    ) -> str:
+        """Use the tool for massive time series analysis."""
+        if "kwargs" in kwargs:
+            kwargs = kwargs["kwargs"]
+
+        # Validate required parameters
+        table_name = kwargs.get("table_name")
+        if not table_name:
+            return "Table name is required"
+
+        group_key = kwargs.get("group_key")
+        if not group_key:
+            return "Group key is required for massive time series analysis"
+
+        key = kwargs.get("key")
+        if not key:
+            return "Time key is required"
+
+        endog = kwargs.get("endog")
+        if not endog:
+            return "Endogenous variable is required"
+
+        schema_name = kwargs.get("schema_name")
+
+        # Check table existence
+        if not self.connection_context.has_table(table_name, schema=schema_name):
+            return f"Table {table_name} does not exist."
+
+        # Get table reference
+        table = self.connection_context.table(table_name, schema=schema_name)
+
+        # Validate columns exist
+        required_columns = [group_key, key, endog]
+        for col in required_columns:
+            if col not in table.columns:
+                return f"Column '{col}' does not exist in table {table_name}."
+
+        # Select relevant columns
+        df = table.select(group_key, key, endog)
+
+        # Check if group_key has reasonable number of groups
+        distinct_groups = df.select(group_key).distinct().count()
+        if distinct_groups > 100:
+            return (
+                f"Too many groups ({distinct_groups}) for analysis. "
+                "Consider filtering or using a different group key."
+            )
+
+        # Perform massive time series analysis
+        return ts_char_massive(df, group_key, key, endog)
 
     async def _arun(
         self, **kwargs
