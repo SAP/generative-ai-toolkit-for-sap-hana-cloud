@@ -263,7 +263,7 @@ class MassiveTSOutlierDetection(BaseTool):
             outlier_id = row[id_col]
             outlier_dict.setdefault(group_id, []).append(outlier_id)
         outliers = [
-            {"group_id": group_id, "outlier_id": outlier_ids}
+            {"group_id": group_id, "outlier_ids": outlier_ids}
             for group_id, outlier_ids in outlier_dict.items()
         ]
         results = {

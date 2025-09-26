@@ -32,7 +32,7 @@ class TestMassiveTSOutlierDetectionTools(TestML_BaseTestClass):
     def test_TSOutlierDetection(self):
         tool = MassiveTSOutlierDetection(connection_context=self.conn)
         result = json.loads(tool.run({"table_name": "#HANAI_DATA_TBL_RAW", "group_key": "GROUP_ID", "key": "ID", "endog": "VALUE", "outlier_method": "isolationforest"}))
-        expected_result = {'outliers': [{"group_id": '0', "outlier_id": [2]}, {"group_id": '1', "outlier_id": [2]}]}
+        expected_result = {'outliers': [{"group_id": '0', "outlier_ids": [2]}, {"group_id": '1', "outlier_ids": [2]}]}
         # 按group_id排序
         expected_sorted = sorted(expected_result['outliers'], key=lambda x: x["group_id"])
         actual_sorted = sorted(result['outliers'], key=lambda x: x["group_id"])
@@ -41,4 +41,4 @@ class TestMassiveTSOutlierDetectionTools(TestML_BaseTestClass):
         self.assertEqual(len(expected_sorted), len(actual_sorted))
         for i in range(len(expected_sorted)):
             self.assertEqual(expected_sorted[i]["group_id"], actual_sorted[i]["group_id"])
-            self.assertCountEqual(expected_sorted[i]["outlier_id"], actual_sorted[i]["outlier_id"])
+            self.assertCountEqual(expected_sorted[i]["outlier_ids"], actual_sorted[i]["outlier_ids"])
