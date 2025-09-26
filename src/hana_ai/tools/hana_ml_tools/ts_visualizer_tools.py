@@ -30,7 +30,7 @@ class TSDatasetInput(BaseModel):
     table_name: str = Field(description="the name of the table. If not provided, ask the user. Do not guess.")
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
-    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
+    schema_name: Optional[str] = Field(description="the schema_name of the table, it is optional", default=None)
     output_dir: Optional[str] = Field(description="the output directory to save the report, it is optional", default=None)
 
 class ForecastLinePlotInput(BaseModel):
@@ -118,18 +118,18 @@ class TimeSeriesDatasetReport(BaseTool):
         endog = kwargs.get("endog", None)
         if endog is None:
             return "Endog is required"
-        schema = kwargs.get("schema", None)
+        schema_name = kwargs.get("schema_name", None)
         output_dir = kwargs.get("output_dir", None)
         # check hana has the table
-        if not self.connection_context.has_table(table_name, schema=schema):
+        if not self.connection_context.has_table(table_name, schema=schema_name):
             return json.dumps({"error": f"Table {table_name} does not exist."})
         # check key in the table
-        if key not in self.connection_context.table(table_name, schema=schema).columns:
+        if key not in self.connection_context.table(table_name, schema=schema_name).columns:
             return json.dumps({"error": f"Key {key} does not exist in table {table_name}."})
         # check endog in the table
-        if endog not in self.connection_context.table(table_name, schema=schema).columns:
+        if endog not in self.connection_context.table(table_name, schema=schema_name).columns:
             return json.dumps({"error": f"Endog {endog} does not exist in table {table_name}."})
-        df = self.connection_context.table(table_name, schema=schema).select(key, endog)
+        df = self.connection_context.table(table_name, schema=schema_name).select(key, endog)
         ur = UnifiedReport(df).build(key=key, endog=endog)
         if output_dir is None:
             destination_dir = os.path.join(tempfile.gettempdir(), "hanaml_report")

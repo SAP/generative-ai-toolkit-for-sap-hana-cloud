@@ -25,7 +25,7 @@ class TSOutlierDetectionInput(BaseModel):
     key: str = Field(description="the key of the dataset. If not provided, ask the user. Do not guess.")
     endog: str = Field(description="the endog of the dataset. If not provided, ask the user. Do not guess.")
     auto: Optional[bool] = Field(description="whether to use auto outlier detection, it is optional", default=None)
-    schema: Optional[str] = Field(description="the schema of the table, it is optional", default=None)
+    schema_name: Optional[str] = Field(description="the schema_name of the table, it is optional", default=None)
     detect_intermittent_ts: Optional[bool] = Field(description="whether to detect intermittent time series, it is optional", default=None)
     smooth_method: Optional[str] = Field(description="the smoothing method for the time series chosen from {'no', 'median', 'loess'}, it is optional", default=None)
     window_size: Optional[int] = Field(description="odd number, the window size for median filter, not less than 3, it is optional", default=None)
@@ -82,8 +82,8 @@ class TSOutlierDetection(BaseTool):
                   - the key of the dataset. If not provided, ask the user. Do not guess.
                 * - endog
                   - the endog of the dataset. If not provided, ask the user. Do not guess.
-                * - schema
-                  - the schema of the table, it is optional
+                * - schema_name
+                  - the schema_name of the table, it is optional
                 * - auto
                   - whether to use auto outlier detection, it is optional
                 * - detect_intermittent_ts
@@ -173,7 +173,7 @@ class TSOutlierDetection(BaseTool):
         endog = kwargs.get("endog", None)
         if endog is None:
             return "Endog is required"
-        schema = kwargs.get("schema", None)
+        schema_name = kwargs.get("schema_name", None)
         auto = kwargs.get("auto", None)
         detect_intermittent_ts = kwargs.get("detect_intermittent_ts", None)
         smooth_method = kwargs.get("smooth_method", None)
@@ -202,15 +202,15 @@ class TSOutlierDetection(BaseTool):
         voting_outlier_method_criterion = kwargs.get("voting_outlier_method_criterion", None)
 
         # Check if the table exists
-        if not self.connection_context.has_table(table_name, schema=schema):
+        if not self.connection_context.has_table(table_name, schema=schema_name):
             return json.dumps({
                 "error": f"Table {table_name} does not exist in the database."
             }, cls=_CustomEncoder)
-        if key not in self.connection_context.table(table_name, schema=schema).columns:
+        if key not in self.connection_context.table(table_name, schema=schema_name).columns:
             return json.dumps({
                 "error": f"Key {key} does not exist in the table {table_name}."
             }, cls=_CustomEncoder)
-        if endog not in self.connection_context.table(table_name, schema=schema).columns:
+        if endog not in self.connection_context.table(table_name, schema=schema_name).columns:
             return json.dumps({
                 "error": f"Endog {endog} does not exist in the table {table_name}."
             }, cls=_CustomEncoder)
@@ -241,7 +241,7 @@ class TSOutlierDetection(BaseTool):
                 voting_config=voting_config,
                 voting_outlier_method_criterion=voting_outlier_method_criterion,
                 thread_ratio=thread_ratio)
-        df = self.connection_context.table(table_name, schema).select(key, endog) #pylint: disable=invalid-name
+        df = self.connection_context.table(table_name, schema_name).select(key, endog) #pylint: disable=invalid-name
         result = odt.fit_predict(df,
                                  key=key,
                                  endog=endog)
