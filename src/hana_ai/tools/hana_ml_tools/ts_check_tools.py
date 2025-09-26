@@ -387,7 +387,7 @@ class MassiveTimeSeriesCheck(BaseTool):
     name: str = "massive_ts_check"
     """Name of the tool."""
     description: str = (
-        "Performs comprehensive time series analysis for multiple grouped time series, "
+        "Performs comprehensive time series analysis per group(group_key Column), "
         "including stationarity, intermittency, trend and seasonality tests."
     )
     """Description of the tool."""

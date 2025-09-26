@@ -22,6 +22,7 @@ class SelectStatementToTableInput(BaseModel):
     table_name: str = Field(description="The name of the target table in HANA")
     select_statement: str = Field(description="The SQL select statement. It must be provided. ")
     schema_name: Optional[str] = Field(description="the schema_name of the table, it is optional", default=None)
+    force: Optional[str] = Field(description="Whether to overwrite the table if it already exists. Default is False.", default=False)
 
 class SelectStatementToTableTool(BaseTool):
     """
@@ -82,7 +83,7 @@ class SelectStatementToTableTool(BaseTool):
         table_name = kwargs.get("table_name")
         select_statement = kwargs.get("select_statement")
         schema_name = kwargs.get("schema_name", None)
-
+        force = kwargs.get("force", False)
         # 参数校验
         if not table_name:
             return "Error: table_name is required"
@@ -90,7 +91,7 @@ class SelectStatementToTableTool(BaseTool):
             return "Error: select_statement is required"
 
         # 调用核心存储函数
-        return SelectStatement_to_table(select_statement, self.connection_context, table_name, schema_name)
+        return SelectStatement_to_table(select_statement, self.connection_context, table_name, schema_name, force)
 
     async def _arun(
         self, **kwargs
@@ -101,7 +102,8 @@ class SelectStatementToTableTool(BaseTool):
 def SelectStatement_to_table(select_statement: str,
                              connection_context: ConnectionContext,
                              table_name: str,
-                             schema_name: str) -> str:
+                             schema_name: str,
+                             force: bool) -> str:
     """
     Stores SelectStatement data (list of dictionaries) into a HANA table
     
@@ -115,7 +117,9 @@ def SelectStatement_to_table(select_statement: str,
         Target table name in HANA
     schema_name : str
         The schema_name of the table, it is optional
-        
+    force : bool
+        Whether to overwrite the table if it already exists. Default is False.
+
     Returns
     -------
     str
@@ -124,7 +128,7 @@ def SelectStatement_to_table(select_statement: str,
     try:
         # 将SelectStatement数据转换为Pandas DataFrame
 
-        connection_context.sql(select_statement).smart_save(table_name, schema=schema_name)
+        connection_context.sql(select_statement).smart_save(table_name, schema=schema_name, force=force)
 
         return f"Successfully save the data to '{table_name}'"
 

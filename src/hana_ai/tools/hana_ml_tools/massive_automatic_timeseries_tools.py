@@ -4,8 +4,8 @@ This module contains the tools for massive automatic timeseries.
 The following class are available:
 
     * :class `MassiveAutomaticTimeSeriesFitAndSave`
-    * :class `MassiveAutomaticTimeseriesLoadModelAndPredict`
-    * :class `MassiveAutomaticTimeseriesLoadModelAndScore`
+    * :class `MassiveAutomaticTimeSeriesLoadModelAndPredict`
+    * :class `MassiveAutomaticTimeSeriesLoadModelAndScore`
 """
 
 import json
@@ -199,7 +199,7 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
     """
     name: str = "massive_automatic_timeseries_fit_and_save"
     """Name of the tool."""
-    description: str = "To fit an MassiveAutomaticTimeseries model and save it in the model storage."
+    description: str = "To fit an MassiveAutomaticTimeseries model or a timeseries per group(group_key Column) and save it in the model storage."
     """Description of the tool."""
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
@@ -334,7 +334,7 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
             **kwargs
         )
 
-class MassiveAutomaticTimeseriesLoadModelAndPredict(BaseTool):
+class MassiveAutomaticTimeSeriesLoadModelAndPredict(BaseTool):
     """
     This tool load model from model storage and do the prediction.
 
@@ -452,7 +452,7 @@ class MassiveAutomaticTimeseriesLoadModelAndPredict(BaseTool):
             **kwargs
         )
 
-class MassiveAutomaticTimeseriesLoadModelAndScore(BaseTool):
+class MassiveAutomaticTimeSeriesLoadModelAndScore(BaseTool):
     """
     This tool load model from model storage and do the scoring.
 
