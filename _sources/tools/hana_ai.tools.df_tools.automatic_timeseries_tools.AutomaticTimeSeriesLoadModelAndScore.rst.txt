@@ -1,9 +1,9 @@
-AutomaticTimeseriesLoadModelAndScore
+AutomaticTimeSeriesLoadModelAndScore
 ====================================================================================================
 
 .. currentmodule:: hana_ai.tools.df_tools.automatic_timeseries_tools
 
-.. autoclass:: AutomaticTimeseriesLoadModelAndScore
+.. autoclass:: AutomaticTimeSeriesLoadModelAndScore
    :members:
    :inherited-members: BaseTool, BaseModel
    :no-undoc-members:

@@ -16,6 +16,7 @@ Welcome to hana.ai's documentation!
    hana_ai.tools
    hana_ai.vectorstore
    hana_ai.smart_dataframe
+   hana_ai.faq
 
 Indices and tables
 ==================

@@ -28,8 +28,8 @@ hana_ml_tools
    hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave
    hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict
    hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave
-   hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict
-   hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore
+   hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict
+   hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore
    hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool
    hana_ml_tools.fetch_tools.FetchDataTool
    hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool
@@ -56,8 +56,8 @@ df_tools
    :template: class.rst
 
    df_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave
-   df_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict
-   df_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore
+   df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict
+   df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore
    df_tools.fetch_tools.FetchDataTool
    df_tools.ts_outlier_detection_tools.TSOutlierDetection
    df_tools.ts_visualizer_tools.TimeSeriesDatasetReport
