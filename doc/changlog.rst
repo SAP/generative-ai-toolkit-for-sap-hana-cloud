@@ -1,7 +1,7 @@
 Changelog
 =========
 
-**Version 1.0.dev**
+**Version 1.0.250930**
 
 ``Enhancements``
     - Added MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeSeriesLoadModelAndPredict, and MassiveAutomaticTimeSeriesLoadModelAndScore tools to support massive time series model training, prediction, and scoring with group_key parameter.
@@ -13,6 +13,9 @@ Changelog
 ``API Changes``
     - Modified SelectStatementToTableTool to include a 'force' parameter that allows overwriting existing tables.
     - Changed "Timeseries" to "TimeSeries" in class names for consistency.
+
+``Bug Fixes``
+    - Fixed an issue for text with special characters in the HANAVectorEmbeddings class.
 
 **Version 1.0.250923**
 
