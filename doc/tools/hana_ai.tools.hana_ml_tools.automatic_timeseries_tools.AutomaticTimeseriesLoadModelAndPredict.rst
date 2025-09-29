@@ -1,9 +1,9 @@
-AutomaticTimeseriesLoadModelAndPredict
+AutomaticTimeSeriesLoadModelAndPredict
 ===========================================================================================================
 
 .. currentmodule:: hana_ai.tools.hana_ml_tools.automatic_timeseries_tools
 
-.. autoclass:: AutomaticTimeseriesLoadModelAndPredict
+.. autoclass:: AutomaticTimeSeriesLoadModelAndPredict
    :members:
    :inherited-members: BaseTool, BaseModel
    :no-undoc-members:
