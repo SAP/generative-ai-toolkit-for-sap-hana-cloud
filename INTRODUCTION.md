@@ -120,13 +120,16 @@ cr.query("AutoML classification", top_n=1)
 ```
 
 ## Smart DataFrame
-The Smart DataFrame is agent interface to HANA dataframes, provding a conversational approach for dataframe-related tasks for exploring the data using the "ask" method. Similarly and in addition, the "transform" method adds passing back the result data as a HANA dataframe. Currently, it is not compatible with GPT-4o, but works with GPT-4 and other models.
+The Smart DataFrame is agent interface to HANA dataframes, provding a conversational approach for dataframe-related tasks for exploring the data using the "ask" method. Similarly and in addition, the "transform" method adds passing back the result data as a HANA dataframe. Currently, it is not compatible with GPT-4o, but works with GPT-4 and other models. The code template tool has been deprecated and df tools are used as default tools, so no need to pass it to configure function.
 
 ```python
 from hana_ai.smart_dataframe import SmartDataFrame
 
 sdf = SmartDataFrame(hana_df)
-sdf.configure(tools=[code_tool], llm=llm)
+sdf.configure(llm=llm) # the code template tool has been deprecated and df tools are used as default tools, so no need to pass it here.
+```
+
+```python
 sdf.ask("Show the samples of the dataset", verbose=True)
 ```
 ![alt](./doc/image/smartdf_ask.png)
