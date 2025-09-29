@@ -31,8 +31,8 @@ chatbot = HANAMLRAGAgent(llm=llm, tools=tools, verbose=True, vector_store_type="
 
 ## Library of tools for HANA-ML 
 Provided AI-tools for streamlining usage of HANA ML functions in context of the conversational agent.
-| Tool Name | Description |
-|-----------|-------------|
+| Tool Name | Description | Comment |
+|-----------|-------------|---------|
 | additive_model_forecast_fit_and_save | To fit an AutomaticTimeseries model and save it in the model storage. |
 | additive_model_forecast_load_model_and_predict | To load an AutomaticTimeseries model and predict the future values. |
 | automatic_timeseries_fit_and_save | To fit an AutomaticTimeseries model and save it in the model storage. |
@@ -47,12 +47,24 @@ Provided AI-tools for streamlining usage of HANA ML functions in context of the 
 | intermittent_forecast | To forecast the intermittent time series data. |
 | list_models | To list the models in the model storage. |
 | seasonality_test | To check the seasonality of the time series data. |
+| SelectStatement_to_table | To execute a SELECT SQL statement and store the result in a new table. | since 1.0.250909 |
 | stationarity_test | To check the stationarity of the time series data. |
 | trend_test | To check the trend of the time series data. |
 | ts_check | To check the time series data for stationarity, intermittent, trend and seasonality. |
 | ts_dataset_report | To generate a report for the time series data. |
 | ts_outlier_detection | To detect the outliers in the time series data. |
+| ts_make_future_table | To generate a future table for time series forecasting. | since 1.0.250909 |
 | white_noise_test | To check the white noise of the time series data. |
+
+## Newly added tools for massive time series processing and forecasting, since 1.0.250930
+| Tool Name | Description | Comment |
+|-----------|-------------|---------|
+| massive_automatic_timeseries_fit_and_save | To fit multiple AutomaticTimeseries models and save them in the model storage. |
+| massive_automatic_timeseries_load_model_and_predict | To load multiple AutomaticTimeseries models and predict the future values. |
+| massive_automatic_timeseries_load_model_and_score | To load multiple AutomaticTimeseries models and score the models. |
+| massive_ts_outlier_detection | To detect the outliers in multiple time series data. |
+| ts_make_future_table_for_massive_forecast | To generate a future table for multiple time series forecasting. |
+| massive_ts_check | To check multiple time series data for stationarity, intermittent, trend and seasonality. |
 
 ## Vector engine and Embedding generation tools
 Different Embedding functions can be used ...

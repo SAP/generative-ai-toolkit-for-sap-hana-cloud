@@ -11,6 +11,7 @@ The following classes are available:
 # pylint: disable=unnecessary-dunder-call
 # pylint: disable=unused-argument
 
+import re
 from typing import List
 import uuid
 
@@ -147,7 +148,7 @@ class HANAVectorEmbeddings(Embeddings):
     def __call__(self, input):
         if isinstance(input, str):
             input = [input]
-        return self.connection_context.embed_query(input, model_version=self.model_version)
+        return _cc_embed_query(self.connection_context, input, model_version=self.model_version)
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """
@@ -268,3 +269,47 @@ class GenAIHubEmbeddings(Embeddings):
             List of embeddings.
         """
         return self.embed_documents(texts)
+
+def _cc_embed_query(connection_context, query, model_version='SAP_NEB.20240715'):
+    """
+    Create a query embedding and return a vector.
+
+    Parameters
+    ----------
+    connection_context : ConnectionContext
+        The HANA connection context.
+    query : str or list of str
+        The query to embed.
+    model_version : str, optional
+        Text Embedding Model version. Options are 'SAP_NEB.20240715' and 'SAP_GXY.20250407'.
+
+        Defaults to 'SAP_NEB.20240715'.
+
+    Returns
+    -------
+    list of float when query is str, list of list of float when query is list of str
+    """
+    def _safe_escape_single_quotes(text):
+        # 在需要时应用转义
+        if "'" in text:
+            # 检查是否已经包含转义序列
+            if "''" not in text:
+                escaped_prompt = re.sub(r"(?<!')'", "''", text)
+            else:
+                # 如果已经包含转义序列，直接使用原始prompt
+                escaped_prompt = text
+        else:
+            escaped_prompt = text
+        return escaped_prompt
+
+
+    if isinstance(query, (list, tuple)):
+        sql = ''
+        for i, q in enumerate(query):
+            if i > 0:
+                sql += ' UNION ALL '
+            escaped_query = _safe_escape_single_quotes(q)
+            sql += f"SELECT '{escaped_query}' AS TEXT FROM DUMMY"
+        return connection_context.sql(sql).add_vector("TEXT", text_type='QUERY', embed_col="EMBEDDING").select(["EMBEDDING"]).collect()["EMBEDDING"].tolist()
+    escaped_query = _safe_escape_single_quotes(query)
+    return connection_context.sql(f"SELECT '{escaped_query}' AS TEXT FROM DUMMY").add_vector("TEXT", text_type='QUERY', embed_col="EMBEDDING", model_version=model_version).select(["EMBEDDING"]).collect()["EMBEDDING"].iat[0]
