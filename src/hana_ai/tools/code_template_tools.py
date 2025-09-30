@@ -9,6 +9,7 @@ The following class are available:
 """
 # pylint: disable=unused-argument
 
+import copy
 from typing import Type
 from pydantic import BaseModel
 from langchain.tools import BaseTool
@@ -38,6 +39,7 @@ class GetCodeTemplateFromVectorDB(BaseTool):
     description: str = "useful for when you need to create hana-ml code templates."
     args_schema: Type[BaseModel] = None
     vectordb: HANAMLinVectorEngine = None
+    is_transform: bool = False
 
     def set_vectordb(self, vectordb):
         """
@@ -49,6 +51,19 @@ class GetCodeTemplateFromVectorDB(BaseTool):
             Vector database.
         """
         self.vectordb = vectordb
+
+    def set_transform(self, is_transform: bool):
+        """
+        Return a copy of the tool with the is_transform flag set.
+
+        Parameters
+        ----------
+        is_transform : bool
+            Whether to set the tool to transform mode.
+        """
+        new_tool = copy.copy(self)
+        new_tool.is_transform = is_transform
+        return new_tool
 
     def _run(
         self,
