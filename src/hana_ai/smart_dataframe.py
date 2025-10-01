@@ -142,17 +142,46 @@ class SmartDataFrame(DataFrame):
         """
         if self._is_configured is False:
             raise Exception("The SmartDataFrame is not configured. Please call the configure method first.")
+
+        # Updated prompt to demand ONLY the SQL statement
         agent_input = {
             "input": [{
                 "type": "text", 
-                "text": f"Context:\n{self.prefix}\n\nQuestion: {question}\n\n Return format: {{'{output_key}': '<SQL select statement>'}}"
+                "text": (
+                    f"Context:\n{self.prefix}\n\n"
+                    f"Question: {question}\n\n"
+                    "IMPORTANT: Return ONLY the SQL select statement as a string. "
+                    "DO NOT include any additional text, explanations, or formatting. "
+                    "ONLY the raw SQL query."
+                )
             }]
         }
-        select_statement = self.transform_executor.invoke(agent_input)
-        if isinstance(select_statement, dict):
-            if output_key in select_statement:
-                select_statement = select_statement[output_key]
-        else:
-            raise ValueError(f"The output of the agent is not a dict. Please make sure to return a dict with key '{output_key}'.")
-        sdf = self._construct(self._dataframe.connection_context.sql(select_statement), self.llm, self.tools, **self.kwargs)
+
+        result = self.transform_executor.invoke(agent_input)
+        select_statement = result['output']
+
+        # Extract SQL from response if needed
+        if not select_statement.strip().upper().startswith(('SELECT')):
+            import re
+            # Regex to find SQL starting with SELECT/WITH
+            sql_match = re.search(
+                r'\b(SELECT)\b.*',
+                select_statement,
+                re.DOTALL | re.IGNORECASE
+            )
+            if sql_match:
+                select_statement = sql_match.group(0).strip()
+            else:
+                raise ValueError(
+                    "Failed to extract valid SQL from agent response: "
+                    f"{select_statement[:100]}..."
+                )
+
+        # Create new SmartDataFrame with generated SQL
+        sdf = self._construct(
+            self._dataframe.connection_context.sql(select_statement),
+            self.llm,
+            self.tools,
+            **self.kwargs
+        )
         return sdf
