@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.251001**
+
+``Bug Fixes``
+    - Fixed the output parser issue in SmartDataFrame's transform function.
+
 **Version 1.0.250930**
 
 ``Enhancements``
