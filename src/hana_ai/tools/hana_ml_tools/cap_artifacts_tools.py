@@ -7,8 +7,6 @@ The following class is available:
 """
 
 #pylint: disable=too-many-function-args
-
-from calendar import c
 import json
 import logging
 import os
