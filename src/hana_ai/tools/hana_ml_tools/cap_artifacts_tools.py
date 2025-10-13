@@ -165,13 +165,14 @@ class CAPArtifactsTool(BaseTool):
             output_dir=output_dir,
             namespace=namespace
         )
-        generator.configure(
-            cons_fit_proc_name=cons_fit_proc_name,
-            cons_predict_proc_name=cons_predict_proc_name,
-            cons_score_proc_name=cons_score_proc_name,
-            apply_func_name=apply_func_name,
-            model_name=new_model_name
-        )
+        if hasattr(generator, "configure"):
+            generator.configure(
+              cons_fit_proc_name=cons_fit_proc_name,
+              cons_predict_proc_name=cons_predict_proc_name,
+              cons_score_proc_name=cons_score_proc_name,
+              apply_func_name=apply_func_name,
+              model_name=new_model_name
+            )
         generator.generate_artifacts(model, cds_gen=cds_gen, tudf=tudf, archive=archive)
         return "CAP artifacts generated successfully. Root directory: " + str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())
 
@@ -280,13 +281,14 @@ class CAPArtifactsForBASTool(BaseTool):
             project_name="capproject",
             output_dir=output_dir
         )
-        generator.configure(
-            cons_fit_proc_name=cons_fit_proc_name,
-            cons_predict_proc_name=cons_predict_proc_name,
-            cons_score_proc_name=cons_score_proc_name,
-            apply_func_name=apply_func_name,
-            model_name=new_model_name
-        )
+        if hasattr(generator, "configure"):
+            generator.configure(
+              cons_fit_proc_name=cons_fit_proc_name,
+              cons_predict_proc_name=cons_predict_proc_name,
+              cons_score_proc_name=cons_score_proc_name,
+              apply_func_name=apply_func_name,
+              model_name=new_model_name
+            )
         generator.generate_artifacts(model, cds_gen=cds_gen, tudf=tudf, archive=archive)
         return json.dumps({"generated_cap_project" : str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())})
 
