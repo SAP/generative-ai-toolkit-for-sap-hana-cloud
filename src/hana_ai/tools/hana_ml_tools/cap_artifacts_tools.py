@@ -8,6 +8,7 @@ The following class is available:
 
 #pylint: disable=too-many-function-args
 
+from calendar import c
 import json
 import logging
 import os
@@ -36,6 +37,11 @@ class CAPArtifactsInput(BaseModel):
     cds_gen: Optional[bool] = Field(description="whether to generate CDS files for CAP project, it is optional", default=None)
     tudf: Optional[bool] = Field(description="whether to generate table UDF for CAP project, it is optional", default=None)
     archive: Optional[bool] = Field(description="whether to archive the generated artifacts, it is optional", default=None)
+    cons_fit_proc_name: Optional[str] = Field(description="The name of the consumption layer fit procedure defined in the CAP artifacts, it is optional", default=None)
+    cons_predict_proc_name: Optional[str] = Field(description="The name of the consumption layer predict procedure defined in the CAP artifacts, it is optional", default=None)
+    cons_score_proc_name: Optional[str] = Field(description="The name of the consumption layer score procedure defined in the CAP artifacts, it is optional", default=None)
+    apply_func_name: Optional[str] = Field(description="The name of the apply function for prediction defined in the CAP artifacts, it is optional", default=None)
+    new_model_name: Optional[str] = Field(description="The new model name defined in the CAP artifacts, it is optional", default=None)
 
 class CAPArtifactsForBASInput(BaseModel):
     """
@@ -46,7 +52,11 @@ class CAPArtifactsForBASInput(BaseModel):
     cds_gen: Optional[bool] = Field(description="whether to generate CDS files for CAP project, it is optional", default=None)
     tudf: Optional[bool] = Field(description="whether to generate table UDF for CAP project, it is optional", default=None)
     archive: Optional[bool] = Field(description="whether to archive the generated artifacts, it is optional", default=None)
-
+    cons_fit_proc_name: Optional[str] = Field(description="The name of the consumption layer fit procedure defined in the CAP artifacts, it is optional", default=None)
+    cons_predict_proc_name: Optional[str] = Field(description="The name of the consumption layer predict procedure defined in the CAP artifacts, it is optional", default=None)
+    cons_score_proc_name: Optional[str] = Field(description="The name of the consumption layer score procedure defined in the CAP artifacts, it is optional", default=None)
+    apply_func_name: Optional[str] = Field(description="The name of the apply function for prediction defined in the CAP artifacts, it is optional", default=None)
+    new_model_name: Optional[str] = Field(description="The new model name defined in the CAP artifacts, it is optional", default=None)
 
 class CAPArtifactsTool(BaseTool):
     """
@@ -88,6 +98,16 @@ class CAPArtifactsTool(BaseTool):
                   - Whether to generate table UDF for CAP project, it is optional.
                 * - archive
                   - Whether to archive the generated artifacts, it is optional.
+                * - cons_fit_proc_name
+                  - The name of the consumption layer fit procedure defined in the CAP artifacts, it is optional.
+                * - cons_predict_proc_name
+                  - The name of the consumption layer predict procedure defined in the CAP artifacts, it is optional.
+                * - cons_score_proc_name
+                  - The name of the consumption layer score procedure defined in the CAP artifacts, it is optional.
+                * - apply_func_name
+                  - The name of the apply function for prediction defined in the CAP artifacts, it is optional.
+                * - new_model_name
+                  - The new model name defined in the CAP artifacts, it is optional.
     """
     name: str = "cap_artifacts"
     """Name of the tool."""
@@ -132,6 +152,11 @@ class CAPArtifactsTool(BaseTool):
         cds_gen = kwargs.get("cds_gen", False)
         tudf = kwargs.get("tudf", False)
         archive = kwargs.get("archive", False)
+        cons_fit_proc_name = kwargs.get("cons_fit_proc_name", None)
+        cons_predict_proc_name = kwargs.get("cons_predict_proc_name", None)
+        cons_score_proc_name = kwargs.get("cons_score_proc_name", None)
+        apply_func_name = kwargs.get("apply_func_name", None)
+        new_model_name = kwargs.get("new_model_name", None)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
 
@@ -139,6 +164,13 @@ class CAPArtifactsTool(BaseTool):
             project_name=project_name,
             output_dir=output_dir,
             namespace=namespace
+        )
+        generator.configure(
+            cons_fit_proc_name=cons_fit_proc_name,
+            cons_predict_proc_name=cons_predict_proc_name,
+            cons_score_proc_name=cons_score_proc_name,
+            apply_func_name=apply_func_name,
+            model_name=new_model_name
         )
         generator.generate_artifacts(model, cds_gen=cds_gen, tudf=tudf, archive=archive)
         return "CAP artifacts generated successfully. Root directory: " + str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())
@@ -185,6 +217,16 @@ class CAPArtifactsForBASTool(BaseTool):
                   - Whether to generate table UDF for CAP project, it is optional.
                 * - archive
                   - Whether to archive the generated artifacts, it is optional.
+                * - cons_fit_proc_name
+                  - The name of the consumption layer fit procedure defined in the CAP artifacts, it is optional.
+                * - cons_predict_proc_name
+                  - The name of the consumption layer predict procedure defined in the CAP artifacts it is optional.
+                * - cons_score_proc_name
+                  - The name of the consumption layer score procedure defined in the CAP artifacts, it is optional.
+                * - apply_func_name
+                  - The name of the apply function for prediction defined in the CAP artifacts, it is optional.
+                * - new_model_name
+                  - The new model name defined in the CAP artifacts, it is optional.
     """
     name: str = "cap_artifacts_for_bas"
     """Name of the tool."""
@@ -222,6 +264,11 @@ class CAPArtifactsForBASTool(BaseTool):
         cds_gen = kwargs.get("cds_gen", False)
         tudf = kwargs.get("tudf", False)
         archive = kwargs.get("archive", True)
+        cons_fit_proc_name = kwargs.get("cons_fit_proc_name", None)
+        cons_predict_proc_name = kwargs.get("cons_predict_proc_name", None)
+        cons_score_proc_name = kwargs.get("cons_score_proc_name", None)
+        apply_func_name = kwargs.get("apply_func_name", None)
+        new_model_name = kwargs.get("new_model_name", None)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
         # if archive is None:
@@ -232,6 +279,13 @@ class CAPArtifactsForBASTool(BaseTool):
         generator = HANAGeneratorForCAP(
             project_name="capproject",
             output_dir=output_dir
+        )
+        generator.configure(
+            cons_fit_proc_name=cons_fit_proc_name,
+            cons_predict_proc_name=cons_predict_proc_name,
+            cons_score_proc_name=cons_score_proc_name,
+            apply_func_name=apply_func_name,
+            model_name=new_model_name
         )
         generator.generate_artifacts(model, cds_gen=cds_gen, tudf=tudf, archive=archive)
         return json.dumps({"generated_cap_project" : str(Path(os.path.join(generator.output_dir, generator.project_name)).as_posix())})
