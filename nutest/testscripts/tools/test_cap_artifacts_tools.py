@@ -56,7 +56,8 @@ class TestCAPArtifactsTool(TestML_BaseTestClass):
         tool = AutomaticTimeSeriesLoadModelAndScore(connection_context=self.conn)
         tool.run({"score_table": "#HANAI_DATA_TBL_SCORE_RAW", "key": "TIMESTAMP", "endog": "VALUE", "name": "AUTOML_MODEL", "version": 1})
         tool = CAPArtifactsTool(connection_context=self.conn)
-        result =tool.run({"name": "AUTOML_MODEL", "version": 1, "project_name": "CAP_PROJECT", "output_dir": "CAP_OUTPUT_DIR", "cds_gen": True, "tudf": True})
+        result =tool.run({"name": "AUTOML_MODEL", "version": 1, "project_name": "CAP_PROJECT", "output_dir": "CAP_OUTPUT_DIR", "cds_gen": True, "tudf": True, "cons_fit_proc_name": "hana-ml-cons-pal-automl-fit"})
         #check if the output directory is created
         self.assertTrue(os.path.exists(os.path.join('.', 'CAP_OUTPUT_DIR', 'CAP_PROJECT', 'db', 'src', 'hana-ml-base-pal-pipeline-predict.hdbprocedure')))
         self.assertTrue(os.path.exists(os.path.join('.', 'CAP_OUTPUT_DIR', 'CAP_PROJECT', 'db', 'src', 'hana-ml-base-pal-pipeline-score.hdbprocedure')))
+        self.assertTrue(os.path.exists(os.path.join('.', 'CAP_OUTPUT_DIR', 'CAP_PROJECT', 'db', 'src', 'hana-ml-cons-pal-automl-fit.hdbprocedure')))

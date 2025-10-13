@@ -436,7 +436,7 @@ class MassiveAutomaticTimeSeriesLoadModelAndPredict(BaseTool):
                       show_explainer=show_explainer)
         ms.save_model(model=model, if_exists='replace_meta')
         predicted_results = f"PREDICT_RESULT_{predict_table}_{name}_{version}" if predict_schema is None else f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"
-        self.connection_context.table(model._predict_output_table_names[0]).save(predicted_results, force=True)
+        self.connection_context.table(model._predict_output_table_names[0]).smart_save(predicted_results, force=True)
         stats = self.connection_context.table(model._predict_output_table_names[1]).collect()
         outputs = {"predicted_results_table": predicted_results}
         for _, row in stats.iterrows():

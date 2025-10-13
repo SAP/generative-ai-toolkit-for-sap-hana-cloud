@@ -414,13 +414,13 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
             predicted_results = [f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"]
         else:
             predicted_results = [f"PREDICT_RESULT_{predict_table}_{name}_{version}"]
-        self.connection_context.table(model._predict_output_table_names[0]).save(predicted_results[0])
+        self.connection_context.table(model._predict_output_table_names[0]).smart_save(predicted_results[0], force=True)
         if show_explainer is True:
             predicted_results.append(
                 f"REASON_CODE_{predict_schema}_{predict_table}_{name}_{version}" if predict_schema else
                 f"REASON_CODE_{predict_table}_{name}_{version}"
             )
-            self.connection_context.table(model._predict_output_table_names[1]).save(predicted_results[1])
+            self.connection_context.table(model._predict_output_table_names[1]).smart_save(predicted_results[1], force=True)
             return json.dumps({"predicted_results_table": predicted_results[0], "decomposed_and_reason_code_table": predicted_results[1]})
         return json.dumps({"predicted_results_table": predicted_results[0]}, cls=_CustomEncoder)
 
