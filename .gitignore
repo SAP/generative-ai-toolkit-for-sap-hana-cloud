@@ -147,3 +147,20 @@ nutest/testscripts/bas/node_modules/
 # e2e_scenarios/chat_history
 nutest/testscripts/demo/e2e_scenarios/chat_history_vectorstore
 nutest/testscripts/demo/e2e_scenarios/chat_history.db
+
+*.pyc
+*~
+build/
+dist/
+*.egg-info/
+*.eggs/
+__pycache__/
+.ipynb_checkpoints/
+.spyproject/
+.vscode/
+*.bak
+src/hana_ml/visualizers/templates/temp/
+nutest/testscripts/visualizers/temp/
+*.DS_Store
+*.log
+*mlruns
