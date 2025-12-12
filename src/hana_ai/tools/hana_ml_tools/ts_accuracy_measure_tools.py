@@ -85,8 +85,8 @@ class AccuracyMeasure(BaseTool):
                 * - alpha2
                   - Specifies the unit stock-keeping cost parameter of accuracy measure 'spec'.
                 * - alpha1
-                  - Specifies the unit opportunity cost parameter of accuracy measure 'spec'.                  
-       
+                  - Specifies the unit opportunity cost parameter of accuracy measure 'spec'.
+
     """
     name : str = "accuracy_measure"
     """Name of the tool."""
