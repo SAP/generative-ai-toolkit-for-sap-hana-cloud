@@ -1,0 +1,890 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PALCrossEncoder &mdash; hana.ai 1.0.25121700 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7dc6ce7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=091f2362"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="hana_ai.smart_dataframe" href="../hana_ai.smart_dataframe.html" />
+    <link rel="prev" title="UnionVectorStores" href="hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            hana.ai
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.html">Generative AI Toolkit for SAP HANA Cloud</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#langchain-agent-with-hanaml-toolkit">Langchain Agent with HANAML Toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changlog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.agents.html">hana_ai.agents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hana-dataframe-agent">hana_dataframe_agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html">create_hana_dataframe_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html#hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_dataframe_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hana-sql-agent">hana_sql_agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hanaml-agent-with-memory">hanaml_agent_with_memory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html">HANAMLAgentWithMemory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory"><code class="docutils literal notranslate"><span class="pre">HANAMLAgentWithMemory</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hanaml-rag-agent">hanaml_rag_agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html">HANAMLRAGAgent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html#hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent"><code class="docutils literal notranslate"><span class="pre">HANAMLRAGAgent</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.tools.html">hana_ai.tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#agent-as-a-tool">agent_as_a_tool</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.agent_as_a_tool.AgentAsATool.html">AgentAsATool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.agent_as_a_tool.AgentAsATool.html#hana_ai.tools.agent_as_a_tool.AgentAsATool"><code class="docutils literal notranslate"><span class="pre">AgentAsATool</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#hana-ml-tools">hana_ml_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.html">AdditiveModelForecastFitAndSave</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.html#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave"><code class="docutils literal notranslate"><span class="pre">AdditiveModelForecastFitAndSave</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.html">AdditiveModelForecastLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AdditiveModelForecastLoadModelAndPredict</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html">AutomaticTimeSeriesFitAndSave</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html">CAPArtifactsTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html#hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool"><code class="docutils literal notranslate"><span class="pre">CAPArtifactsTool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.fetch_tools.FetchDataTool.html">FetchDataTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.fetch_tools.FetchDataTool.html#hana_ai.tools.hana_ml_tools.fetch_tools.FetchDataTool"><code class="docutils literal notranslate"><span class="pre">FetchDataTool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.html">HDIArtifactsTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.html#hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool"><code class="docutils literal notranslate"><span class="pre">HDIArtifactsTool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.html">IntermittentForecast</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.html#hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast"><code class="docutils literal notranslate"><span class="pre">IntermittentForecast</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.model_storage_tools.ListModels.html">ListModels</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.model_storage_tools.ListModels.html#hana_ai.tools.hana_ml_tools.model_storage_tools.ListModels"><code class="docutils literal notranslate"><span class="pre">ListModels</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.select_statement_to_table_tools.SelectStatementToTableTool.html">SelectStatementToTableTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.select_statement_to_table_tools.SelectStatementToTableTool.html#hana_ai.tools.hana_ml_tools.select_statement_to_table_tools.SelectStatementToTableTool"><code class="docutils literal notranslate"><span class="pre">SelectStatementToTableTool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools.AccuracyMeasure.html">AccuracyMeasure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools.AccuracyMeasure.html#hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools.AccuracyMeasure"><code class="docutils literal notranslate"><span class="pre">AccuracyMeasure</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.TimeSeriesCheck.html">TimeSeriesCheck</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.TimeSeriesCheck.html#hana_ai.tools.hana_ml_tools.ts_check_tools.TimeSeriesCheck"><code class="docutils literal notranslate"><span class="pre">TimeSeriesCheck</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest.html">StationarityTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest"><code class="docutils literal notranslate"><span class="pre">StationarityTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.TrendTest.html">TrendTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.TrendTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.TrendTest"><code class="docutils literal notranslate"><span class="pre">TrendTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.SeasonalityTest.html">SeasonalityTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.SeasonalityTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.SeasonalityTest"><code class="docutils literal notranslate"><span class="pre">SeasonalityTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.WhiteNoiseTest.html">WhiteNoiseTest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_check_tools.WhiteNoiseTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.WhiteNoiseTest"><code class="docutils literal notranslate"><span class="pre">WhiteNoiseTest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_make_predict_table.TSMakeFutureTableTool.html">TSMakeFutureTableTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_make_predict_table.TSMakeFutureTableTool.html#hana_ai.tools.hana_ml_tools.ts_make_predict_table.TSMakeFutureTableTool"><code class="docutils literal notranslate"><span class="pre">TSMakeFutureTableTool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection.html">TSOutlierDetection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection.html#hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection"><code class="docutils literal notranslate"><span class="pre">TSOutlierDetection</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.html">TimeSeriesDatasetReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.html#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport"><code class="docutils literal notranslate"><span class="pre">TimeSeriesDatasetReport</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_visualizer_tools.ForecastLinePlot.html">ForecastLinePlot</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.ts_visualizer_tools.ForecastLinePlot.html#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.ForecastLinePlot"><code class="docutils literal notranslate"><span class="pre">ForecastLinePlot</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#df-tools">df_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html">AutomaticTimeSeriesFitAndSave</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.fetch_tools.FetchDataTool.html">FetchDataTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.fetch_tools.FetchDataTool.html#hana_ai.tools.df_tools.fetch_tools.FetchDataTool"><code class="docutils literal notranslate"><span class="pre">FetchDataTool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.ts_outlier_detection_tools.TSOutlierDetection.html">TSOutlierDetection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.ts_outlier_detection_tools.TSOutlierDetection.html#hana_ai.tools.df_tools.ts_outlier_detection_tools.TSOutlierDetection"><code class="docutils literal notranslate"><span class="pre">TSOutlierDetection</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.ts_visualizer_tools.TimeSeriesDatasetReport.html">TimeSeriesDatasetReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.df_tools.ts_visualizer_tools.TimeSeriesDatasetReport.html#hana_ai.tools.df_tools.ts_visualizer_tools.TimeSeriesDatasetReport"><code class="docutils literal notranslate"><span class="pre">TimeSeriesDatasetReport</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#hana-ml-toolkit">hana_ml_toolkit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.toolkit.HANAMLToolkit.html">HANAMLToolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit"><code class="docutils literal notranslate"><span class="pre">HANAMLToolkit</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../hana_ai.vectorstore.html">hana_ai.vectorstore</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#code-templates">code_templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.vectorstore.code_templates.get_code_templates.html">get_code_templates</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.vectorstore.code_templates.get_code_templates.html#hana_ai.vectorstore.code_templates.get_code_templates"><code class="docutils literal notranslate"><span class="pre">get_code_templates()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#embedding-service">embedding_service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html">PALModelEmbeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.vectorstore.embedding_service.PALModelEmbeddings.html#hana_ai.vectorstore.embedding_service.PALModelEmbeddings"><code class="docutils literal notranslate"><span class="pre">PALModelEmbeddings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.html">HANAVectorEmbeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings.html#hana_ai.vectorstore.embedding_service.HANAVectorEmbeddings"><code class="docutils literal notranslate"><span class="pre">HANAVectorEmbeddings</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#hana-vector-engine">hana_vector_engine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html">HANAMLinVectorEngine</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine"><code class="docutils literal notranslate"><span class="pre">HANAMLinVectorEngine</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#union-vector-stores">union_vector_stores</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html">UnionVectorStores</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html#hana_ai.vectorstore.union_vector_stores.UnionVectorStores"><code class="docutils literal notranslate"><span class="pre">UnionVectorStores</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../hana_ai.vectorstore.html#pal-cross-encoder">pal_cross_encoder</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">PALCrossEncoder</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder"><code class="docutils literal notranslate"><span class="pre">PALCrossEncoder</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.smart_dataframe.html">hana_ai.smart_dataframe</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame.configure"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame.configure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame.ask"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame.ask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.smart_dataframe.html#hana_ai.smart_dataframe.SmartDataFrame.transform"><code class="docutils literal notranslate"><span class="pre">SmartDataFrame.transform()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hana_ai.faq.html">FAQS</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hana.ai</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../hana_ai.vectorstore.html">hana_ai.vectorstore</a></li>
+      <li class="breadcrumb-item active">PALCrossEncoder</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/vectorstore/hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="hana_ai.vectorstore.union_vector_stores.UnionVectorStores.html" class="btn btn-neutral float-left" title="UnionVectorStores" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../hana_ai.smart_dataframe.html" class="btn btn-neutral float-right" title="hana_ai.smart_dataframe" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="palcrossencoder">
+<h1>PALCrossEncoder<a class="headerlink" href="#palcrossencoder" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.vectorstore.pal_cross_encoder.</span></span><span class="sig-name descname"><span class="pre">PALCrossEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder" title="Link to this definition"></a></dt>
+<dd><p>PAL embeddings base class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.fit_hdbprocedure" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.fit_hdbprocedure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_hdbprocedure</span></code></a></dt><dd><p>Returns the generated hdbprocedure for fit.</p>
+</dd>
+<dt><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.predict_hdbprocedure" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.predict_hdbprocedure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_hdbprocedure</span></code></a></dt><dd><p>Returns the generated hdbprocedure for predict.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.add_attribute" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.add_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_attribute</span></code></a>(attr_key, attr_val)</p></td>
+<td><p>Function to add attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.apply_with_hint" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.apply_with_hint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_with_hint</span></code></a>(with_hint[, ...])</p></td>
+<td><p>Apply with hint.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.consume_fit_hdbprocedure" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.consume_fit_hdbprocedure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">consume_fit_hdbprocedure</span></code></a>(proc_name[, ...])</p></td>
+<td><p>Return the generated consume hdbprocedure for fit.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.consume_predict_hdbprocedure" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.consume_predict_hdbprocedure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">consume_predict_hdbprocedure</span></code></a>(proc_name[, ...])</p></td>
+<td><p>Return the generated consume hdbprocedure for predict.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.create_apply_func" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.create_apply_func"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_apply_func</span></code></a>(func_name, data[, key, ...])</p></td>
+<td><p>Create HANA TUDF SQL code.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_arg_check" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_arg_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disable_arg_check</span></code></a>()</p></td>
+<td><p>Disable argument check.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_convert_bigint" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_convert_bigint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disable_convert_bigint</span></code></a>()</p></td>
+<td><p>Disable the bigint conversion.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_hana_execution" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_hana_execution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disable_hana_execution</span></code></a>()</p></td>
+<td><p>HANA execution will be disabled and only SQL script will be generated.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_with_hint" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_with_hint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disable_with_hint</span></code></a>()</p></td>
+<td><p>Disable with hint.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_arg_check" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_arg_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_arg_check</span></code></a>()</p></td>
+<td><p>Enable argument check.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_convert_bigint" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_convert_bigint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_convert_bigint</span></code></a>()</p></td>
+<td><p>Allows the conversion from bigint to double.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_hana_execution" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_hana_execution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_hana_execution</span></code></a>()</p></td>
+<td><p>HANA execution will be enabled.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_no_inline" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_no_inline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_no_inline</span></code></a>([apply_to_anonymous_block])</p></td>
+<td><p>Enable no inline.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_parallel_by_parameter_partitions" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_parallel_by_parameter_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_parallel_by_parameter_partitions</span></code></a>([...])</p></td>
+<td><p>Enable parallel by parameter partitions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_workload_class" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_workload_class"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_workload_class</span></code></a>(workload_class_name)</p></td>
+<td><p>HANA WORKLOAD CLASS is applied for the statement execution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_execute_statement" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_execute_statement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fit_execute_statement</span></code></a>()</p></td>
+<td><p>Returns the execute_statement for training.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_output_table_names" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_output_table_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fit_output_table_names</span></code></a>()</p></td>
+<td><p>Get the generated result table names in fit function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_parameters" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fit_parameters</span></code></a>()</p></td>
+<td><p>Get PAL fit parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_model_metrics" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_model_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_model_metrics</span></code></a>()</p></td>
+<td><p>Get the model metrics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_pal_function" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_pal_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pal_function</span></code></a>()</p></td>
+<td><p>Extract the specific function call of the SAP HANA PAL function from the sql code.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_parameters" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parameters</span></code></a>()</p></td>
+<td><p>Parse sql lines containing the parameter definitions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_execute_statement" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_execute_statement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_predict_execute_statement</span></code></a>()</p></td>
+<td><p>Returns the execute_statement for predicting.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_output_table_names" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_output_table_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_predict_output_table_names</span></code></a>()</p></td>
+<td><p>Get the generated result table names in predict function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_parameters" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_predict_parameters</span></code></a>()</p></td>
+<td><p>Get PAL predict parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_execute_statement" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_execute_statement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_score_execute_statement</span></code></a>()</p></td>
+<td><p>Returns the execute_statement for scoring.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_metrics" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_score_metrics</span></code></a>()</p></td>
+<td><p>Get the score metrics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_output_table_names" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_output_table_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_score_output_table_names</span></code></a>()</p></td>
+<td><p>Get the generated result table names in score function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_parameters" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_score_parameters</span></code></a>()</p></td>
+<td><p>Get SAP HANA PAL score parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.is_fitted" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.is_fitted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_fitted</span></code></a>()</p></td>
+<td><p>Checks if the model can be saved.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.load_model" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(model)</p></td>
+<td><p>Function to load the fitted model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.predict" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(data[, thread_number, batch_size, ...])</p></td>
+<td><p>Reranking with Cross Encoder</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.set_scale_out" title="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.set_scale_out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_scale_out</span></code></a>([route_to, no_route_to, ...])</p></td>
+<td><p>SAP HANA statement routing.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_token_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.predict" title="Link to this definition"></a></dt>
+<dd><p>Reranking with Cross Encoder</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.add_attribute">
+<span class="sig-name descname"><span class="pre">add_attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr_val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.add_attribute" title="Link to this definition"></a></dt>
+<dd><p>Function to add attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>attr_key</strong><span class="classifier">str</span></dt><dd><p>The key.</p>
+</dd>
+<dt><strong>attr_val</strong><span class="classifier">str</span></dt><dd><p>The value.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.apply_with_hint">
+<span class="sig-name descname"><span class="pre">apply_with_hint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_hint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to_anonymous_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.apply_with_hint" title="Link to this definition"></a></dt>
+<dd><p>Apply with hint.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>with_hint</strong><span class="classifier">str</span></dt><dd><p>The hint clauses.</p>
+</dd>
+<dt><strong>apply_to_anonymous_block</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, it will be applied to the anonymous block.</p>
+<p>Defaults to True.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.consume_fit_hdbprocedure">
+<span class="sig-name descname"><span class="pre">consume_fit_hdbprocedure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_tables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_tables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.consume_fit_hdbprocedure" title="Link to this definition"></a></dt>
+<dd><p>Return the generated consume hdbprocedure for fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>proc_name</strong><span class="classifier">str</span></dt><dd><p>The procedure name.</p>
+</dd>
+<dt><strong>in_tables</strong><span class="classifier">list, optional</span></dt><dd><p>The list of input table names.</p>
+</dd>
+<dt><strong>out_tables</strong><span class="classifier">list, optional</span></dt><dd><p>The list of output table names.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.consume_predict_hdbprocedure">
+<span class="sig-name descname"><span class="pre">consume_predict_hdbprocedure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_tables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_tables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.consume_predict_hdbprocedure" title="Link to this definition"></a></dt>
+<dd><p>Return the generated consume hdbprocedure for predict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>proc_name</strong><span class="classifier">str</span></dt><dd><p>The procedure name.</p>
+</dd>
+<dt><strong>in_tables</strong><span class="classifier">list, optional</span></dt><dd><p>The list of input table names.</p>
+</dd>
+<dt><strong>out_tables</strong><span class="classifier">list, optional</span></dt><dd><p>The list of output table names.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.create_apply_func">
+<span class="sig-name descname"><span class="pre">create_apply_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_table_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.create_apply_func" title="Link to this definition"></a></dt>
+<dd><p>Create HANA TUDF SQL code.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>func_name</strong><span class="classifier">str</span></dt><dd><p>The function name of TUDF.</p>
+</dd>
+<dt><strong>data</strong><span class="classifier">DataFrame</span></dt><dd><p>The data to be predicted.</p>
+</dd>
+<dt><strong>key</strong><span class="classifier">str, optional</span></dt><dd><p>The key column name in the predict dataframe.</p>
+</dd>
+<dt><strong>model</strong><span class="classifier">DataFrame, optional</span></dt><dd><p>The model dataframe for prediction. If not specified, it will use model_.</p>
+</dd>
+<dt><strong>output_table_structure</strong><span class="classifier">dict, optional</span></dt><dd><p>The return table structure.</p>
+</dd>
+<dt><strong>execute</strong><span class="classifier">bool, optional</span></dt><dd><p>Execute the creation SQL.</p>
+<p>Defaults to True.</p>
+</dd>
+<dt><strong>force</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, it will drop the existing TUDF.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>The generated TUDF SQL code.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_arg_check">
+<span class="sig-name descname"><span class="pre">disable_arg_check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_arg_check" title="Link to this definition"></a></dt>
+<dd><p>Disable argument check.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_convert_bigint">
+<span class="sig-name descname"><span class="pre">disable_convert_bigint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_convert_bigint" title="Link to this definition"></a></dt>
+<dd><p>Disable the bigint conversion.</p>
+<p>Defaults to False.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_hana_execution">
+<span class="sig-name descname"><span class="pre">disable_hana_execution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_hana_execution" title="Link to this definition"></a></dt>
+<dd><p>HANA execution will be disabled and only SQL script will be generated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_with_hint">
+<span class="sig-name descname"><span class="pre">disable_with_hint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.disable_with_hint" title="Link to this definition"></a></dt>
+<dd><p>Disable with hint.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_arg_check">
+<span class="sig-name descname"><span class="pre">enable_arg_check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_arg_check" title="Link to this definition"></a></dt>
+<dd><p>Enable argument check.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_convert_bigint">
+<span class="sig-name descname"><span class="pre">enable_convert_bigint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_convert_bigint" title="Link to this definition"></a></dt>
+<dd><p>Allows the conversion from bigint to double.</p>
+<p>Defaults to True.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_hana_execution">
+<span class="sig-name descname"><span class="pre">enable_hana_execution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_hana_execution" title="Link to this definition"></a></dt>
+<dd><p>HANA execution will be enabled.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_no_inline">
+<span class="sig-name descname"><span class="pre">enable_no_inline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_to_anonymous_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_no_inline" title="Link to this definition"></a></dt>
+<dd><p>Enable no inline.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>apply_to_anonymous_block</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, it will be applied to the anonymous block.</p>
+<p>Defaults to True.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_parallel_by_parameter_partitions">
+<span class="sig-name descname"><span class="pre">enable_parallel_by_parameter_partitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_to_anonymous_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_parallel_by_parameter_partitions" title="Link to this definition"></a></dt>
+<dd><p>Enable parallel by parameter partitions.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>apply_to_anonymous_block</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, it will be applied to the anonymous block.</p>
+<p>Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_workload_class">
+<span class="sig-name descname"><span class="pre">enable_workload_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workload_class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.enable_workload_class" title="Link to this definition"></a></dt>
+<dd><p>HANA WORKLOAD CLASS is applied for the statement execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>workload_class_name</strong><span class="classifier">str</span></dt><dd><p>The name of HANA WORKLOAD CLASS.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.fit_hdbprocedure">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fit_hdbprocedure</span></span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.fit_hdbprocedure" title="Link to this definition"></a></dt>
+<dd><p>Returns the generated hdbprocedure for fit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_execute_statement">
+<span class="sig-name descname"><span class="pre">get_fit_execute_statement</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_execute_statement" title="Link to this definition"></a></dt>
+<dd><p>Returns the execute_statement for training.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_output_table_names">
+<span class="sig-name descname"><span class="pre">get_fit_output_table_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_output_table_names" title="Link to this definition"></a></dt>
+<dd><p>Get the generated result table names in fit function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>List of table names.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_parameters">
+<span class="sig-name descname"><span class="pre">get_fit_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_fit_parameters" title="Link to this definition"></a></dt>
+<dd><p>Get PAL fit parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>List of tuples, where each tuple describes a parameter like (name, value, type)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_model_metrics">
+<span class="sig-name descname"><span class="pre">get_model_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_model_metrics" title="Link to this definition"></a></dt>
+<dd><p>Get the model metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>DataFrame</dt><dd><p>The model metrics.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_pal_function">
+<span class="sig-name descname"><span class="pre">get_pal_function</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_pal_function" title="Link to this definition"></a></dt>
+<dd><p>Extract the specific function call of the SAP HANA PAL function from the sql code. Nevertheless it only detects
+the synonyms that have to be resolved afterwards.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dict</dt><dd><p>The procedure name synonym: CALL &quot;SYS_AFL.PAL_RANDOM_FORREST&quot; (...) -&gt; SYS_AFL.PAL_RANDOM_FORREST&quot;</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_parameters" title="Link to this definition"></a></dt>
+<dd><p>Parse sql lines containing the parameter definitions. In the sql code all the parameters
+are defined by four arrays, where the first one contains the parameter name, and one of the other
+three contains the value fitting to the parameter, while the other two are NULL. This format
+should be changed into a simple key-value based storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dict</dt><dd><p>Dict of list of tuples, where each tuple describes a parameter like (name, value, type)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_execute_statement">
+<span class="sig-name descname"><span class="pre">get_predict_execute_statement</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_execute_statement" title="Link to this definition"></a></dt>
+<dd><p>Returns the execute_statement for predicting.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_output_table_names">
+<span class="sig-name descname"><span class="pre">get_predict_output_table_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_output_table_names" title="Link to this definition"></a></dt>
+<dd><p>Get the generated result table names in predict function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>List of table names.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_parameters">
+<span class="sig-name descname"><span class="pre">get_predict_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_predict_parameters" title="Link to this definition"></a></dt>
+<dd><p>Get PAL predict parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>List of tuples, where each tuple describes a parameter like (name, value, type)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_execute_statement">
+<span class="sig-name descname"><span class="pre">get_score_execute_statement</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_execute_statement" title="Link to this definition"></a></dt>
+<dd><p>Returns the execute_statement for scoring.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_metrics">
+<span class="sig-name descname"><span class="pre">get_score_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_metrics" title="Link to this definition"></a></dt>
+<dd><p>Get the score metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>DataFrame</dt><dd><p>The score metrics.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_output_table_names">
+<span class="sig-name descname"><span class="pre">get_score_output_table_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_output_table_names" title="Link to this definition"></a></dt>
+<dd><p>Get the generated result table names in score function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>List of table names.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_parameters">
+<span class="sig-name descname"><span class="pre">get_score_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.get_score_parameters" title="Link to this definition"></a></dt>
+<dd><p>Get SAP HANA PAL score parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>List of tuples, where each tuple describes a parameter like (name, value, type)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.is_fitted">
+<span class="sig-name descname"><span class="pre">is_fitted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.is_fitted" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model can be saved.
+To be overridden if the model is not stored in model_ attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model is ready to be saved.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.load_model">
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.load_model" title="Link to this definition"></a></dt>
+<dd><p>Function to load the fitted model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model</strong><span class="classifier">DataFrame</span></dt><dd><p>SAP HANA DataFrame for fitted model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.predict_hdbprocedure">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">predict_hdbprocedure</span></span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.predict_hdbprocedure" title="Link to this definition"></a></dt>
+<dd><p>Returns the generated hdbprocedure for predict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.set_scale_out">
+<span class="sig-name descname"><span class="pre">set_scale_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_route_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_by_cardinality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_transfer_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_optimization_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workload_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_to_anonymous_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.set_scale_out" title="Link to this definition"></a></dt>
+<dd><p>SAP HANA statement routing.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>route_to</strong><span class="classifier">str, optional</span></dt><dd><p>Routes the query to the specified volume ID or service type.</p>
+<p>Defaults to None.</p>
+</dd>
+<dt><strong>no_route_to</strong><span class="classifier">str or a list of str, optional</span></dt><dd><p>Avoids query routing to a specified volume ID or service type.</p>
+<p>Defaults to None.</p>
+</dd>
+<dt><strong>route_by</strong><span class="classifier">str, optional</span></dt><dd><p>Routes the query to the hosts related to the base table(s) of the specified projection view(s).</p>
+<p>Defaults to None.</p>
+</dd>
+<dt><strong>route_by_cardinality</strong><span class="classifier">str or a list of str, optional</span></dt><dd><p>Routes the query to the hosts related to the base table(s) of the specified projection view(s) with the highest cardinality from the input list.</p>
+</dd>
+<dt><strong>data_transfer_cost</strong><span class="classifier">int, optional</span></dt><dd><p>Guides the optimizer to use the weighting factor for the data transfer cost. The value 0 ignores the data transfer cost.</p>
+<p>Defaults to None.</p>
+</dd>
+<dt><strong>route_optimization_level</strong><span class="classifier">{'minimal', 'all'}, optional</span></dt><dd><p>Guides the optimizer to compile with <code class="docutils literal notranslate"><span class="pre">route_optimization_level</span></code> 'minimal' or to default to <code class="docutils literal notranslate"><span class="pre">route_optimization_level</span></code>.
+If the 'minimal' compiled plan is cached, then it compiles once more using the default optimization level during the first execution.
+This hint is primarily used to shorten statement routing decisions during the initial compilation.</p>
+</dd>
+<dt><strong>workload_class</strong><span class="classifier">str, optional</span></dt><dd><p>Routes the query via workload class. <code class="docutils literal notranslate"><span class="pre">route_to</span></code> statement hint has higher precedence than <code class="docutils literal notranslate"><span class="pre">workload_class</span></code> statement hint.</p>
+<p>Defaults to None.</p>
+</dd>
+<dt><strong>apply_to_anonymous_block</strong><span class="classifier">bool, optional</span></dt><dd><p>If True it will be applied to the anonymous block.</p>
+<p>Defaults to True.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="clearer"></div></section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, SAP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-XXXXXXX-1', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>
