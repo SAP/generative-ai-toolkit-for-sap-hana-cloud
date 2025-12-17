@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.251217**
+
+``Enhancements``
+    - Added the customized procedure name in CAP generation tool.
+
 **Version 1.0.251001**
 
 ``Bug Fixes``

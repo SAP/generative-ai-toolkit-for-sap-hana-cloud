@@ -47,3 +47,13 @@ union_vector_stores
    :template: class.rst
 
    union_vector_stores.UnionVectorStores
+
+.. _pal_cross_encoder-label:
+
+pal_cross_encoder
+-----------------
+.. autosummary::
+   :toctree: vectorstore/
+   :template: class.rst
+
+   pal_cross_encoder.PALCrossEncoder
