@@ -22,6 +22,9 @@ class HANAAgentToolInput(BaseModel):
     """
     query : str = Field(description="The query to discover HANA objects via knowledge graph.")
     remote_source_name : Optional[str] = Field(description="The name of the remote source to connect to AI Core. Default is 'HANA_DISCOVERY_AGENT_CREDENTIALS'.", default="HANA_DISCOVERY_AGENT_CREDENTIALS")
+    rag_schema_name: Optional[str] = Field(description="The schema name where RAG tables are stored. Default is 'SYSTEM'.", default="SYSTEM")
+    rag_table_name: Optional[str] = Field(description="The table name where RAG data is stored. Default is 'RAG'.", default="RAG")
+    graph_name: Optional[str] = Field(description="The name of the knowledge graph to use. Default is 'HANA_OBJECTS'.", default="HANA_OBJECTS")
 
 class CreateRemoteSourceInput(BaseModel):
     """
@@ -142,12 +145,20 @@ class DiscoveryAgentTool(BaseTool):
         if query is None:
             return "Query is required"
         remote_source_name = kwargs.get("remote_source_name", "HANA_DISCOVERY_AGENT_CREDENTIALS")
+        rag_schema_name = kwargs.get("rag_schema_name", "SYSTEM")
+        rag_table_name = kwargs.get("rag_table_name", "RAG")
+        graph_name = kwargs.get("graph_name", "HANA_OBJECTS")
+        additional_config = {
+            "ragSchemaName": rag_schema_name,
+            "ragTableName": rag_table_name,
+            "graphName": graph_name
+        }
         da = DiscoveryAgent(
             connection_context=self.connection_context
         )
         da.remote_source_name = remote_source_name
         try:
-            result = da.run(query=query)
+            result = da.run(query=query, additional_config=additional_config)
         except Exception as err:
             # Handles invalid parameter values (e.g., alpha not in [0,1])
             return f"Error occurred: {str(err)}"
@@ -202,12 +213,20 @@ class DataAgentTool(BaseTool):
         if query is None:
             return "Query is required"
         remote_source_name = kwargs.get("remote_source_name", "HANA_DISCOVERY_AGENT_CREDENTIALS")
+        rag_schema_name = kwargs.get("rag_schema_name", "SYSTEM")
+        rag_table_name = kwargs.get("rag_table_name", "RAG")
+        graph_name = kwargs.get("graph_name", "HANA_OBJECTS")
+        additional_config = {
+            "ragSchemaName": rag_schema_name,
+            "ragTableName": rag_table_name,
+            "graphName": graph_name
+        }
         da = DataAgent(
             connection_context=self.connection_context
         )
         da.remote_source_name = remote_source_name
         try:
-            result = da.run(query=query)
+            result = da.run(query=query, additional_config=additional_config)
         except Exception as err:
             # Handles invalid parameter values (e.g., alpha not in [0,1])
             return f"Error occurred: {str(err)}"

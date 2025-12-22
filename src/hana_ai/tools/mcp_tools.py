@@ -3,7 +3,8 @@ hana_ai.tools.mcp_tools
 """
 
 import asyncio
-
+from typing import Annotated
+from cv2 import add
 from hana_ml import ConnectionContext
 from fastmcp import FastMCP, Context
 
@@ -83,25 +84,52 @@ def get_data_agent_tool(context: Context):
     return context.get_state("data_agent")
 
  # Wrap _run method as FastMCP tool
-@mcp.tool()
-async def discovery_agent(query: str, context: Context) -> str:
+@mcp.tool(
+        name="discovery_agent",
+        description="Tool for discovering HANA objects via knowledge graph."
+)
+async def discovery_agent(query: Annotated[str, "The query to discover HANA objects via knowledge graph."],
+                          context: Context,
+                          remote_source_name: Annotated[str, "The name of the remote source to connect to AI Core. Default is 'HANA_DISCOVERY_AGENT_CREDENTIALS'."] = "HANA_DISCOVERY_AGENT_CREDENTIALS",
+                          rag_schema_name: Annotated[str, "The schema name where RAG tables are stored. Default is 'SYSTEM'."] = "SYSTEM",
+                          rag_table_name: Annotated[str, "The table name where RAG data is stored. Default is 'RAG'."] = "RAG",
+                          graph_name: Annotated[str, "he name of the knowledge graph to use. Default is 'HANA_OBJECTS'."] = "HANA_OBJECTS",
+                          ) -> str:
     """
     Use the HANA discovery agent tool to run a query.
     """
     tool = get_discovery_agent_tool(context)
-
-    result = await asyncio.to_thread(tool._run, query)
+    additional_config = {
+        "remoteSourceName": remote_source_name,
+        "ragSchemaName": rag_schema_name,
+        "ragTableName": rag_table_name,
+        "graphName": graph_name
+    }
+    result = await asyncio.to_thread(tool._run, query, additional_config)
 
     return result
 
-@mcp.tool()
-async def data_agent(query: str, context: Context) -> str:
+@mcp.tool(
+        name="data_agent",
+        description="Tool for querying HANA data via knowledge graph."
+)
+async def data_agent(query: Annotated[str, "The query to discover HANA objects via knowledge graph."],
+                     context: Context,
+                     remote_source_name: Annotated[str, "The name of the remote source to connect to AI Core. Default is 'HANA_DISCOVERY_AGENT_CREDENTIALS'."] = "HANA_DISCOVERY_AGENT_CREDENTIALS",
+                     rag_schema_name: Annotated[str, "The schema name where RAG tables are stored. Default is 'SYSTEM'."] = "SYSTEM",
+                     rag_table_name: Annotated[str, "The table name where RAG data is stored. Default is 'RAG'."] = "RAG",
+                     graph_name: Annotated[str, "he name of the knowledge graph to use. Default is 'HANA_OBJECTS'."] = "HANA_OBJECTS",) -> str:
     """
     Use the HANA data agent tool to run a query.
     """
     tool = get_data_agent_tool(context)
-
-    result = await asyncio.to_thread(tool._run, query)
+    additional_config = {
+        "remoteSourceName": remote_source_name,
+        "ragSchemaName": rag_schema_name,
+        "ragTableName": rag_table_name,
+        "graphName": graph_name
+    }
+    result = await asyncio.to_thread(tool._run, query, additional_config)
 
     return result
 
