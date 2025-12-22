@@ -11,5 +11,6 @@ pydantic
 pydantic-core
 cryptography
 ipython
-deprecated
+wrapt>=1.15.0
+deprecated>=1.2.14
 sap-ai-sdk-gen[all]
