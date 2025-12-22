@@ -12,12 +12,15 @@ from hana_ai.tools.hana_ml_tools.graph_tools import DiscoveryAgentTool, DataAgen
 
 mcp = FastMCP("HANA ML Tools")
 
-@mcp.tool()
+@mcp.tool(
+        name="set_hana_connection",
+        description="Set HANA connection parameters for subsequent tools."
+)
 async def set_hana_connection(
-    host: str,
-    port: int,
-    user: str,
-    password: str,
+    host: Annotated[str, "The HANA database host (hostname or IP)."],
+    port: Annotated[int, "The HANA database port."],
+    user: Annotated[str, "The HANA database user name."],
+    password: Annotated[str, "The HANA database user password."],
     context: Context
 ) -> str:
     """
@@ -133,7 +136,10 @@ async def data_agent(query: Annotated[str, "The query to discover HANA objects v
     return result
 
  # Debug tool: view current session's connection info and created tools
-@mcp.tool()
+@mcp.tool(
+        name="debug_session",
+        description="View current session's HANA connection info and created tools."
+)
 async def debug_session(context: Context) -> str:
     """
     View current session's HANA connection info and created tools.

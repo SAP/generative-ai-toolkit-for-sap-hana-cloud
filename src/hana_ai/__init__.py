@@ -2,4 +2,4 @@
 hana_ai is a Python package for AI/ML related utilities.
 """
 
-__version__ = "1.0.25100100"
+__version__ = "1.0.25122200"
