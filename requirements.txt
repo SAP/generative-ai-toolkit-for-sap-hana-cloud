@@ -12,3 +12,4 @@ pydantic-core
 cryptography
 ipython
 deprecated
+pylint==3.3.7
