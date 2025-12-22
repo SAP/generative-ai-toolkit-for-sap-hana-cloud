@@ -1,15 +1,16 @@
 """
 MCP client for connecting to HANA ML MCP server
 """
-import asyncio
-import json
-import inspect
-from typing import Dict, Any, List, Optional, Callable, Union
-from dataclasses import dataclass, asdict
+
+# pylint: disable=global-statement
+
+from typing import Dict, Any, List, Optional, Union
+from dataclasses import dataclass
 from enum import Enum
+from contextlib import asynccontextmanager
 import aiohttp
 import httpx
-from contextlib import asynccontextmanager
+
 
 
 class MCPTransport(Enum):
@@ -39,24 +40,24 @@ class MCPCallResult:
 
 class MCPClient:
     """Base MCP client class"""
-    
+
     def __init__(self, server_name: str = "hana-ml-tools"):
         self.server_name = server_name
         self.tools: Dict[str, MCPTool] = {}
         self.session_id: Optional[str] = None
-        
+
     async def initialize(self) -> None:
         """Initialize client"""
         raise NotImplementedError
-        
+
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> MCPCallResult:
         """Call MCP tool"""
         raise NotImplementedError
-        
+
     async def list_tools(self) -> List[MCPTool]:
         """List all available tools"""
         raise NotImplementedError
-        
+
     async def close(self) -> None:
         """Close client connection"""
         pass
@@ -64,7 +65,7 @@ class MCPClient:
 
 class HTTPMCPClient(MCPClient):
     """MCP client using HTTP transport"""
-    
+
     def __init__(
         self,
         base_url: str = "http://localhost:8000/mcp",
@@ -81,7 +82,7 @@ class HTTPMCPClient(MCPClient):
         self._client: Optional[aiohttp.ClientSession] = None
         self._http_client: Optional[httpx.AsyncClient] = None
         self._session_id: Optional[str] = None
-        
+
     async def initialize(self) -> None:
         """初始化HTTP客户端"""
         # aiohttp is only for interface compatibility, httpx is the main client
@@ -129,7 +130,7 @@ class HTTPMCPClient(MCPClient):
 
         # Fetch tool list
         await self._refresh_tools()
-        
+
     async def _refresh_tools(self) -> None:
         """Refresh available tool list (via MCP JSON-RPC: tools/list)"""
         try:
@@ -171,7 +172,7 @@ class HTTPMCPClient(MCPClient):
         except Exception as e:
             print(f"Warning: Failed to fetch tool list: {e}")
             self._use_default_tools()
-    
+
     def _use_default_tools(self) -> None:
         """Use default tool definitions (for development/testing)"""
         self.tools = {
@@ -212,7 +213,7 @@ class HTTPMCPClient(MCPClient):
                 }
             )
         }
-    
+
     async def call_tool(
         self,
         tool_name: str,
@@ -222,19 +223,18 @@ class HTTPMCPClient(MCPClient):
         """Call MCP tool"""
         if self._http_client is None:
             await self.initialize()
-            
+
         # If tool list is empty or does not contain the tool, still try direct JSON-RPC call
         # for compatibility with servers that do not expose tool list or client cache is stale.
-        
+
         # Prepare request data
         payload = {
             "arguments": arguments
         }
-        
+
         # Add session ID
         if session_id:
             payload["session"] = {"id": session_id}
-        
         try:
             # Use MCP JSON-RPC: tools/call
             # Prepare JSON-RPC payload, include session info to ensure server recognizes session
@@ -288,19 +288,19 @@ class HTTPMCPClient(MCPClient):
 
         except Exception as e:
             return MCPCallResult(success=False, data=None, error=f"Tool call failed: {str(e)}")
-    
+
     async def list_tools(self) -> List[MCPTool]:
         """List all available tools"""
         if not self.tools:
             await self._refresh_tools()
         return list(self.tools.values())
-    
+
     async def close(self) -> None:
         """Close client connection"""
         if self._client:
             await self._client.close()
             self._client = None
-        
+
         if self._http_client:
             await self._http_client.aclose()
             self._http_client = None
@@ -308,7 +308,7 @@ class HTTPMCPClient(MCPClient):
 
 class StdioMCPClient(MCPClient):
     """MCP client using Stdio transport (for Claude Desktop, etc.)"""
-    
+
     def __init__(
         self,
         command: str = "python",
@@ -319,19 +319,19 @@ class StdioMCPClient(MCPClient):
         self.command = command
         self.args = args or []
         self._process = None
-        
+
     async def initialize(self) -> None:
         """Initialize Stdio client"""
         # Stdio communication needs to be implemented
         # Only basic structure provided here
         pass
-        
+
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> MCPCallResult:
         """Call MCP tool (Stdio transport)"""
         # Implement stdio communication logic
         # Usually involves starting subprocess and JSON-RPC communication
         raise NotImplementedError("Stdio客户端待实现")
-    
+
     async def list_tools(self) -> List[MCPTool]:
         """List all available tools"""
         # Implement stdio tool list fetching
@@ -340,17 +340,17 @@ class StdioMCPClient(MCPClient):
 
 class MCPClientFactory:
     """MCP client factory"""
-    
+
     @staticmethod
     def create_client(
         transport: Union[str, MCPTransport] = MCPTransport.HTTP,
         **kwargs
     ) -> MCPClient:
         """Create MCP client instance"""
-        
+
         if isinstance(transport, str):
             transport = MCPTransport(transport.lower())
-        
+
         if transport == MCPTransport.HTTP:
             # Default to /mcp path; if not present, auto-append
             base_url = kwargs.get("base_url", "http://localhost:8000/mcp")
@@ -359,24 +359,24 @@ class MCPClientFactory:
                 base_url = bu + '/mcp'
             server_name = kwargs.get("server_name", "hana-ml-tools")
             timeout = kwargs.get("timeout", 30)
-            
+
             return HTTPMCPClient(
                 base_url=base_url,
                 server_name=server_name,
                 timeout=timeout
             )
-            
+
         elif transport == MCPTransport.STDIO:
             command = kwargs.get("command", "python")
             args = kwargs.get("args", [])
             server_name = kwargs.get("server_name", "hana-ml-tools")
-            
+
             return StdioMCPClient(
                 command=command,
                 args=args,
                 server_name=server_name
             )
-            
+
         else:
             raise ValueError(f"不支持的传输协议: {transport}")
 

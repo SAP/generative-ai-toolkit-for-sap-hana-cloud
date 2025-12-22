@@ -182,7 +182,6 @@ class HANAMLToolkit(BaseToolkit):
     def launch_mcp_server(
         self,
         server_name: str = "HANATools",
-        version: str = "1.0",
         host: str = "127.0.0.1",
         transport: str = "stdio",
         sse_port: int = 8001,
@@ -198,8 +197,6 @@ class HANAMLToolkit(BaseToolkit):
         ----------
         server_name : str
             Name of the server. Default is "HANATools".
-        version : str
-            Version of the server. Default is "1.0".
         host : str
             Host address for the server.
         transport : str
@@ -219,7 +216,6 @@ class HANAMLToolkit(BaseToolkit):
             # 初始化MCP配置
             server_settings = {
                 "name": server_name,
-                "version": version,
                 "host": host
             }
 

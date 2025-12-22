@@ -3,13 +3,12 @@ hana_ai.tools.mcp_tools
 """
 
 import asyncio
-from typing import Annotated
-from cv2 import add
-from hana_ml import ConnectionContext
-from fastmcp import FastMCP, Context
-
-from hana_ai.tools.hana_ml_tools.graph_tools import DiscoveryAgentTool, DataAgentTool
 import json
+from typing import Annotated
+from fastmcp import FastMCP, Context
+from hana_ml import ConnectionContext
+from hana_ai.tools.hana_ml_tools.graph_tools import DiscoveryAgentTool, DataAgentTool
+
 
 mcp = FastMCP("HANA ML Tools")
 
@@ -136,6 +135,9 @@ async def data_agent(query: Annotated[str, "The query to discover HANA objects v
  # Debug tool: view current session's connection info and created tools
 @mcp.tool()
 async def debug_session(context: Context) -> str:
+    """
+    View current session's HANA connection info and created tools.
+    """
     info = {
         "hana_connection": context.get_state("hana_connection"),
         "has_discovery_agent": context.get_state("discovery_agent") is not None,

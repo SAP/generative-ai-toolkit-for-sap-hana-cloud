@@ -9,9 +9,11 @@ The following classes are available:
 """
 
 from typing import Optional, Type
-from hana_ml import ConnectionContext
+
 from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool
+
+from hana_ml import ConnectionContext
 from hana_ml.agents.agent_base import AgentBase
 from hana_ml.agents.discovery_agent import DiscoveryAgent
 from hana_ml.agents.data_agent import DataAgent
@@ -81,7 +83,8 @@ class CreateRemoteSourceTool(BaseTool):
         pse_name = kwargs.get("pse_name", "AI_CORE_PSE")
         create_pse = kwargs.get("create_pse", False)
         da = AgentBase(
-            connection_context=self.connection_context
+            connection_context=self.connection_context,
+            agent_type="DISCOVERY_AGENT"
         )
         try:
             da.create_remote_source(
