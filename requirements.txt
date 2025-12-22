@@ -12,4 +12,4 @@ pydantic-core
 cryptography
 ipython
 deprecated
-pylint==3.3.7
+sap-ai-sdk-gen[all]
