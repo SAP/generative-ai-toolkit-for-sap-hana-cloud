@@ -1,6 +1,16 @@
 Changelog
 =========
 
+**Version 1.0.251223**
+
+``Enhancements``
+    - Enhanced mcp tools for HANA discovery agent and data agent.
+
+``Bug Fixes``
+    - Fixed the import issues in hana_ai agents and tools.
+    - Fixed the missing parameter in PALEmbeddings.
+    - Fixed the issue where tool parameter descriptions were missing in the launch_mcp_server function.
+
 **Version 1.0.251217**
 
 ``Enhancements``

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HANAMLToolkit &mdash; hana.ai 1.0.25121700 documentation</title>
+  <title>HANAMLToolkit &mdash; hana.ai 1.0.25122300 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=091f2362"></script>
+      <script src="../_static/documentation_options.js?v=22714869"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -243,6 +243,13 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.vectorstore.html#pal-cross-encoder">pal_cross_encoder</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.html">PALCrossEncoder</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../vectorstore/hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.html#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder"><code class="docutils literal notranslate"><span class="pre">PALCrossEncoder</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../hana_ai.smart_dataframe.html">hana_ai.smart_dataframe</a><ul>
@@ -330,7 +337,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.is_port_available" title="hana_ai.tools.toolkit.HANAMLToolkit.is_port_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_port_available</span></code></a>(port)</p></td>
 <td><p>检查端口是否可用</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server" title="hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch_mcp_server</span></code></a>([server_name, version, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server" title="hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch_mcp_server</span></code></a>([server_name, host, ...])</p></td>
 <td><p>Launch the MCP server with the specified configuration.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_construct</span></code>([_fields_set])</p></td>
@@ -342,7 +349,7 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dump</span></code>(*[, mode, include, exclude, ...])</p></td>
 <td><p>!!! abstract &quot;Usage Documentation&quot;</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dump_json</span></code>(*[, indent, include, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_dump_json</span></code>(*[, indent, ensure_ascii, ...])</p></td>
 <td><p>!!! abstract &quot;Usage Documentation&quot;</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_json_schema</span></code>([by_alias, ref_template, ...])</p></td>
@@ -357,7 +364,7 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_rebuild</span></code>(*[, force, raise_errors, ...])</p></td>
 <td><p>Try to rebuild the pydantic-core schema for the model.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate</span></code>(obj, *[, strict, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate</span></code>(obj, *[, strict, extra, ...])</p></td>
 <td><p>Validate a pydantic model instance.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
@@ -460,7 +467,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server">
-<span class="sig-name descname"><span class="pre">launch_mcp_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HANATools'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'1.0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stdio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sse_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">launch_mcp_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HANATools'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stdio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server" title="Link to this definition"></a></dt>
 <dd><p>Launch the MCP server with the specified configuration.
 This method initializes the MCP server, registers all tools, and starts the server in a background thread.
 If the specified port is occupied, it will try the next port up to <cite>max_retries</cite> times.</p>
@@ -469,13 +476,11 @@ If the specified port is occupied, it will try the next port up to <cite>max_ret
 <dd class="field-odd"><dl class="simple">
 <dt><strong>server_name</strong><span class="classifier">str</span></dt><dd><p>Name of the server. Default is &quot;HANATools&quot;.</p>
 </dd>
-<dt><strong>version</strong><span class="classifier">str</span></dt><dd><p>Version of the server. Default is &quot;1.0&quot;.</p>
-</dd>
 <dt><strong>host</strong><span class="classifier">str</span></dt><dd><p>Host address for the server.</p>
 </dd>
-<dt><strong>transport</strong><span class="classifier">str</span></dt><dd><p>Transport protocol to use. Default is &quot;stdio&quot;. Can be &quot;sse&quot; for Server-Sent Events.</p>
+<dt><strong>transport</strong><span class="classifier">{&quot;stdio&quot;, &quot;sse&quot;, &quot;http&quot;}</span></dt><dd><p>Transport protocol to use. Default is &quot;stdio&quot;. Can be &quot;sse&quot; for Server-Sent Events.</p>
 </dd>
-<dt><strong>sse_port</strong><span class="classifier">int</span></dt><dd><p>Port to use for SSE transport. Default is 8001.</p>
+<dt><strong>port</strong><span class="classifier">int</span></dt><dd><p>Network port to use for server transports that require a port (SSE/HTTP). Default is 8001. Ignored for stdio.</p>
 </dd>
 <dt><strong>auth_token</strong><span class="classifier">str, optional</span></dt><dd><p>Authentication token for the server. If provided, the server will require this token for access.</p>
 </dd>
