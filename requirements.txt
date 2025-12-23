@@ -1,6 +1,6 @@
-langchain-community==0.3.25
+langchain-community==0.3.27
 langchain-experimental==0.3.3
-langchain-text-splitters==0.3.8
+langchain-text-splitters==0.3.9
 
 numpy
 pandas
