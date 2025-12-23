@@ -88,19 +88,3 @@ class PALCrossEncoder(PALBase):
         result_df = result_df.sort_values(by=result_df.columns[0])
         # return score column as ndarray
         return result_df[result_df.columns[1]].to_numpy()
-
-# if __name__ == "__main__":
-#     from hana_ml import ConnectionContext
-#     address = "8f4b6bad-5c7e-4673-a41c-d59d78b4aa4f.hana.aws.hcd-us10.hanacloud.ondemand.com"
-#     port = 443
-#     user = "<HANA_USER>"
-#     password = "<HANA_PASSWORD>"
-#     cc = ConnectionContext(address=address, port=port, user=user, password=password)
-#     ce = PALCrossEncoder(cc)
-#     data = [("What is HANA?", "HANA is a database"), ("What is Python?", "Python is a programming language")]
-#     result = ce.predict(data, return_table=True)
-#     if isinstance(result, DataFrame):
-#         print(result.collect())
-#     else:
-#         print(result)
-#     print(ce.stats_.collect())

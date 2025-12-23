@@ -106,7 +106,7 @@ def SelectStatement_to_table(select_statement: str,
                              force: bool) -> str:
     """
     Stores SelectStatement data (list of dictionaries) into a HANA table
-    
+
     Parameters
     ----------
     select_statement : str

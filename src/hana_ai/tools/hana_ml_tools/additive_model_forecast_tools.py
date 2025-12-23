@@ -88,7 +88,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
     ----------
     connection_context : ConnectionContext
         Connection context to the HANA database.
-       
+
     Returns
     -------
     str

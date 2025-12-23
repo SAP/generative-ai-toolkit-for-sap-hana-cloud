@@ -53,7 +53,7 @@ class PALModelEmbeddings(Embeddings):
     thread_number: int
     is_query: bool
 
-    def __init__(self, connection_context, model_version=None, batch_size=None, thread_number=None, is_query=None):
+    def __init__(self, connection_context, model_version=None, batch_size=None, thread_number=None, is_query=None, **kwargs):
         """
         Init PAL embedding model.
         """
@@ -62,6 +62,7 @@ class PALModelEmbeddings(Embeddings):
         self.batch_size = batch_size
         self.thread_number = thread_number
         self.is_query = is_query
+        self.kwargs = kwargs
 
     def __call__(self, input):
         if isinstance(input, str):
@@ -69,7 +70,7 @@ class PALModelEmbeddings(Embeddings):
         pe = PALEmbeddings(self.model_version)
         temporary_table = "#PAL_EMBEDDINGS_" + str(uuid.uuid4()).replace("-", "_")
         df = create_dataframe_from_pandas(self.connection_context, pandas_df=pd.DataFrame({"ID": range(len(input)), "TEXT": input}), table_name=temporary_table, disable_progressbar=True, table_type="COLUMN")
-        result = pe.fit_transform(data=df, key="ID", target="TEXT", thread_number=self.thread_number, batch_size=self.batch_size, is_query=self.is_query)
+        result = pe.fit_transform(data=df, key="ID", target="TEXT", thread_number=self.thread_number, batch_size=self.batch_size, is_query=self.is_query, **self.kwargs)
         self.model_version = pe.stat_.collect().iat[1, 1]
         result = list(map(lambda x: list(x[0]), result[result.columns[-2]].collect().to_numpy()))
         try_drop(self.connection_context, temporary_table)
