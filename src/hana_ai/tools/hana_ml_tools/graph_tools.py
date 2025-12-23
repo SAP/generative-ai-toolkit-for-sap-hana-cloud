@@ -14,9 +14,9 @@ from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
-from hana_ml.agents.agent_base import AgentBase
-from hana_ml.agents.discovery_agent import DiscoveryAgent
-from hana_ml.agents.data_agent import DataAgent
+from hana_ai.agents.hana_agent.agent_base import AgentBase
+from hana_ai.agents.hana_agent.discovery_agent import DiscoveryAgent
+from hana_ai.agents.hana_agent.data_agent import DataAgent
 
 class HANAAgentToolInput(BaseModel):
     """
