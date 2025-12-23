@@ -8,6 +8,30 @@ import os
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_REQUEST_TIMEOUT = 30
+REQUEST_TIMEOUT_ENV_VAR = "HANA_AI_HTTP_TIMEOUT"
+
+def _get_request_timeout():
+    value = os.environ.get(REQUEST_TIMEOUT_ENV_VAR)
+    if not value:
+        return DEFAULT_REQUEST_TIMEOUT
+    try:
+        if "," in value:
+            parts = [p.strip() for p in value.split(",")]
+            if len(parts) != 2:
+                raise ValueError("Expect two comma-separated numbers for connect,read")
+            return (float(parts[0]), float(parts[1]))
+        return float(value)
+    except Exception as exc:
+        logger.warning(
+            "Invalid %s value '%s': %s. Using default %s.",
+            REQUEST_TIMEOUT_ENV_VAR,
+            value,
+            str(exc),
+            DEFAULT_REQUEST_TIMEOUT,
+        )
+        return DEFAULT_REQUEST_TIMEOUT
+
 def _concatenate_ai_core_certificate_string(credentials: dict) -> str:
     """
     Create a properly formatted AI Core certificate string.
@@ -67,7 +91,7 @@ def _get_access_token(credentials: dict) -> str:
         "grant_type": "client_credentials",
         "client_id": clientid
     }
-    response = requests.post(token_url, data=data, cert=(cert_file_path, key_file_path))
+    response = requests.post(token_url, data=data, cert=(cert_file_path, key_file_path), timeout=_get_request_timeout())
     if response.status_code == 200:
         token_data = response.json()
         access_token = token_data.get("access_token", "")
@@ -110,7 +134,7 @@ def _get_deployment_id(credentials: dict) -> str:
         "AI-Resource-Group": "default"
     }
     deployments_url = f"{ai_api_url}/v2/lm/deployments"
-    response = requests.get(deployments_url, headers=headers)
+    response = requests.get(deployments_url, headers=headers, timeout=_get_request_timeout())
 
     if response.status_code == 200:
         deployments_data = response.json()
