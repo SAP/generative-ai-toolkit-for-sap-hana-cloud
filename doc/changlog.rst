@@ -1,6 +1,15 @@
 Changelog
 =========
 
+**Version 1.0.260116**
+
+``New Functions``
+    - Added DiscoveryAgentTool and DataAgentTool to hanaml tools for knowledge graph interactions.
+
+``Enhancements``
+    - Added reset_tools method to HANAMLToolkit to reset the toolkit's tools.
+    - Updated launch_mcp_server function to support http protocol.
+
 **Version 1.0.251001**
 
 ``Bug Fixes``
