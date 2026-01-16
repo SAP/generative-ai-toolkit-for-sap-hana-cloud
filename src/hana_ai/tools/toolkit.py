@@ -166,6 +166,36 @@ class HANAMLToolkit(BaseToolkit):
                 self.used_tools.remove(tool)
                 break
 
+    def reset_tools(self, tools: Optional[List[BaseTool]] = None):
+        """
+        Reset the toolkit's tools.
+
+        Parameters
+        ----------
+        tools : list of BaseTool or list of str, optional
+            If provided, the toolkit will only contain these tools. When a list of
+            strings is provided, tools will be matched by name from the default tools.
+            If None, reset to default tools.
+        """
+        if tools is None:
+            # Reset to the default tools list
+            self.used_tools = self.default_tools
+            return
+
+        new_tools: List[BaseTool] = []
+        for t in tools:
+            if isinstance(t, BaseTool):
+                new_tools.append(t)
+            elif isinstance(t, str):
+                # Match by name from default tools
+                for dt in self.default_tools:
+                    if getattr(dt, "name", None) == t:
+                        new_tools.append(dt)
+                        break
+            # Ignore invalid entries silently
+
+        self.used_tools = new_tools
+
     def set_bas(self, bas=True):
         """
         Set the BAS mode for all tools in the toolkit.
