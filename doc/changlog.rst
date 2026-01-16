@@ -10,6 +10,21 @@ Changelog
     - Added reset_tools method to HANAMLToolkit to reset the toolkit's tools.
     - Updated launch_mcp_server function to support http protocol.
 
+**Version 1.0.251223**
+
+``Enhancements``
+    - Enhanced mcp tools for HANA discovery agent and data agent.
+
+``Bug Fixes``
+    - Fixed the import issues in hana_ai agents and tools.
+    - Fixed the missing parameter in PALEmbeddings.
+    - Fixed the issue where tool parameter descriptions were missing in the launch_mcp_server function.
+
+**Version 1.0.251217**
+
+``Enhancements``
+    - Added the customized procedure name in CAP generation tool.
+
 **Version 1.0.251001**
 
 ``Bug Fixes``
