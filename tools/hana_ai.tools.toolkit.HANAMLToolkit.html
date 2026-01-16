@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HANAMLToolkit &mdash; hana.ai 1.0.25122300 documentation</title>
+  <title>HANAMLToolkit &mdash; hana.ai 1.0.26011600 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=22714869"></script>
+      <script src="../_static/documentation_options.js?v=0ba6f378"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -373,10 +373,13 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_strings</span></code>(obj, *[, strict, ...])</p></td>
 <td><p>Validate the given object with string data against the Pydantic model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.set_bas" title="hana_ai.tools.toolkit.HANAMLToolkit.set_bas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_bas</span></code></a>([bas])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.reset_tools" title="hana_ai.tools.toolkit.HANAMLToolkit.reset_tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_tools</span></code></a>([tools])</p></td>
+<td><p>Reset the toolkit's tools.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.set_bas" title="hana_ai.tools.toolkit.HANAMLToolkit.set_bas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_bas</span></code></a>([bas])</p></td>
 <td><p>Set the BAS mode for all tools in the toolkit.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb" title="hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vectordb</span></code></a>(vectordb)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb" title="hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vectordb</span></code></a>(vectordb)</p></td>
 <td><p>Set the vector database.</p></td>
 </tr>
 </tbody>
@@ -433,6 +436,22 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>tool_name</strong><span class="classifier">str</span></dt><dd><p>Name of the tool to delete.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.reset_tools">
+<span class="sig-name descname"><span class="pre">reset_tools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tools</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseTool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.reset_tools" title="Link to this definition"></a></dt>
+<dd><p>Reset the toolkit's tools.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>tools</strong><span class="classifier">list of BaseTool or list of str, optional</span></dt><dd><p>If provided, the toolkit will only contain these tools. When a list of
+strings is provided, tools will be matched by name from the default tools.
+If None, reset to default tools.</p>
 </dd>
 </dl>
 </dd>
