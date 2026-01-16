@@ -454,10 +454,10 @@ class HANAMLToolkit(BaseToolkit):
                 if annotations:
                     tool_wrapper.__annotations__ = annotations
 
-                # 3) 注册到 MCP
+                # 3) 注册到 MCP（所有传输均注册执行体；非 HTTP 额外覆盖 schema）
+                mcp.tool()(tool_wrapper)
                 if transport != "http":
-                    # stdio/sse：先注册函数工具，再覆盖其参数 schema 为显式 Pydantic JSON Schema（方案C）
-                    mcp.tool()(tool_wrapper)
+                    # stdio/sse：覆盖其参数 schema 为显式 Pydantic JSON Schema（方案C）
                     try:
                         explicit_schema = None
                         if hasattr(tool, 'args_schema') and tool.args_schema:
