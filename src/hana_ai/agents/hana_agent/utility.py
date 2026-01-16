@@ -138,11 +138,14 @@ def _get_deployment_id(credentials: dict) -> str:
 
     if response.status_code == 200:
         deployments_data = response.json()
+        logger.info("Deployments details: %s", deployments_data)
         resources = deployments_data.get("resources", [])
         if resources:
-            deployment_id = resources[0].get("id", "")
-            logger.info("Successfully obtained deployment ID: %s", deployment_id)
-            return deployment_id
+            for res in resources:
+                d_id = res.get("id", None)
+                if res.get("scenarioId", None) == "orchestration":
+                    logger.info("Successfully obtained deployment ID: %s", d_id)
+                    return d_id
         else:
             raise Exception("No deployments found.")
     else:
