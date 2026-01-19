@@ -647,13 +647,16 @@ class HANAMLToolkit(BaseToolkit):
         alive = server_thread.is_alive() if server_thread else False
         success = stopped_gracefully and not alive
 
-        if success:
-            logging.info("✅ MCP server stopped: %s", key)
-            # Remove from registry regardless to avoid stale records
+        # 仅在服务已停止（或本就不在运行）时移除注册记录，避免误删仍在运行的服务
+        if success or (not alive):
             try:
                 HANAMLToolkit._global_mcp_servers.pop(key, None)
             except Exception:
                 pass
+            if success:
+                logging.info("✅ MCP server stopped: %s", key)
+            else:
+                logging.info("ℹ️ MCP server already stopped: %s", key)
         else:
             logging.warning("⚠️ MCP server may still be running: %s", key)
         return success
