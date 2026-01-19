@@ -27,6 +27,7 @@ class HANAAgentToolInput(BaseModel):
     rag_schema_name: Optional[str] = Field(description="The schema name where RAG tables are stored. Default is 'SYSTEM'.", default="SYSTEM")
     rag_table_name: Optional[str] = Field(description="The table name where RAG data is stored. Default is 'RAG'.", default="RAG")
     graph_name: Optional[str] = Field(description="The name of the knowledge graph to use. Default is 'HANA_OBJECTS'.", default="HANA_OBJECTS")
+    model_name: Optional[str] = Field(description="The name of the AI Core model to use. Default is None.", default='gpt-4.1')
 
 class CreateRemoteSourceInput(BaseModel):
     """
@@ -154,7 +155,10 @@ class DiscoveryAgentTool(BaseTool):
         additional_config = {
             "ragSchemaName": rag_schema_name,
             "ragTableName": rag_table_name,
-            "graphName": graph_name
+            "graphName": graph_name,
+            "model": {
+                "name": kwargs.get("model_name", "gpt-4.1")
+            }
         }
         da = DiscoveryAgent(
             connection_context=self.connection_context
@@ -222,7 +226,10 @@ class DataAgentTool(BaseTool):
         additional_config = {
             "ragSchemaName": rag_schema_name,
             "ragTableName": rag_table_name,
-            "graphName": graph_name
+            "graphName": graph_name,
+            "model": {
+                "name": kwargs.get("model_name", "gpt-4.1")
+            }
         }
         da = DataAgent(
             connection_context=self.connection_context
