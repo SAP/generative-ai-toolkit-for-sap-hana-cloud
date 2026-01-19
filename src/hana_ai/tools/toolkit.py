@@ -11,7 +11,7 @@ from contextlib import closing
 import logging
 import threading
 import time
-from typing import Optional, List, Annotated, Any
+from typing import Optional, List, Annotated, Any, ClassVar
 import inspect
 try:
     from pydantic import Field as PydField
@@ -90,12 +90,14 @@ class HANAMLToolkit(BaseToolkit):
     used_tools: Optional[list] = None
     default_tools: List[BaseTool] = None
     # Registry of running MCP servers keyed by (host, port, transport)
+    # Use a class-level global registry so multiple toolkit instances share state.
+    _global_mcp_servers: ClassVar[dict] = {}
     mcp_servers: dict = None
 
     def __init__(self, connection_context, used_tools=None, return_direct=None):
         super().__init__(connection_context=connection_context)
-        # Initialize server registry
-        self.mcp_servers = {}
+        # Initialize server registry (shared across instances)
+        self.mcp_servers = HANAMLToolkit._global_mcp_servers
         self.default_tools = [
             AccuracyMeasure(connection_context=self.connection_context),
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),
@@ -532,7 +534,7 @@ class HANAMLToolkit(BaseToolkit):
             # Record server instance and thread for later shutdown
             try:
                 key = (server_settings.get("host", "127.0.0.1"), port, transport)
-                self.mcp_servers[key] = {
+                HANAMLToolkit._global_mcp_servers[key] = {
                     "instance": mcp,
                     "thread": server_thread,
                     "name": server_settings.get("name", server_name),
@@ -592,7 +594,7 @@ class HANAMLToolkit(BaseToolkit):
             若成功触发关闭并线程在超时前结束，返回 True；否则返回 False。
         """
         key = (host, port, transport)
-        info = self.mcp_servers.get(key)
+        info = HANAMLToolkit._global_mcp_servers.get(key)
         if not info:
             logging.warning("No MCP server found for %s", key)
             return False
@@ -645,14 +647,16 @@ class HANAMLToolkit(BaseToolkit):
         alive = server_thread.is_alive() if server_thread else False
         success = stopped_gracefully and not alive
 
-        # Remove from registry regardless to avoid stale records
-        try:
-            self.mcp_servers.pop(key, None)
-        except Exception:
-            pass
-
-        if success:
-            logging.info("✅ MCP server stopped: %s", key)
+        # 仅在服务已停止（或本就不在运行）时移除注册记录，避免误删仍在运行的服务
+        if success or (not alive):
+            try:
+                HANAMLToolkit._global_mcp_servers.pop(key, None)
+            except Exception:
+                pass
+            if success:
+                logging.info("✅ MCP server stopped: %s", key)
+            else:
+                logging.info("ℹ️ MCP server already stopped: %s", key)
         else:
             logging.warning("⚠️ MCP server may still be running: %s", key)
         return success
@@ -673,7 +677,7 @@ class HANAMLToolkit(BaseToolkit):
         int
             成功关闭的服务数量。
         """
-        keys = list(self.mcp_servers.keys())
+        keys = list(HANAMLToolkit._global_mcp_servers.keys())
         success_count = 0
         for host, port, transport in keys:
             if self.stop_mcp_server(host=host, port=port, transport=transport, force=force, timeout=timeout):
