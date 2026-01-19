@@ -89,9 +89,13 @@ class HANAMLToolkit(BaseToolkit):
     connection_context: ConnectionContext = None
     used_tools: Optional[list] = None
     default_tools: List[BaseTool] = None
+    # Registry of running MCP servers keyed by (host, port, transport)
+    mcp_servers: dict = None
 
     def __init__(self, connection_context, used_tools=None, return_direct=None):
         super().__init__(connection_context=connection_context)
+        # Initialize server registry
+        self.mcp_servers = {}
         self.default_tools = [
             AccuracyMeasure(connection_context=self.connection_context),
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),
@@ -454,10 +458,10 @@ class HANAMLToolkit(BaseToolkit):
                 if annotations:
                     tool_wrapper.__annotations__ = annotations
 
-                # 3) 注册到 MCP
+                # 3) 注册到 MCP（所有传输均注册执行体；非 HTTP 额外覆盖 schema）
+                mcp.tool()(tool_wrapper)
                 if transport != "http":
-                    # stdio/sse：先注册函数工具，再覆盖其参数 schema 为显式 Pydantic JSON Schema（方案C）
-                    mcp.tool()(tool_wrapper)
+                    # stdio/sse：覆盖其参数 schema 为显式 Pydantic JSON Schema（方案C）
                     try:
                         explicit_schema = None
                         if hasattr(tool, 'args_schema') and tool.args_schema:
@@ -525,6 +529,20 @@ class HANAMLToolkit(BaseToolkit):
             )
             server_thread.start()
             logging.info("🚀 MCP server started on port %s with tools: %s", port, registered_tools)
+            # Record server instance and thread for later shutdown
+            try:
+                key = (server_settings.get("host", "127.0.0.1"), port, transport)
+                self.mcp_servers[key] = {
+                    "instance": mcp,
+                    "thread": server_thread,
+                    "name": server_settings.get("name", server_name),
+                    "host": server_settings.get("host", "127.0.0.1"),
+                    "port": port,
+                    "transport": transport,
+                }
+                logging.debug("🗂️ Registered MCP server in registry: %s", key)
+            except Exception as e:
+                logging.warning("Failed to register server in registry: %s", e)
             return  # 成功启动，退出函数
 
         # 所有尝试失败
@@ -543,3 +561,122 @@ class HANAMLToolkit(BaseToolkit):
             get_code.set_vectordb(self.vectordb)
             return self.used_tools + [get_code]
         return self.used_tools
+
+    def stop_mcp_server(
+        self,
+        host: str = "127.0.0.1",
+        port: int = 8001,
+        transport: str = "sse",
+        force: bool = False,
+        timeout: float = 5.0,
+    ) -> bool:
+        """
+        停止指定地址与端口的 MCP 服务。
+
+        参数
+        ------
+        host : str
+            MCP 服务的主机地址。
+        port : int
+            MCP 服务的端口（stdio 传输也使用此键进行注册标识）。
+        transport : {"stdio", "sse", "http"}
+            传输类型，需要与启动时一致以匹配注册记录。
+        force : bool
+            若正常关闭失败，是否尝试强制关闭（尽力而为，可能无法完全保证）。
+        timeout : float
+            等待服务器线程退出的最长秒数。
+
+        返回
+        ------
+        bool
+            若成功触发关闭并线程在超时前结束，返回 True；否则返回 False。
+        """
+        key = (host, port, transport)
+        info = self.mcp_servers.get(key)
+        if not info:
+            logging.warning("No MCP server found for %s", key)
+            return False
+
+        mcp_instance = info.get("instance")
+        server_thread: threading.Thread = info.get("thread")
+
+        # Try graceful shutdown via common method names
+        stopped_gracefully = False
+        for meth_name in ("shutdown", "stop", "close"):
+            try:
+                meth = getattr(mcp_instance, meth_name, None)
+                if callable(meth):
+                    logging.info("Attempting graceful '%s' on MCP server %s", meth_name, key)
+                    try:
+                        meth()
+                        stopped_gracefully = True
+                        break
+                    except Exception as e:
+                        logging.warning("'%s' failed for %s: %s", meth_name, key, e)
+            except Exception:
+                pass
+
+        # Wait for thread exit
+        if server_thread and server_thread.is_alive():
+            try:
+                server_thread.join(timeout)
+            except Exception:
+                pass
+
+        # If still alive and force requested, attempt best-effort termination hooks
+        if server_thread and server_thread.is_alive() and force:
+            logging.warning("Server thread still alive after graceful attempt; trying forceful shutdown for %s", key)
+            # Best-effort: signal known event attributes if present
+            for attr in ("shutdown_event", "stop_event"):
+                try:
+                    ev = getattr(mcp_instance, attr, None)
+                    if ev:
+                        try:
+                            ev.set()
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+            try:
+                server_thread.join(timeout)
+            except Exception:
+                pass
+
+        alive = server_thread.is_alive() if server_thread else False
+        success = stopped_gracefully and not alive
+
+        # Remove from registry regardless to avoid stale records
+        try:
+            self.mcp_servers.pop(key, None)
+        except Exception:
+            pass
+
+        if success:
+            logging.info("✅ MCP server stopped: %s", key)
+        else:
+            logging.warning("⚠️ MCP server may still be running: %s", key)
+        return success
+
+    def stop_all_mcp_servers(self, force: bool = False, timeout: float = 5.0) -> int:
+        """
+        关闭全部已注册 MCP 服务。
+
+        参数
+        ------
+        force : bool
+            若正常关闭失败，是否尝试强制关闭。
+        timeout : float
+            每个服务等待线程退出的最长秒数。
+
+        返回
+        ------
+        int
+            成功关闭的服务数量。
+        """
+        keys = list(self.mcp_servers.keys())
+        success_count = 0
+        for host, port, transport in keys:
+            if self.stop_mcp_server(host=host, port=port, transport=transport, force=force, timeout=timeout):
+                success_count += 1
+        logging.info("Stopped %s MCP servers", success_count)
+        return success_count
