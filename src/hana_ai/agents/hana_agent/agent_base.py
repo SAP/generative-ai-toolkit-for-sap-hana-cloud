@@ -18,7 +18,13 @@ class AgentBase(MLBase):
     """
     Discovery Agent for interacting with AI Core services.
     """
-    def __init__(self, connection_context, agent_type):
+    def __init__(self, connection_context, agent_type=None,
+                 schema_name: str = "SYS",
+                 procedure_name: str | None = None,
+                 remote_source_name: str = "HANA_DISCOVERY_AGENT_CREDENTIALS",
+                 knowledge_graph_name: str = "HANA_OBJECTS",
+                 rag_schema_name: str = "SYSTEM",
+                 rag_table_name: str = "RAG"):
         """
         Initialize the AgentBase.
 
@@ -26,16 +32,40 @@ class AgentBase(MLBase):
         ----------
         connection_context : ConnectionContext
             The HANA connection context.
-        agent_type : {"DISCOVERY_AGENT_DEV", "DISCOVERY_AGENT", "DATA_AGENT_DEV", "DATA_AGENT"}
-            The type of agent to be used.
+        agent_type : str, optional
+            Deprecated. Previously restricted to fixed values. If provided and
+            `procedure_name` is not set, it will be used as the `procedure_name`
+            for backward compatibility.
+        schema_name : str, optional
+            Schema for the target procedure. Default is "SYS".
+        procedure_name : str, optional
+            The procedure name to call. If omitted, falls back to `agent_type`.
+        remote_source_name : str, optional
+            The name of the remote source to be used. Default is "HANA_DISCOVERY_AGENT_CREDENTIALS".
+        knowledge_graph_name : str, optional
+            The name of the knowledge graph to be used. Default is "HANA_OBJECTS".
+        rag_schema_name : str, optional
+            The name of the RAG schema to be used. Default is "SYSTEM".
+        rag_table_name : str, optional
+            The name of the RAG table to be used. Default is "RAG".
         """
         super().__init__(connection_context)
         self.conn_context = connection_context
         self.remote_source_name = "HANA_DISCOVERY_AGENT_CREDENTIALS"
         self.pse_name = "AI_CORE_PSE"
-        if agent_type not in {"DISCOVERY_AGENT_DEV", "DISCOVERY_AGENT", "DATA_AGENT_DEV", "DATA_AGENT"}:
-            raise ValueError("Invalid agent_type. Must be one of 'DISCOVERY_AGENT_DEV', 'DISCOVERY_AGENT', 'DATA_AGENT_DEV', 'DATA_AGENT'.")
-        self.agent_type = agent_type
+        # Backward compatibility: if `procedure_name` not given, use `agent_type` as procedure
+        if procedure_name is None and agent_type is not None:
+            logging.getLogger(__name__).warning(
+                "`agent_type` parameter is deprecated. Use schema_name/procedure_name instead."
+            )
+            procedure_name = agent_type
+
+        self.schema_name = schema_name
+        self.procedure_name = procedure_name
+        self.knowledge_graph_name = knowledge_graph_name
+        self.rag_schema_name = rag_schema_name
+        self.rag_table_name = rag_table_name
+        self.remote_source_name = remote_source_name
 
     def drop_remote_source(self, remote_source_name: str, cascade: bool = True):
         """
@@ -178,15 +208,22 @@ class AgentBase(MLBase):
             The result of the query execution.
         """
         config = {
-            "remoteSourceName": self.remote_source_name
+            "remoteSourceName": self.remote_source_name,
+            "knowledgeGraphName": self.knowledge_graph_name,
+            "ragSchemaName": self.rag_schema_name,
+            "ragTableName": self.rag_table_name
         }
         if additional_config:
             config.update(additional_config)
 
+        if not self.procedure_name:
+            raise ValueError("procedure_name must be specified for AgentBase to run()")
+
         sql_query = _call_agent_sql(
             query=query,
             config=config,
-            agent_type=self.agent_type
+            schema_name=self.schema_name,
+            procedure_name=self.procedure_name,
         )
 
         logger.info("Executing Discovery Agent SQL: %s", sql_query)
