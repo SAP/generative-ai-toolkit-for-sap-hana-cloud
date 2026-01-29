@@ -21,10 +21,12 @@ Note: This is a compatibility layer, not a full Mem0 provider. Once Mem0 OSS `ha
 is added upstream, this adapter can be replaced by the official provider.
 """
 
+#pylint: disable=redefined-builtin
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Callable
+from typing import Any, Dict, List, Optional, Callable
 from datetime import datetime
 import logging
 import hashlib
@@ -44,6 +46,9 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class SearchResult:
+    """
+    Result item from memory search.
+    """
     text: str
     score: float
     metadata: Dict[str, Any]
@@ -266,6 +271,9 @@ class Mem0HanaAdapter:
 
     # ---------------------- Advanced features ----------------------
     def delete_expired(self, now_iso: Optional[str] = None) -> int:
+        """
+        Delete expired memories based on `expires_at` metadata.
+        """
         now_iso = now_iso or datetime.now().isoformat()
         return self.delete({"expires_at": {"$lte": now_iso}})
 
@@ -277,6 +285,9 @@ class Mem0HanaAdapter:
         threshold: Optional[float] = None,
         rerank: bool = True,
     ) -> List[SearchResult]:
+        """
+        Search memories filtered by tags.
+        """
         filters: Dict[str, Any] = {"tags": {"$contains": tags}}
         return self.search(query=query, top_k=top_k, threshold=threshold, filters=filters, rerank=rerank)
 
@@ -317,10 +328,16 @@ class Mem0HanaAdapter:
     # Convenience helpers
     # ---------------------------------------------------------------------
     def add_texts(self, texts: List[str], user_id: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> List[str]:
+        """
+        Add a list of text strings as memories.
+        """
         memories = [{"text": t, "metadata": metadata or {}} for t in texts]
         return self.add(memories, user_id=user_id, metadata=metadata)
 
     def to_dict(self) -> Dict[str, Any]:
+        """
+        Serialize adapter configuration to a dictionary.
+        """
         return {
             "backend": "hana",
             "table_name": self.table_name,

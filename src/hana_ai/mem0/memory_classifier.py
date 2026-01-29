@@ -1,3 +1,4 @@
+"""Memory ingestion classifier using LLMs."""
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
@@ -17,12 +18,14 @@ DEFAULT_CLASSIFIER_PROMPT = (
 
 
 class Mem0IngestionClassifier:
+    """Classify ingested memory items using an LLM."""
     def __init__(self, llm: Any, prompt_template: Optional[str] = None, examples: Optional[str] = None) -> None:
         self.llm = llm
         base = prompt_template or DEFAULT_CLASSIFIER_PROMPT
         self.prompt_template = base if examples is None else (base + "\n" + examples)
 
     def classify(self, text: str) -> Dict[str, Any]:
+        """Classify the given text and return classification details."""
         # Avoid str.format on JSON braces by only replacing the {content} token
         prompt = self.prompt_template.replace("{content}", text)
         try:
