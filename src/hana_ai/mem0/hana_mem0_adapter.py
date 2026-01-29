@@ -21,10 +21,12 @@ Note: This is a compatibility layer, not a full Mem0 provider. Once Mem0 OSS `ha
 is added upstream, this adapter can be replaced by the official provider.
 """
 
+#pylint: disable=edefined-builtin
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Callable
+from typing import Any, Dict, List, Optional, Callable
 from datetime import datetime
 import logging
 import hashlib
@@ -253,7 +255,7 @@ class Mem0HanaAdapter:
 
         return results[:top_k]
 
-    def delete(self, filter: Dict[str, Any]) -> int: #pylint disable=redefined-builtin
+    def delete(self, filter: Dict[str, Any]) -> int:
         """
         Delete memories matching filter. Returns deletion count when available.
         """
