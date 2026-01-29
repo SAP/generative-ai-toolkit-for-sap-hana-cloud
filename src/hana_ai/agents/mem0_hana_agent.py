@@ -28,12 +28,13 @@ from langchain.embeddings.base import Embeddings
 from langchain_core.callbacks.manager import CallbackManagerForChainRun
 from langchain_core.tools import BaseTool
 
+from hana_ml.algorithms.pal.utility import check_pal_function_exist
+
 from hana_ai.mem0.hana_mem0_adapter import SearchResult
 from hana_ai.mem0.memory_manager import Mem0MemoryManager, IngestionRules
 from hana_ai.mem0.memory_classifier import Mem0IngestionClassifier
 from hana_ai.mem0.memory_entity_extractor import Mem0EntityExtractor
 from hana_ai.agents.utilities import _get_user_info
-from hana_ml.algorithms.pal.utility import check_pal_function_exist
 from hana_ai.vectorstore.embedding_service import HANAVectorEmbeddings
 from hana_ai.vectorstore.pal_cross_encoder import PALCrossEncoder
 
@@ -43,6 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class FormatSafeAgentExecutor(AgentExecutor):
+    """An AgentExecutor that formats observations safely."""
     def _take_next_step(
         self,
         name_to_tool_map: Dict[str, BaseTool],
@@ -201,6 +203,7 @@ class Mem0HANARAGAgent:
 
 
     def clear_long_term_memory(self) -> None:
+        """Clear all long-term memories from HANA."""
         try:
             self.memory_manager.clear_all()
             logger.info("Mem0 long-term memory cleared.")
@@ -212,6 +215,7 @@ class Mem0HANARAGAgent:
     # Public chat API
     # ------------------------------------------------------------------
     def chat(self, user_input: str) -> str:
+        """Process user input and return agent response, managing long-term memory."""
         if user_input.startswith("!clear_long_term_memory"):
             self.clear_long_term_memory()
             return "Long-term memory has been cleared."

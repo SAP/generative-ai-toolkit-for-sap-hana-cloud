@@ -1,3 +1,4 @@
+"""Entity extractor using LLMs."""
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
@@ -18,6 +19,7 @@ BILINGUAL_ENTITY_PROMPT = (
 
 
 def slugify(text: str) -> str:
+    """Generate a simple slug from the given text."""
     t = text.strip().lower()
     t = re.sub(r"[\s_]+", "-", t)
     t = re.sub(r"[^a-z0-9\-]+", "", t)
@@ -25,11 +27,13 @@ def slugify(text: str) -> str:
 
 
 class Mem0EntityExtractor:
+    """Extract primary entity from text using an LLM."""
     def __init__(self, llm: Any, prompt_template: Optional[str] = None) -> None:
         self.llm = llm
         self.prompt_template = prompt_template or BILINGUAL_ENTITY_PROMPT
 
     def extract(self, text: str) -> Dict[str, str]:
+        """Extract entity details from the given text."""
         # Avoid str.format on JSON braces by only replacing the {content} token
         prompt = self.prompt_template.replace("{content}", text)
         try:

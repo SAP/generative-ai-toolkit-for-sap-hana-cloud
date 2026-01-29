@@ -30,6 +30,9 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class IngestionRules:
+    """
+    Rules controlling memory ingestion.
+    """
     enabled: bool = True
     min_length: int = 1
     max_length: Optional[int] = None
@@ -140,12 +143,21 @@ class Mem0MemoryManager:
 
     # ----------------------- Entity partitioning -----------------------
     def set_entity(self, entity_id: Optional[str], entity_type: Optional[str] = None) -> None:
+        """
+        Set entity scoping for subsequent memory operations.
+        """
         self.entity_id = entity_id
         self.entity_type = entity_type
 
     # ----------------------- Ingestion control -------------------------
     def _build_ingest_predicate(self, rules: IngestionRules) -> Callable[[str, Dict[str, Any]], bool]:
+        """
+        Build ingestion predicate function based on rules.
+        """
         def predicate(text: str, metadata: Dict[str, Any]) -> bool:
+            """
+            Ingestion predicate based on rules.
+            """
             if not rules.enabled:
                 return False
             if text is None:
@@ -166,6 +178,9 @@ class Mem0MemoryManager:
         return predicate
 
     def update_ingestion_rules(self, rules: IngestionRules) -> None:
+        """
+        Update ingestion rules and re-wire adapter predicate.
+        """
         self.ingestion_rules = rules
         self._ingest_predicate = self._build_ingest_predicate(rules)
         # Re-wire adapter predicate and max_length
@@ -181,6 +196,9 @@ class Mem0MemoryManager:
         ttl_seconds: Optional[int] = None,
         extra_metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """
+        Add a single memory entry with tagging, tiering, TTL, and entity handling.
+        """
         md: Dict[str, Any] = extra_metadata.copy() if extra_metadata else {}
         extracted: Optional[Dict[str, str]] = None
         if self.auto_entity_extraction_enabled and self.entity_extractor is not None:
@@ -258,6 +276,9 @@ class Mem0MemoryManager:
         self.adapter.add([payload])
 
     def add_interaction(self, user_input: str, assistant_output: str, tags: Optional[List[str]] = None, tier: str = "long") -> None:
+        """
+        Add a conversational interaction as a memory entry.
+        """
         text = f"User: {user_input}\nAssistant: {assistant_output}"
         self.add_memory(text=text, tags=(tags or ["chat", "conversation"]), tier=tier)
 
@@ -270,6 +291,9 @@ class Mem0MemoryManager:
         tags: Optional[List[str]] = None,
         rerank: bool = True,
     ) -> List[SearchResult]:
+        """
+        Retrieve memories with optional entity scoping and tag filtering.
+        """
         filters: Optional[Dict[str, Any]] = None
         if self.entity_id or self.entity_type or tags:
             filters = {}
@@ -289,6 +313,9 @@ class Mem0MemoryManager:
         tags: Optional[List[str]] = None,
         rerank: bool = True,
     ) -> List[str]:
+        """
+        Retrieve memory texts with optional entity scoping and tag filtering.
+        """
         results = self.retrieve(query=query, top_k=top_k, threshold=threshold, tags=tags, rerank=rerank)
         return [r.text for r in results]
 
@@ -300,6 +327,9 @@ class Mem0MemoryManager:
         threshold: Optional[float] = None,
         rerank: bool = True,
     ) -> List[SearchResult]:
+        """
+        Retrieve memories filtered by tier and optional entity scoping.
+        """
         filters: Dict[str, Any] = {"tier": tier}
         # Preserve entity scoping
         if self.entity_id:
@@ -310,9 +340,15 @@ class Mem0MemoryManager:
 
     # ----------------------- Expiration & cleanup ----------------------
     def delete_expired(self) -> int:
+        """
+        Delete expired memories based on `expires_at` metadata.
+        """
         return self.adapter.delete_expired()
 
     def clear_all(self) -> None:
+        """
+        Clear all memories from the table.
+        """
         try:
             # Best-effort clear: delete all by timestamp <= now
             from datetime import datetime
@@ -330,36 +366,66 @@ class Mem0MemoryManager:
         threshold: Optional[float] = None,
         rerank: bool = True,
     ) -> List[SearchResult]:
+        """
+        Search memories filtered by tags.
+        """
         return self.adapter.search_by_tags(tags=tags, query=query, top_k=top_k, threshold=threshold, rerank=rerank)
 
     # ----------------------- Export -----------------------------------
     def export(self, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """
+        Export memories using the configured export handler.
+        """
         return self.adapter.export(filters=filters)
 
     # ----------------------- Controls ---------------------------------
     def set_auto_classification_enabled(self, enabled: bool) -> None:
+        """
+        Enable or disable automatic classification during ingestion.
+        """
         self.auto_classification_enabled = enabled
 
     def set_classifier(self, classifier: Mem0IngestionClassifier) -> None:
+        """
+        Set the ingestion classifier.
+        """
         self.classifier = classifier
 
     def update_category_routing(self, routing: Dict[str, Dict[str, Optional[int]]]) -> None:
+        """
+        Update category routing configuration.
+        """
         self.category_routing = routing
 
     def set_auto_entity_extraction_enabled(self, enabled: bool) -> None:
+        """
+        Enable or disable automatic entity extraction during ingestion.
+        """
         self.auto_entity_extraction_enabled = enabled
 
     def set_entity_extractor(self, extractor: Mem0EntityExtractor) -> None:
+        """
+        Set the entity extractor.
+        """
         self.entity_extractor = extractor
 
     def set_entity_assignment_mode(self, mode: str) -> None:
+        """
+        Set entity assignment mode: 'manager' | 'extract' | 'merge'.
+        """
         if mode in ("manager", "extract", "merge"):
             self.entity_assignment_mode = mode
 
     def set_default_ttl_seconds(self, seconds: Optional[int]) -> None:
+        """
+        Set default TTL in seconds for long-term memories.
+        """
         self.default_ttl_seconds = seconds
         self.adapter.default_ttl_seconds = seconds
 
     def set_short_term_ttl_seconds(self, seconds: Optional[int]) -> None:
+        """
+        Set short-term TTL in seconds for short-term memories.
+        """
         self.short_term_ttl_seconds = seconds
         self.adapter.short_term_ttl_seconds = seconds

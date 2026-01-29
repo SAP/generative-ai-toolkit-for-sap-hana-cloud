@@ -44,6 +44,9 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class SearchResult:
+    """
+    Result item from memory search.
+    """
     text: str
     score: float
     metadata: Dict[str, Any]
@@ -250,7 +253,7 @@ class Mem0HanaAdapter:
 
         return results[:top_k]
 
-    def delete(self, filter: Dict[str, Any]) -> int:
+    def delete(self, filter: Dict[str, Any]) -> int: #pylint disable=redefined-builtin
         """
         Delete memories matching filter. Returns deletion count when available.
         """
@@ -266,6 +269,9 @@ class Mem0HanaAdapter:
 
     # ---------------------- Advanced features ----------------------
     def delete_expired(self, now_iso: Optional[str] = None) -> int:
+        """
+        Delete expired memories based on `expires_at` metadata.
+        """
         now_iso = now_iso or datetime.now().isoformat()
         return self.delete({"expires_at": {"$lte": now_iso}})
 
@@ -277,6 +283,9 @@ class Mem0HanaAdapter:
         threshold: Optional[float] = None,
         rerank: bool = True,
     ) -> List[SearchResult]:
+        """
+        Search memories filtered by tags.
+        """
         filters: Dict[str, Any] = {"tags": {"$contains": tags}}
         return self.search(query=query, top_k=top_k, threshold=threshold, filters=filters, rerank=rerank)
 
@@ -317,10 +326,16 @@ class Mem0HanaAdapter:
     # Convenience helpers
     # ---------------------------------------------------------------------
     def add_texts(self, texts: List[str], user_id: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> List[str]:
+        """
+        Add a list of text strings as memories.
+        """
         memories = [{"text": t, "metadata": metadata or {}} for t in texts]
         return self.add(memories, user_id=user_id, metadata=metadata)
 
     def to_dict(self) -> Dict[str, Any]:
+        """
+        Serialize adapter configuration to a dictionary.
+        """
         return {
             "backend": "hana",
             "table_name": self.table_name,
