@@ -21,7 +21,7 @@ Note: This is a compatibility layer, not a full Mem0 provider. Once Mem0 OSS `ha
 is added upstream, this adapter can be replaced by the official provider.
 """
 
-#pylint: disable=edefined-builtin
+#pylint: disable=redefined-builtin
 
 from __future__ import annotations
 
