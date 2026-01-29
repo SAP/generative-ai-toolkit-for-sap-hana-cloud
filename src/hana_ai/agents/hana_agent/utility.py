@@ -350,9 +350,9 @@ def _drop_certificate(connection_context, certificate_name: str):
     except Exception as exc:
         raise Exception("Failed to drop certificate: %s" % str(exc))
 
-def _call_agent_sql(query: str, config: dict, agent_type: str) -> str:
+def _call_agent_sql(query: str, config: dict, schema_name: str, procedure_name: str) -> str:
     """
-    Create SQL string to call the Discovery Agent procedure.
+    Create SQL string to call an agent procedure.
 
     Parameters
     ----------
@@ -360,13 +360,19 @@ def _call_agent_sql(query: str, config: dict, agent_type: str) -> str:
         The query string.
     config : dict
         The configuration dictionary.
-    agent_type : {"DISCOVERY_AGENT_DEV", "DISCOVERY_AGENT", "DATA_AGENT_DEV", "DATA_AGENT"}
+    schema_name : str
+        The schema name where the procedure resides (e.g., "SYS", "DD_AGENT_ADMIN").
+    procedure_name : str
+        The procedure name to invoke (e.g., "DISCOVERY_AGENT", "DATA_AGENT_CUSTOM").
 
     Returns
     -------
     str
-        The SQL string to call the Discovery/Data Agent procedure.
+        The SQL string to call the specified procedure.
     """
     config_json = json.dumps(config).replace("'", "''")
     query = json.dumps(query).replace("'", "''")
-    return "DO\nBEGIN\nDECLARE output NCLOB;\nCALL SYS.%s('%s', '%s', output);\nselect :output FROM DUMMY;\nEND" % (agent_type, query, config_json)
+    return (
+        "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', '%s', output);\nselect :output FROM DUMMY;\nEND"
+        % (schema_name, procedure_name, query, config_json)
+    )

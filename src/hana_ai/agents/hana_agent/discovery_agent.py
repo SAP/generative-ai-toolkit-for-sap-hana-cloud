@@ -23,7 +23,18 @@ class DiscoveryAgent(AgentBase):
     - CERTIFICATE ADMIN privilege.
 
     """
-    def __init__(self, connection_context, agent_type="DISCOVERY_AGENT_DEV"):
+    def __init__(
+        self,
+        connection_context,
+        agent_type: str = "DISCOVERY_AGENT_DEV",
+        *,
+        schema_name: str = "SYS",
+        procedure_name: str | None = None,
+        remote_source_name: str = "HANA_DISCOVERY_AGENT_CREDENTIALS",
+        knowledge_graph_name: str = "HANA_OBJECTS",
+        rag_schema_name: str = "SYSTEM",
+        rag_table_name: str = "RAG",
+    ):
         """
         Initialize the DiscoveryAgent.
 
@@ -32,7 +43,15 @@ class DiscoveryAgent(AgentBase):
         connection_context : ConnectionContext
             The HANA connection context.
         """
-        super().__init__(connection_context, agent_type=agent_type)
+        super().__init__(
+            connection_context,
+            agent_type=agent_type,
+            schema_name=schema_name,
+            procedure_name=procedure_name,
+            remote_source_name=remote_source_name,
+            knowledge_graph_name=knowledge_graph_name,
+            rag_schema_name=rag_schema_name,
+            rag_table_name=rag_table_name,
+        )
         self.conn_context = connection_context
-        self.remote_source_name = "HANA_DISCOVERY_AGENT_CREDENTIALS"
         self.pse_name = "AI_CORE_PSE"
