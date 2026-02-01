@@ -149,7 +149,12 @@ class HANAVectorEmbeddings(Embeddings):
     def __call__(self, input):
         if isinstance(input, str):
             input = [input]
-        return _cc_embed_query(self.connection_context, input, model_version=self.model_version)
+        # Always get batch embeddings and coerce all values to Python float
+        result = _cc_embed_query(self.connection_context, input, model_version=self.model_version)
+        if isinstance(result, list) and result and isinstance(result[0], list):
+            return [[float(v) for v in vec] for vec in result]
+        # Fallback safety: single vector case
+        return [float(v) for v in result]
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """
@@ -304,13 +309,44 @@ def _cc_embed_query(connection_context, query, model_version='SAP_NEB.20240715')
         return escaped_prompt
 
 
-    if isinstance(query, (list, tuple)):
-        sql = ''
-        for i, q in enumerate(query):
-            if i > 0:
-                sql += ' UNION ALL '
-            escaped_query = _safe_escape_single_quotes(q)
-            sql += f"SELECT '{escaped_query}' AS TEXT FROM DUMMY"
-        return connection_context.sql(sql).add_vector("TEXT", text_type='QUERY', embed_col="EMBEDDING").select(["EMBEDDING"]).collect()["EMBEDDING"].tolist()
-    escaped_query = _safe_escape_single_quotes(query)
-    return connection_context.sql(f"SELECT '{escaped_query}' AS TEXT FROM DUMMY").add_vector("TEXT", text_type='QUERY', embed_col="EMBEDDING", model_version=model_version).select(["EMBEDDING"]).collect()["EMBEDDING"].iat[0]
+    # Normalize input to a list for consistent handling
+    queries = list(query) if isinstance(query, (list, tuple)) else [query]
+
+    sql = ''
+    for i, q in enumerate(queries):
+        if i > 0:
+            sql += ' UNION ALL '
+        escaped_query = _safe_escape_single_quotes(q)
+        sql += f"SELECT '{escaped_query}' AS TEXT FROM DUMMY"
+
+    df = connection_context.sql(sql) \
+        .add_vector("TEXT", text_type='QUERY', embed_col="EMBEDDING", model_version=model_version) \
+        .select(["EMBEDDING"]).collect()
+
+    # Convert to numpy-like array of rows, then extract the vector from first column
+    rows = df.to_numpy()
+    vectors: List[List[float]] = []
+    for row in rows:
+        v = row[0]
+        seq = None
+        # Try common iterable conversions
+        try:
+            seq = list(v)
+        except Exception:
+            pass
+        if seq is None:
+            try:
+                # Some vector objects expose tolist()
+                seq = v.tolist()  # type: ignore[attr-defined]
+            except Exception:
+                pass
+        if seq is None:
+            # As a last resort, wrap single scalar or raise informative error
+            try:
+                vectors.append([float(v)])
+                continue
+            except Exception as exc:  # pragma: no cover
+                raise ValueError(f"Unexpected embedding type from HANA: {type(v)}; value: {v}") from exc
+        vectors.append([float(x) for x in seq])
+
+    return vectors
