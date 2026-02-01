@@ -79,8 +79,6 @@ class DiscoveryAgentTool(BaseTool):
             The table name where RAG data is stored.
         knowledge_graph_name : str
             The name of the knowledge graph to use.
-        model_name : str
-            The name of the AI Core model to use.
         """
         self.remote_source_name = remote_source_name
         self.rag_schema_name = rag_schema_name
@@ -178,8 +176,6 @@ class DataAgentTool(BaseTool):
             The table name where RAG data is stored.
         knowledge_graph_name : str
             The name of the knowledge graph to use.
-        model_name : str
-            The name of the AI Core model to use.
         """
         self.remote_source_name = remote_source_name
         self.rag_schema_name = rag_schema_name
