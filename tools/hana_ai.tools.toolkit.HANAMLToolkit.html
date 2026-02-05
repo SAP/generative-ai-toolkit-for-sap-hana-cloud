@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HANAMLToolkit &mdash; hana.ai 1.0.26011600 documentation</title>
+  <title>HANAMLToolkit &mdash; hana.ai 1.0.26020500 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=0ba6f378"></script>
+      <script src="../_static/documentation_options.js?v=57fe5602"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -382,6 +382,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb" title="hana_ai.tools.toolkit.HANAMLToolkit.set_vectordb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vectordb</span></code></a>(vectordb)</p></td>
 <td><p>Set the vector database.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.stop_all_mcp_servers" title="hana_ai.tools.toolkit.HANAMLToolkit.stop_all_mcp_servers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop_all_mcp_servers</span></code></a>([force, timeout])</p></td>
+<td><p>关闭全部已注册 MCP 服务。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hana_ai.tools.toolkit.HANAMLToolkit.stop_mcp_server" title="hana_ai.tools.toolkit.HANAMLToolkit.stop_mcp_server"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop_mcp_server</span></code></a>([host, port, transport, ...])</p></td>
+<td><p>停止指定地址与端口的 MCP 服务。</p></td>
+</tr>
 </tbody>
 </table>
 <table class="docutils align-default">
@@ -528,6 +534,18 @@ If the specified port is occupied, it will try the next port up to <cite>max_ret
 <dd><p>Get the tools in the toolkit.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.stop_mcp_server">
+<span class="sig-name descname"><span class="pre">stop_mcp_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sse'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.stop_mcp_server" title="Link to this definition"></a></dt>
+<dd><p>停止指定地址与端口的 MCP 服务。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.stop_all_mcp_servers">
+<span class="sig-name descname"><span class="pre">stop_all_mcp_servers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.stop_all_mcp_servers" title="Link to this definition"></a></dt>
+<dd><p>关闭全部已注册 MCP 服务。</p>
+</dd></dl>
+
 </dd></dl>
 
 <div class="clearer"></div></section>
@@ -540,7 +558,7 @@ If the specified port is occupied, it will try the next port up to <cite>max_ret
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, SAP.</p>
+    <p>&#169; Copyright 2026, SAP.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
