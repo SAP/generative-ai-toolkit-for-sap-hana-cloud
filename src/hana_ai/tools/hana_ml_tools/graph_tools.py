@@ -10,12 +10,10 @@ The following classes are available:
 
 from typing import Optional, Type
 
-from cv2 import add
 from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
-from hana_ai.agents.hana_agent.agent_base import AgentBase
 from hana_ai.agents.hana_agent.discovery_agent import DiscoveryAgent
 from hana_ai.agents.hana_agent.data_agent import DataAgent
 
