@@ -33,6 +33,42 @@ class TestGraphToolsReset(TestML_BaseTestClass):
         default_names = [t.name for t in default_tools]
         self.assertIn("ts_check", default_names)
 
+    def test_configure_discovery_agent_custom_schema_and_procedure(self):
+        discovery_tool = DiscoveryAgentTool(connection_context=self.conn)
+        discovery_tool.configure(
+            remote_source_name="RS_AICORE",
+            rag_schema_name="MY_RAG_SCHEMA",
+            rag_table_name="MY_RAG_TABLE",
+            knowledge_graph_name="MY_KG",
+            schema_name="MY_SCHEMA",
+            procedure_name="MY_PROC"
+        )
+
+        self.assertEqual(discovery_tool.remote_source_name, "RS_AICORE")
+        self.assertEqual(discovery_tool.rag_schema_name, "MY_RAG_SCHEMA")
+        self.assertEqual(discovery_tool.rag_table_name, "MY_RAG_TABLE")
+        self.assertEqual(discovery_tool.knowledge_graph_name, "MY_KG")
+        self.assertEqual(discovery_tool.schema_name, "MY_SCHEMA")
+        self.assertEqual(discovery_tool.procedure_name, "MY_PROC")
+
+    def test_configure_data_agent_custom_schema_and_procedure(self):
+        data_tool = DataAgentTool(connection_context=self.conn)
+        data_tool.configure(
+            remote_source_name="RS_AICORE",
+            rag_schema_name="MY_RAG_SCHEMA",
+            rag_table_name="MY_RAG_TABLE",
+            knowledge_graph_name="MY_KG",
+            schema_name="MY_SCHEMA",
+            procedure_name="MY_PROC"
+        )
+
+        self.assertEqual(data_tool.remote_source_name, "RS_AICORE")
+        self.assertEqual(data_tool.rag_schema_name, "MY_RAG_SCHEMA")
+        self.assertEqual(data_tool.rag_table_name, "MY_RAG_TABLE")
+        self.assertEqual(data_tool.knowledge_graph_name, "MY_KG")
+        self.assertEqual(data_tool.schema_name, "MY_SCHEMA")
+        self.assertEqual(data_tool.procedure_name, "MY_PROC")
+
 
 if __name__ == "__main__":
     unittest.main()

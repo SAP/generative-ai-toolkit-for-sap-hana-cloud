@@ -48,6 +48,8 @@ class DiscoveryAgentTool(BaseTool):
     rag_schema_name: str = "SYSTEM"
     rag_table_name: str = "RAG"
     knowledge_graph_name: str = "HANA_OBJECTS"
+    schema_name: str = "SYS"
+    procedure_name: Optional[str] = None
     args_schema: Type[BaseModel] = HANAAgentToolInput
     return_direct: bool = False
 
@@ -65,7 +67,9 @@ class DiscoveryAgentTool(BaseTool):
                   remote_source_name: str,
                   rag_schema_name: str,
                   rag_table_name: str,
-                  knowledge_graph_name: str):
+                  knowledge_graph_name: str,
+                  schema_name: str = "SYS",
+                  procedure_name: str | None = None):
         """
         Configure the additional settings for Data Agent.
 
@@ -79,11 +83,17 @@ class DiscoveryAgentTool(BaseTool):
             The table name where RAG data is stored.
         knowledge_graph_name : str
             The name of the knowledge graph to use.
+        schema_name : str, optional
+            The schema name where the Data Agent stored procedure is located, by default "SYS".
+        procedure_name : str | None, optional
+            The name of the Data Agent stored procedure, by default None.
         """
         self.remote_source_name = remote_source_name
         self.rag_schema_name = rag_schema_name
         self.rag_table_name = rag_table_name
         self.knowledge_graph_name = knowledge_graph_name
+        self.schema_name = schema_name
+        self.procedure_name = procedure_name
 
     def _run(
         self,
@@ -107,7 +117,9 @@ class DiscoveryAgentTool(BaseTool):
             remote_source_name=self.remote_source_name,
             knowledge_graph_name=self.knowledge_graph_name,
             rag_schema_name=self.rag_schema_name,
-            rag_table_name=self.rag_table_name
+            rag_table_name=self.rag_table_name,
+            schema_name=self.schema_name,
+            procedure_name=self.procedure_name
         )
 
         try:
@@ -145,6 +157,8 @@ class DataAgentTool(BaseTool):
     rag_schema_name: str = "SYSTEM"
     rag_table_name: str = "RAG"
     knowledge_graph_name: str = "HANA_OBJECTS"
+    schema_name: str = "SYS"
+    procedure_name: Optional[str] = None
     args_schema: Type[BaseModel] = HANAAgentToolInput
     return_direct: bool = False
 
@@ -162,7 +176,9 @@ class DataAgentTool(BaseTool):
                   remote_source_name: str,
                   rag_schema_name: str,
                   rag_table_name: str,
-                  knowledge_graph_name: str):
+                  knowledge_graph_name: str,
+                  schema_name: str = "SYS",
+                  procedure_name: str | None = None):
         """
         Configure the additional settings for Data Agent.
 
@@ -176,11 +192,17 @@ class DataAgentTool(BaseTool):
             The table name where RAG data is stored.
         knowledge_graph_name : str
             The name of the knowledge graph to use.
+        schema_name : str, optional
+            The schema name where the Data Agent stored procedure is located, by default "SYS".
+        procedure_name : str | None, optional
+            The name of the Data Agent stored procedure, by default None.
         """
         self.remote_source_name = remote_source_name
         self.rag_schema_name = rag_schema_name
         self.rag_table_name = rag_table_name
         self.knowledge_graph_name = knowledge_graph_name
+        self.schema_name = schema_name
+        self.procedure_name = procedure_name
 
     def _run(
         self,
@@ -199,12 +221,15 @@ class DataAgentTool(BaseTool):
                 "name": kwargs.get("model_name", "gpt-4.1")
             }
         }
+
         da = DataAgent(
             connection_context=self.connection_context,
             remote_source_name=self.remote_source_name,
             knowledge_graph_name=self.knowledge_graph_name,
             rag_schema_name=self.rag_schema_name,
-            rag_table_name=self.rag_table_name
+            rag_table_name=self.rag_table_name,
+            schema_name=self.schema_name,
+            procedure_name=self.procedure_name
         )
 
         try:
