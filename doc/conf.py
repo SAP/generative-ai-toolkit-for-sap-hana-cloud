@@ -68,7 +68,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'hana.ai'
-copyright = '2025, SAP'
+copyright = '2026, SAP'
 author = 'SAP'
 
 # The version info for the project you're documenting, acts as replacement for
