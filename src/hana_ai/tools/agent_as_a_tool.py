@@ -5,7 +5,7 @@ The following function is available:
 
     * :func `AgentAsATool`
 """
-from langchain.agents import Tool
+from hana_ai.langchain_compat import Tool
 
 class AgentAsATool(object):
     """

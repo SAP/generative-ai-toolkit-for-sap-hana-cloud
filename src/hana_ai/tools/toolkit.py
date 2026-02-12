@@ -5,6 +5,7 @@ The following class is available:
 
     * :class `HANAMLToolkit`
 """
+# pylint: disable=ungrouped-imports
 import sys
 import socket
 from contextlib import closing
@@ -42,8 +43,7 @@ except ImportError:
         FastMCPHTTP = None
 
 from hana_ml import ConnectionContext
-from langchain.agents.agent_toolkits.base import BaseToolkit
-from langchain.tools import BaseTool
+from hana_ai.langchain_compat import BaseToolkit, BaseTool
 
 from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
 from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool

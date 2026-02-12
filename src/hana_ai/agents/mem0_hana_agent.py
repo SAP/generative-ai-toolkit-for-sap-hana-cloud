@@ -18,54 +18,31 @@ Mem0's style of memory flow adapted to HANA.
 
 from __future__ import annotations
 
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Any, List, Optional
 import logging
-
-from langchain.agents import Tool, AgentExecutor, create_openai_functions_agent
-from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate
-from langchain.schema import SystemMessage, AgentAction, AgentFinish
-from langchain.embeddings.base import Embeddings
-from langchain_core.callbacks.manager import CallbackManagerForChainRun
-from langchain_core.tools import BaseTool
 
 from hana_ml.algorithms.pal.utility import check_pal_function_exist
 
+from hana_ai.langchain_compat import (
+    ChatPromptTemplate,
+    Embeddings,
+    FormatSafeAgentExecutor,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder,
+    SystemMessage,
+    Tool,
+    build_agent_executor,
+)
+from hana_ai.agents.utilities import _get_user_info
 from hana_ai.mem0.hana_mem0_adapter import SearchResult
-from hana_ai.mem0.memory_manager import Mem0MemoryManager, IngestionRules
 from hana_ai.mem0.memory_classifier import Mem0IngestionClassifier
 from hana_ai.mem0.memory_entity_extractor import Mem0EntityExtractor
-from hana_ai.agents.utilities import _get_user_info
+from hana_ai.mem0.memory_manager import Mem0MemoryManager, IngestionRules
 from hana_ai.vectorstore.embedding_service import HANAVectorEmbeddings
 from hana_ai.vectorstore.pal_cross_encoder import PALCrossEncoder
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-class FormatSafeAgentExecutor(AgentExecutor):
-    """An AgentExecutor that formats observations safely."""
-    def _take_next_step(
-        self,
-        name_to_tool_map: Dict[str, BaseTool],
-        color_mapping: Dict[str, str],
-        inputs: Dict[str, str],
-        intermediate_steps: List[Tuple[AgentAction, str]],
-        run_manager: Optional[CallbackManagerForChainRun] = None,
-    ) -> Union[AgentFinish, List[Tuple[AgentAction, str]]]:
-        next_step = super()._take_next_step(
-            name_to_tool_map, color_mapping, inputs, intermediate_steps, run_manager
-        )
-        if isinstance(next_step, list):
-            formatted_steps = []
-            for action, observation in next_step:
-                if isinstance(observation, str):
-                    formatted_obs = [{"type": "text", "text": observation}]
-                    formatted_steps.append((action, formatted_obs))
-                else:
-                    formatted_steps.append((action, observation))
-            return formatted_steps
-        return next_step
 
 
 class Mem0HANARAGAgent:
@@ -168,18 +145,22 @@ class Mem0HANARAGAgent:
             self._initialize_agent()
 
     def _initialize_agent(self):
+        system_prompt = "You are a helpful assistant with access to tools. Always use tools when appropriate."
         prompt = ChatPromptTemplate.from_messages([
-            SystemMessage(content="You are a helpful assistant with access to tools. Always use tools when appropriate."),
+            SystemMessage(content=system_prompt),
             HumanMessagePromptTemplate.from_template("{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ])
-        self.agent = create_openai_functions_agent(self.llm, self.tools, prompt)
-        self.executor = FormatSafeAgentExecutor(
-            agent=self.agent,
-            tools=self.tools,
+        self.agent, self.executor = build_agent_executor(
+            self.llm,
+            self.tools,
+            prompt=prompt,
+            system_prompt=system_prompt,
             max_iterations=20,
             verbose=self.verbose,
             handle_parsing_errors=True,
+            executor_cls=FormatSafeAgentExecutor,
+            return_agent=True,
         )
 
     # ------------------------------------------------------------------

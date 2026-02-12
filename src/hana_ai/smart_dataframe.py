@@ -6,18 +6,25 @@ The following class is available:
     * :class `SmartDataFrame`
 """
 from typing import List
-from langchain.llms.base import BaseLLM
-from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate
-from langchain.schema import SystemMessage
-from langchain.tools import BaseTool
-from langchain.agents import AgentExecutor, create_openai_functions_agent
+
 from hana_ml.dataframe import DataFrame
+
+from hana_ai.langchain_compat import (
+    AgentExecutor,
+    BaseLLM,
+    BaseTool,
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder,
+    SystemMessage,
+    build_agent_executor,
+)
+from hana_ai.tools.df_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
+from hana_ai.tools.df_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeSeriesLoadModelAndPredict, AutomaticTimeSeriesLoadModelAndScore
 from hana_ai.tools.df_tools.fetch_tools import FetchDataTool
+from hana_ai.tools.df_tools.intermittent_forecast_tools import IntermittentForecast
 from hana_ai.tools.df_tools.ts_outlier_detection_tools import TSOutlierDetection
 from hana_ai.tools.df_tools.ts_visualizer_tools import TimeSeriesDatasetReport
-from hana_ai.tools.df_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeSeriesLoadModelAndPredict, AutomaticTimeSeriesLoadModelAndScore
-from hana_ai.tools.df_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
-from hana_ai.tools.df_tools.intermittent_forecast_tools import IntermittentForecast
 
 class SmartDataFrame(DataFrame):
     """
@@ -88,18 +95,26 @@ class SmartDataFrame(DataFrame):
                 self.transform_tools.append(tool.set_transform(True))
 
         self.kwargs = kwargs
-        # Create the prompt template
+        system_prompt = "You are a helpful assistant with access to tools. Always use tools when appropriate."
         prompt = ChatPromptTemplate.from_messages([
-            SystemMessage(content="You are a helpful assistant with access to tools. Always use tools when appropriate."),
+            SystemMessage(content=system_prompt),
             HumanMessagePromptTemplate.from_template("{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad")
         ])
-
-        # Create the agent with tool bindings
-        self.ask_agent = create_openai_functions_agent(self.llm, self.ask_tools, prompt)
-        self.ask_executor = AgentExecutor.from_agent_and_tools(agent=self.ask_agent, tools=self.ask_tools, verbose=verbose)
-        self.transform_agent = create_openai_functions_agent(self.llm, self.transform_tools, prompt)
-        self.transform_executor = AgentExecutor.from_agent_and_tools(agent=self.transform_agent, tools=self.transform_tools, verbose=verbose)
+        self.ask_executor = build_agent_executor(
+            self.llm,
+            self.ask_tools,
+            prompt=prompt,
+            system_prompt=system_prompt,
+            verbose=verbose,
+        )
+        self.transform_executor = build_agent_executor(
+            self.llm,
+            self.transform_tools,
+            prompt=prompt,
+            system_prompt=system_prompt,
+            verbose=verbose,
+        )
         self._is_configured = True
 
     def ask(self, question: str):
