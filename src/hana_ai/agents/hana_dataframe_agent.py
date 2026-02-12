@@ -6,20 +6,21 @@ The following function is available:
 """
 from typing import Any, Dict, List, Optional
 
+try:
+    from langchain.tools.python.tool import PythonAstREPLTool
+except Exception:
+    from langchain_experimental.tools.python.tool import PythonAstREPLTool
+
 from hana_ai.langchain_compat import (
     AgentExecutor,
     BaseCallbackManager,
     BaseLLM,
     BaseTool,
     GraphAgentExecutor,
+    LLMChain,
+    ZeroShotAgent,
     create_graph_agent,
 )
-from langchain.agents.mrkl.base import ZeroShotAgent
-from langchain.chains.llm import LLMChain
-try:
-    from langchain.tools.python.tool import PythonAstREPLTool
-except Exception:
-    from langchain_experimental.tools.python.tool import PythonAstREPLTool
 
 from hana_ai.agents.hana_dataframe_prompt import PREFIX, SUFFIX
 
@@ -111,6 +112,20 @@ def create_hana_dataframe_agent(
         prefix = "You are working with a HANA dataframe in Python that is similar to Spark dataframe. The name of the dataframe is `df`. `connection_context` is `df`'s attribute. To handle connection or to use dataframe functions, you should use python_repl_ast tool. You should use the tools below to answer the question posed of you. :"
     else:
         tools = tools + [PythonAstREPLTool(locals={"df": df})]
+    if (AgentExecutor is None or ZeroShotAgent is None or LLMChain is None) and create_graph_agent:
+        df_head = str(df.head(1).collect())
+        system_prompt = (
+            f"{prefix}\n\n"
+            "This is the result of `print(df.head().collect())`:\n"
+            f"{df_head}\n\n"
+            "Use the tools to answer the user's question."
+        )
+        graph = create_graph_agent(model=llm, tools=tools, system_prompt=system_prompt)
+        return GraphAgentExecutor(graph)
+
+    if ZeroShotAgent is None or LLMChain is None:
+        raise ImportError("ZeroShotAgent/LLMChain not available; cannot build legacy agent executor.")
+
     prompt = ZeroShotAgent.create_prompt(
         tools, prefix=prefix, suffix=suffix, input_variables=input_variables
     )

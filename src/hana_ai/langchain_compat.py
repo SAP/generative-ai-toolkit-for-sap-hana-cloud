@@ -1,4 +1,7 @@
 """LangChain compatibility helpers for old and new APIs."""
+
+#pylint: disable=import-error,no-name-in-module,missing-function-docstring,ungrouped-imports,unused-import
+
 from __future__ import annotations
 
 from typing import Any, List, Optional
@@ -57,6 +60,17 @@ except Exception:
     from langchain_core.tools import BaseTool
 
 try:
+    from langchain.agents.agent_toolkits.base import BaseToolkit
+except Exception:
+    try:
+        from langchain_community.agent_toolkits.base import BaseToolkit
+    except Exception:
+        try:
+            from langchain_core.tools import BaseToolkit
+        except Exception:
+            BaseToolkit = None
+
+try:
     from langchain.tools import Tool
 except Exception:
     try:
@@ -86,6 +100,22 @@ try:
     from langchain.callbacks.base import BaseCallbackManager
 except Exception:
     from langchain_core.callbacks import BaseCallbackManager
+
+try:
+    from langchain.agents.mrkl.base import ZeroShotAgent
+except Exception:
+    try:
+        from langchain.agents import ZeroShotAgent
+    except Exception:
+        ZeroShotAgent = None
+
+try:
+    from langchain.chains.llm import LLMChain
+except Exception:
+    try:
+        from langchain.chains import LLMChain
+    except Exception:
+        LLMChain = None
 
 try:
     from langchain.output_parsers.openai_tools import PydanticToolsParser

@@ -43,23 +43,7 @@ except ImportError:
         FastMCPHTTP = None
 
 from hana_ml import ConnectionContext
-try:
-    from langchain.agents.agent_toolkits.base import BaseToolkit
-except Exception:
-    try:
-        from langchain_community.agent_toolkits.base import BaseToolkit
-    except Exception:
-        try:
-            from langchain_core.tools import BaseToolkit
-        except Exception as exc:
-            raise ImportError(
-                "Unable to import BaseToolkit from langchain, langchain_community, or langchain_core. "
-                "Please check your langchain versions."
-            ) from exc
-try:
-    from langchain.tools import BaseTool
-except Exception:
-    from langchain_core.tools import BaseTool
+from hana_ai.langchain_compat import BaseToolkit, BaseTool
 
 from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
 from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool
