@@ -22,7 +22,7 @@ from sqlalchemy import MetaData
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain_community.utilities import SQLDatabase
-from langchain.agents.agent_types import AgentType
+from hana_ai.langchain_compat import AgentType
 from langchain_core.prompts import BasePromptTemplate
 from langchain_core.callbacks import BaseCallbackManager
 from langchain_core.tools import BaseTool
@@ -60,7 +60,7 @@ def create_hana_sql_agent(
     tools: BaseTool = None,
     agent_type: Optional[
         Union[AgentType, Literal["openai-tools", "tool-calling"]]
-    ] = AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    ] = None,
     callback_manager: Optional[BaseCallbackManager] = None,
     prefix: Optional[str] = None,
     suffix: Optional[str] = None,
@@ -135,6 +135,8 @@ def create_hana_sql_agent(
     >>> agent_executor = create_hana_sql_agent(llm=llm, connection_context=cc, tools=[code_tool], verbose=True)
     >>> agent_executor.invoke("show me the min and max value of sepalwidthcm in the table iris_data_full_tbl?")
     """
+    if agent_type is None and AgentType is not None:
+        agent_type = AgentType.ZERO_SHOT_REACT_DESCRIPTION
     engine = connection_context.to_sqlalchemy()
     metadata = MetaData()
 

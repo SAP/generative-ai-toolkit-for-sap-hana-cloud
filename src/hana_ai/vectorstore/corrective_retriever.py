@@ -22,8 +22,7 @@ except ImportError:
 
     subprocess.check_call([sys.executable, "-m", "pip", "install", "langgraph"])
     from langgraph.graph import END, StateGraph
-from langchain.output_parsers.openai_tools import PydanticToolsParser
-from langchain.prompts import PromptTemplate
+from hana_ai.langchain_compat import PydanticToolsParser, PromptTemplate
 from pydantic import BaseModel, Field
 from langchain_core.utils.function_calling import convert_to_openai_tool
 

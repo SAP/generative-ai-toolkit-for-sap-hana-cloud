@@ -5,6 +5,7 @@ The following class is available:
 
     * :class `HANAMLToolkit`
 """
+# pylint: disable=ungrouped-imports
 import sys
 import socket
 from contextlib import closing

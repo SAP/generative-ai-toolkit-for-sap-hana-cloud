@@ -6,13 +6,20 @@ The following function is available:
 """
 from typing import Any, Dict, List, Optional
 
-from langchain.agents.agent import AgentExecutor
-from langchain.tools import BaseTool
+from hana_ai.langchain_compat import (
+    AgentExecutor,
+    BaseCallbackManager,
+    BaseLLM,
+    BaseTool,
+    GraphAgentExecutor,
+    create_graph_agent,
+)
 from langchain.agents.mrkl.base import ZeroShotAgent
-from langchain.callbacks.base import BaseCallbackManager
 from langchain.chains.llm import LLMChain
-from langchain.llms.base import BaseLLM
-from langchain.tools.python.tool import PythonAstREPLTool
+try:
+    from langchain.tools.python.tool import PythonAstREPLTool
+except Exception:
+    from langchain_experimental.tools.python.tool import PythonAstREPLTool
 
 from hana_ai.agents.hana_dataframe_prompt import PREFIX, SUFFIX
 

@@ -14,14 +14,24 @@ import logging
 import pandas as pd
 from sqlalchemy import delete
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.agents import Tool, AgentExecutor, create_openai_functions_agent
-from langchain.memory import ConversationBufferWindowMemory
-from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate
-from langchain.schema import SystemMessage, HumanMessage, AIMessage, AgentAction, AgentFinish
-from langchain.load.dump import dumps
-from langchain.embeddings.base import Embeddings
-from langchain_core.callbacks.manager import CallbackManagerForChainRun
-from langchain_core.tools import BaseTool
+from hana_ai.langchain_compat import (
+    AIMessage,
+    BaseTool,
+    ChatPromptTemplate,
+    Embeddings,
+    FormatSafeAgentExecutor,
+    get_conversation_buffer_window_memory,
+    HumanMessage,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder,
+    SystemMessage,
+    Tool,
+    build_agent_executor,
+)
+try:
+    from langchain.load.dump import dumps
+except Exception:
+    from langchain_core.load.dump import dumps
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
 from langchain_community.vectorstores.hanavector import HanaDB
@@ -51,41 +61,6 @@ from hana_ai.vectorstore.pal_cross_encoder import PALCrossEncoder
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-class FormatSafeAgentExecutor(AgentExecutor):
-    """
-    An AgentExecutor that safely formats the output of the agent to ensure
-    that the observation is always a list of objects, even if it was originally
-    a string. This is useful for ensuring compatibility with downstream
-    components that expect a specific format.
-    """
-    def _take_next_step(
-        self,
-        name_to_tool_map: Dict[str, BaseTool],
-        color_mapping: Dict[str, str],
-        inputs: Dict[str, str],
-        intermediate_steps: List[Tuple[AgentAction, str]],
-        run_manager: Optional[CallbackManagerForChainRun] = None,
-    ) -> Union[AgentFinish, List[Tuple[AgentAction, str]]]:
-        # 调用原始逻辑获取下一步动作
-        next_step = super()._take_next_step(
-            name_to_tool_map, color_mapping, inputs, intermediate_steps, run_manager
-        )
-
-        # 仅处理AgentAction（工具调用结果）
-        if isinstance(next_step, list):
-            formatted_steps = []
-            for action, observation in next_step:
-                # 关键转换：将字符串observation转为对象数组
-                if isinstance(observation, str):
-                    formatted_obs = [{"type": "text", "text": observation}]
-                    formatted_steps.append((action, formatted_obs))
-                else:
-                    formatted_steps.append((action, observation))
-            return formatted_steps
-
-        return next_step  # AgentFinish直接返回
 
 class HANAMLRAGAgent:
     """
@@ -251,7 +226,7 @@ class HANAMLRAGAgent:
     def _initialize_memory(self):
         """Initialize short-term and long-term memory systems"""
         # Short-term memory (recent conversations)
-        self.short_term_memory = ConversationBufferWindowMemory(
+        self.short_term_memory = get_conversation_buffer_window_memory(
             memory_key="chat_history",
             k=self.memory_window,
             return_messages=True
@@ -520,25 +495,24 @@ class HANAMLRAGAgent:
 
     def _initialize_agent(self):
         """Initialize agent with tool integration and context handling"""
-        # Create the prompt template
+        system_prompt = "You are a helpful assistant with access to tools. Always use tools when appropriate."
         prompt = ChatPromptTemplate.from_messages([
-            SystemMessage(content="You are a helpful assistant with access to tools. Always use tools when appropriate."),
+            SystemMessage(content=system_prompt),
             MessagesPlaceholder(variable_name="chat_history"),
             HumanMessagePromptTemplate.from_template("{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad")
         ])
-
-        # Create the agent with tool bindings
-        self.agent = create_openai_functions_agent(self.llm, self.tools, prompt)
-
-        # Create executor with memory integration
-        self.executor = FormatSafeAgentExecutor(
-            agent=self.agent,
-            tools=self.tools,
+        self.agent, self.executor = build_agent_executor(
+            self.llm,
+            self.tools,
+            prompt=prompt,
+            system_prompt=system_prompt,
             max_iterations=self.max_iterations,
             verbose=self.verbose,
             memory=self.short_term_memory,
-            handle_parsing_errors=True
+            handle_parsing_errors=True,
+            executor_cls=FormatSafeAgentExecutor,
+            return_agent=True,
         )
 
     def _format_dataframe(self, df: pd.DataFrame) -> str:
@@ -656,7 +630,7 @@ def stateless_chat(
         ]
         return SystemMessage(content=context_content)
 
-    # 2. 初始化提示模板
+    # 2. 初始化代理
     system_message = build_system_context(query, memory)
     prompt_template = ChatPromptTemplate.from_messages([
         system_message,
@@ -664,23 +638,21 @@ def stateless_chat(
         HumanMessagePromptTemplate.from_template("{input}"),
         MessagesPlaceholder(variable_name="agent_scratchpad")
     ])
-
-    # 3. 创建带空记忆的代理
-    agent = create_openai_functions_agent(llm, tools, prompt_template)
-    agent_executor = FormatSafeAgentExecutor(
-        agent=agent,
-        tools=tools,
+    agent_executor = build_agent_executor(
+        llm,
+        tools,
+        prompt=prompt_template,
+        system_prompt=system_message,
         max_iterations=10,
         handle_parsing_errors=True,
-        memory=ConversationBufferWindowMemory(  # 空短期记忆
+        memory=get_conversation_buffer_window_memory(
             memory_key="chat_history",
             k=0,
             return_messages=True
         ),
         return_intermediate_steps=True,
+        executor_cls=FormatSafeAgentExecutor,
     )
-
-    # 4. 执行查询并返回响应
     response = agent_executor.invoke({"input": query})
     intermediate_steps = response.get("intermediate_steps")
     response["intermediate_steps"] = dumps(intermediate_steps) if intermediate_steps else None

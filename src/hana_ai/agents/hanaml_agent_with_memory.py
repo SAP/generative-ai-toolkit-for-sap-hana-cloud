@@ -13,14 +13,24 @@ import logging
 import warnings
 import pandas as pd
 #from pydantic import ValidationError
-from langchain.agents import initialize_agent, AgentType, Tool
-from langchain.callbacks.base import BaseCallbackHandler
+from hana_ai.langchain_compat import (
+    AgentType,
+    BaseCallbackHandler,
+    ChatPromptTemplate,
+    GraphAgentExecutor,
+    MessagesPlaceholder,
+    Tool,
+    initialize_agent,
+    create_graph_agent,
+)
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.messages.base import BaseMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain.schema.messages import AIMessage
+try:
+    from langchain.schema.messages import AIMessage
+except Exception:
+    from langchain_core.messages import AIMessage
 #from langchain.load.dump import dumps
 from hana_ai.agents.hanaml_rag_agent import stateless_chat
 #from hana_ai.agents.utilities import _inspect_python_code, _check_generated_cap_for_bas
@@ -135,16 +145,30 @@ class HANAMLAgentWithMemory(object):
         self.verbose = verbose
         # Create callback handler linked to memory
         self.observation_callback = _ToolObservationCallbackHandler(lambda: self.memory, max_observations=max_observations)
-        chain: Runnable = self.prompt | initialize_agent(self.tools,
-                                                    llm,
-                                                    agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,verbose=verbose,
-                                                    callbacks=[self.observation_callback],
-                                                    **kwargs)
+        self._graph_agent = None
+        self._graph_executor = None
+        if initialize_agent and AgentType:
+            chain: Runnable = self.prompt | initialize_agent(
+                self.tools,
+                llm,
+                agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+                verbose=verbose,
+                callbacks=[self.observation_callback],
+                **kwargs
+            )
 
-        self.agent_with_chat_history = RunnableWithMessageHistory(chain,
-                                                                  lambda session_id: self.memory,
-                                                                  input_messages_key="question",
-                                                                  history_messages_key="history")
+            self.agent_with_chat_history = RunnableWithMessageHistory(
+                chain,
+                lambda session_id: self.memory,
+                input_messages_key="question",
+                history_messages_key="history"
+            )
+        elif create_graph_agent:
+            self._graph_agent = create_graph_agent(model=self.llm, tools=self.tools, system_prompt=system_prompt)
+            self._graph_executor = GraphAgentExecutor(self._graph_agent)
+            self.agent_with_chat_history = None
+        else:
+            raise ImportError("No compatible agent constructor found in langchain.")
         self.config = {"configurable": {"session_id": session_id}}
 
     def add_user_message(self, content: str):
@@ -172,16 +196,28 @@ class HANAMLAgentWithMemory(object):
         else:
             raise ValueError("The config parameter should be a dictionary.")
         # 需要重新初始化agent更新工具信息
-        chain: Runnable = self.prompt | initialize_agent(self.tools,
-                                                    self.llm,
-                                                    agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,verbose=self.verbose,
-                                                    callbacks=[self.observation_callback],
-                                                    **self.kwargs)
+        if initialize_agent and AgentType:
+            chain: Runnable = self.prompt | initialize_agent(
+                self.tools,
+                self.llm,
+                agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+                verbose=self.verbose,
+                callbacks=[self.observation_callback],
+                **self.kwargs
+            )
 
-        self.agent_with_chat_history = RunnableWithMessageHistory(chain,
-                                                                  lambda session_id: self.memory,
-                                                                  input_messages_key="question",
-                                                                  history_messages_key="history")
+            self.agent_with_chat_history = RunnableWithMessageHistory(
+                chain,
+                lambda session_id: self.memory,
+                input_messages_key="question",
+                history_messages_key="history"
+            )
+        elif create_graph_agent:
+            self._graph_agent = create_graph_agent(model=self.llm, tools=self.tools, system_prompt=CHATBOT_SYSTEM_PROMPT)
+            self._graph_executor = GraphAgentExecutor(self._graph_agent)
+            self.agent_with_chat_history = None
+        else:
+            raise ImportError("No compatible agent constructor found in langchain.")
 
     def delete_chat_history_tool(self, _input=""):
         """
@@ -196,6 +232,22 @@ class HANAMLAgentWithMemory(object):
         )
         return "Chat history has been deleted successfully."
 
+    def _build_graph_messages(self, question: str) -> list:
+        messages = []
+        for msg in self.memory.messages:
+            msg_type = getattr(msg, "type", "")
+            if msg_type == "human":
+                role = "user"
+            elif msg_type == "ai":
+                role = "assistant"
+            elif msg_type == "system":
+                role = "system"
+            else:
+                role = "user"
+            messages.append({"role": role, "content": msg.content})
+        messages.append({"role": "user", "content": question})
+        return messages
+
     def run(self, question):
         """
         Chat with the chatbot.
@@ -205,27 +257,35 @@ class HANAMLAgentWithMemory(object):
         question : str
             The question to ask.
         """
+        graph_mode = self._graph_executor is not None
+        added_memory = False
         try:
-            response = self.agent_with_chat_history.invoke({"question": question},
-                                                           config={**self.config,  # Preserve session_id
-                                                                   "callbacks": [self.observation_callback]
-                                                                   })
+            if graph_mode:
+                response = self._graph_executor.invoke({"messages": self._build_graph_messages(question)})
+            else:
+                response = self.agent_with_chat_history.invoke({"question": question},
+                                                               config={**self.config,  # Preserve session_id
+                                                                       "callbacks": [self.observation_callback]
+                                                                       })
         except Exception as e:
             error_message = str(e)
             if "Error code: 429" not in error_message:
                 self.memory.add_user_message(question)
                 self.memory.add_ai_message(f"The error message is `{error_message}`.")
+                added_memory = True
             response = error_message
         if isinstance(response, pd.DataFrame):
             meta = _get_pandas_meta(response)
             self.memory.add_user_message(question)
             self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata:\n{meta}")
+            added_memory = True
         if isinstance(response, dict) and 'output' in response:
             response = response['output']
             if isinstance(response, pd.DataFrame):
                 meta = _get_pandas_meta(response)
                 self.memory.add_user_message(question)
                 self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata: \n{meta}")
+                added_memory = True
         if isinstance(response, str):
             if response.startswith("Action:"): # force to call tool if return a Action string
                 action_json = response[7:]
@@ -255,11 +315,16 @@ class HANAMLAgentWithMemory(object):
                             self.memory.add_ai_message(f"The returned is a pandas dataframe with the metadata: \n{meta}")
                         else:
                             self.memory.add_ai_message(f"The tool {tool.name} has been already called via {action_input}. The result is `{response}`.")
+                        added_memory = True
                         return response
                     except Exception as e:
                         error_message = str(e)
                         if "Error code: 429" not in error_message:
                             self.memory.add_ai_message(f"The error message is `{error_message}`. The response is `{response}`.")
+                            added_memory = True
+        if graph_mode and not added_memory:
+            self.memory.add_user_message(question)
+            self.memory.add_ai_message(str(response))
         return response
 
 def stateless_call(llm, tools, question, chat_history=None, verbose=False, return_intermediate_steps=False, system_prompt=CHATBOT_SYSTEM_PROMPT):
