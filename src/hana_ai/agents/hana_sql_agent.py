@@ -22,12 +22,12 @@ from sqlalchemy import MetaData
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain_community.utilities import SQLDatabase
-from hana_ai.langchain_compat import AgentType
 from langchain_core.prompts import BasePromptTemplate
 from langchain_core.callbacks import BaseCallbackManager
 from langchain_core.tools import BaseTool
-
 from hana_ml.dataframe import ConnectionContext
+
+from hana_ai.langchain_compat import AgentType
 
 class _sql_toolkit(object):
     def __init__(self, llm, db, tools=None):

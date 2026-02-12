@@ -300,6 +300,7 @@ def build_agent_executor(
 
 
 class _FallbackConversationBufferWindowMemory:
+    """Fallback memory store when ConversationBufferWindowMemory is unavailable."""
     def __init__(self, memory_key: str = "chat_history", k: int = 5, return_messages: bool = True):
         self.memory_key = memory_key
         self.k = k

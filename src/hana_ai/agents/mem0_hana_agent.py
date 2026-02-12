@@ -18,8 +18,10 @@ Mem0's style of memory flow adapted to HANA.
 
 from __future__ import annotations
 
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Any, List, Optional
 import logging
+
+from hana_ml.algorithms.pal.utility import check_pal_function_exist
 
 from hana_ai.langchain_compat import (
     ChatPromptTemplate,
@@ -31,14 +33,11 @@ from hana_ai.langchain_compat import (
     Tool,
     build_agent_executor,
 )
-
-from hana_ml.algorithms.pal.utility import check_pal_function_exist
-
+from hana_ai.agents.utilities import _get_user_info
 from hana_ai.mem0.hana_mem0_adapter import SearchResult
-from hana_ai.mem0.memory_manager import Mem0MemoryManager, IngestionRules
 from hana_ai.mem0.memory_classifier import Mem0IngestionClassifier
 from hana_ai.mem0.memory_entity_extractor import Mem0EntityExtractor
-from hana_ai.agents.utilities import _get_user_info
+from hana_ai.mem0.memory_manager import Mem0MemoryManager, IngestionRules
 from hana_ai.vectorstore.embedding_service import HANAVectorEmbeddings
 from hana_ai.vectorstore.pal_cross_encoder import PALCrossEncoder
 

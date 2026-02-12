@@ -12,7 +12,7 @@ The following class is available:
 # pylint: disable=import-error
 
 import logging
-from typing import TypedDict, Dict
+from typing import Dict, TypedDict
 # try to import langgraph, if not installed, install it
 try:
     from langgraph.graph import END, StateGraph
@@ -22,9 +22,10 @@ except ImportError:
 
     subprocess.check_call([sys.executable, "-m", "pip", "install", "langgraph"])
     from langgraph.graph import END, StateGraph
-from hana_ai.langchain_compat import PydanticToolsParser, PromptTemplate
 from pydantic import BaseModel, Field
 from langchain_core.utils.function_calling import convert_to_openai_tool
+
+from hana_ai.langchain_compat import PydanticToolsParser, PromptTemplate
 
 logger = logging.getLogger(__name__) #pylint: disable=invalid-name
 

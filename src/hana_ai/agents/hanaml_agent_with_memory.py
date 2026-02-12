@@ -13,6 +13,10 @@ import logging
 import warnings
 import pandas as pd
 #from pydantic import ValidationError
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.messages.base import BaseMessage
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from hana_ai.langchain_compat import (
     AgentType,
     BaseCallbackHandler,
@@ -20,13 +24,9 @@ from hana_ai.langchain_compat import (
     GraphAgentExecutor,
     MessagesPlaceholder,
     Tool,
-    initialize_agent,
     create_graph_agent,
+    initialize_agent,
 )
-from langchain_core.chat_history import InMemoryChatMessageHistory
-from langchain_core.messages.base import BaseMessage
-from langchain_core.runnables import Runnable
-from langchain_core.runnables.history import RunnableWithMessageHistory
 try:
     from langchain.schema.messages import AIMessage
 except Exception:
@@ -147,7 +147,7 @@ class HANAMLAgentWithMemory(object):
         self.observation_callback = _ToolObservationCallbackHandler(lambda: self.memory, max_observations=max_observations)
         self._graph_agent = None
         self._graph_executor = None
-        if initialize_agent and AgentType:
+        if initialize_agent is not None and AgentType is not None:
             chain: Runnable = self.prompt | initialize_agent(
                 self.tools,
                 llm,
@@ -196,7 +196,7 @@ class HANAMLAgentWithMemory(object):
         else:
             raise ValueError("The config parameter should be a dictionary.")
         # 需要重新初始化agent更新工具信息
-        if initialize_agent and AgentType:
+        if initialize_agent is not None and AgentType is not None:
             chain: Runnable = self.prompt | initialize_agent(
                 self.tools,
                 self.llm,

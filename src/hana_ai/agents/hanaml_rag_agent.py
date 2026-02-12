@@ -8,26 +8,12 @@ The following class is available:
 
 #pylint: disable=attribute-defined-outside-init, ununsed-argument, no-else-return
 
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Any, List
 from datetime import datetime
 import logging
 import pandas as pd
 from sqlalchemy import delete
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from hana_ai.langchain_compat import (
-    AIMessage,
-    BaseTool,
-    ChatPromptTemplate,
-    Embeddings,
-    FormatSafeAgentExecutor,
-    get_conversation_buffer_window_memory,
-    HumanMessage,
-    HumanMessagePromptTemplate,
-    MessagesPlaceholder,
-    SystemMessage,
-    Tool,
-    build_agent_executor,
-)
 try:
     from langchain.load.dump import dumps
 except Exception:
@@ -35,6 +21,7 @@ except Exception:
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
 from langchain_community.vectorstores.hanavector import HanaDB
+from hana_ml.algorithms.pal.utility import check_pal_function_exist
 
 try:
     from sentence_transformers import CrossEncoder
@@ -53,7 +40,20 @@ except ImportError:
             """
             # Dummy implementation, returns zeros
             return [0.0 for _ in pairs]
-from hana_ml.algorithms.pal.utility import check_pal_function_exist
+from hana_ai.langchain_compat import (
+    AIMessage,
+    BaseTool,
+    ChatPromptTemplate,
+    Embeddings,
+    FormatSafeAgentExecutor,
+    HumanMessage,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder,
+    SystemMessage,
+    Tool,
+    build_agent_executor,
+    get_conversation_buffer_window_memory,
+)
 from hana_ai.agents.utilities import _check_generated_cap_for_bas, _get_user_info, _inspect_python_code
 from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings, HANAVectorEmbeddings
 from hana_ai.vectorstore.pal_cross_encoder import PALCrossEncoder
