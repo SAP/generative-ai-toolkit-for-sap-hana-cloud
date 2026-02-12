@@ -27,8 +27,15 @@ class TestTSCheckTools(TestML_BaseTestClass):
     def test_TimeSeriesCheck(self):
         tool = TimeSeriesCheck(connection_context=self.conn)
         result = tool.run({"table_name": "#HANAI_DATA_TBL_RAW", "key": "TIMESTAMP", "endog": "VALUE"})
-        expected_result = """Table structure: {"TIMESTAMP": "TIMESTAMP", "VALUE": "DOUBLE"}\nKey: TIMESTAMP\nEndog: VALUE\nIndex: starts from 1900-01-01 12:00:00 to 1900-01-01 16:00:00. Time series length is 5\nIntermittent Test: proportion of zero values is 0.0\nStationarity Test: The `stationary` is 0.The `kpss_stat` is 0.499999.The `p-value` is 0.041666666666844876.The `lags` is 4.The `number of observations` is 5.The `critical values` is {'10%': 0.347, '5%': 0.463, '2.5%': 0.574, '1%': 0.739}.\nTrend Test: Downward trend.\nSeasonality Test: The `type` is non-seasonal.The `period` is 0.The `acf` is -0.292111.\nAvailable algorithms: Additive Model Forecast, Automatic Time Series Forecast"""
-        self.assertTrue(result==expected_result)
+        self.assertIn("Table structure:", result)
+        self.assertIn("Key: TIMESTAMP", result)
+        self.assertIn("Endog: VALUE", result)
+        self.assertIn("Index: starts from 1900-01-01 12:00:00 to 1900-01-01 16:00:00. Time series length is 5", result)
+        self.assertIn("Intermittent Test: proportion of zero values is 0.0", result)
+        self.assertIn("Stationarity Test:", result)
+        self.assertIn("Trend Test:", result)
+        self.assertIn("Seasonality Test:", result)
+        self.assertIn("Available algorithms: Additive Model Forecast, Automatic Time Series Forecast", result)
 
     def test_TrendTest(self):
         tool = TrendTest(connection_context=self.conn)

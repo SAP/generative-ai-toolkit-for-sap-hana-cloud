@@ -12,10 +12,8 @@ from langchain.agents.mrkl.base import ZeroShotAgent
 from langchain.callbacks.base import BaseCallbackManager
 from langchain.chains.llm import LLMChain
 from langchain.llms.base import BaseLLM
-try:
-    from langchain.tools.python.tool import PythonAstREPLTool
-except:
-    from langchain_experimental.tools.python.tool import PythonAstREPLTool
+from langchain.tools.python.tool import PythonAstREPLTool
+
 from hana_ai.agents.hana_dataframe_prompt import PREFIX, SUFFIX
 
 def _validate_hana_df(df: Any) -> bool:
