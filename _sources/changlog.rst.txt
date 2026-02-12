@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.26021200**
+
+``Bug Fixes``
+    - Fixed the version incomatibility issue of langchain and sap-ai-sdk-gen.
+
 **Version 1.0.260116**
 
 ``New Functions``
