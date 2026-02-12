@@ -163,7 +163,7 @@ class HANAMLAgentWithMemory(object):
                 input_messages_key="question",
                 history_messages_key="history"
             )
-        elif create_graph_agent:
+        elif create_graph_agent is not None:
             self._graph_agent = create_graph_agent(model=self.llm, tools=self.tools, system_prompt=system_prompt)
             self._graph_executor = GraphAgentExecutor(self._graph_agent)
             self.agent_with_chat_history = None
@@ -212,7 +212,7 @@ class HANAMLAgentWithMemory(object):
                 input_messages_key="question",
                 history_messages_key="history"
             )
-        elif create_graph_agent:
+        elif create_graph_agent is not None:
             self._graph_agent = create_graph_agent(model=self.llm, tools=self.tools, system_prompt=CHATBOT_SYSTEM_PROMPT)
             self._graph_executor = GraphAgentExecutor(self._graph_agent)
             self.agent_with_chat_history = None

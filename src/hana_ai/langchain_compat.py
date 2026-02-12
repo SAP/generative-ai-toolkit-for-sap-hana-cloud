@@ -201,6 +201,7 @@ def extract_agent_output(result: Any) -> str:
 
 
 class GraphAgentExecutor:
+    """Adapter for graph-based agents with an invoke-compatible API."""
     is_graph = True
 
     def __init__(self, graph: Any):
