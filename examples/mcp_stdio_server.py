@@ -8,6 +8,8 @@ Claude Desktop, or any tool supporting the MCP stdio transport.
 Connection context can be provided via environment variables or CLI args.
 
 Environment variables:
+- HANA_ENV_FILE:    Path to a .env file to load into environment (optional)
+- ENV_FILE:         Alternative .env path variable (optional)
 - HANA_ADDRESS:      HANA host (e.g., "your.hana.ondemand.com")
 - HANA_PORT:         HANA port (default: 443)
 - HANA_USER:         HANA username
@@ -17,6 +19,9 @@ Environment variables:
 - BUILD_CODE:        Suppress display() calls outside Jupyter (true/false, default: true)
 
 Usage examples:
+    # Load a .env file first (e.g., examples/sample.env):
+    HANA_ENV_FILE=examples/sample.env python examples/mcp_stdio_server.py
+
   # Using environment variables:
   HANA_ADDRESS=your.host HANA_USER=user HANA_PASSWORD=pass \\
     python examples/mcp_stdio_server.py
@@ -40,6 +45,7 @@ import time
 import argparse
 import logging
 import warnings
+import json
 from typing import Optional
 
 # Suppress harmless warnings before importing dependencies.
@@ -50,6 +56,99 @@ logging.getLogger("hana_ml.visualizers.shared").setLevel(logging.CRITICAL)
 
 from hana_ml import ConnectionContext
 from hana_ai.tools.toolkit import HANAMLToolkit
+
+
+_DOTENV_PATH_VARS = ("HANA_ENV_FILE", "ENV_FILE")
+
+
+def _load_env_file(path: str, *, override: bool = False) -> int:
+    """Load KEY=VALUE pairs from a .env-style file into os.environ.
+
+    - Does not print to stdout (safe for stdio MCP transport).
+    - By default does not override existing environment variables.
+
+    Returns the count of variables loaded.
+    """
+    loaded = 0
+    with open(path, "r", encoding="utf-8") as f:
+        for raw_line in f:
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("export "):
+                line = line[len("export ") :].lstrip()
+            if "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip()
+            if not key:
+                continue
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+                value = value[1:-1]
+            if not override and key in os.environ:
+                continue
+            os.environ[key] = value
+            loaded += 1
+    return loaded
+
+
+def _maybe_load_env_file_from_env() -> Optional[str]:
+    """Load a .env file into the environment if a configured path exists.
+
+    The path is read from one of: HANA_ENV_FILE, ENV_FILE.
+    Relative paths are resolved against CWD first, then the script directory.
+
+    Returns the resolved path if loaded, else None.
+    """
+    script_dir = os.path.dirname(__file__)
+    for var_name in _DOTENV_PATH_VARS:
+        candidate = os.environ.get(var_name)
+        if not candidate:
+            continue
+        candidate = os.path.expandvars(os.path.expanduser(candidate))
+        candidates = [
+            candidate,
+            os.path.join(os.getcwd(), candidate),
+            os.path.join(script_dir, candidate),
+        ]
+        for path in candidates:
+            if os.path.isfile(path):
+                _load_env_file(path, override=False)
+                return path
+    return None
+
+
+def _maybe_apply_vcap_services() -> Optional[dict]:
+    """Map VCAP_SERVICES hana credentials into HANA_* env vars if present.
+
+    Returns the credentials dict if applied, else None.
+    """
+    vcap = os.environ.get("VCAP_SERVICES")
+    if not vcap:
+        return None
+    try:
+        payload = json.loads(vcap)
+    except json.JSONDecodeError:
+        logging.warning("VCAP_SERVICES is not valid JSON; skipping.")
+        return None
+    hana_services = payload.get("hana") or []
+    if not hana_services:
+        return None
+    credentials = hana_services[0].get("credentials") or {}
+    mapping = {
+        "HANA_ADDRESS": credentials.get("host"),
+        "HANA_PORT": credentials.get("port"),
+        "HANA_SCHEMA": credentials.get("schema"),
+        "HANA_USER": credentials.get("user"),
+        "HANA_PASSWORD": credentials.get("password"),
+    }
+    for key, value in mapping.items():
+        if value is None:
+            continue
+        if key not in os.environ:
+            os.environ[key] = str(value)
+    return credentials
 
 
 def build_connection_context(
@@ -86,6 +185,21 @@ def parse_bool(val: str) -> bool:
 
 
 def main():
+    # Stdio transport: log to stderr so stdout stays clean for MCP protocol
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="%(levelname)s:%(name)s:%(message)s",
+        stream=sys.stderr,
+    )
+
+    loaded_env_path = _maybe_load_env_file_from_env()
+    if loaded_env_path:
+        logging.warning("Loaded environment variables from %s", loaded_env_path)
+
+    vcap_credentials = _maybe_apply_vcap_services()
+    if vcap_credentials:
+        logging.warning("Applied HANA credentials from VCAP_SERVICES")
+
     parser = argparse.ArgumentParser(
         description="Start a stdio MCP server exposing HANA AI tools."
     )
