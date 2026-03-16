@@ -1,15 +1,17 @@
 Changelog
 =========
 
-**Version 1.0.26021200**
+**Version 1.0.260316**
+
+``API Changes``
+    - Removed the graph_tools due to the stored procedure missing.
+
+**Version 1.0.260212**
 
 ``Bug Fixes``
     - Fixed the version incomatibility issue of langchain and sap-ai-sdk-gen.
 
 **Version 1.0.260116**
-
-``New Functions``
-    - Added DiscoveryAgentTool and DataAgentTool to hanaml tools for knowledge graph interactions.
 
 ``Enhancements``
     - Added reset_tools method to HANAMLToolkit to reset the toolkit's tools.
