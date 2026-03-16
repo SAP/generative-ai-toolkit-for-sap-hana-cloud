@@ -1,8 +1,8 @@
 """
-Simple HTTP MCP server launcher for HANA Graph Tools.
+Simple HTTP MCP server launcher for HANA ML tools.
 
-This script starts an MCP server over HTTP and registers only
-DiscoveryAgentTool and DataAgentTool from hana_ai.tools.hana_ml_tools.graph_tools.
+This script starts an MCP server over HTTP using the default
+tools provided by HANAMLToolkit.
 
 Connection context can be provided via environment variables or CLI args.
 
@@ -33,7 +33,6 @@ from typing import Optional
 
 from hana_ml import ConnectionContext
 from hana_ai.tools.toolkit import HANAMLToolkit
-from hana_ai.tools.hana_ml_tools.graph_tools import DiscoveryAgentTool, DataAgentTool
 
 
 def build_connection_context(
@@ -110,11 +109,8 @@ def main():
         ssl_validate_certificate=args.ssl_validate,
     )
 
-    # Build toolkit and restrict to graph tools
+    # Build toolkit with default tools
     toolkit = HANAMLToolkit(connection_context=cc)
-    discovery_tool = DiscoveryAgentTool(connection_context=cc)
-    data_tool = DataAgentTool(connection_context=cc)
-    toolkit.reset_tools([discovery_tool, data_tool])
 
     logging.info("Starting MCP HTTP server %s on http://%s:%d/mcp",
                  args.server_name, args.host, args.port_http)

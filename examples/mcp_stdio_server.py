@@ -26,8 +26,6 @@ Usage examples:
     --address "$HANA_ADDRESS" --port "$HANA_PORT" \\
     --user "$HANA_USER" --password "$HANA_PASSWORD"
 
-  # Expose only graph tools:
-  python examples/mcp_stdio_server.py --tools graph
 
 Notes:
 - If your environment has an HTTP proxy configured, ensure the HANA host can bypass it:
@@ -108,8 +106,6 @@ def main():
     # MCP server args
     parser.add_argument("--server-name", dest="server_name", default="HANATools",
                         help="MCP server name (default: HANATools)")
-    parser.add_argument("--tools", default="all", choices=["all", "graph"],
-                        help="Which tools to expose: 'all' (default) or 'graph'")
     parser.add_argument("--build-code", dest="build_code",
                         type=parse_bool, default=env_bool("BUILD_CODE", default=True),
                         help="Suppress display() calls outside Jupyter/BAS (default: true)")
@@ -145,15 +141,7 @@ def main():
         ssl_validate_certificate=args.ssl_validate,
     )
 
-    if args.tools == "graph":
-        from hana_ai.tools.hana_ml_tools.graph_tools import DiscoveryAgentTool, DataAgentTool
-        toolkit = HANAMLToolkit(connection_context=cc)
-        toolkit.reset_tools([
-            DiscoveryAgentTool(connection_context=cc),
-            DataAgentTool(connection_context=cc),
-        ])
-    else:
-        toolkit = HANAMLToolkit(connection_context=cc, used_tools="all")
+    toolkit = HANAMLToolkit(connection_context=cc, used_tools="all")
 
     # Set BAS mode to suppress display() errors in non-Jupyter environments
     toolkit.set_bas(args.build_code)
