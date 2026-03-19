@@ -374,9 +374,9 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         decompose_holiday = kwargs.get("decompose_holiday", None)
         add_placeholder = kwargs.get("add_placeholder", True)
 
-        predict_df = self.connection_context.table(predict_table, schema=predict_schema)
         if not self.connection_context.has_table(predict_table, schema=predict_schema):
             return f"Table {predict_table} does not exist in the database."
+        predict_df = self.connection_context.table(predict_table, schema=predict_schema)
         if key not in self.connection_context.table(predict_table, schema=predict_schema).columns:
             return f"Key {key} does not exist in the table {predict_table}."
         ms = ModelStorage(connection_context=self.connection_context)
@@ -421,8 +421,27 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
                 f"REASON_CODE_{predict_table}_{name}_{version}"
             )
             self.connection_context.table(model._predict_output_table_names[1]).smart_save(predicted_results[1], force=True)
-            return json.dumps({"predicted_results_table": predicted_results[0], "decomposed_and_reason_code_table": predicted_results[1]})
-        return json.dumps({"predicted_results_table": predicted_results[0]}, cls=_CustomEncoder)
+            return json.dumps(
+                {
+                    "input_predict_table": predict_table,
+                    "input_predict_schema": predict_schema,
+                    "model_storage_name": name,
+                    "model_storage_version": version,
+                    "predicted_results_table": predicted_results[0],
+                    "decomposed_and_reason_code_table": predicted_results[1],
+                },
+                cls=_CustomEncoder,
+            )
+        return json.dumps(
+            {
+                "input_predict_table": predict_table,
+                "input_predict_schema": predict_schema,
+                "model_storage_name": name,
+                "model_storage_version": version,
+                "predicted_results_table": predicted_results[0],
+            },
+            cls=_CustomEncoder,
+        )
 
     async def _arun(
         self,

@@ -20,6 +20,8 @@ from __future__ import annotations
 
 from typing import Any, List, Optional
 import logging
+import json
+import re
 
 from hana_ml.algorithms.pal.utility import check_pal_function_exist
 
@@ -43,6 +45,94 @@ from hana_ai.vectorstore.pal_cross_encoder import PALCrossEncoder
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def _flatten_tool_observation(observation: Any) -> str:
+    """Best-effort conversion of tool observation payloads to plain text."""
+    if observation is None:
+        return ""
+    if isinstance(observation, str):
+        return observation
+    if isinstance(observation, dict):
+        # Some executors may return a dict with text fields.
+        text = observation.get("text")
+        return text if isinstance(text, str) else json.dumps(observation, ensure_ascii=False)
+    if isinstance(observation, list):
+        parts: List[str] = []
+        for item in observation:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                t = item.get("text")
+                parts.append(t if isinstance(t, str) else json.dumps(item, ensure_ascii=False))
+            else:
+                parts.append(str(item))
+        return "\n".join(parts)
+    return str(observation)
+
+
+def _extract_table_facts_from_steps(intermediate_steps: Any) -> dict:
+    """Extract table-related facts (e.g., predicted_results_table) from tool outputs."""
+    facts: dict = {}
+    if not intermediate_steps:
+        return facts
+    for step in intermediate_steps:
+        # step is usually (AgentAction, observation)
+        if not isinstance(step, (list, tuple)) or len(step) != 2:
+            continue
+        _action, observation = step
+        obs_text = _flatten_tool_observation(observation).strip()
+        if not obs_text:
+            continue
+        try:
+            payload = json.loads(obs_text)
+        except Exception:
+            continue
+        if not isinstance(payload, dict):
+            continue
+
+        for key in (
+            "predicted_results_table",
+            "decomposed_and_reason_code_table",
+            "scored_results_table",
+            "trained_table",
+            "train_data_select_statement",
+            "predicted_results_select_statement",
+            "scored_results_select_statement",
+            "evaluation_scores_select_statement",
+            "model_storage_name",
+            "model_storage_version",
+            "input_predict_table",
+            "input_predict_schema",
+        ):
+            if key in payload and payload[key] is not None:
+                facts[key] = payload[key]
+    return facts
+
+
+def _extract_last_predicted_table_from_texts(texts: List[str]) -> dict:
+    """Extract the most recent/most relevant predicted output table mention from memory texts."""
+    if not texts:
+        return {}
+
+    # Match either the new English suffix or the previous Chinese suffix.
+    patterns = [
+        r"\[Tool Result\]\s*Predicted output table:\s*(?P<out>[^\s()]+)(?:\s*\(input table:\s*(?P<inp>[^)]+)\))?",
+        r"\[Tool结果\]\s*预测输出表:\s*(?P<out>[^\s（()]+)(?:[（(]输入表:\s*(?P<inp>[^)）]+)[)）])?",
+    ]
+    combined = "\n".join(texts)
+    for pat in patterns:
+        m = re.search(pat, combined)
+        if m:
+            out = m.groupdict().get("out")
+            inp = m.groupdict().get("inp")
+            facts = {}
+            if out:
+                facts["predicted_results_table"] = out.strip()
+            if inp:
+                facts["input_predict_table"] = inp.strip()
+            return facts
+    return {}
 
 
 class Mem0HANARAGAgent:
@@ -145,7 +235,12 @@ class Mem0HANARAGAgent:
             self._initialize_agent()
 
     def _initialize_agent(self):
-        system_prompt = "You are a helpful assistant with access to tools. Always use tools when appropriate."
+        system_prompt = (
+            "You are a helpful assistant with access to tools. Always use tools when appropriate. "
+            "When a tool returns structured output (e.g., JSON), treat it as the source of truth. "
+            "For forecasting/prediction tools, never confuse the input table (predict_table) with the output table. "
+            "Always refer to the exact 'predicted_results_table' (or equivalent) returned by the tool."
+        )
         prompt = ChatPromptTemplate.from_messages([
             SystemMessage(content=system_prompt),
             HumanMessagePromptTemplate.from_template("{input}"),
@@ -159,6 +254,7 @@ class Mem0HANARAGAgent:
             max_iterations=20,
             verbose=self.verbose,
             handle_parsing_errors=True,
+            return_intermediate_steps=True,
             executor_cls=FormatSafeAgentExecutor,
             return_agent=True,
         )
@@ -282,13 +378,36 @@ class Mem0HANARAGAgent:
         # Build context string via adapter memories
         long_term_context = self._retrieve_relevant_memories(user_input)
         context_str = "\n".join(long_term_context) if long_term_context else ""
+
+        # Inject last known predicted output table as a high-priority fact.
+        remembered_facts = _extract_last_predicted_table_from_texts(long_term_context)
+        facts_prefix = ""
+        if remembered_facts.get("predicted_results_table"):
+            facts_prefix = f"Known tool facts: predicted_results_table={remembered_facts['predicted_results_table']}"
+            if remembered_facts.get("input_predict_table"):
+                facts_prefix += f", input_predict_table={remembered_facts['input_predict_table']}"
+            facts_prefix += "\n\n"
         agent_input = {
             "input": [{
                 "type": "text",
-                "text": f"Context:\n{context_str}\n\nQuestion: {user_input}",
+                "text": f"{facts_prefix}Context:\n{context_str}\n\nQuestion: {user_input}",
             }]
         }
         response = self.executor.invoke(agent_input)
-        output = response["output"]
+        output = response.get("output") if isinstance(response, dict) else str(response)
+
+        intermediate_steps = response.get("intermediate_steps") if isinstance(response, dict) else None
+        facts = _extract_table_facts_from_steps(intermediate_steps)
+
+        # Append authoritative tool facts to reduce table-name ambiguity across turns.
+        if facts.get("predicted_results_table"):
+            input_table = facts.get("input_predict_table")
+            predicted_table = facts.get("predicted_results_table")
+            suffix = f"\n\n[Tool Result] Predicted output table: {predicted_table}"
+            if input_table:
+                suffix += f" (input table: {input_table})"
+            if suffix not in output:
+                output = f"{output}{suffix}"
+
         self._update_long_term_memory(user_input, output)
         return output

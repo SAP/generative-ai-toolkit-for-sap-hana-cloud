@@ -10,7 +10,7 @@
             ],
             "schema_privileges": [
                 {
-                    "reference": "<HANA_USER>",
+                    "schema": "<HANA_USER>",
                     "privileges_with_grant_option": [
                         "SELECT"
                     ]
@@ -27,7 +27,7 @@
             ],
             "schema_privileges": [
                 {
-                    "reference": "<HANA_USER>",
+                    "schema": "<HANA_USER>",
                     "privileges_with_grant_option": [
                         "SELECT"
                     ]

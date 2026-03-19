@@ -320,9 +320,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        self._run(
-            **kwargs
-        )
+        return self._run(**kwargs)
 
 class AutomaticTimeSeriesLoadModelAndPredict(BaseTool):
     """
@@ -425,9 +423,7 @@ class AutomaticTimeSeriesLoadModelAndPredict(BaseTool):
         **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        self._run(
-            **kwargs
-        )
+        return self._run(**kwargs)
 
 class AutomaticTimeSeriesLoadModelAndScore(BaseTool):
     """
@@ -532,6 +528,4 @@ class AutomaticTimeSeriesLoadModelAndScore(BaseTool):
         **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        self._run(
-            **kwargs
-        )
+        return self._run(**kwargs)
