@@ -273,9 +273,9 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
         use_explain = kwargs.get("use_explain", None)
         workload_class = kwargs.get("workload_class", None)
 
-        fit_df = self.connection_context.table(fit_table, schema=fit_schema)
         if not self.connection_context.has_table(fit_table, schema=fit_schema):
             return f"Table {fit_table} does not exist in the database."
+        fit_df = self.connection_context.table(fit_table, schema=fit_schema)
         if key not in self.connection_context.table(fit_table, schema=fit_schema).columns:
             return f"Key {key} does not exist in the table {fit_table}."
 
@@ -330,9 +330,7 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
         **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        self._run(
-            **kwargs
-        )
+        return self._run(**kwargs)
 
 class MassiveAutomaticTimeSeriesLoadModelAndPredict(BaseTool):
     """
@@ -438,7 +436,13 @@ class MassiveAutomaticTimeSeriesLoadModelAndPredict(BaseTool):
         predicted_results = f"PREDICT_RESULT_{predict_table}_{name}_{version}" if predict_schema is None else f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"
         self.connection_context.table(model._predict_output_table_names[0]).smart_save(predicted_results, force=True)
         stats = self.connection_context.table(model._predict_output_table_names[1]).collect()
-        outputs = {"predicted_results_table": predicted_results}
+        outputs = {
+          "input_predict_table": predict_table,
+          "input_predict_schema": predict_schema,
+          "model_storage_name": name,
+          "model_storage_version": version,
+          "predicted_results_table": predicted_results,
+        }
         for _, row in stats.iterrows():
             outputs[row[stats.columns[0]]] = row[stats.columns[1]]
         return json.dumps(outputs, cls=_CustomEncoder)
@@ -448,9 +452,7 @@ class MassiveAutomaticTimeSeriesLoadModelAndPredict(BaseTool):
         **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        self._run(
-            **kwargs
-        )
+        return self._run(**kwargs)
 
 class MassiveAutomaticTimeSeriesLoadModelAndScore(BaseTool):
     """
@@ -563,6 +565,4 @@ class MassiveAutomaticTimeSeriesLoadModelAndScore(BaseTool):
         **kwargs
     ) -> str:
         """Use the tool asynchronously."""
-        self._run(
-            **kwargs
-        )
+        return self._run(**kwargs)

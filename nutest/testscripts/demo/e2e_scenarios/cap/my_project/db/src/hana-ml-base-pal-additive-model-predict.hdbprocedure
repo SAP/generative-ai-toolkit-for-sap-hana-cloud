@@ -1,5 +1,5 @@
 PROCEDURE hana_ml_base_pal_additive_model_predict(
-in in_0_hana_ml_base_pal_additive_model_predict TABLE("BOOKING_DATE" DATE, "PLACEHOLDER" INT),
+in in_0_hana_ml_base_pal_additive_model_predict TABLE("BOOKING_DATE" DATE, "PLACE_HOLDER" DECIMAL(1, 1), "PLACEHOLDER" INT),
 in in_1_hana_ml_base_pal_additive_model_predict TABLE("ROW_INDEX" INT, "MODEL_CONTENT" NCLOB),
 out out_0_hana_ml_base_pal_additive_model_predict TABLE("BOOKING_DATE" DATE, "YHAT" DOUBLE, "YHAT_LOWER" DOUBLE, "YHAT_UPPER" DOUBLE))
 LANGUAGE SQLSCRIPT
