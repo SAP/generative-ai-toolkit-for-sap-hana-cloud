@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.260319**
+
+``Bug Fixes``
+    - Fixed the hullucination issue of forecast tools in Mem0HANARAGAgent when the input table name is very similar to the prediction result.
+
 **Version 1.0.260316**
 
 ``API Changes``
