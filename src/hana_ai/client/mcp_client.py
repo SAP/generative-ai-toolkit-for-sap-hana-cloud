@@ -493,8 +493,48 @@ class StdioMCPClient(MCPClient):
         This wrapper exists to satisfy static analyzers (pylint) and to avoid
         depending on private base-class behavior.
         """
-        # Reuse the HTTP client's fallback schema; it's transport-agnostic.
-        MCPClient._use_default_tools(self)
+        # Keep this local to avoid relying on methods that exist only on HTTPMCPClient.
+        self.tools = {
+            "admin_update_connection_context": MCPTool(
+                name="admin_update_connection_context",
+                description="Update the toolkit's HANA ConnectionContext without restarting the MCP server.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "address": {"type": "string", "description": "The HANA database host/address."},
+                        "port": {"type": "integer", "description": "The HANA database port."},
+                        "user": {"type": "string", "description": "The HANA database user."},
+                        "password": {"type": "string", "description": "The HANA database password."},
+                        "encrypt": {"type": "boolean", "description": "Use TLS."},
+                        "ssl_validate_certificate": {"type": "boolean", "description": "Validate TLS certificate."},
+                        "test_connection": {"type": "boolean", "description": "Test new connection before switching."},
+                    },
+                    "required": ["address", "port", "user", "password"],
+                },
+            ),
+            "discovery_agent": MCPTool(
+                name="discovery_agent",
+                description="Use the HANA discovery agent tool to run a query.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "The query to execute."}
+                    },
+                    "required": ["query"],
+                },
+            ),
+            "data_agent": MCPTool(
+                name="data_agent",
+                description="Use the HANA data agent tool to run a query.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "The query to execute."}
+                    },
+                    "required": ["query"],
+                },
+            ),
+        }
 
     async def close(self) -> None:
         if self._process is not None:
