@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.260327**
+
+``Enhancements``
+    - Added tools to reset HANA connection in MCP server.
+
 **Version 1.0.260319**
 
 ``Bug Fixes``
