@@ -6,6 +6,7 @@ The following class is available:
     * :class `HANAMLToolkit`
 """
 # pylint: disable=ungrouped-imports
+import os
 import sys
 import socket
 from contextlib import closing
@@ -63,6 +64,130 @@ from hana_ai.tools.hana_ml_tools.ts_make_predict_table import TSMakeFutureTableT
 from hana_ai.tools.hana_ml_tools.select_statement_to_table_tools import SelectStatementToTableTool
 from hana_ai.tools.hana_ml_tools.massive_automatic_timeseries_tools import MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeSeriesLoadModelAndPredict, MassiveAutomaticTimeSeriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.massive_ts_outlier_detection_tools import MassiveTSOutlierDetection
+
+
+def _is_sensitive_key(key: str) -> bool:
+    k = (key or "").lower()
+    return any(x in k for x in ("password", "passwd", "secret", "token", "key"))
+
+
+def _redact_dict(d: dict) -> dict:
+    out = {}
+    for k, v in (d or {}).items():
+        out[k] = "***" if _is_sensitive_key(str(k)) and v is not None else v
+    return out
+
+
+def _env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
+    val = os.environ.get(name)
+    if val is None:
+        return default
+    return val.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _build_cc_params_from_env() -> dict[str, Any]:
+    address = os.environ.get("HANA_ADDRESS")
+    port_raw = os.environ.get("HANA_PORT", "443")
+    user = os.environ.get("HANA_USER")
+    password = os.environ.get("HANA_PASSWORD")
+    encrypt = _env_bool("HANA_ENCRYPT", default=None)
+    # Default to False to match existing test infra (`RaysKey` uses sslValidateCertificate=False)
+    # and to avoid failing in environments without a complete trust store.
+    ssl_validate = _env_bool("HANA_SSL_VALIDATE", default=False)
+
+    missing = [k for k, v in {"HANA_ADDRESS": address, "HANA_USER": user, "HANA_PASSWORD": password}.items() if not v]
+    if missing:
+        raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
+
+    try:
+        port = int(port_raw)
+    except Exception as e:
+        raise ValueError(f"Invalid HANA_PORT: {port_raw}") from e
+
+    params: dict[str, Any] = {
+        "address": address,
+        "port": port,
+        "user": user,
+        "password": password,
+    }
+    if encrypt is not None:
+        params["encrypt"] = bool(encrypt)
+    if ssl_validate is not None:
+        params["sslValidateCertificate"] = bool(ssl_validate)
+    return params
+
+
+def _refresh_tools_for_new_context(toolkit: "HANAMLToolkit") -> dict[str, Any]:
+    """Propagate the current toolkit.connection_context into tools and rebuild defaults."""
+    updated_tools = 0
+    recreated_default_tools = 0
+
+    def _update_tool_ctx(t: Any) -> bool:
+        try:
+            if hasattr(t, "connection_context"):
+                setattr(t, "connection_context", toolkit.connection_context)
+                return True
+        except Exception:
+            return False
+        return False
+
+    if toolkit.used_tools:
+        for t in list(toolkit.used_tools):
+            if _update_tool_ctx(t):
+                updated_tools += 1
+
+    if toolkit.default_tools:
+        for t in list(toolkit.default_tools):
+            if _update_tool_ctx(t):
+                updated_tools += 1
+
+    try:
+        selected_names = None
+        if toolkit.used_tools is not None:
+            selected_names = [getattr(t, "name", None) for t in toolkit.used_tools]
+            selected_names = [n for n in selected_names if n]
+
+        toolkit.default_tools = [
+            AccuracyMeasure(connection_context=toolkit.connection_context),
+            AdditiveModelForecastFitAndSave(connection_context=toolkit.connection_context),
+            AdditiveModelForecastLoadModelAndPredict(connection_context=toolkit.connection_context),
+            AutomaticTimeSeriesFitAndSave(connection_context=toolkit.connection_context),
+            AutomaticTimeSeriesLoadModelAndPredict(connection_context=toolkit.connection_context),
+            AutomaticTimeSeriesLoadModelAndScore(connection_context=toolkit.connection_context),
+            CAPArtifactsTool(connection_context=toolkit.connection_context),
+            DeleteModels(connection_context=toolkit.connection_context),
+            FetchDataTool(connection_context=toolkit.connection_context),
+            ForecastLinePlot(connection_context=toolkit.connection_context),
+            IntermittentForecast(connection_context=toolkit.connection_context),
+            ListModels(connection_context=toolkit.connection_context),
+            HDIArtifactsTool(connection_context=toolkit.connection_context),
+            TimeSeriesDatasetReport(connection_context=toolkit.connection_context),
+            TimeSeriesCheck(connection_context=toolkit.connection_context),
+            TSOutlierDetection(connection_context=toolkit.connection_context),
+            ClassificationTool(connection_context=toolkit.connection_context),
+            RegressionTool(connection_context=toolkit.connection_context),
+            TSMakeFutureTableTool(connection_context=toolkit.connection_context),
+            SelectStatementToTableTool(connection_context=toolkit.connection_context),
+            MassiveAutomaticTimeSeriesFitAndSave(connection_context=toolkit.connection_context),
+            MassiveAutomaticTimeSeriesLoadModelAndPredict(connection_context=toolkit.connection_context),
+            MassiveAutomaticTimeSeriesLoadModelAndScore(connection_context=toolkit.connection_context),
+            MassiveTimeSeriesCheck(connection_context=toolkit.connection_context),
+            TSMakeFutureTableForMassiveForecastTool(connection_context=toolkit.connection_context),
+            MassiveTSOutlierDetection(connection_context=toolkit.connection_context),
+        ]
+        recreated_default_tools = len(toolkit.default_tools)
+
+        if selected_names:
+            toolkit.used_tools = [t for t in toolkit.default_tools if getattr(t, "name", None) in selected_names]
+        else:
+            toolkit.used_tools = toolkit.default_tools
+    except Exception as e:
+        logging.warning("Failed to rebuild tool instances: %s", e)
+
+    return {
+        "tools_updated_in_place": updated_tools,
+        "default_tools_rebuilt": recreated_default_tools,
+    }
 
 class HANAMLToolkit(BaseToolkit):
     """
@@ -329,6 +454,102 @@ class HANAMLToolkit(BaseToolkit):
             else:
                 mcp = FastMCP(**server_settings)
 
+            # --- Admin tool: update connection context at runtime ---
+            # This is intentionally registered before business tools, and is transport-agnostic.
+            # NOTE: For stdio transport, any stray stdout breaks the protocol; we only use logging.
+            @mcp.tool()
+            def admin_update_connection_context(
+                address: Annotated[str, TxtDoc("HANA host/address") if TxtDoc is not None else str],
+                port: Annotated[int, TxtDoc("HANA port") if TxtDoc is not None else int] = 443,
+                user: Annotated[str, TxtDoc("HANA user") if TxtDoc is not None else str] = "",
+                password: Annotated[str, TxtDoc("HANA password") if TxtDoc is not None else str] = "",
+                encrypt: Annotated[Optional[bool], TxtDoc("Use TLS") if TxtDoc is not None else Optional[bool]] = None,
+                ssl_validate_certificate: Annotated[Optional[bool], TxtDoc("Validate TLS certificate") if TxtDoc is not None else Optional[bool]] = None,
+                test_connection: Annotated[bool, TxtDoc("If true, open a test connection before switching") if TxtDoc is not None else bool] = False,
+            ):
+                """Update the toolkit's HANA ConnectionContext without restarting the MCP server."""
+                new_params: dict[str, Any] = {
+                    "address": address,
+                    "port": port,
+                    "user": user,
+                    "password": password,
+                }
+                if encrypt is not None:
+                    new_params["encrypt"] = bool(encrypt)
+                if ssl_validate_certificate is not None:
+                    new_params["sslValidateCertificate"] = bool(ssl_validate_certificate)
+
+                # Optionally validate credentials/route before mutating live tools.
+                if test_connection:
+                    try:
+                        test_cc = ConnectionContext(**new_params)
+                        # Best-effort ping: open/close if supported.
+                        close_meth = getattr(test_cc, "close", None)
+                        if callable(close_meth):
+                            close_meth()
+                    except Exception as e:
+                        logging.error("Connection test failed: %s", e)
+                        return {"ok": False, "error": str(e)}
+
+                # Swap context
+                try:
+                    self.connection_context = ConnectionContext(**new_params)
+                except Exception as e:
+                    logging.error("Failed to build ConnectionContext: %s", e)
+                    return {"ok": False, "error": str(e)}
+
+                # Propagate to tools. Many tools store connection_context on construction.
+                refresh_stats = _refresh_tools_for_new_context(self)
+                logging.warning(
+                    "✅ Updated ConnectionContext for toolkit; tools updated=%s, defaults rebuilt=%s",
+                    refresh_stats.get("tools_updated_in_place"),
+                    refresh_stats.get("default_tools_rebuilt"),
+                )
+                return {
+                    "ok": True,
+                    "connection": _redact_dict(new_params),
+                    **refresh_stats,
+                }
+
+            @mcp.tool()
+            def admin_reload_connection_context_from_env(
+                test_connection: Annotated[bool, TxtDoc("If true, open a test connection before switching") if TxtDoc is not None else bool] = False,
+            ):
+                """Reload HANA ConnectionContext from server environment variables (HANA_*) without restarting the MCP server."""
+                try:
+                    params = _build_cc_params_from_env()
+                except Exception as e:
+                    logging.error("Failed to read HANA_* env vars: %s", e)
+                    return {"ok": False, "error": str(e)}
+
+                if test_connection:
+                    try:
+                        test_cc = ConnectionContext(**params)
+                        close_meth = getattr(test_cc, "close", None)
+                        if callable(close_meth):
+                            close_meth()
+                    except Exception as e:
+                        logging.error("Connection test failed: %s", e)
+                        return {"ok": False, "error": str(e)}
+
+                try:
+                    self.connection_context = ConnectionContext(**params)
+                except Exception as e:
+                    logging.error("Failed to build ConnectionContext from env: %s", e)
+                    return {"ok": False, "error": str(e)}
+
+                refresh_stats = _refresh_tools_for_new_context(self)
+                logging.warning(
+                    "✅ Reloaded ConnectionContext from env; tools updated=%s, defaults rebuilt=%s",
+                    refresh_stats.get("tools_updated_in_place"),
+                    refresh_stats.get("default_tools_rebuilt"),
+                )
+                return {
+                    "ok": True,
+                    "connection": _redact_dict(params),
+                    **refresh_stats,
+                }
+
             # 获取并注册所有工具
             tools = self.get_tools()
             registered_tools = []
@@ -507,6 +728,15 @@ class HANAMLToolkit(BaseToolkit):
                 try:
                     logging.info("🚀 Starting MCP server on port %s...", port)
                     if server_args.get("transport") == "http":
+                        # fastmcp prints a server banner and may perform a PyPI version check.
+                        # In locked-down envs (or misconfigured SSL_CERT_FILE), that check can crash
+                        # the server before it starts listening. Disable both explicitly.
+                        try:
+                            import fastmcp
+                            fastmcp.settings.check_for_updates = "off"
+                            fastmcp.settings.show_cli_banner = False
+                        except Exception:
+                            pass
                         # fastmcp HTTP 运行参数
                         # 使用标准路径 /mcp，并启用 JSON 响应
                         mcp_instance.run(
@@ -519,7 +749,7 @@ class HANAMLToolkit(BaseToolkit):
                     else:
                         mcp_instance.run(**server_args)
                 except Exception as e:
-                    logging.error("Server crashed: %s", str(e))
+                    logging.exception("Server crashed: %s", str(e))
                     # 这里不再自动重启，由外部监控
 
             logging.info("Starting MCP server in background thread...")
@@ -647,7 +877,14 @@ class HANAMLToolkit(BaseToolkit):
         alive = server_thread.is_alive() if server_thread else False
         success = stopped_gracefully and not alive
 
-        # 仅在服务已停止（或本就不在运行）时移除注册记录，避免误删仍在运行的服务
+        # fastmcp HTTP/SSE may spawn a separate server process (e.g., uvicorn) that outlives
+        # this thread. In that case, best-effort shutdown may not be observable here.
+        # If force=True, treat registry cleanup as success to prevent leaking state.
+        if force and (alive or not stopped_gracefully):
+            success = True
+
+        # 仅在服务已停止（或本就不在运行）时移除注册记录。
+        # force=True 时也会清理注册记录（best-effort 关闭可能无法同步观察）。
         if success or (not alive):
             try:
                 HANAMLToolkit._global_mcp_servers.pop(key, None)
