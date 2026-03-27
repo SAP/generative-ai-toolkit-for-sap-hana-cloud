@@ -4,14 +4,15 @@ MCP client for connecting to HANA ML MCP server
 
 # pylint: disable=global-statement
 
-from typing import Dict, Any, List, Optional, Union
-from dataclasses import dataclass
-from enum import Enum
-from contextlib import asynccontextmanager
-import aiohttp
-import httpx
 import asyncio
 import json
+from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from enum import Enum
+from typing import Dict, Any, List, Optional, Union
+
+import aiohttp
+import httpx
 
 
 
@@ -471,7 +472,7 @@ class StdioMCPClient(MCPClient):
         )
         if "error" in resp:
             # fallback: keep defaults
-            self._use_default_tools()
+            self._use_default_tools_stdio()
             return
 
         result = resp.get("result") or {}
@@ -485,6 +486,15 @@ class StdioMCPClient(MCPClient):
                 metadata=tool_data.get("metadata", {}),
             )
             self.tools[tool.name] = tool
+
+    def _use_default_tools_stdio(self) -> None:
+        """Use default tool definitions (same as HTTP fallback).
+
+        This wrapper exists to satisfy static analyzers (pylint) and to avoid
+        depending on private base-class behavior.
+        """
+        # Reuse the HTTP client's fallback schema; it's transport-agnostic.
+        MCPClient._use_default_tools(self)
 
     async def close(self) -> None:
         if self._process is not None:
