@@ -30,6 +30,44 @@ Usage examples:
 Notes:
 - If your environment has an HTTP proxy configured, ensure the HANA host can bypass it:
   export NO_PROXY=127.0.0.1,localhost,<your-hana-host>
+
+Runtime update (no restart):
+- This server exposes two MCP admin tools:
+    - `admin_update_connection_context`: pass new connection params explicitly.
+    - `admin_reload_connection_context_from_env`: re-read server-side env vars (HANA_*) and reload.
+- An MCP client can call either one to switch the live `ConnectionContext` after env/credentials change,
+    without restarting the MCP server process.
+
+  Example (Python HTTP transport client):
+    from hana_ai.client.mcp_client import HTTPMCPClient
+    import asyncio
+
+    async def main():
+        c = HTTPMCPClient(base_url="http://127.0.0.1:8001/mcp")
+        await c.initialize()
+        r = await c.call_tool(
+            "admin_update_connection_context",
+            {
+                "address": "new.host",
+                "port": 443,
+                "user": "NEW_USER",
+                "password": "NEW_PASS",
+                "encrypt": True,
+                "ssl_validate_certificate": True,
+                "test_connection": True,
+            },
+        )
+        print(r)
+
+        # Or: reload from server env vars (HANA_ADDRESS/HANA_USER/HANA_PASSWORD/...)
+        r2 = await c.call_tool(
+            "admin_reload_connection_context_from_env",
+            {"test_connection": True},
+        )
+        print(r2)
+        await c.close()
+
+    asyncio.run(main())
 """
 
 import os
@@ -100,7 +138,7 @@ def main():
     parser.add_argument("--encrypt", type=parse_bool, default=env_bool("HANA_ENCRYPT"),
                         help="Use TLS encrypt (true/false)")
     parser.add_argument("--ssl-validate", dest="ssl_validate",
-                        type=parse_bool, default=env_bool("HANA_SSL_VALIDATE"),
+                        type=parse_bool, default=env_bool("HANA_SSL_VALIDATE", default=False),
                         help="Validate TLS certificate (true/false)")
 
     # MCP server args

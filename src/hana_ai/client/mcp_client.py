@@ -4,10 +4,13 @@ MCP client for connecting to HANA ML MCP server
 
 # pylint: disable=global-statement
 
-from typing import Dict, Any, List, Optional, Union
+import asyncio
+import json
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from enum import Enum
-from contextlib import asynccontextmanager
+from typing import Dict, Any, List, Optional, Union
+
 import aiohttp
 import httpx
 
@@ -176,18 +179,21 @@ class HTTPMCPClient(MCPClient):
     def _use_default_tools(self) -> None:
         """Use default tool definitions (for development/testing)"""
         self.tools = {
-            "set_hana_connection": MCPTool(
-                name="set_hana_connection",
-                description="Set HANA connection parameters in the context.",
+            "admin_update_connection_context": MCPTool(
+                name="admin_update_connection_context",
+                description="Update the toolkit's HANA ConnectionContext without restarting the MCP server.",
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "host": {"type": "string", "description": "The HANA database host."},
+                        "address": {"type": "string", "description": "The HANA database host/address."},
                         "port": {"type": "integer", "description": "The HANA database port."},
                         "user": {"type": "string", "description": "The HANA database user."},
-                        "password": {"type": "string", "description": "The HANA database password."}
+                        "password": {"type": "string", "description": "The HANA database password."},
+                        "encrypt": {"type": "boolean", "description": "Use TLS."},
+                        "ssl_validate_certificate": {"type": "boolean", "description": "Validate TLS certificate."},
+                        "test_connection": {"type": "boolean", "description": "Test new connection before switching."}
                     },
-                    "required": ["host", "port", "user", "password"]
+                    "required": ["address", "port", "user", "password"]
                 }
             ),
             "discovery_agent": MCPTool(
@@ -319,23 +325,247 @@ class StdioMCPClient(MCPClient):
         self.command = command
         self.args = args or []
         self._process = None
+        self._next_id = 1
+        self._reader_task: Optional[asyncio.Task] = None
+        self._stderr_task: Optional[asyncio.Task] = None
+        self._pending: Dict[int, asyncio.Future] = {}
+        self._session_id: Optional[str] = None
+        self._stderr_tail: List[str] = []
+
+    async def _ensure_process(self) -> None:
+        if self._process is not None:
+            return
+        self._process = await asyncio.create_subprocess_exec(
+            self.command,
+            *self.args,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        async def _read_stdout():
+            assert self._process is not None
+            assert self._process.stdout is not None
+            while True:
+                line = await self._process.stdout.readline()
+                if not line:
+                    break
+                try:
+                    msg = json.loads(line.decode("utf-8", errors="ignore").strip())
+                except Exception:
+                    continue
+                if isinstance(msg, dict) and "id" in msg:
+                    mid = msg.get("id")
+                    fut = self._pending.pop(mid, None)
+                    if fut is not None and not fut.done():
+                        fut.set_result(msg)
+
+        self._reader_task = asyncio.create_task(_read_stdout())
+
+        async def _read_stderr():
+            assert self._process is not None
+            assert self._process.stderr is not None
+            while True:
+                line = await self._process.stderr.readline()
+                if not line:
+                    break
+                txt = line.decode("utf-8", errors="ignore").rstrip()
+                if txt:
+                    self._stderr_tail.append(txt)
+                    # keep last 200 lines
+                    if len(self._stderr_tail) > 200:
+                        self._stderr_tail = self._stderr_tail[-200:]
+
+        self._stderr_task = asyncio.create_task(_read_stderr())
+
+    async def _rpc(self, method: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        await self._ensure_process()
+        assert self._process is not None
+        assert self._process.stdin is not None
+
+        rpc_id = self._next_id
+        self._next_id += 1
+        payload = {
+            "jsonrpc": "2.0",
+            "id": rpc_id,
+            "method": method,
+        }
+        if params is not None:
+            payload["params"] = params
+
+        loop = asyncio.get_running_loop()
+        fut: asyncio.Future = loop.create_future()
+        self._pending[rpc_id] = fut
+
+        data = (json.dumps(payload) + "\n").encode("utf-8")
+        self._process.stdin.write(data)
+        await self._process.stdin.drain()
+
+        try:
+            resp = await asyncio.wait_for(fut, timeout=30)
+            return resp
+        except asyncio.TimeoutError as e:
+            tail = "\n".join(self._stderr_tail[-50:])
+            raise asyncio.TimeoutError(f"STDIO RPC timeout for method={method}. Server stderr tail:\n{tail}") from e
 
     async def initialize(self) -> None:
         """Initialize Stdio client"""
-        # Stdio communication needs to be implemented
-        # Only basic structure provided here
-        pass
+        resp = await self._rpc(
+            "initialize",
+            {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": {"name": "hana-ai-stdio-client", "version": "0.1"},
+            },
+        )
+        if "error" in resp:
+            raise RuntimeError(str(resp.get("error")))
+        result = resp.get("result") or {}
+        # some servers may return session info
+        sid = None
+        try:
+            sid = (result.get("session") or {}).get("id")
+        except Exception:
+            sid = None
+        self._session_id = sid
+        await self._refresh_tools()
 
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> MCPCallResult:
         """Call MCP tool (Stdio transport)"""
-        # Implement stdio communication logic
-        # Usually involves starting subprocess and JSON-RPC communication
-        raise NotImplementedError("Stdio客户端待实现")
+        try:
+            params: Dict[str, Any] = {
+                "name": tool_name,
+                "arguments": arguments or {},
+            }
+            if self._session_id:
+                params["session"] = {"id": self._session_id}
+
+            resp = await self._rpc("tools/call", params)
+            if "error" in resp:
+                return MCPCallResult(success=False, data=None, error=str(resp.get("error")))
+
+            result_data = resp.get("result", {})
+            content = result_data.get("content", [])
+            if content and isinstance(content, list):
+                text_content = [
+                    item.get("text", "")
+                    for item in content
+                    if isinstance(item, dict) and item.get("type") == "text"
+                ]
+                data = "\n".join([t for t in text_content if t])
+            else:
+                data = result_data
+            return MCPCallResult(success=True, data=data)
+        except Exception as e:
+            return MCPCallResult(success=False, data=None, error=f"Tool call failed: {str(e)}")
 
     async def list_tools(self) -> List[MCPTool]:
         """List all available tools"""
-        # Implement stdio tool list fetching
-        raise NotImplementedError("Stdio客户端待实现")
+        if not self.tools:
+            await self._refresh_tools()
+        return list(self.tools.values())
+
+    async def _refresh_tools(self) -> None:
+        resp = await self._rpc(
+            "tools/list",
+            ({"session": {"id": self._session_id}} if self._session_id else {}),
+        )
+        if "error" in resp:
+            # fallback: keep defaults
+            self._use_default_tools_stdio()
+            return
+
+        result = resp.get("result") or {}
+        tools_data = result.get("tools") or []
+        self.tools.clear()
+        for tool_data in tools_data:
+            tool = MCPTool(
+                name=tool_data.get("name"),
+                description=tool_data.get("description", ""),
+                inputSchema=tool_data.get("inputSchema", {}) or {},
+                metadata=tool_data.get("metadata", {}),
+            )
+            self.tools[tool.name] = tool
+
+    def _use_default_tools_stdio(self) -> None:
+        """Use default tool definitions (same as HTTP fallback).
+
+        This wrapper exists to satisfy static analyzers (pylint) and to avoid
+        depending on private base-class behavior.
+        """
+        # Keep this local to avoid relying on methods that exist only on HTTPMCPClient.
+        self.tools = {
+            "admin_update_connection_context": MCPTool(
+                name="admin_update_connection_context",
+                description="Update the toolkit's HANA ConnectionContext without restarting the MCP server.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "address": {"type": "string", "description": "The HANA database host/address."},
+                        "port": {"type": "integer", "description": "The HANA database port."},
+                        "user": {"type": "string", "description": "The HANA database user."},
+                        "password": {"type": "string", "description": "The HANA database password."},
+                        "encrypt": {"type": "boolean", "description": "Use TLS."},
+                        "ssl_validate_certificate": {"type": "boolean", "description": "Validate TLS certificate."},
+                        "test_connection": {"type": "boolean", "description": "Test new connection before switching."},
+                    },
+                    "required": ["address", "port", "user", "password"],
+                },
+            ),
+            "discovery_agent": MCPTool(
+                name="discovery_agent",
+                description="Use the HANA discovery agent tool to run a query.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "The query to execute."}
+                    },
+                    "required": ["query"],
+                },
+            ),
+            "data_agent": MCPTool(
+                name="data_agent",
+                description="Use the HANA data agent tool to run a query.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "The query to execute."}
+                    },
+                    "required": ["query"],
+                },
+            ),
+        }
+
+    async def close(self) -> None:
+        if self._process is not None:
+            try:
+                if self._process.stdin:
+                    self._process.stdin.close()
+            except Exception:
+                pass
+            try:
+                self._process.terminate()
+            except Exception:
+                pass
+            try:
+                await asyncio.wait_for(self._process.wait(), timeout=5)
+            except Exception:
+                pass
+            self._process = None
+
+        if self._reader_task is not None:
+            try:
+                self._reader_task.cancel()
+            except Exception:
+                pass
+            self._reader_task = None
+
+        if self._stderr_task is not None:
+            try:
+                self._stderr_task.cancel()
+            except Exception:
+                pass
+            self._stderr_task = None
 
 
 class MCPClientFactory:
