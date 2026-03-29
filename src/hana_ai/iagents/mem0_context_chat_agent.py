@@ -17,10 +17,11 @@ extends existing Mem0 + tool-agent infrastructure.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 import json
 import logging
 import re
+import sys
 
 from hana_ml.algorithms.pal.utility import check_pal_function_exist
 
@@ -165,6 +166,7 @@ class ContextPack:
         return max(0, min(self.budget_memory_brief, remaining))
 
     def render(self) -> str:
+        """Render the full context pack with all enabled layers."""
         rendered = "\n\n".join(self._render_parts(include_brief=True))
         return _truncate(rendered, self.max_context_chars)
 
@@ -261,6 +263,8 @@ class Mem0ContextChatAgent:
         verbose: bool = False,
         session_id: str = "global_session",
         memory_brief: Optional[MemoryBriefConfig] = None,
+        progress_bar: bool = False,
+        progress_callback: Optional[Callable[[str], None]] = None,
         _auto_init_agent: bool = True,
     ) -> None:
         self.llm = llm
@@ -269,6 +273,14 @@ class Mem0ContextChatAgent:
         self.verbose = verbose
         self.session_id = session_id
         self.drop_existing_hana_vector_table = drop_existing_hana_vector_table
+
+        # Optional progress reporting.
+        # - progress_bar=True: emit human-readable stage updates to stdout (good for notebooks)
+        # - progress_callback: override emission target/format (e.g., integrate with a UI)
+        self.progress_bar = bool(progress_bar)
+        self.progress_callback = progress_callback
+        if self.progress_bar and self.progress_callback is None:
+            self.progress_callback = self._default_progress_printer
 
         # Memory retrieval knobs (kept for compatibility)
         self.rerank_candidates = rerank_candidates
@@ -347,6 +359,41 @@ class Mem0ContextChatAgent:
 
         if _auto_init_agent:
             self._initialize_agent()
+
+    def _emit_progress(self, message: str, *, step: Optional[int] = None, total_steps: Optional[int] = None) -> None:
+        """Emit a lightweight progress update.
+
+        - If progress_callback is provided, it is called.
+        - Else if verbose=True, logs at INFO.
+        """
+        prefix = ""
+        if step is not None and total_steps is not None and total_steps > 0:
+            prefix = f"[{step}/{total_steps}] "
+        text = f"{prefix}{message}".strip()
+
+        cb = getattr(self, "progress_callback", None)
+        if cb is not None:
+            try:
+                cb(text)
+                return
+            except Exception:
+                # Never allow progress reporting to break the agent.
+                pass
+
+        if getattr(self, "verbose", False):
+            logger.info(text)
+
+    def _default_progress_printer(self, text: str) -> None:
+        """Default progress printer used when progress_bar=True.
+
+        Prints one line per stage to stdout; intentionally simple and dependency-free.
+        """
+        try:
+            sys.stdout.write(str(text).rstrip() + "\n")
+            sys.stdout.flush()
+        except Exception:
+            # Never fail the agent due to progress printing.
+            pass
 
     # ------------------------------------------------------------------
     # Agent executor
@@ -690,7 +737,8 @@ class Mem0ContextChatAgent:
         refs: List[int] = []
         for idx, r in enumerate(used, start=1):
             refs.append(idx)
-            lines.append(f"- ({idx}) {_truncate(r.text.replace('\\n', ' '), max_item_chars)}")
+            cleaned = (r.text or "").replace("\n", " ").replace("\\n", " ")
+            lines.append(f"- ({idx}) {_truncate(cleaned, max_item_chars)}")
         lines.append(f"References: {refs}")
         return _truncate("\n".join(lines), max_brief_chars)
 
@@ -782,6 +830,7 @@ class Mem0ContextChatAgent:
     # Public chat API (same command surface as Mem0HANARAGAgent)
     # ------------------------------------------------------------------
     def clear_long_term_memory(self) -> None:
+        """Delete all stored memories in the configured vector table."""
         try:
             self.memory_manager.clear_all()
             logger.info("Mem0 long-term memory cleared.")
@@ -790,6 +839,9 @@ class Mem0ContextChatAgent:
 
     def chat(self, user_input: str) -> str:
         """Process user input and return agent response."""
+        total_steps = 7
+        self._emit_progress("Preparing context", step=1, total_steps=total_steps)
+
         # --- Compatibility commands ---
         if user_input.startswith("!clear_long_term_memory"):
             self.clear_long_term_memory()
@@ -885,6 +937,7 @@ class Mem0ContextChatAgent:
                 return "Usage: !set_entity <entity_id> <entity_type>"
 
         # --- Context engineering: budget closed-loop ---
+        self._emit_progress("Loading session summary", step=2, total_steps=total_steps)
         session_summary = self._load_session_summary()
 
         # Build a skeleton pack first (without brief) to compute remaining budget.
@@ -906,6 +959,7 @@ class Mem0ContextChatAgent:
         if max_brief_chars < 300:
             max_brief_chars = 300
 
+        self._emit_progress("Retrieving memory candidates", step=3, total_steps=total_steps)
         memory_brief, candidates = self._build_memory_brief(user_input, max_brief_chars=max_brief_chars)
 
         # Working set: high-priority tool facts from memory (avoid table-name confusion).
@@ -925,6 +979,7 @@ class Mem0ContextChatAgent:
         )
         prompt_text = pack.render()
 
+        self._emit_progress("Invoking tool-using agent", step=4, total_steps=total_steps)
         agent_input = {"input": [{"type": "text", "text": prompt_text}]}
         response = self.executor.invoke(agent_input)
         output = response.get("output") if isinstance(response, dict) else str(response)
@@ -943,6 +998,7 @@ class Mem0ContextChatAgent:
                 output = f"{output}{suffix}"
 
         # Persist memories (high recall + long-horizon continuity)
+        self._emit_progress("Persisting memories", step=5, total_steps=total_steps)
         self._update_long_term_memory(user_input, output)
         self._write_turn_summary(user_input, output)
 
@@ -955,10 +1011,13 @@ class Mem0ContextChatAgent:
         self._write_tool_fact_note(tool_facts)
 
         # Update session summary (compaction)
+        self._emit_progress("Compacting session summary", step=6, total_steps=total_steps)
         prev_summary = session_summary
         turn_summary = f"User: {_truncate(user_input, 500)}\nAssistant: {_truncate(output, 900)}"
         compacted = self._llm_compact_session_summary(prev_summary, turn_summary)
         if compacted:
             self._write_session_summary(compacted)
+
+        self._emit_progress("Done", step=7, total_steps=total_steps)
 
         return output

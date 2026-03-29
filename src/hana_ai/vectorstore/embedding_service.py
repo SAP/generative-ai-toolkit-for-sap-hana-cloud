@@ -11,7 +11,6 @@ The following classes are available:
 # pylint: disable=unnecessary-dunder-call
 # pylint: disable=unused-argument
 
-import re
 from typing import List
 import uuid
 
