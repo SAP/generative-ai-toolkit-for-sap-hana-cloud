@@ -9,4 +9,3 @@ from hana_ai.iagents.context_agent import ContextAgent
 __all__ = [
     "ContextAgent",
 ]
-
