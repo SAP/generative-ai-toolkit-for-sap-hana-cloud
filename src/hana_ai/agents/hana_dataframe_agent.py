@@ -97,12 +97,15 @@ def create_hana_dataframe_agent(
     >>> agent = create_hana_dataframe_agent(llm=llm, tools=[code_tool], df=hana_df, verbose=True, handle_parsing_errors=True)
     >>> agent.invoke("Create a dataset report for this dataframe.")
     """
-
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("always")
+        warnings.warn("This agent has been deprecated. Please use context_agent instead.", DeprecationWarning, stacklevel=2)
     if not _validate_hana_df(df):
         raise ImportError("hana-ml is not installed. run `pip install hana-ml`.")
 
     #suppress all the warnings
-    import warnings
+
     warnings.filterwarnings("ignore")
 
     if input_variables is None:

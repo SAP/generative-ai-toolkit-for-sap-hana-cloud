@@ -11,7 +11,6 @@ The following classes are available:
 # pylint: disable=unnecessary-dunder-call
 # pylint: disable=unused-argument
 
-import re
 from typing import List
 import uuid
 
@@ -295,36 +294,40 @@ def _cc_embed_query(connection_context, query, model_version='SAP_NEB.20240715')
     -------
     list of float when query is str, list of list of float when query is list of str
     """
-    def _safe_escape_single_quotes(text):
-        # 在需要时应用转义
-        if "'" in text:
-            # 检查是否已经包含转义序列
-            if "''" not in text:
-                escaped_prompt = re.sub(r"(?<!')'", "''", text)
-            else:
-                # 如果已经包含转义序列，直接使用原始prompt
-                escaped_prompt = text
-        else:
-            escaped_prompt = text
-        return escaped_prompt
-
-
     # Normalize input to a list for consistent handling
     queries = list(query) if isinstance(query, (list, tuple)) else [query]
 
-    sql = ''
-    for i, q in enumerate(queries):
-        if i > 0:
-            sql += ' UNION ALL '
-        escaped_query = _safe_escape_single_quotes(q)
-        sql += f"SELECT '{escaped_query}' AS TEXT FROM DUMMY"
-
-    df = connection_context.sql(sql) \
-        .add_vector("TEXT", text_type='QUERY', embed_col="EMBEDDING", model_version=model_version) \
-        .select(["EMBEDDING"]).collect()
+    # NOTE: Avoid building a UNION ALL SQL string for batches.
+    # Some hana_ml internal wrappers create a derived table and append `WHERE NOT 1=1`
+    # without an alias, which can break on HANA when the subquery contains UNION.
+    # Creating a temporary table is both safer and more robust.
+    temporary_table = "#CC_EMBED_INPUT_" + str(uuid.uuid4()).replace("-", "_")
+    try:
+        input_df = create_dataframe_from_pandas(
+            connection_context,
+            pandas_df=pd.DataFrame({"ID": range(len(queries)), "TEXT": queries}),
+            table_name=temporary_table,
+            disable_progressbar=True,
+            table_type="COLUMN",
+        )
+        df = (
+            input_df.add_vector(
+                "TEXT",
+                text_type="QUERY",
+                embed_col="EMBEDDING",
+                model_version=model_version,
+            )
+            .select(["ID", "EMBEDDING"])
+            .collect()
+        )
+    finally:
+        try_drop(connection_context, temporary_table)
 
     # Convert to numpy-like array of rows, then extract the vector from first column
-    rows = df.to_numpy()
+    # Ensure stable ordering by ID
+    df = df.sort_values(by="ID", ascending=True)
+
+    rows = df[["EMBEDDING"]].to_numpy()
     vectors: List[List[float]] = []
     for row in rows:
         v = row[0]

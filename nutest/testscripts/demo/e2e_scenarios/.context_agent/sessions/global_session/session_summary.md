@@ -1,0 +1,2 @@
+# Session global_session
+
