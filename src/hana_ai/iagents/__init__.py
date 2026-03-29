@@ -4,8 +4,9 @@ This package hosts agent implementations that focus on iterative, long-horizon w
 and context management.
 """
 
-from hana_ai.iagents.mem0_context_chat_agent import Mem0ContextChatAgent
+from hana_ai.iagents.context_agent import ContextAgent
 
 __all__ = [
-    "Mem0ContextChatAgent",
+    "ContextAgent",
 ]
+
