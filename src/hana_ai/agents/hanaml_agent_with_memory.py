@@ -119,7 +119,7 @@ class HANAMLAgentWithMemory(object):
     def __init__(self, llm, tools, session_id="hanaai_chat_session", n_messages=10, max_observations=5, verbose=False, **kwargs):
         with warnings.catch_warnings():
             warnings.simplefilter("always")
-            warnings.warn("HANAMLAgentWithMemory has been deprecated. Please use HANAMLRAGAgent instead.", DeprecationWarning, stacklevel=2)
+            warnings.warn("This agent has been deprecated. Please use context_agent instead.", DeprecationWarning, stacklevel=2)
         self.llm = llm
         self.tools = list(tools)
         self.memory = InMemoryChatMessageHistory(session_id=session_id)

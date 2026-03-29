@@ -2,7 +2,7 @@
 A chatbot that can remember the short term and long term chat history and use it to generate responses.
 
 The following class is available:
-    
+
         * :class `HANAMLRAGAgent`
 """
 
@@ -11,6 +11,7 @@ The following class is available:
 from typing import Any, List
 from datetime import datetime
 import logging
+import warnings
 import pandas as pd
 from sqlalchemy import delete
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -141,7 +142,7 @@ class HANAMLRAGAgent:
         rerank_candidates : int
             Number of candidate documents to retrieve for reranking.
 
-            Defaults to 20.           
+            Defaults to 20.
         rerank_k : int
             Number of documents to retrieve for reranking.
 
@@ -174,6 +175,9 @@ class HANAMLRAGAgent:
 
             Defaults to "global_session".
         """
+        with warnings.catch_warnings():
+            warnings.simplefilter("always")
+            warnings.warn("This agent has been deprecated. Please use context_agent instead.", DeprecationWarning, stacklevel=2)
         self.llm = llm
         self.tools = tools
         self.vectorstore_path = vectorstore_path

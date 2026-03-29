@@ -22,6 +22,7 @@ from typing import Any, List, Optional
 import logging
 import json
 import re
+import warnings
 
 from hana_ml.algorithms.pal.utility import check_pal_function_exist
 
@@ -153,6 +154,9 @@ class Mem0HANARAGAgent:
         session_id: str = "global_session",
         _auto_init_agent: bool = True,
     ) -> None:
+        with warnings.catch_warnings():
+            warnings.simplefilter("always")
+            warnings.warn("This agent has been deprecated. Please use context_agent instead.", DeprecationWarning, stacklevel=2)
         self.llm = llm
         self.tools = tools
         self.memory_window = memory_window
