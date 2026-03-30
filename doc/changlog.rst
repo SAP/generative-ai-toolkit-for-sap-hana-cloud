@@ -6,11 +6,6 @@ Changelog
 ``New Functions`
     - Added context agent with markdown type memory to support better context management and display in the conversation.
 
-**Version 1.0.260327**
-
-``Enhancements``
-    - Added tools to reset HANA connection in MCP server.
-
 **Version 1.0.260319**
 
 ``Bug Fixes``
@@ -30,20 +25,12 @@ Changelog
 
 ``Enhancements``
     - Added reset_tools method to HANAMLToolkit to reset the toolkit's tools.
-    - Updated launch_mcp_server function to support http protocol.
-
-``API Changes``
-    - Remove mcp_tools and use launch_mcp_server function to launch MCP server.
 
 **Version 1.0.251223**
-
-``Enhancements``
-    - Enhanced mcp tools for HANA discovery agent and data agent.
 
 ``Bug Fixes``
     - Fixed the import issues in hana_ai agents and tools.
     - Fixed the missing parameter in PALEmbeddings.
-    - Fixed the issue where tool parameter descriptions were missing in the launch_mcp_server function.
 
 **Version 1.0.251217**
 
@@ -125,7 +112,6 @@ Changelog
 **Version 1.0.250617**
 
 ``New Functions``
-    - Added `launch_mcp_server` function to hanaml toolkit.
     - Added model deletion tool and chat history deletion tool to hanaml Agent.
 
 **Version 1.0.250530**
