@@ -3,7 +3,7 @@ Changelog
 
 **Version 1.0.260330**
 
-``New Functions`
+``New Functions``
     - Added context agent with markdown type memory to support better context management and display in the conversation.
 
 **Version 1.0.260319**
