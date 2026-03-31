@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.0.260331**
+
+``New Functions``
+    - Added prediction result analysis skills and dataframe manipulation skills in the context agent to provide better insights and analysis of the predicted results.
+
 **Version 1.0.260330**
 
 ``New Functions``
