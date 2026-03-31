@@ -186,6 +186,7 @@ class ContextBudgets:
 	budget_system: int = 1700
 	budget_task: int = 1200
 	budget_tool_guidance: int = 900
+	budget_skills: int = 1400
 	budget_working_set: int = 1000
 	budget_session_summary: int = 1800
 	budget_memory_notes: int = 2200
@@ -199,6 +200,7 @@ class ContextPack:
 	system: str
 	task: str
 	tool_guidance: str
+	skills: str
 	working_set: str
 	session_summary: str
 	memory_notes: str
@@ -216,6 +218,8 @@ class ContextPack:
 			parts.append(
 				"<tool_guidance>\n" + _truncate(self.tool_guidance.strip(), b.budget_tool_guidance) + "\n</tool_guidance>"
 			)
+		if self.skills.strip():
+			parts.append("<skills>\n" + _truncate(self.skills.strip(), b.budget_skills) + "\n</skills>")
 		if self.working_set.strip():
 			parts.append("<working_set>\n" + _truncate(self.working_set.strip(), b.budget_working_set) + "\n</working_set>")
 		if self.session_summary.strip():
@@ -252,6 +256,90 @@ class AgentConfig:
 	enable_structured_notes: bool = True
 	notes_max_items_per_turn: int = 8
 
+	# Skills (tech.tex: examples/skills layer)
+	enable_skills: bool = True
+	max_active_skills: int = 2
+	skills_use_llm_selector: bool = True
+	skills_selector_max_chars: int = 1200
+	skills_cache_turns: int = 3
+
+
+@dataclass(frozen=True)
+class Skill:
+	"""A reusable, high-signal workflow snippet injected into context."""
+
+	name: str
+	title: str
+	description: str
+	content: str
+
+
+def _builtin_skills() -> Dict[str, Skill]:
+	"""Built-in skills aligned with mem_paper/tech.tex."""
+	return {
+		"timeseries_forecasting": Skill(
+			name="timeseries_forecasting",
+			title="Time-series forecasting workflow",
+			description="Analyze time series tables, suggest/train a model, predict, and plot.",
+			content=(
+				"Goal: reliably analyze a time series table, choose a forecasting model, train/save it, predict future, and summarize results.\n"
+				"When to use tools: whenever you need table content, statistics, training, prediction, plotting.\n\n"
+				"Playbook (minimal, high-signal):\n"
+				"1) Confirm inputs: training table, key/time column, target(endog) column. If missing -> ask.\n"
+				"2) Use TimeSeriesDatasetReport + TimeSeriesCheck to understand seasonality, missingness, frequency, outliers.\n"
+				"3) Suggest model: prefer AutomaticTimeSeriesFitAndSave for single series; use AdditiveModel/Intermittent only if data suggests.\n"
+				"4) Train: call *FitAndSave tool; record model name.\n"
+				"5) Predict: build predict table if needed (TSMakeFutureTableTool), then call *LoadModelAndPredict.\n"
+				"6) Evaluate: if you have actuals, call AccuracyMeasure (or compute via SQL join) and report MAD(≈MAE)/RMSE/MAPE (use tool-supported metric names).\n"
+				"7) Plot: ForecastLinePlot when a visual is requested.\n\n"
+				"Rules:\n"
+				"- Never fabricate rows/metrics; always use tools.\n"
+				"- Always refer to the exact output table names returned by tools (predicted_results_table, etc.).\n"
+			),
+		),
+		"prediction_result_analysis": Skill(
+			name="prediction_result_analysis",
+			title="Prediction results analysis",
+			description="Analyze forecast outputs; compare predicted vs actual using HANA SQL/AccuracyMeasure.",
+			content=(
+				"Goal: after a prediction tool produces an output table, analyze quality and provide actionable insights.\n\n"
+				"Checklist:\n"
+				"- Identify the prediction output table name (from tool output).\n"
+				"- If an actual table exists, compare predicted vs actual on the key/time column.\n"
+				"- Compute: MAD(≈MAE), RMSE, MAPE (or sMAPE), bias (mean error), and detect outliers.\n"
+				"- Summarize: trend/seasonality fit, intervals (if available), obvious data issues (zeros, missing periods).\n\n"
+				"Preferred tools:\n"
+				"- AccuracyMeasure tool when compatible.\n"
+				"- Otherwise, use SelectStatementToTableTool to create a comparison table via SQL join, then FetchDataTool to preview results.\n\n"
+				"SQL pattern (conceptual):\n"
+				"- Join predicted and actual by key/time; compute error columns; aggregate metrics.\n"
+			),
+		),
+		"massive_forecast_comparison": Skill(
+			name="massive_forecast_comparison",
+			title="Massive forecasting comparison",
+			description="When using Massive* tools, compare massive predictions against a baseline using SQL/accuracy measures.",
+			content=(
+				"Goal: for Massive* forecasting outputs (many series), validate and compare quality.\n\n"
+				"Workflow:\n"
+				"1) Use MassiveTimeSeriesCheck for dataset stats across series.\n"
+				"2) Train/predict via MassiveAutomaticTimeSeriesFitAndSave + MassiveAutomaticTimeSeriesLoadModelAndPredict.\n"
+				"3) If a non-massive baseline exists (single-series AutomaticTimeSeries* or additive), run it for a representative subset.\n"
+				"4) Compare: use AccuracyMeasure where possible; else use SQL (SelectStatementToTableTool) to compute per-series and overall metrics.\n"
+				"5) Report: which series perform poorly, distribution of errors, and recommended next action (outlier handling, re-train, different model family).\n\n"
+				"Rules:\n"
+				"- Keep comparisons reproducible: always include table names + key columns used.\n"
+			),
+		),
+	}
+
+
+def _safe_json_loads(text: str) -> Optional[Any]:
+	try:
+		return json.loads(text)
+	except Exception:
+		return None
+
 
 class ContextAgent:
 	"""Context-engineered agent backed by Markdown memory."""
@@ -283,9 +371,90 @@ class ContextAgent:
 		self._index = _BM25Index()
 		self._indexed_mtimes: Dict[Path, float] = {}
 		self._executor = None
+		self._skills = _builtin_skills()
+		self._skills_enabled = True
+		self._skills_user_enabled: set[str] = set()
+		self._skills_user_disabled: set[str] = set()
+		self._skills_cache: Tuple[int, List[str]] = (0, [])
+		self._turn_counter = 0
 
 		self._init_storage()
 		self._initialize_executor()
+
+	def _list_skills_text(self) -> str:
+		lines = []
+		for s in self._skills.values():
+			lines.append(f"- {s.name}: {s.description}")
+		return "\n".join(lines)
+
+	def _select_skills_fallback(self, user_input: str) -> List[str]:
+		q = _safe_text(user_input).lower()
+		chosen: List[str] = []
+		if any(k in q for k in ("massive", "many series", "multiple series")):
+			chosen.append("massive_forecast_comparison")
+		if any(k in q for k in ("time series", "forecast", "predict", "ts_", "model", "train")):
+			chosen.append("timeseries_forecasting")
+		if any(k in q for k in ("accuracy", "mae", "rmse", "mape", "compare", "analysis", "evaluate")):
+			chosen.append("prediction_result_analysis")
+		# Respect config max
+		out = []
+		for name in chosen:
+			if name not in out:
+				out.append(name)
+		return out[: max(0, self.config.max_active_skills)]
+
+	def _select_skills_llm(self, user_input: str) -> List[str]:
+		# Keep selection cheap and cacheable.
+		cache_turn, cached = self._skills_cache
+		if self.config.skills_cache_turns > 0 and (self._turn_counter - cache_turn) <= self.config.skills_cache_turns:
+			return list(cached)
+
+		catalog = self._list_skills_text()
+		prompt = (
+			"You are selecting skills for an agent.\n"
+			"Return a JSON array of skill names to activate (0..N), based on the user request.\n"
+			"Only choose from the catalog; do not invent names.\n"
+			f"Max skills: {self.config.max_active_skills}.\n\n"
+			"Skill catalog:\n"
+			+ catalog
+			+ "\n\nUser request:\n"
+			+ _truncate(user_input, self.config.skills_selector_max_chars)
+		)
+		raw = _safe_text(self._llm_call(prompt)).strip()
+		obj = _safe_json_loads(raw)
+		if not isinstance(obj, list):
+			return self._select_skills_fallback(user_input)
+		picked: List[str] = []
+		for x in obj:
+			name = _safe_text(x).strip()
+			if name in self._skills and name not in picked:
+				picked.append(name)
+		if self.config.max_active_skills >= 0:
+			picked = picked[: self.config.max_active_skills]
+		self._skills_cache = (self._turn_counter, list(picked))
+		return picked
+
+	def _active_skill_names(self, user_input: str) -> List[str]:
+		if not self.config.enable_skills or not self._skills_enabled:
+			return []
+		# User overrides take precedence.
+		override = [s for s in self._skills_user_enabled if s in self._skills]
+		if override:
+			out = [s for s in override if s not in self._skills_user_disabled]
+			return out[: self.config.max_active_skills]
+		picked = self._select_skills_llm(user_input) if self.config.skills_use_llm_selector else self._select_skills_fallback(user_input)
+		return [s for s in picked if s not in self._skills_user_disabled]
+
+	def _render_skills_text(self, skill_names: Sequence[str]) -> str:
+		if not skill_names:
+			return ""
+		blocks: List[str] = []
+		for name in skill_names:
+			s = self._skills.get(name)
+			if not s:
+				continue
+			blocks.append(f"## Skill: {s.title} ({s.name})\n{s.content.strip()}")
+		return "\n\n".join(blocks)
 
 	def _initialize_executor(self) -> None:
 		"""Create an OpenAI-native tool calling agent executor.
@@ -295,6 +464,15 @@ class ContextAgent:
 		if not self.tools:
 			self._executor = None
 			return
+
+		# Make tool failures non-fatal (convert validation/tool errors to observations)
+		for t in self.tools:
+			for attr in ("handle_tool_error", "handle_validation_error"):
+				try:
+					if hasattr(t, attr):
+						setattr(t, attr, True)
+				except Exception:
+					pass
 		system_prompt = self._system_prompt()
 		prompt = ChatPromptTemplate.from_messages(
 			[
@@ -623,11 +801,14 @@ class ContextAgent:
 
 		session_summary = self._load_session_summary() if self.config.enable_session_summary else ""
 		memory_notes = self._read_text(self.storage_dir / "NOTES.md", limit_chars=1600)
+		skill_names = self._active_skill_names(user_input)
+		skills_text = self._render_skills_text(skill_names)
 
 		return ContextPack(
 			system=self._system_prompt(),
 			task=f"User question: {user_input.strip()}",
 			tool_guidance=self._tool_guidance(),
+			skills=skills_text,
 			working_set="",
 			session_summary=session_summary.strip(),
 			memory_notes=_truncate(memory_notes.strip(), self.config.budgets.budget_memory_notes),
@@ -638,6 +819,33 @@ class ContextAgent:
 	# -------------- Public API --------------
 	def chat(self, user_input: str) -> str:
 		"""Run one conversational turn and persist it to Markdown memory."""
+		self._turn_counter += 1
+
+		# Skill management commands
+		cmd = _safe_text(user_input).strip()
+		if cmd == "!list_skills":
+			return self._list_skills_text()
+		if cmd == "!skills_on":
+			self._skills_enabled = True
+			return "Skills enabled."
+		if cmd == "!skills_off":
+			self._skills_enabled = False
+			return "Skills disabled."
+		if cmd.startswith("!enable_skill "):
+			name = cmd.split(" ", 1)[1].strip()
+			if name not in self._skills:
+				return f"Unknown skill: {name}. Use !list_skills."
+			self._skills_user_enabled.add(name)
+			if name in self._skills_user_disabled:
+				self._skills_user_disabled.remove(name)
+			return f"Enabled skill: {name}."
+		if cmd.startswith("!disable_skill "):
+			name = cmd.split(" ", 1)[1].strip()
+			self._skills_user_disabled.add(name)
+			return f"Disabled skill: {name}."
+		if cmd == "!active_skills":
+			names = self._active_skill_names(cmd)
+			return "Active skills: " + (", ".join(names) if names else "(none)")
 		total_steps = 6
 		self._emit_progress("Building context", step=1, total_steps=total_steps)
 		pack = self._build_context(user_input)
@@ -653,7 +861,20 @@ class ContextAgent:
 			assistant_text = _safe_text(self._llm_call(prompt)).strip()
 		else:
 			self._emit_progress("Tool calling", step=3, total_steps=total_steps)
-			result = self._executor.invoke({"input": prompt})
+			try:
+				result = self._executor.invoke({"input": prompt})
+			except Exception as exc:
+				# Never hard-fail a notebook cell due to tool validation/runtime errors.
+				err = _safe_text(exc)
+				self._append_chat("tool", f"### TOOL_EXECUTOR_ERROR\n\n{err}")
+				assistant_text = (
+					"Tool execution failed due to a tool validation/runtime error. "
+					"I can continue if you confirm the right parameters.\n\n"
+					f"Error: {err}\n\n"
+					"Tip: for AccuracyMeasure, use supported evaluation_metric values such as 'mad'(≈MAE), 'rmse', 'mape', 'smape', etc."
+				)
+				result = {"output": assistant_text, "intermediate_steps": []}
+
 			assistant_text = _safe_text(result.get("output") if isinstance(result, dict) else result).strip()
 			steps = result.get("intermediate_steps") if isinstance(result, dict) else None
 			if isinstance(steps, list):

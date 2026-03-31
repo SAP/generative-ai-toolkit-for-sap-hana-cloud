@@ -64,6 +64,7 @@ from hana_ai.tools.hana_ml_tools.ts_make_predict_table import TSMakeFutureTableT
 from hana_ai.tools.hana_ml_tools.select_statement_to_table_tools import SelectStatementToTableTool
 from hana_ai.tools.hana_ml_tools.massive_automatic_timeseries_tools import MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeSeriesLoadModelAndPredict, MassiveAutomaticTimeSeriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.massive_ts_outlier_detection_tools import MassiveTSOutlierDetection
+from hana_ai.tools.hana_ml_tools.python_exec_tools import PythonHanaMLExecTool
 
 
 def _is_sensitive_key(key: str) -> bool:
@@ -174,6 +175,7 @@ def _refresh_tools_for_new_context(toolkit: "HANAMLToolkit") -> dict[str, Any]:
             MassiveTimeSeriesCheck(connection_context=toolkit.connection_context),
             TSMakeFutureTableForMassiveForecastTool(connection_context=toolkit.connection_context),
             MassiveTSOutlierDetection(connection_context=toolkit.connection_context),
+            PythonHanaMLExecTool(connection_context=toolkit.connection_context),
         ]
         recreated_default_tools = len(toolkit.default_tools)
 
@@ -249,7 +251,8 @@ class HANAMLToolkit(BaseToolkit):
             MassiveAutomaticTimeSeriesLoadModelAndScore(connection_context=self.connection_context),
             MassiveTimeSeriesCheck(connection_context=self.connection_context),
             TSMakeFutureTableForMassiveForecastTool(connection_context=self.connection_context),
-            MassiveTSOutlierDetection(connection_context=self.connection_context)
+            MassiveTSOutlierDetection(connection_context=self.connection_context),
+            PythonHanaMLExecTool(connection_context=self.connection_context),
         ]
         if isinstance(return_direct, dict):
             for tool in self.default_tools:

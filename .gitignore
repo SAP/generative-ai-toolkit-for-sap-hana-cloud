@@ -164,3 +164,4 @@ nutest/testscripts/visualizers/temp/
 *.DS_Store
 *.log
 *mlruns
+.mem_paper/
