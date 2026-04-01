@@ -196,9 +196,9 @@ class HTTPMCPClient(MCPClient):
                     "required": ["address", "port", "user", "password"]
                 }
             ),
-            "discovery_agent": MCPTool(
-                name="discovery_agent",
-                description="Use the HANA discovery agent tool to run a query.",
+            "ai_object_retrieval": MCPTool(
+                name="ai_object_retrieval",
+                description="Use the AI_OBJECT_RETRIEVAL tool to run a query.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -207,9 +207,9 @@ class HTTPMCPClient(MCPClient):
                     "required": ["query"]
                 }
             ),
-            "data_agent": MCPTool(
-                name="data_agent",
-                description="Use the HANA data agent tool to run a query.",
+            "ai_data_retrieval": MCPTool(
+                name="ai_data_retrieval",
+                description="Use the AI_DATA_RETRIEVAL tool to run a query.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -512,9 +512,9 @@ class StdioMCPClient(MCPClient):
                     "required": ["address", "port", "user", "password"],
                 },
             ),
-            "discovery_agent": MCPTool(
-                name="discovery_agent",
-                description="Use the HANA discovery agent tool to run a query.",
+            "ai_object_retrieval": MCPTool(
+                name="ai_object_retrieval",
+                description="Use the AI_OBJECT_RETRIEVAL tool to run a query.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -523,9 +523,9 @@ class StdioMCPClient(MCPClient):
                     "required": ["query"],
                 },
             ),
-            "data_agent": MCPTool(
-                name="data_agent",
-                description="Use the HANA data agent tool to run a query.",
+            "ai_data_retrieval": MCPTool(
+                name="ai_data_retrieval",
+                description="Use the AI_DATA_RETRIEVAL tool to run a query.",
                 inputSchema={
                     "type": "object",
                     "properties": {

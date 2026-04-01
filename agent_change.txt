@@ -1,0 +1,30 @@
+Use procedure names as discussed at the meeting:
+AI_OBJECT_RETRIEVAL
+AI_DATA_RETRIEVAL
+For consistency with existing procedures the parameters should be:
+              NVARCHAR(256)           REMOTE_SOURCE_SCHEMA_NAME
+              NVARCHAR(256)           REMOTE_SOURCE_NAME
+              NVARCHAR(256)           AI_METADATA_SCHEMA_NAME              instead of “schemaName”
+              NVARCHAR(256)           AI_METADATA_OBJECT_PREFIX              instead of separate “indexName” and “graphName” and …; internally append _INDEX, _GRAPH, … to this prefix
+              NVARCHAR(128)           MODEL_AND_VERSION                           similar to other procedures, values can be get before with SYS.GET_REMOTE_SOURCE_AI_MODELS procedure. For historic reasons one parameter here, but 2 columns at the GET_... procedure
+              NCLOB                             QUERY
+              NCLOB OUT                    RESPONSE
+NCLOB optional            OPTIONS                                                      instead of “params”, To put them before RESPONSE we would have to make the OPTIONS non optional
+
+Parameters "REMOTE_SOURCE_SCHEMA_NAME"  as well as "MODEL_AND_VERSION" have to be null.
+For a later QRC we'll most likely allow to set a different model.
+ 
+For OPTIONS we have some experimental parameters, i.e. are not official and won't be document as they have to be approved by the committee first, as we for example by default only allow SQL SELECT statements to be used by the agent.
+ 
+SQL
+CALL AI_OBJECT_RETRIEVAL(
+ null, -- REMOTE_SOURCE_SCHEMA_NAME
+ 'HANA_DISCOVERY_AGENT_CREDENTIALS', -- REMOTE_SOURCE_NAME
+ 'MY_SCHEMA', -- AI_METADATA_SCHEMA_NAME
+ 'MY_INDEX_NAME', -- AI_METADATA_OBJECT_PREFIX
+ null, -- MODEL_AND_VERSION
+ 'In which position does Mia Nguyen work ?', -- QUERY
+ ? -- RESPONSE,
+ null -- OPTIONS
+);
+
