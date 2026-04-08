@@ -4,10 +4,11 @@ Utility functions for the HANA ML tools.
 import os
 import shutil
 import json
+import re
 from pathlib import Path
 import logging
 from datetime import datetime, date
-from typing import Union
+from typing import Optional, Union
 from pandas import Timestamp
 from numpy import int64
 from hana_ml.model_storage import ModelStorage
@@ -137,3 +138,76 @@ def _create_temp_table(conn, select_statement: str, tool_name: str, additional_i
     create_temp_table_sql = f"CREATE LOCAL TEMPORARY TABLE {table_name} AS ({select_statement})"
     conn.execute_sql(create_temp_table_sql)
     return f"SELECT * FROM {table_name}"
+
+
+def normalize_column_list(columns: Union[None, str, list, tuple]) -> list[str]:
+    """Normalize optional column input into a flat ordered list of column names."""
+    if columns is None:
+        return []
+    if isinstance(columns, str):
+        parts = [part.strip() for part in re.split(r"[;,]", columns) if part.strip()]
+        return parts if parts else [columns.strip()]
+    normalized: list[str] = []
+    for column in columns:
+        text = str(column).strip()
+        if text:
+            normalized.append(text)
+    return normalized
+
+
+def is_predict_feature_mismatch_error(exc: Exception) -> bool:
+    """Detect PAL/HANA errors that indicate predict-table features do not match the trained model."""
+    text = str(exc).lower()
+    markers = (
+        "feature number of predict table does not match the trained model",
+        "predict table features do not match the trained model",
+        "predict table does not match the trained model",
+        "invalid table:$tab$",
+        "73001007",
+    )
+    return any(marker in text for marker in markers)
+
+
+def build_repaired_predict_dataframe(predict_df, *, key: str, exog=None, group_key: Optional[str] = None, add_placeholder: bool = False):
+    """Return a predict DataFrame containing only the columns required for inference.
+
+    The returned tuple is (dataframe, kept_columns, missing_columns).
+    """
+    required_columns: list[str] = []
+    for column in [group_key, key, *normalize_column_list(exog)]:
+        if column and column not in required_columns:
+            required_columns.append(column)
+
+    missing_columns = [column for column in required_columns if column not in predict_df.columns]
+    if missing_columns:
+        return predict_df, required_columns, missing_columns
+
+    repaired_df = predict_df.select(*required_columns)
+    if add_placeholder and len(repaired_df.columns) == 1:
+        repaired_df = repaired_df.add_constant("PLACEHOLDER", 0)
+    return repaired_df, required_columns, []
+
+
+def format_predict_mismatch_diagnostic(*, predict_table: str, predict_schema: Optional[str], original_columns: list[str], kept_columns: list[str], missing_columns: list[str], key: str, exog=None, group_key: Optional[str] = None, original_error: Optional[str] = None) -> str:
+    """Build a structured error payload for predict-table schema mismatches."""
+    context_columns = [column for column in [group_key, key, *normalize_column_list(exog)] if column]
+    analysis = (
+        "The predict table structure does not match the trained model. "
+        "For forecasting prediction, the predict input should usually contain only the time key"
+        + (", the group key" if group_key else "")
+        + (", and any explicit exogenous columns." if context_columns else ".")
+    )
+    payload = {
+        "error": "Prediction table features do not match the trained model.",
+        "error_category": "predict_table_feature_mismatch",
+        "input_predict_table": predict_table,
+        "input_predict_schema": predict_schema,
+        "predict_table_columns": original_columns,
+        "columns_required_for_retry": kept_columns,
+        "missing_required_columns": missing_columns,
+        "analysis": analysis,
+        "suggested_fix": "Create or use a predict table that contains only the required columns and retry the prediction.",
+    }
+    if original_error:
+        payload["original_error"] = original_error
+    return json.dumps(payload, cls=_CustomEncoder)

@@ -19,7 +19,13 @@ from hana_ml import ConnectionContext
 from hana_ml.model_storage import ModelStorage
 from hana_ml.algorithms.pal.auto_ml import AutomaticTimeSeries
 
-from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, generate_model_storage_version
+from hana_ai.tools.hana_ml_tools.utility import (
+  _CustomEncoder,
+  build_repaired_predict_dataframe,
+  format_predict_mismatch_diagnostic,
+  generate_model_storage_version,
+  is_predict_feature_mismatch_error,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -413,10 +419,79 @@ class AutomaticTimeSeriesLoadModelAndPredict(BaseTool):
         if hasattr(model, 'version'):
             if model.version is not None:
                 version = model.version
-        model.predict(data=self.connection_context.table(predict_table, schema=predict_schema),
-                      key=key,
-                      exog=exog,
-                      show_explainer=show_explainer)
+        predict_df = self.connection_context.table(predict_table, schema=predict_schema)
+        original_columns = list(predict_df.columns)
+        auto_repair_details = None
+        prepared_df, kept_columns, missing_columns = build_repaired_predict_dataframe(
+            predict_df,
+            key=key,
+            exog=exog,
+        )
+        if missing_columns:
+            return format_predict_mismatch_diagnostic(
+                predict_table=predict_table,
+                predict_schema=predict_schema,
+                original_columns=original_columns,
+                kept_columns=kept_columns,
+                missing_columns=missing_columns,
+                key=key,
+                exog=exog,
+                original_error="Required inference columns are missing before prediction starts.",
+            )
+        if kept_columns != original_columns:
+            auto_repair_details = {
+                "auto_repaired_predict_input": True,
+                "predict_table_columns_before_repair": original_columns,
+                "predict_table_columns_used_for_prediction": kept_columns,
+            }
+        try:
+            model.predict(data=prepared_df,
+                          key=key,
+                          exog=exog,
+                          show_explainer=show_explainer)
+        except Exception as exc:  # pylint: disable=broad-except
+            if not is_predict_feature_mismatch_error(exc):
+                return json.dumps({"error": f"Prediction failed: {exc}"}, cls=_CustomEncoder)
+
+            repaired_df, kept_columns, missing_columns = build_repaired_predict_dataframe(
+                predict_df,
+                key=key,
+                exog=exog,
+            )
+            if missing_columns or kept_columns == original_columns:
+                return format_predict_mismatch_diagnostic(
+                    predict_table=predict_table,
+                    predict_schema=predict_schema,
+                    original_columns=original_columns,
+                    kept_columns=kept_columns,
+                    missing_columns=missing_columns,
+                    key=key,
+                    exog=exog,
+                    original_error=str(exc),
+                )
+
+            try:
+                model.predict(data=repaired_df,
+                              key=key,
+                              exog=exog,
+                              show_explainer=show_explainer)
+            except Exception as retry_exc:  # pylint: disable=broad-except
+                return format_predict_mismatch_diagnostic(
+                    predict_table=predict_table,
+                    predict_schema=predict_schema,
+                    original_columns=original_columns,
+                    kept_columns=kept_columns,
+                    missing_columns=missing_columns,
+                    key=key,
+                    exog=exog,
+                    original_error=str(retry_exc),
+                )
+
+            auto_repair_details = {
+                "auto_repaired_predict_input": True,
+                "predict_table_columns_before_repair": original_columns,
+                "predict_table_columns_used_for_prediction": kept_columns,
+            }
         ms.save_model(model=model, if_exists='replace_meta')
         predicted_results = f"PREDICT_RESULT_{predict_table}_{name}_{version}" if predict_schema is None else f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"
         self.connection_context.table(model._predict_output_table_names[0]).smart_save(predicted_results, force=True)
@@ -430,6 +505,8 @@ class AutomaticTimeSeriesLoadModelAndPredict(BaseTool):
         }
         for _, row in stats.iterrows():
             outputs[row[stats.columns[0]]] = row[stats.columns[1]]
+        if auto_repair_details:
+            outputs.update(auto_repair_details)
         return json.dumps(outputs, cls=_CustomEncoder)
 
     async def _arun(

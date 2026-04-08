@@ -50,7 +50,7 @@ from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
 from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool
 from hana_ai.tools.hana_ml_tools.model_storage_tools import DeleteModels, ListModels
 from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
-from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
+from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict, MassiveAdditiveModelForecastFitAndSave, MassiveAdditiveModelForecastLoadModelAndPredict
 from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsForBASTool, CAPArtifactsTool
 from hana_ai.tools.hana_ml_tools.intermittent_forecast_tools import IntermittentForecast
 from hana_ai.tools.hana_ml_tools.ts_visualizer_tools import ForecastLinePlot, TimeSeriesDatasetReport
@@ -59,12 +59,20 @@ from hana_ai.tools.hana_ml_tools.ts_check_tools import TimeSeriesCheck, MassiveT
 from hana_ai.tools.hana_ml_tools.ts_outlier_detection_tools import TSOutlierDetection
 from hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools import AccuracyMeasure
 from hana_ai.tools.hana_ml_tools.hdi_artifacts_tools import HDIArtifactsTool
+from hana_ai.tools.hana_ml_tools import dataset_prep_tools as dataset_prep_tools_module
 from hana_ai.tools.hana_ml_tools.unsupported_tools import ClassificationTool, RegressionTool
 from hana_ai.tools.hana_ml_tools.ts_make_predict_table import TSMakeFutureTableTool, TSMakeFutureTableForMassiveForecastTool
 from hana_ai.tools.hana_ml_tools.select_statement_to_table_tools import SelectStatementToTableTool
 from hana_ai.tools.hana_ml_tools.massive_automatic_timeseries_tools import MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeSeriesLoadModelAndPredict, MassiveAutomaticTimeSeriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.massive_ts_outlier_detection_tools import MassiveTSOutlierDetection
 from hana_ai.tools.hana_ml_tools.python_exec_tools import PythonHanaMLExecTool
+
+ImportCSVToTableTool = dataset_prep_tools_module.ImportCSVToTableTool
+SplitTableForForecastingTool = getattr(
+    dataset_prep_tools_module,
+    "SplitTableForForecastingTool",
+    dataset_prep_tools_module.SplitTableForModelingTool,
+)
 
 
 def _is_sensitive_key(key: str) -> bool:
@@ -158,10 +166,12 @@ def _refresh_tools_for_new_context(toolkit: "HANAMLToolkit") -> dict[str, Any]:
             CAPArtifactsTool(connection_context=toolkit.connection_context),
             DeleteModels(connection_context=toolkit.connection_context),
             FetchDataTool(connection_context=toolkit.connection_context),
+            ImportCSVToTableTool(connection_context=toolkit.connection_context),
             ForecastLinePlot(connection_context=toolkit.connection_context),
             IntermittentForecast(connection_context=toolkit.connection_context),
             ListModels(connection_context=toolkit.connection_context),
             HDIArtifactsTool(connection_context=toolkit.connection_context),
+            SplitTableForForecastingTool(connection_context=toolkit.connection_context),
             TimeSeriesDatasetReport(connection_context=toolkit.connection_context),
             TimeSeriesCheck(connection_context=toolkit.connection_context),
             TSOutlierDetection(connection_context=toolkit.connection_context),
@@ -172,6 +182,8 @@ def _refresh_tools_for_new_context(toolkit: "HANAMLToolkit") -> dict[str, Any]:
             MassiveAutomaticTimeSeriesFitAndSave(connection_context=toolkit.connection_context),
             MassiveAutomaticTimeSeriesLoadModelAndPredict(connection_context=toolkit.connection_context),
             MassiveAutomaticTimeSeriesLoadModelAndScore(connection_context=toolkit.connection_context),
+            MassiveAdditiveModelForecastFitAndSave(connection_context=toolkit.connection_context),
+            MassiveAdditiveModelForecastLoadModelAndPredict(connection_context=toolkit.connection_context),
             MassiveTimeSeriesCheck(connection_context=toolkit.connection_context),
             TSMakeFutureTableForMassiveForecastTool(connection_context=toolkit.connection_context),
             MassiveTSOutlierDetection(connection_context=toolkit.connection_context),
@@ -235,10 +247,12 @@ class HANAMLToolkit(BaseToolkit):
             CAPArtifactsTool(connection_context=self.connection_context),
             DeleteModels(connection_context=self.connection_context),
             FetchDataTool(connection_context=self.connection_context),
+            ImportCSVToTableTool(connection_context=self.connection_context),
             ForecastLinePlot(connection_context=self.connection_context),
             IntermittentForecast(connection_context=self.connection_context),
             ListModels(connection_context=self.connection_context),
             HDIArtifactsTool(connection_context=self.connection_context),
+            SplitTableForForecastingTool(connection_context=self.connection_context),
             TimeSeriesDatasetReport(connection_context=self.connection_context),
             TimeSeriesCheck(connection_context=self.connection_context),
             TSOutlierDetection(connection_context=self.connection_context),
@@ -249,6 +263,8 @@ class HANAMLToolkit(BaseToolkit):
             MassiveAutomaticTimeSeriesFitAndSave(connection_context=self.connection_context),
             MassiveAutomaticTimeSeriesLoadModelAndPredict(connection_context=self.connection_context),
             MassiveAutomaticTimeSeriesLoadModelAndScore(connection_context=self.connection_context),
+            MassiveAdditiveModelForecastFitAndSave(connection_context=self.connection_context),
+            MassiveAdditiveModelForecastLoadModelAndPredict(connection_context=self.connection_context),
             MassiveTimeSeriesCheck(connection_context=self.connection_context),
             TSMakeFutureTableForMassiveForecastTool(connection_context=self.connection_context),
             MassiveTSOutlierDetection(connection_context=self.connection_context),
