@@ -1,6 +1,26 @@
 Changelog
 =========
 
+**Version 1.1.26040800**
+
+``New Functions``
+    - Added a standalone ContextAgent skills catalog at hana_ai.iagents.skills.md to make skill definitions easier to review, extend, and maintain.
+    - Added markdown-based skill loading in ContextAgent with built-in fallback support for existing deployments.
+    - Added dedicated dataset preparation tools for CSV import and time-ordered train, test, validation table generation in conversational forecasting workflows, including split_table_for_forecasting.
+    - Added grouped additive forecasting tools backed by AdditiveModelForecast(massive=True) for save-and-predict workflows across many related series.
+
+``Enhancements``
+    - Expanded ContextAgent skill coverage for dataset preparation, time-series profiling, prediction-result analysis, grouped forecasting, artifact generation, and dataframe-oriented fallback workflows.
+    - Improved fallback skill selection so profiling, post-prediction analysis, grouped forecasting, artifact generation, and SQL comparison requests map more reliably to the intended skills.
+    - Added validation for markdown-defined skills so malformed entries are ignored unless they provide a valid Goal section.
+    - Clarified that dataset splitting currently targets forecasting scenarios and preserves chronology through time-ordered splitting.
+    - Improved forecasting prediction robustness so automatic, additive, and grouped prediction tools proactively validate and repair predict inputs to inference-only columns when users accidentally pass labeled holdout tables.
+    - Improved ContextAgent tool-failure handling with more actionable diagnostics for predict-versus-score input mismatches and backend PAL runtime failures during forecasting workflows.
+
+``API Changes``
+    - ContextAgent now prefers loading skills from the colocated markdown catalog and merges them with the built-in fallback skills.
+    - ContextAgent is the recommended target for future live end-to-end scenario expansion; HANAMLRAGAgent and Mem0HANARAGAgent are no longer recommended for new scenario coverage.
+
 **Version 1.0.260331**
 
 ``New Functions``
