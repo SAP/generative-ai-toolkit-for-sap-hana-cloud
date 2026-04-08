@@ -27,10 +27,14 @@ hana_ml_tools
 
    hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave
    hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastLoadModelAndPredict
+   hana_ml_tools.additive_model_forecast_tools.MassiveAdditiveModelForecastFitAndSave
+   hana_ml_tools.additive_model_forecast_tools.MassiveAdditiveModelForecastLoadModelAndPredict
    hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave
    hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict
    hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore
    hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool
+   hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool
+   hana_ml_tools.dataset_prep_tools.SplitTableForForecastingTool
    hana_ml_tools.fetch_tools.FetchDataTool
    hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool
    hana_ml_tools.intermittent_forecast_tools.IntermittentForecast

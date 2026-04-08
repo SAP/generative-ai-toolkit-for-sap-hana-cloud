@@ -259,9 +259,12 @@ class AgentConfig:
 	# Skills (tech.tex: examples/skills layer)
 	enable_skills: bool = True
 	max_active_skills: int = 2
+	# True: let the LLM choose which skills to activate for the current request.
+	# False: use deterministic keyword-based fallback routing, which is better for demos/tests.
 	skills_use_llm_selector: bool = True
 	skills_selector_max_chars: int = 1200
 	skills_cache_turns: int = 3
+	skills_markdown_path: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -334,6 +337,91 @@ def _builtin_skills() -> Dict[str, Skill]:
 	}
 
 
+def _parse_skills_markdown(text: str) -> Dict[str, Skill]:
+	"""Parse markdown headings into Skill objects.
+
+	A skill block starts at a heading like ``## skill_name`` where the heading text is
+	lowercase_with_underscores. The block continues until the next heading of the same form.
+	"""
+	def _has_required_sections(block_text: str) -> bool:
+		lines = [line.strip() for line in block_text.splitlines() if line.strip()]
+		has_goal_header = any(line == "Goal:" for line in lines)
+		has_goal_content = False
+		for i, line in enumerate(lines):
+			if line != "Goal:":
+				continue
+			for next_line in lines[i + 1 :]:
+				if next_line.endswith(":") and not next_line.startswith("-"):
+					break
+				if next_line:
+					has_goal_content = True
+					break
+			if has_goal_content:
+				break
+		return has_goal_header and has_goal_content
+
+	s = _safe_text(text)
+	pattern = re.compile(r"^## ([a-z0-9_]+)\s*$", re.MULTILINE)
+	matches = list(pattern.finditer(s))
+	if not matches:
+		return {}
+
+	parsed: Dict[str, Skill] = {}
+	for i, match in enumerate(matches):
+		name = match.group(1).strip()
+		start = match.end()
+		end = matches[i + 1].start() if i + 1 < len(matches) else len(s)
+		block = s[start:end].strip()
+		if not block or not _has_required_sections(block):
+			continue
+
+		title = name.replace("_", " ").title()
+		description = ""
+		lines = [line.rstrip() for line in block.splitlines()]
+		for index, raw_line in enumerate(lines):
+			line = raw_line.strip()
+			if not line or line.startswith("Status:"):
+				continue
+			if line.startswith("Goal:"):
+				description = line[len("Goal:") :].strip()
+				if description:
+					break
+				for next_raw in lines[index + 1 :]:
+					next_line = next_raw.strip()
+					if not next_line:
+						continue
+					if next_line.endswith(":") and not next_line.startswith("-"):
+						break
+					if next_line.startswith("- "):
+						description = next_line[2:].strip()
+						break
+					description = next_line
+					break
+				break
+			description = line
+			break
+
+		if not description:
+			description = title
+
+		parsed[name] = Skill(
+			name=name,
+			title=title,
+			description=_truncate(description, 180),
+			content=block,
+		)
+	return parsed
+
+
+def _load_skills_from_markdown(path: Path) -> Dict[str, Skill]:
+	"""Load skills from a markdown file, returning an empty mapping on failure."""
+	try:
+		text = path.read_text(encoding="utf-8")
+	except Exception:
+		return {}
+	return _parse_skills_markdown(text)
+
+
 def _safe_json_loads(text: str) -> Optional[Any]:
 	try:
 		return json.loads(text)
@@ -371,7 +459,7 @@ class ContextAgent:
 		self._index = _BM25Index()
 		self._indexed_mtimes: Dict[Path, float] = {}
 		self._executor = None
-		self._skills = _builtin_skills()
+		self._skills = self._load_skills_catalog()
 		self._skills_enabled = True
 		self._skills_user_enabled: set[str] = set()
 		self._skills_user_disabled: set[str] = set()
@@ -380,6 +468,19 @@ class ContextAgent:
 
 		self._init_storage()
 		self._initialize_executor()
+
+	def _load_skills_catalog(self) -> Dict[str, Skill]:
+		"""Load skills from markdown when available, falling back to built-ins."""
+		catalog = dict(_builtin_skills())
+		configured = _safe_text(self.config.skills_markdown_path).strip()
+		if configured:
+			skills_path = Path(configured).expanduser().resolve()
+		else:
+			skills_path = Path(__file__).with_name("skills.md")
+		loaded = _load_skills_from_markdown(skills_path)
+		if loaded:
+			catalog.update(loaded)
+		return catalog
 
 	def _list_skills_text(self) -> str:
 		lines = []
@@ -390,16 +491,144 @@ class ContextAgent:
 	def _select_skills_fallback(self, user_input: str) -> List[str]:
 		q = _safe_text(user_input).lower()
 		chosen: List[str] = []
-		if any(k in q for k in ("massive", "many series", "multiple series")):
-			chosen.append("massive_forecast_comparison")
-		if any(k in q for k in ("time series", "forecast", "predict", "ts_", "model", "train")):
+		multi_series_request = any(k in q for k in ("massive", "many series", "multiple series", "grouped by", "group_key"))
+		data_preparation_request = any(
+			k in q
+			for k in (
+				"csv",
+				"file into hana",
+				"bring this file",
+				"load this file",
+				"import file",
+				"import data",
+				"upload csv",
+				"load csv",
+				"get the data into hana",
+				"prepare the data",
+				"get this dataset ready",
+				"training table",
+				"training set",
+				"training data",
+				"train table",
+				"test set",
+				"test table",
+				"validation set",
+				"validation table",
+				"validation tables",
+				"training, test, and validation",
+				"training test validation",
+				"train, test, and validation",
+				"train test and validation",
+				"train/test",
+				"train test",
+				"train, test",
+				"train test validation",
+				"train, test, validation",
+				"split this table",
+				"split the table",
+				"split the data",
+				"split data",
+				"split dataset",
+				"time order",
+				"time-ordered",
+				"respecting time order",
+				"respect time order",
+				"holdout",
+				"prepare dataset",
+			)
+		)
+		post_prediction_analysis = any(
+			k in q
+			for k in (
+				"insight",
+				"predicted result",
+				"prediction result",
+				"forecast result",
+				"forecast did",
+				"how did the forecast",
+				"what do you see in the forecast",
+				"error pattern",
+				"actual vs",
+				"compared with the actual",
+				"comparison table",
+			)
+		)
+		if any(k in q for k in ("artifact", "cap", "hdi", "deploy", "model storage", "list model", "delete model")):
+			chosen.append("model_lifecycle_and_artifacts")
+		if data_preparation_request:
+			chosen.append("data_ingestion_and_dataset_preparation")
+		if any(k in q for k in ("outlier", "anomaly", "spike", "abnormal", "clean data")):
+			chosen.append("outlier_detection_and_repair_prep")
+		if multi_series_request:
+			chosen.append("massive_forecasting")
+		if any(
+			k in q
+			for k in (
+				"dataset report",
+				"report",
+				"profile",
+				"diagnose",
+				"stationarity",
+				"trend",
+				"seasonality",
+				"white noise",
+				"what does this data look like",
+				"what does the data look like",
+				"understand this dataset",
+				"understand the data",
+				"check this series",
+				"check the series",
+				"tell me about this time series",
+				"recommend a model",
+				"suggest a model",
+				"which forecasting model",
+			)
+		):
+			chosen.append("timeseries_data_profiling")
+		if (not multi_series_request) and (not post_prediction_analysis) and (not data_preparation_request) and any(
+			k in q
+			for k in (
+				"time series",
+				"forecast",
+				"predict",
+				"ts_",
+				"model",
+				"train",
+				"fit a model",
+				"train a model",
+				"use that model",
+				"run a forecast",
+				"future values",
+			)
+		):
 			chosen.append("timeseries_forecasting")
-		if any(k in q for k in ("accuracy", "mae", "rmse", "mape", "compare", "analysis", "evaluate")):
+		if any(
+			k in q
+			for k in (
+				"accuracy",
+				"mae",
+				"rmse",
+				"mape",
+				"compare",
+				"analysis",
+				"evaluate",
+				"insight",
+				"predicted result",
+				"prediction result",
+				"forecast result",
+				"bias",
+				"actual vs",
+			)
+		):
 			chosen.append("prediction_result_analysis")
+		if any(k in q for k in ("sql", "select statement", "dataframe", "transform", "custom metric", "python snippet")):
+			chosen.append("hana_dataframe_fallback")
+		if "massive_forecast_comparison" in self._skills and any(k in q for k in ("compare groups", "group comparison", "per-group accuracy")):
+			chosen.append("massive_forecast_comparison")
 		# Respect config max
 		out = []
 		for name in chosen:
-			if name not in out:
+			if name in self._skills and name not in out:
 				out.append(name)
 		return out[: max(0, self.config.max_active_skills)]
 
@@ -428,6 +657,12 @@ class ContextAgent:
 		for x in obj:
 			name = _safe_text(x).strip()
 			if name in self._skills and name not in picked:
+				picked.append(name)
+		fallback_picked = self._select_skills_fallback(user_input)
+		if not picked:
+			return fallback_picked
+		for name in fallback_picked:
+			if name not in picked:
 				picked.append(name)
 		if self.config.max_active_skills >= 0:
 			picked = picked[: self.config.max_active_skills]
@@ -670,6 +905,78 @@ class ContextAgent:
 			raise TypeError(f"Tool '{name}' is not callable")
 		raise KeyError(f"Unknown tool: {name}")
 
+	def _format_tool_executor_error(self, err: str, user_input: str) -> str:
+		"""Convert common tool/runtime failures into actionable guidance."""
+		err_text = _safe_text(err).strip()
+		lower_err = err_text.lower()
+		lower_user = _safe_text(user_input).lower()
+		is_massive = any(token in lower_user for token in ("group key", "group_key", "multiple time series", "many series", "massive"))
+
+		if any(token in lower_err for token in (
+			"feature number of predict table does not match the trained model",
+			"predict table features do not match the trained model",
+			"73001007",
+		)):
+			shape_guidance = (
+				"For forecasting prediction, the predict table should usually contain only the time key"
+				+ (", the group key" if is_massive else "")
+				+ ", and any explicit exogenous columns used at training time."
+			)
+			return (
+				"Tool execution failed because the predict input shape does not match the trained model.\n\n"
+				+ shape_guidance
+				+ "\n"
+				+ "Do not include the label/endog column in the predict table; keep that column only for scoring or evaluation.\n\n"
+				+ f"Error: {err_text}\n\n"
+				+ "Tip: if you are predicting from a holdout table that still contains the target column, create or use a prediction input table that drops the target column first."
+			)
+
+		if "afl describe for nested call failed" in lower_err and "any-procedure call" in lower_err:
+			backend_hint = (
+				"This looks like a backend HANA PAL / hana_ml runtime issue rather than a simple missing parameter."
+			)
+			predict_hint = (
+				" For massive forecasting, verify that predict inputs contain only group_key + key (+ exog) and score inputs contain group_key + key + endog (+ exog)."
+				if is_massive else ""
+			)
+			return (
+				"Tool execution failed due to a tool validation/runtime error.\n\n"
+				+ backend_hint
+				+ predict_hint
+				+ f"\n\nError: {err_text}"
+			)
+
+		return (
+			"Tool execution failed due to a tool validation/runtime error. "
+			"I can continue if you confirm the right parameters.\n\n"
+			f"Error: {err_text}\n\n"
+			"Tip: for AccuracyMeasure, use supported evaluation_metric values such as 'mad'(≈MAE), 'rmse', 'mape', 'smape', etc."
+		)
+
+	def _summarize_tool_observation(self, tool_name: str, observation: str) -> Optional[str]:
+		"""Summarize structured tool outputs that indicate auto-repair or actionable failures."""
+		payload = _safe_json_loads(observation)
+		if not isinstance(payload, dict):
+			return None
+
+		if payload.get("auto_repaired_predict_input"):
+			used_columns = payload.get("predict_table_columns_used_for_prediction") or payload.get("columns_required_for_retry")
+			before_columns = payload.get("predict_table_columns_before_repair") or payload.get("predict_table_columns")
+			return (
+				f"The tool {tool_name} auto-corrected the prediction input by dropping extra columns. "
+				f"Before: {before_columns}. Used for prediction: {used_columns}."
+			)
+
+		if payload.get("error_category") == "predict_table_feature_mismatch":
+			needed = payload.get("columns_required_for_retry")
+			missing = payload.get("missing_required_columns")
+			return (
+				f"The prediction input did not match the trained model. Required inference columns: {needed}. "
+				f"Missing columns: {missing}. Keep target/endog columns only for scoring, not prediction."
+			)
+
+		return None
+
 	# -------------- Notes / Compaction --------------
 	def _load_session_summary(self) -> str:
 		if not self.config.enable_session_summary:
@@ -781,6 +1088,11 @@ class ContextAgent:
 			+ "\n\n"
 			"Decision policy (when to call tools):\n"
 			"- Call a tool if the user requests: table records, statistics checks (e.g., ts_check), dataset reports, training/fitting, prediction/forecasting, plotting, or artifact generation.\n"
+			"- For split_table_for_forecasting, preserve chronology and use split_mode=time_ordered with the temporal ordering column.\n"
+			"- For forecasting prediction tools, use predict tables that contain only inference columns: key, group_key when applicable, and any explicit exogenous columns. Do not include the label/endog column in predict inputs.\n"
+			"- For scoring or evaluation tools, keep the label/endog column in the score table.\n"
+			"- Natural requests like 'bring this csv into HANA', 'split this into train/test/validation', 'what does this series look like', 'recommend a model', or 'show me how the forecast did' should still trigger the corresponding tool workflow.\n"
+			"- If the user refers to the current table/model/result from recent context, reuse that context instead of asking them to restate obvious names.\n"
 			"- Ask a clarifying question before calling a tool if required inputs are missing (e.g., table name, key column, target column).\n\n"
 			"Tool usage:\n"
 			"- Use native tool/function calling to execute tools.\n"
@@ -867,16 +1179,12 @@ class ContextAgent:
 				# Never hard-fail a notebook cell due to tool validation/runtime errors.
 				err = _safe_text(exc)
 				self._append_chat("tool", f"### TOOL_EXECUTOR_ERROR\n\n{err}")
-				assistant_text = (
-					"Tool execution failed due to a tool validation/runtime error. "
-					"I can continue if you confirm the right parameters.\n\n"
-					f"Error: {err}\n\n"
-					"Tip: for AccuracyMeasure, use supported evaluation_metric values such as 'mad'(≈MAE), 'rmse', 'mape', 'smape', etc."
-				)
+				assistant_text = self._format_tool_executor_error(err, user_input)
 				result = {"output": assistant_text, "intermediate_steps": []}
 
 			assistant_text = _safe_text(result.get("output") if isinstance(result, dict) else result).strip()
 			steps = result.get("intermediate_steps") if isinstance(result, dict) else None
+			tool_diagnostics: List[str] = []
 			if isinstance(steps, list):
 				for action, observation in steps:
 					tool_name = _safe_text(getattr(action, "tool", "tool"))
@@ -891,9 +1199,16 @@ class ContextAgent:
 						obs_text = "\n".join([_safe_text(x.get("text") if isinstance(x, dict) else x) for x in observation])
 					else:
 						obs_text = _safe_text(observation)
+					diagnostic = self._summarize_tool_observation(tool_name, obs_text)
+					if diagnostic:
+						tool_diagnostics.append(diagnostic)
 
 					tool_trace.append(f"### TOOL {tool_name} args={args_text}\n\n{_truncate(obs_text, 3000)}")
 					tool_return_snippets.append(f"[Tool Return] {tool_name} args={args_text}\n{_truncate(obs_text, 1200)}")
+
+			if tool_diagnostics:
+				diagnostics_text = "\n\n".join(tool_diagnostics)
+				assistant_text = (assistant_text + "\n\n" + diagnostics_text).strip() if assistant_text else diagnostics_text
 
 			if tool_trace:
 				self._append_chat("tool", "\n\n".join(tool_trace))

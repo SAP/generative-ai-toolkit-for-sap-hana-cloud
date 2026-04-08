@@ -79,7 +79,8 @@ docs/_build/
 target/
 
 # Jupyter Notebook
-.ipynb_checkpoints
+**/.ipynb_checkpoints/
+**/.context_agent/
 
 # IPython
 profile_default/
@@ -155,7 +156,6 @@ dist/
 *.egg-info/
 *.eggs/
 __pycache__/
-.ipynb_checkpoints/
 .spyproject/
 .vscode/
 *.bak
@@ -165,3 +165,4 @@ nutest/testscripts/visualizers/temp/
 *.log
 *mlruns
 .mem_paper/
+

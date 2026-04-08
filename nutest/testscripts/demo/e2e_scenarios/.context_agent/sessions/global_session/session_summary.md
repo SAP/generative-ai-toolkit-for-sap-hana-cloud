@@ -1,2 +1,0 @@
-# Session global_session
-

@@ -44,10 +44,12 @@ Provided AI-tools for streamlining usage of HANA ML functions in context of the 
 | fetch_data | To fetch the data from the HANA database.|
 | forecast_line_plot | To generate line plot for the forecasted result. |
 | hdi_artifacts | To generate HDI artifacts for a given model from model storage. |
+| import_csv_to_table | To import a local CSV file into a HANA table with optional datetime parsing. | since 1.1.26040800 |
 | intermittent_forecast | To forecast the intermittent time series data. |
 | list_models | To list the models in the model storage. |
 | seasonality_test | To check the seasonality of the time series data. |
 | SelectStatement_to_table | To execute a SELECT SQL statement and store the result in a new table. | since 1.0.250909 |
+| split_table_for_forecasting | To create train, test, and validation tables from an existing HANA table using time-ordered splitting for forecasting workflows. | since 1.1.26040800 |
 | stationarity_test | To check the stationarity of the time series data. |
 | trend_test | To check the trend of the time series data. |
 | ts_check | To check the time series data for stationarity, intermittent, trend and seasonality. |
