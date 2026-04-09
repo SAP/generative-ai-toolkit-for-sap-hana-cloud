@@ -2,34 +2,50 @@
 
 ## Introduction
 
-Welcome to the __generative AI toolkit for SAP HANA Cloud (hana_ai)__ 
+Welcome to the __generative AI toolkit for SAP HANA Cloud (hana_ai)__
 
-This project provides generative AI-assisted, conversational agents to build SAP HANA Cloud forecasting and machine learning models as well as a library of aiding tools to utilize the SAP HANA Cloud ML functions, vector engine and text embedding capabilities. In addition it provides capabilities to build tools like custom code generators or adding custom code templates to be used as a dedicated context store for the tools, agents and code generation tasks.
+This project provides a toolkit of hana-ml-oriented tools and a file-based ContextAgent for conversational SAP HANA Cloud forecasting and machine learning workflows. It focuses on reusable HANAMLToolkit integrations, workflow skills for data preparation and forecasting tasks, and tool-driven execution against SAP HANA Cloud machine learning functions.
 
 ## Overview
 The generative AI toolkit for SAP HANA Cloud provides the following key capabilities:
-* a generative AI-assisted, conversational agent to build SAP HANA Cloud forecasting models
+* a file-based ContextAgent with Markdown memory, runtime skill routing, and command-style memory/skill controls for iterative forecasting workflows
 * a library of prepared tools to streamline use of SAP HANA machine learning functions and aid in e.g. forecast algorithm selection with the given data
-* a generative AI-assisted, conversational SAP HANA dataframe agent to generate and execute HANA ML code based on code-templates stores
-* a SmartDataFrame interface to directly interact with HANA dataframes using functions like "ask" and "transform" to explore and transform the data in a conversational manner
 * tools for leveraging the SAP HANA Cloud vectorstore and embedding services
-* components for building custom code generation tools, targeted for SAP HANA Cloud scenarios  
-  
+
 # Capabilities introduction
 
-## Agent to build SAP HANA Cloud forecasting and machine learning models
-This conversational agent (agents.hanaml_agent_with_memory.HANAMLAgentWithMemory class), aids to streamline development of SAP HANA Cloud forecasting and machine learning models, it's re-using the provided library of HANA ai-tools (tools.toolkit.HANAMLToolkit class) and is based on the Langchain agent framework. Trained models and artifacts are persisted using the hana_ml model storage class that helps manage the model version.
+## ContextAgent with Markdown memory and skills
+The file-based ContextAgent (agents.context_agent.ContextAgent class) is designed for tool-enabled, multi-turn workflows without requiring HANA-backed memory services. It persists conversation state to Markdown files, retrieves compact notes into context, and activates focused workflow skills depending on the request.
+
 ```python
 from hana_ai.tools.toolkit import HANAMLToolkit
-from hana_ai.agents.hanaml_rag_agent import HANAMLRAGAgent
+from hana_ai.agents.context_agent import ContextAgent
 
 tools = HANAMLToolkit(cc, used_tools='all').get_tools()
-chatbot = HANAMLRAGAgent(llm=llm, tools=tools, verbose=True, vector_store_type="hanadb")
+agent = ContextAgent(llm=llm, tools=tools, storage_dir=".context_agent")
 
+response = agent.chat("Import this csv, split it into train, test, and validation tables, then recommend a forecasting model.")
 ```
-<img src="./doc/image/chatbotwithtoolkit.png" alt="image" width="800" height="auto">
 
-## Library of tools for HANA-ML 
+The ContextAgent currently supports the following workflow skills:
+
+| Skill Name | Purpose |
+|-----------|---------|
+| data_ingestion_and_dataset_preparation | Import CSV data into HANA and create time-ordered train, test, and validation tables. |
+| timeseries_data_profiling | Inspect a time series dataset with reports and statistical checks before modeling. |
+| timeseries_forecasting | Train, predict, score, and summarize a single-series forecasting workflow. |
+| prediction_result_analysis | Compare predicted results with actuals and summarize forecast quality. |
+| outlier_detection_and_repair_prep | Detect anomalous points or groups before modeling. |
+| massive_forecasting | Run grouped forecasting across many related series with group_key-aware tools. |
+| model_lifecycle_and_artifacts | List, delete, and package saved models as CAP or HDI artifacts. |
+| hana_dataframe_fallback | Materialize SQL or restricted Python fallback logic when dedicated tools are insufficient. |
+
+The ContextAgent also exposes command-style controls during `chat()`:
+
+- Memory commands: `!clear_notes`, `!clear_session`, `!reset_memory`, `!clear_notes_file`, `!clear_todo`, `!clear_decisions`, `!clear_context`, `!clear_chat`, `!clear_summary`
+- Skill commands: `!list_skills`, `!active_skills`, `!skills_on`, `!skills_off`, `!enable_skill <skill_name>`, `!disable_skill <skill_name>`
+
+## Library of tools for HANA-ML
 Provided AI-tools for streamlining usage of HANA ML functions in context of the conversational agent.
 | Tool Name | Description | Comment |
 |-----------|-------------|---------|
@@ -47,6 +63,7 @@ Provided AI-tools for streamlining usage of HANA ML functions in context of the 
 | import_csv_to_table | To import a local CSV file into a HANA table with optional datetime parsing. | since 1.1.26040800 |
 | intermittent_forecast | To forecast the intermittent time series data. |
 | list_models | To list the models in the model storage. |
+| python_hanaml_exec | To run restricted hana-ml Python logic for transformations or fallback analyses. |
 | seasonality_test | To check the seasonality of the time series data. |
 | SelectStatement_to_table | To execute a SELECT SQL statement and store the result in a new table. | since 1.0.250909 |
 | split_table_for_forecasting | To create train, test, and validation tables from an existing HANA table using time-ordered splitting for forecasting workflows. | since 1.1.26040800 |
@@ -64,6 +81,8 @@ Provided AI-tools for streamlining usage of HANA ML functions in context of the 
 | massive_automatic_timeseries_fit_and_save | To fit multiple AutomaticTimeseries models and save them in the model storage. |
 | massive_automatic_timeseries_load_model_and_predict | To load multiple AutomaticTimeseries models and predict the future values. |
 | massive_automatic_timeseries_load_model_and_score | To load multiple AutomaticTimeseries models and score the models. |
+| massive_additive_model_forecast_fit_and_save | To fit grouped additive forecasting models and save them in model storage. |
+| massive_additive_model_forecast_load_model_and_predict | To load grouped additive forecasting models and predict future values. |
 | massive_ts_outlier_detection | To detect the outliers in multiple time series data. |
 | ts_make_future_table_for_massive_forecast | To generate a future table for multiple time series forecasting. |
 | massive_ts_check | To check multiple time series data for stationarity, intermittent, trend and seasonality. |
@@ -87,62 +106,4 @@ from hana_ai.vectorstore.embedding_service import GenAIHubEmbeddings
 embedding_func = GenAIHubEmbeddings()
 embedding_func('hello')
 ```
-### Loading embeddings into a vector store
-Create Knowledge Base for hana-ml codes in Hana Vector Engine
-```python
-hanavec = HANAMLinVectorEngine(cc, "hana_vec_hana_ml_knowledge")
-hana_vec.create_knowledge()
-```
-
-Create Code Template Tool and Add Knowledge Bases to It
-```python
-code_tool = GetCodeTemplateFromVectorDB()
-code_tool.set_vectordb(self.vectordb)
-```
-### Similarity retrieval queries with vector stores
-```python
-hana_vec.query("AutoML classification", top_n=1)
-```
-![alt](./doc/image/code_template.png)
-
-### Working with multiple Vector Stores
-Union of multiple vector stores is possible
-```python
-from hana_ai.vectorstore.union_vector_stores import UnionVectorStores
-
-uvs = UnionVectorStores([hana_vec1, hana_vec2])
-uvs.query("AutoML classification", top_n=1)
-```
-Utilizing Corrective Retriever Over Union Vector Stores
-```python
-from hana_ai.vectorstore.corrective_retriever import CorrectiveRetriever
-
-cr = CorrectiveRetriever(uvs)
-cr.query("AutoML classification", top_n=1)
-```
-
-## Smart DataFrame
-The Smart DataFrame is agent interface to HANA dataframes, provding a conversational approach for dataframe-related tasks for exploring the data using the "ask" method. Similarly and in addition, the "transform" method adds passing back the result data as a HANA dataframe. Currently, it is not compatible with GPT-4o, but works with GPT-4 and other models. The code template tool has been deprecated and df tools are used as default tools, so no need to pass it to configure function.
-
-```python
-from hana_ai.smart_dataframe import SmartDataFrame
-
-sdf = SmartDataFrame(hana_df)
-sdf.configure(llm=llm) # the code template tool has been deprecated and df tools are used as default tools, so no need to pass it here.
-```
-
-```python
-sdf.ask("Show the samples of the dataset", verbose=True)
-```
-![alt](./doc/image/smartdf_ask.png)
-
-```python
-new_df = sdf.transform("Get first two rows", verbose=True)
-new_df.collect()
-```
-![alt](./doc/image/smartdf_transform.png)
-![alt](./doc/image/smartdf_res.png)
-
-
-
 

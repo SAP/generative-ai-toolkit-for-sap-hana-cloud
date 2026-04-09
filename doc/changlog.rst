@@ -10,6 +10,7 @@ Changelog
     - Added grouped additive forecasting tools backed by AdditiveModelForecast(massive=True) for save-and-predict workflows across many related series.
 
 ``Enhancements``
+    - Added aggregate and file-level ContextAgent memory reset commands for clearing persisted notes, TODOs, decisions, context, chat history, and session summaries without deleting the storage directory.
     - Expanded ContextAgent skill coverage for dataset preparation, time-series profiling, prediction-result analysis, grouped forecasting, artifact generation, and dataframe-oriented fallback workflows.
     - Improved fallback skill selection so profiling, post-prediction analysis, grouped forecasting, artifact generation, and SQL comparison requests map more reliably to the intended skills.
     - Added validation for markdown-defined skills so malformed entries are ignored unless they provide a valid Goal section.

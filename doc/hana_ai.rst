@@ -16,7 +16,7 @@ Generative AI Toolkit for SAP HANA Cloud consists of four main parts:
   - AI tools, which provides a set of tools to analyze data and build machine learning models.
   - HANA Vector Store and Knowledge Base API, which provides a way to store and retrieve vectors and knowledge bases.
   - Smart DataFrame, which is a HANA dataframe Agent to interact with HANA data.
-  - Chatbot Agents, which provides a way to interact with the AI tools and HANA Vector Store and Knowledge Base API via natural language.
+  - ContextAgent, which provides the recommended way to interact with the AI tools via natural language using Markdown-backed memory and runtime skill routing.
 
 Prerequisites
 -------------
@@ -44,22 +44,29 @@ Prerequisites
 
   - Ensure that you have access to generative AI hub and deployed models in SAP Business Technology Platform. For more information, see the `Create a Deployment for a Generative AI Model <https://help.sap.com/docs/sap-ai-core/sap-ai-core-service-guide/create-deployment-for-generative-ai-model-in-sap-ai-core>`_.
 
-Langchain Agent with HANAML Toolkit
------------------------------------
+ContextAgent with HANAML Toolkit
+--------------------------------
 
-HANAML Toolkit is a set of tools to analyze data and build machine learning models using the data directly in SAP HANA. It can be consumed by AI Agent. cc is a connection to a SAP HANA instance. ::
+HANAML Toolkit is a set of tools to analyze data and build machine learning models using the data directly in SAP HANA. It can be consumed by ContextAgent. cc is a connection to a SAP HANA instance. ::
 
-    from hana_ai.agents.hanaml_rag_agent import HANAMLRAGAgent
+    from hana_ai.agents.context_agent import ContextAgent
     from hana_ai.tools.toolkit import HANAMLToolkit
 
     tools = HANAMLToolkit(connection_context=cc, used_tools='all').get_tools()
-    chatbot = HANAMLRAGAgent(llm=llm, tools=tools, verbose=True, vector_store_type="hanadb")
+    chatbot = ContextAgent(llm=llm, tools=tools, storage_dir=".context_agent")
 
 .. image:: image/chatbotwithtoolkit.png
    :width: 1200px
    :height: 600px
    :scale: 80 %
-   :alt: A chatbot with HANAML Toolkit.
+   :alt: A ContextAgent with HANAML Toolkit.
+
+ContextAgent currently supports workflow skills for dataset preparation, time-series profiling, forecasting, prediction-result analysis, outlier inspection, grouped forecasting, model lifecycle operations, and dataframe-oriented fallback steps.
+
+ContextAgent also supports command-style controls during chat calls:
+
+- Memory commands: ``!clear_notes``, ``!clear_session``, ``!reset_memory``, ``!clear_notes_file``, ``!clear_todo``, ``!clear_decisions``, ``!clear_context``, ``!clear_chat``, ``!clear_summary``
+- Skill commands: ``!list_skills``, ``!active_skills``, ``!skills_on``, ``!skills_off``, ``!enable_skill <skill_name>``, ``!disable_skill <skill_name>``
 
 HANA Vector Store and Knowledge Base API
 ----------------------------------------

@@ -8,7 +8,6 @@ It is intended as a design artifact first. It does not change runtime behavior b
 
 - Source implementation: src/hana_ai/iagents/context_agent.py
 - Tool surface: src/hana_ai/tools/toolkit.py and the default hana_ml_tools it registers
-- Scenario reference: nutest/testscripts/demo/e2e_scenarios/context_agent.ipynb
 
 ## Extracted Current Skills
 
