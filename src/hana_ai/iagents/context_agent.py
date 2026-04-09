@@ -821,42 +821,53 @@ class ContextAgent:
 		return s[-limit_chars:]
 
 	def _invalidate_retrieval_cache(self) -> None:
+		"""Clear retrieval index state so future searches re-read persisted files."""
 		self._indexed_mtimes = {}
 		self._index.clear()
 
 	def _reset_storage_file(self, path: Path, heading: str) -> None:
+		"""Reset one persisted Markdown file and invalidate retrieval state."""
 		_reset_markdown_file(path, heading)
 		self._invalidate_retrieval_cache()
 
 	def clear_notes_file(self) -> None:
+		"""Clear the persisted NOTES markdown file."""
 		self._reset_storage_file(self.storage_dir / "NOTES.md", "NOTES")
 
 	def clear_todo_file(self) -> None:
+		"""Clear the persisted TODO markdown file."""
 		self._reset_storage_file(self.storage_dir / "TODO.md", "TODO")
 
 	def clear_decisions_file(self) -> None:
+		"""Clear the persisted DECISIONS markdown file."""
 		self._reset_storage_file(self.storage_dir / "DECISIONS.md", "DECISIONS")
 
 	def clear_context_file(self) -> None:
+		"""Clear the persisted CONTEXT markdown file."""
 		self._reset_storage_file(self.storage_dir / "CONTEXT.md", "CONTEXT")
 
 	def clear_chat_history(self) -> None:
+		"""Clear the current session chat history markdown file."""
 		self._reset_storage_file(self._chat_path(), f"Session {self.session_id}")
 
 	def clear_session_summary(self) -> None:
+		"""Clear the current session summary markdown file."""
 		self._reset_storage_file(self._summary_path(), f"Session {self.session_id}")
 
 	def clear_memory_notes(self) -> None:
+		"""Clear all persisted non-session memory note files."""
 		self.clear_notes_file()
 		self.clear_todo_file()
 		self.clear_decisions_file()
 		self.clear_context_file()
 
 	def clear_session_memory(self) -> None:
+		"""Clear the current session chat history and session summary files."""
 		self.clear_chat_history()
 		self.clear_session_summary()
 
 	def reset_memory(self) -> None:
+		"""Clear both persisted note files and the current session memory files."""
 		self.clear_memory_notes()
 		self.clear_session_memory()
 
