@@ -71,6 +71,11 @@ def _atomic_append(path: Path, content: str) -> None:
 		f.write(content)
 
 
+def _reset_markdown_file(path: Path, heading: str) -> None:
+	_ensure_dir(path.parent)
+	path.write_text(f"# {heading}\n\n", encoding="utf-8")
+
+
 @dataclass(frozen=True)
 class Tool:
 	"""Minimal tool interface (dependency-free)."""
@@ -430,7 +435,39 @@ def _safe_json_loads(text: str) -> Optional[Any]:
 
 
 class ContextAgent:
-	"""Context-engineered agent backed by Markdown memory."""
+	"""Context-engineered agent backed by Markdown memory.
+
+	The agent persists long-lived and session-scoped state as Markdown files under
+	``storage_dir`` and supports command-style memory maintenance through ``chat()``.
+
+	Memory cleanup commands:
+	- Aggregate commands:
+	  - ``!clear_notes`` clears ``NOTES.md``, ``TODO.md``, ``DECISIONS.md``, and ``CONTEXT.md``.
+	  - ``!clear_session`` clears the current session ``chat.md`` and ``session_summary.md``.
+	  - ``!reset_memory`` clears both the global note files and the current session files.
+	- File-level commands:
+	  - ``!clear_notes_file`` clears only ``NOTES.md``.
+	  - ``!clear_todo`` clears only ``TODO.md``.
+	  - ``!clear_decisions`` clears only ``DECISIONS.md``.
+	  - ``!clear_context`` clears only ``CONTEXT.md``.
+	  - ``!clear_chat`` clears only the current session ``chat.md``.
+	  - ``!clear_summary`` clears only the current session ``session_summary.md``.
+
+	Skill control commands:
+	- Aggregate commands:
+	  - ``!list_skills`` lists all available skills and their short descriptions.
+	  - ``!active_skills`` reports the skills currently active for the request-routing state.
+	  - ``!skills_on`` re-enables skill injection for subsequent requests.
+	  - ``!skills_off`` disables skill injection for subsequent requests.
+	- Skill-level commands:
+	  - ``!enable_skill <skill_name>`` force-enables a named skill when it exists in the catalog.
+	  - ``!disable_skill <skill_name>`` suppresses a named skill from future activation.
+
+	All cleanup commands preserve the storage directory layout and recreate files with
+	their default Markdown headings so retrieval and future writes can continue normally.
+	Skill commands update only in-memory routing state for the current agent instance; they
+	do not modify the persisted Markdown memory files.
+	"""
 
 	def __init__(
 		self,
@@ -782,6 +819,57 @@ class ContextAgent:
 		if limit_chars is None:
 			return s
 		return s[-limit_chars:]
+
+	def _invalidate_retrieval_cache(self) -> None:
+		"""Clear retrieval index state so future searches re-read persisted files."""
+		self._indexed_mtimes = {}
+		self._index.clear()
+
+	def _reset_storage_file(self, path: Path, heading: str) -> None:
+		"""Reset one persisted Markdown file and invalidate retrieval state."""
+		_reset_markdown_file(path, heading)
+		self._invalidate_retrieval_cache()
+
+	def clear_notes_file(self) -> None:
+		"""Clear the persisted NOTES markdown file."""
+		self._reset_storage_file(self.storage_dir / "NOTES.md", "NOTES")
+
+	def clear_todo_file(self) -> None:
+		"""Clear the persisted TODO markdown file."""
+		self._reset_storage_file(self.storage_dir / "TODO.md", "TODO")
+
+	def clear_decisions_file(self) -> None:
+		"""Clear the persisted DECISIONS markdown file."""
+		self._reset_storage_file(self.storage_dir / "DECISIONS.md", "DECISIONS")
+
+	def clear_context_file(self) -> None:
+		"""Clear the persisted CONTEXT markdown file."""
+		self._reset_storage_file(self.storage_dir / "CONTEXT.md", "CONTEXT")
+
+	def clear_chat_history(self) -> None:
+		"""Clear the current session chat history markdown file."""
+		self._reset_storage_file(self._chat_path(), f"Session {self.session_id}")
+
+	def clear_session_summary(self) -> None:
+		"""Clear the current session summary markdown file."""
+		self._reset_storage_file(self._summary_path(), f"Session {self.session_id}")
+
+	def clear_memory_notes(self) -> None:
+		"""Clear all persisted non-session memory note files."""
+		self.clear_notes_file()
+		self.clear_todo_file()
+		self.clear_decisions_file()
+		self.clear_context_file()
+
+	def clear_session_memory(self) -> None:
+		"""Clear the current session chat history and session summary files."""
+		self.clear_chat_history()
+		self.clear_session_summary()
+
+	def reset_memory(self) -> None:
+		"""Clear both persisted note files and the current session memory files."""
+		self.clear_memory_notes()
+		self.clear_session_memory()
 
 	# -------------- Retrieval --------------
 	def _memory_files(self) -> List[Path]:
@@ -1158,6 +1246,33 @@ class ContextAgent:
 		if cmd == "!active_skills":
 			names = self._active_skill_names(cmd)
 			return "Active skills: " + (", ".join(names) if names else "(none)")
+		if cmd == "!clear_notes_file":
+			self.clear_notes_file()
+			return "Cleared NOTES."
+		if cmd == "!clear_todo":
+			self.clear_todo_file()
+			return "Cleared TODO."
+		if cmd == "!clear_decisions":
+			self.clear_decisions_file()
+			return "Cleared DECISIONS."
+		if cmd == "!clear_context":
+			self.clear_context_file()
+			return "Cleared CONTEXT."
+		if cmd == "!clear_chat":
+			self.clear_chat_history()
+			return f"Cleared chat history for session '{self.session_id}'."
+		if cmd == "!clear_summary":
+			self.clear_session_summary()
+			return f"Cleared session summary for session '{self.session_id}'."
+		if cmd == "!clear_notes":
+			self.clear_memory_notes()
+			return "Cleared NOTES, TODO, DECISIONS, and CONTEXT."
+		if cmd == "!clear_session":
+			self.clear_session_memory()
+			return f"Cleared chat and session summary for session '{self.session_id}'."
+		if cmd == "!reset_memory":
+			self.reset_memory()
+			return f"Reset memory notes and session state for session '{self.session_id}'."
 		total_steps = 6
 		self._emit_progress("Building context", step=1, total_steps=total_steps)
 		pack = self._build_context(user_input)
