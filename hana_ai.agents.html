@@ -48,7 +48,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.html">Generative AI Toolkit for SAP HANA Cloud</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#langchain-agent-with-hanaml-toolkit">Langchain Agent with HANAML Toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
@@ -71,16 +71,9 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#hanaml-agent-with-memory">hanaml_agent_with_memory</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html">HANAMLAgentWithMemory</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory"><code class="docutils literal notranslate"><span class="pre">HANAMLAgentWithMemory</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#hanaml-rag-agent">hanaml_rag_agent</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html">HANAMLRAGAgent</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html#hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent"><code class="docutils literal notranslate"><span class="pre">HANAMLRAGAgent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#context-agent">context_agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.context_agent.ContextAgent.html">ContextAgent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent"><code class="docutils literal notranslate"><span class="pre">ContextAgent</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -309,7 +302,7 @@
              
   <section id="hana-ai-agents">
 <h1>hana_ai.agents<a class="headerlink" href="#hana-ai-agents" title="Link to this heading"></a></h1>
-<p>hana.ai agents is a set of agents that can be used to perform various tasks like dataframe operations, SQL operations, chatbot agent, etc.</p>
+<p>hana.ai agents provides focused entry points for dataframe operations, SQL operations, and the recommended ContextAgent workflow for conversational forecasting and dataset preparation.</p>
 <span class="target" id="module-hana_ai.agents"></span><section id="hana-dataframe-agent">
 <span id="hana-dataframe-agent-label"></span><h2>hana_dataframe_agent<a class="headerlink" href="#hana-dataframe-agent" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
@@ -330,22 +323,13 @@
 </tbody>
 </table>
 </section>
-<section id="hanaml-agent-with-memory">
-<span id="hanaml-agent-with-memory-label"></span><h2>hanaml_agent_with_memory<a class="headerlink" href="#hanaml-agent-with-memory" title="Link to this heading"></a></h2>
+<section id="context-agent">
+<span id="context-agent-label"></span><h2>context_agent<a class="headerlink" href="#context-agent" title="Link to this heading"></a></h2>
+<p>The file-based ContextAgent is the recommended conversational agent for new workflows. It combines Markdown-backed memory, tool calling, runtime skill routing, and command-style memory or skill controls.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory" title="hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hanaml_agent_with_memory.HANAMLAgentWithMemory</span></code></a>(...)</p></td>
-<td><p>A chatbot that can remember the chat history and use it to generate responses.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="hanaml-rag-agent">
-<span id="hanaml-rag-agent-label"></span><h2>hanaml_rag_agent<a class="headerlink" href="#hanaml-rag-agent" title="Link to this heading"></a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html#hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent" title="hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hanaml_rag_agent.HANAMLRAGAgent</span></code></a>(tools, llm)</p></td>
-<td><p>A chatbot that integrates short-term and long-term memory systems using RAG (Retrieval-Augmented Generation).</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent" title="hana_ai.agents.context_agent.ContextAgent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">context_agent.ContextAgent</span></code></a>(llm[, tools, ...])</p></td>
+<td><p>Context-engineered agent backed by Markdown memory.</p></td>
 </tr>
 </tbody>
 </table>

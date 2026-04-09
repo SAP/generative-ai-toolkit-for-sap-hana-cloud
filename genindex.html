@@ -45,7 +45,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.html">Generative AI Toolkit for SAP HANA Cloud</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#langchain-agent-with-hanaml-toolkit">Langchain Agent with HANAML Toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
@@ -68,16 +68,9 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#hanaml-agent-with-memory">hanaml_agent_with_memory</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html">HANAMLAgentWithMemory</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory"><code class="docutils literal notranslate"><span class="pre">HANAMLAgentWithMemory</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#hanaml-rag-agent">hanaml_rag_agent</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html">HANAMLRAGAgent</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html#hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent"><code class="docutils literal notranslate"><span class="pre">HANAMLRAGAgent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#context-agent">context_agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.context_agent.ContextAgent.html">ContextAgent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent"><code class="docutils literal notranslate"><span class="pre">ContextAgent</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -464,13 +457,9 @@
       </ul></li>
       <li><a href="tools/hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools.AccuracyMeasure.html#hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools.AccuracyMeasure">AccuracyMeasure (class in hana_ai.tools.hana_ml_tools.ts_accuracy_measure_tools)</a>
 </li>
-      <li><a href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.add_ai_message">add_ai_message() (hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory method)</a>
-</li>
       <li><a href="vectorstore/hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.html#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.add_attribute">add_attribute() (hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder method)</a>
 </li>
       <li><a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit.add_custom_tool">add_custom_tool() (hana_ai.tools.toolkit.HANAMLToolkit method)</a>
-</li>
-      <li><a href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.add_user_message">add_user_message() (hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory method)</a>
 </li>
       <li><a href="tools/hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave.html#hana_ai.tools.hana_ml_tools.additive_model_forecast_tools.AdditiveModelForecastFitAndSave">AdditiveModelForecastFitAndSave (class in hana_ai.tools.hana_ml_tools.additive_model_forecast_tools)</a>
 </li>
@@ -1256,11 +1245,23 @@
       </ul></li>
       <li><a href="tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html#hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool">CAPArtifactsTool (class in hana_ai.tools.hana_ml_tools.cap_artifacts_tools)</a>
 </li>
-      <li><a href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html#hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.chat">chat() (hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent method)</a>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.chat">chat() (hana_ai.agents.context_agent.ContextAgent method)</a>
 </li>
-      <li><a href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html#hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.clear_long_term_memory">clear_long_term_memory() (hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent method)</a>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.clear_chat_history">clear_chat_history() (hana_ai.agents.context_agent.ContextAgent method)</a>
 </li>
-      <li><a href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html#hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.clear_short_term_memory">clear_short_term_memory() (hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent method)</a>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.clear_context_file">clear_context_file() (hana_ai.agents.context_agent.ContextAgent method)</a>
+</li>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.clear_decisions_file">clear_decisions_file() (hana_ai.agents.context_agent.ContextAgent method)</a>
+</li>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.clear_memory_notes">clear_memory_notes() (hana_ai.agents.context_agent.ContextAgent method)</a>
+</li>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.clear_notes_file">clear_notes_file() (hana_ai.agents.context_agent.ContextAgent method)</a>
+</li>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.clear_session_memory">clear_session_memory() (hana_ai.agents.context_agent.ContextAgent method)</a>
+</li>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.clear_session_summary">clear_session_summary() (hana_ai.agents.context_agent.ContextAgent method)</a>
+</li>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.clear_todo_file">clear_todo_file() (hana_ai.agents.context_agent.ContextAgent method)</a>
 </li>
       <li><a href="tools/hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html#hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.config_schema">config_schema() (hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB method)</a>
 
@@ -1588,6 +1589,8 @@
 </li>
       <li><a href="vectorstore/hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.html#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.consume_predict_hdbprocedure">consume_predict_hdbprocedure() (hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder method)</a>
 </li>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent">ContextAgent (class in hana_ai.agents.context_agent)</a>
+</li>
       <li><a href="vectorstore/hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.html#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.create_apply_func">create_apply_func() (hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder method)</a>
 </li>
       <li><a href="agents/hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html#hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent">create_hana_dataframe_agent() (in module hana_ai.agents.hana_dataframe_agent)</a>
@@ -1602,10 +1605,6 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.delete_chat_history_tool">delete_chat_history_tool() (hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory method)</a>
-</li>
-      <li><a href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html#hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.delete_message_long_term_store">delete_message_long_term_store() (hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent method)</a>
-</li>
       <li><a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit.delete_tool">delete_tool() (hana_ai.tools.toolkit.HANAMLToolkit method)</a>
 </li>
       <li><a href="tools/hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html#hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.description">description (hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB attribute)</a>
@@ -2342,11 +2341,7 @@
         <li><a href="hana_ai.vectorstore.html#module-hana_ai.vectorstore">module</a>
 </li>
       </ul></li>
-      <li><a href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory">HANAMLAgentWithMemory (class in hana_ai.agents.hanaml_agent_with_memory)</a>
-</li>
       <li><a href="vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine">HANAMLinVectorEngine (class in hana_ai.vectorstore.hana_vector_engine)</a>
-</li>
-      <li><a href="agents/hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent.html#hana_ai.agents.hanaml_rag_agent.HANAMLRAGAgent">HANAMLRAGAgent (class in hana_ai.agents.hanaml_rag_agent)</a>
 </li>
       <li><a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit">HANAMLToolkit (class in hana_ai.tools.toolkit)</a>
 </li>
@@ -3517,6 +3512,8 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent.reset_memory">reset_memory() (hana_ai.agents.context_agent.ContextAgent method)</a>
+</li>
       <li><a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit.reset_tools">reset_tools() (hana_ai.tools.toolkit.HANAMLToolkit method)</a>
 </li>
       <li><a href="tools/hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html#hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.response_format">response_format (hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB attribute)</a>
@@ -3653,8 +3650,6 @@
         <li><a href="tools/hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.html#hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport.return_direct">(hana_ai.tools.hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport attribute)</a>
 </li>
       </ul></li>
-      <li><a href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.run">run() (hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -3673,8 +3668,6 @@
         <li><a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit.set_bas">(hana_ai.tools.toolkit.HANAMLToolkit method)</a>
 </li>
       </ul></li>
-      <li><a href="agents/hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.html#hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory.set_return_direct">set_return_direct() (hana_ai.agents.hanaml_agent_with_memory.HANAMLAgentWithMemory method)</a>
-</li>
       <li><a href="vectorstore/hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.html#hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder.set_scale_out">set_scale_out() (hana_ai.vectorstore.pal_cross_encoder.PALCrossEncoder method)</a>
 </li>
       <li><a href="tools/hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.html#hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB.set_transform">set_transform() (hana_ai.tools.code_template_tools.GetCodeTemplateFromVectorDB method)</a>

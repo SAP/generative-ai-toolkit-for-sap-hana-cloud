@@ -1,7 +1,7 @@
 hana_ai.agents
 ==============
 
-hana.ai agents is a set of agents that can be used to perform various tasks like dataframe operations, SQL operations, chatbot agent, etc.
+hana.ai agents provides focused entry points for dataframe operations, SQL operations, and the recommended ContextAgent workflow for conversational forecasting and dataset preparation.
 
 .. automodule:: hana_ai.agents
    :no-members:
@@ -27,22 +27,15 @@ hana_sql_agent
 
    hana_sql_agent.create_hana_sql_agent
 
-.. _hanaml_agent_with_memory-label:
+.. _context_agent-label:
 
-hanaml_agent_with_memory
-------------------------
+context_agent
+-------------
+
+The file-based ContextAgent is the recommended conversational agent for new workflows. It combines Markdown-backed memory, tool calling, runtime skill routing, and command-style memory or skill controls.
+
 .. autosummary::
    :toctree: agents/
    :template: class.rst
 
-   hanaml_agent_with_memory.HANAMLAgentWithMemory
-
-.. _hanaml_rag_agent-label:
-
-hanaml_rag_agent
-----------------
-.. autosummary::
-   :toctree: agents/
-   :template: class.rst
-
-   hanaml_rag_agent.HANAMLRAGAgent
+   context_agent.ContextAgent
