@@ -1,7 +1,12 @@
 Changelog
 =========
 
-**Version 1.1.26040800**
+**Version 1.1.260410**
+
+``Bug Fixes``
+    - Fixed the line plot tool issue when the column names in the predicted results table are different from the default column names expected by the tool.
+
+**Version 1.1.260408**
 
 ``New Functions``
     - Added a standalone ContextAgent skills catalog at hana_ai.iagents.skills.md to make skill definitions easier to review, extend, and maintain.
