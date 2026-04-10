@@ -23,6 +23,22 @@ from hana_ml.visualizers.unified_report import UnifiedReport
 
 logger = logging.getLogger(__name__)
 
+# Note: hana_ml.visualizers.visualizer_base.forecast_line_plot does not require
+# specific forecast column names; it plots all non-index columns by default.
+# Keep known confidence column names for optional auto-detection only.
+CONFIDENCE_COLUMNS = (
+    "YHAT_LOWER",
+    "YHAT_UPPER",
+    "LO80",
+    "HI80",
+    "LO95",
+    "HI95",
+    "PI1_LOWER",
+    "PI1_UPPER",
+    "PI2_LOWER",
+    "PI2_UPPER",
+)
+
 class TSDatasetInput(BaseModel):
     """
     The input schema for the TSDatasetTool.
@@ -39,6 +55,10 @@ class ForecastLinePlotInput(BaseModel):
     """
     predict_result: str = Field(description="the name of the predicted result table. If not provided, ask the user. Do not guess.")
     actual_table: Optional[str] = Field(description="the name of the actual data table, it is optional", default=None)
+    actual_table_name: Optional[str] = Field(
+        description="deprecated alias of actual_table kept for backward compatibility",
+        default=None,
+    )
     predict_schema: Optional[str] = Field(description="the schema of the predicted result table, it is optional", default=None)
     actual_schema: Optional[str] = Field(description="the schema of the actual data table, it is optional", default=None)
     confidence: Optional[tuple] = Field(description="the column names of confidence bounds, it is optional", default=None)
@@ -214,6 +234,62 @@ class ForecastLinePlot(BaseTool):
         """
         self.bas = bas
 
+    def _json_error(self, message: str, **details) -> str:
+        payload = {"error": message}
+        payload.update(details)
+        return json.dumps(payload, ensure_ascii=False)
+
+    def _validate_plot_inputs(self, predict_result: str, predict_df, actual_table: Optional[str] = None, actual_df=None) -> Optional[str]:
+        predict_columns = list(getattr(predict_df, "columns", []))
+        try:
+            predict_row_count = int(predict_df.count())
+        except Exception:
+            predict_row_count = None
+
+        if predict_row_count == 0:
+            return self._json_error(
+                f"Prediction result table {predict_result} is empty.",
+                predict_result=predict_result,
+                suggested_fix="Generate prediction rows before creating the line plot.",
+            )
+
+        # forecast_line_plot uses the first column as index (if no index) and plots
+        # all remaining columns. So we only require at least 2 columns.
+        if len(predict_columns) < 2:
+            return self._json_error(
+                f"Prediction result table {predict_result} does not contain any value columns for plotting.",
+                predict_result=predict_result,
+                available_columns=predict_columns,
+                suggested_fix=(
+                    "Provide a table that includes the time key as the first column and at least one value column. "
+                    "If you passed a prediction input table, pass the predicted_results_table returned by the prediction tool instead."
+                ),
+            )
+
+        if actual_table is not None and actual_df is not None:
+            actual_columns = list(getattr(actual_df, "columns", []))
+            try:
+                actual_row_count = int(actual_df.count())
+            except Exception:
+                actual_row_count = None
+
+            if actual_row_count == 0:
+                return self._json_error(
+                    f"Actual table {actual_table} is empty.",
+                    actual_table=actual_table,
+                    suggested_fix="Load actual rows before requesting a comparison plot.",
+                )
+
+            if len(actual_columns) < 2:
+                return self._json_error(
+                    f"Actual table {actual_table} does not contain enough columns for comparison plotting.",
+                    actual_table=actual_table,
+                    available_columns=actual_columns,
+                    suggested_fix="Provide a table that includes at least a key column and an actual value column.",
+                )
+
+        return None
+
     def _run(
         self,
         **kwargs
@@ -226,7 +302,7 @@ class ForecastLinePlot(BaseTool):
         predict_schema = kwargs.get("predict_schema", None)
         if predict_result is None:
             return "Prediction result table is required"
-        actual_table = kwargs.get("actual_table", None)
+        actual_table = kwargs.get("actual_table", None) or kwargs.get("actual_table_name", None)
         actual_schema = kwargs.get("actual_schema", None)
         confidence = kwargs.get("confidence", None)
         output_dir = kwargs.get("output_dir", None)
@@ -237,9 +313,15 @@ class ForecastLinePlot(BaseTool):
         if actual_table is not None and not self.connection_context.has_table(actual_table, schema=actual_schema):
             return json.dumps({"error": f"Table {actual_table} does not exist."})
         predict_df = self.connection_context.table(predict_result, schema=predict_schema)
+        actual_df = self.connection_context.table(actual_table, schema=actual_schema) if actual_table is not None else None
+
+        validation_error = self._validate_plot_inputs(predict_result, predict_df, actual_table=actual_table, actual_df=actual_df)
+        if validation_error is not None:
+            return validation_error
+
         if confidence is None:
+            # 1) Prefer known confidence bound column names when present (optional).
             if "YHAT_LOWER" in predict_df.columns and "YHAT_UPPER" in predict_df.columns:
-                # check if "YHAT_LOWER" column has values
                 if not predict_df["YHAT_LOWER"].collect()["YHAT_LOWER"].isnull().all():
                     confidence = ("YHAT_LOWER", "YHAT_UPPER")
             elif "LO80" in predict_df.columns and "HI80" in predict_df.columns:
@@ -247,24 +329,37 @@ class ForecastLinePlot(BaseTool):
                     confidence = ("LO80", "HI80")
             elif "LO95" in predict_df.columns and "HI95" in predict_df.columns:
                 if not predict_df["LO95"].collect()["LO95"].isnull().all():
-                    if confidence is None:
-                        confidence = ("LO95", "HI95")
-                    else:
-                        confidence = confidence + ("LO95", "HI95")
+                    confidence = ("LO95", "HI95")
             elif "PI1_LOWER" in predict_df.columns and "PI1_UPPER" in predict_df.columns:
                 if not predict_df["PI1_LOWER"].collect()["PI1_LOWER"].isnull().all():
                     confidence = ("PI1_LOWER", "PI1_UPPER")
             elif "PI2_LOWER" in predict_df.columns and "PI2_UPPER" in predict_df.columns:
                 if not predict_df["PI2_LOWER"].collect()["PI2_LOWER"].isnull().all():
-                    if confidence is None:
-                        confidence = ("PI2_LOWER", "PI2_UPPER")
-                    else:
-                        confidence = confidence + ("PI2_LOWER", "PI2_UPPER")
+                    confidence = ("PI2_LOWER", "PI2_UPPER")
 
-        if actual_table is None:
-            fig = forecast_line_plot(predict_df, confidence=confidence)
-        else:
-            fig = forecast_line_plot(predict_df, self.connection_context.table(actual_table, schema=actual_schema), confidence)
+            # 2) If names vary and the table looks like (key, pred, lower, upper), infer by position.
+            if confidence is None:
+                cols = list(getattr(predict_df, "columns", []))
+                # Typical minimal forecast result: 1 index + 3 value columns
+                # -> treat the last two as confidence bounds.
+                if len(cols) == 4:
+                    confidence = (cols[2], cols[3])
+
+        try:
+            if actual_df is None:
+                fig = forecast_line_plot(predict_df, confidence=confidence)
+            else:
+                fig = forecast_line_plot(predict_df, actual_df, confidence)
+        except Exception as exc:
+            payload = {
+                "predict_result": predict_result,
+                "predict_columns": list(getattr(predict_df, "columns", [])),
+                "details": str(exc),
+            }
+            if actual_table is not None and actual_df is not None:
+                payload["actual_table"] = actual_table
+                payload["actual_columns"] = list(getattr(actual_df, "columns", []))
+            return self._json_error("Unable to generate forecast line plot. Check that the required key/value columns are present.", **payload)
         if output_dir is None:
             destination_dir = os.path.join(tempfile.gettempdir(), "hanaml_chart")
         else:

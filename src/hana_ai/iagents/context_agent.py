@@ -434,6 +434,18 @@ def _safe_json_loads(text: str) -> Optional[Any]:
 		return None
 
 
+def _extract_html_file_path(text: str) -> Optional[Path]:
+	payload = _safe_json_loads(text)
+	if isinstance(payload, dict):
+		html_file = _safe_text(payload.get("html_file")).strip()
+		if html_file:
+			return Path(html_file).expanduser()
+	match = re.search(r'"html_file"\s*:\s*"([^"]+\.html)"', _safe_text(text))
+	if not match:
+		return None
+	return Path(match.group(1)).expanduser()
+
+
 class ContextAgent:
 	"""Context-engineered agent backed by Markdown memory.
 
@@ -502,6 +514,7 @@ class ContextAgent:
 		self._skills_user_disabled: set[str] = set()
 		self._skills_cache: Tuple[int, List[str]] = (0, [])
 		self._turn_counter = 0
+		self._last_predicted_results_table: Optional[str] = None
 
 		self._init_storage()
 		self._initialize_executor()
@@ -1065,6 +1078,36 @@ class ContextAgent:
 
 		return None
 
+	def _display_html_artifact(self, html_path: Path) -> bool:
+		"""Render a generated HTML artifact when running in a notebook-capable frontend."""
+		path = html_path.expanduser()
+		if path.suffix.lower() != ".html" or not path.exists():
+			return False
+		try:
+			from IPython.display import HTML, display  # type: ignore
+		except Exception:
+			return False
+		try:
+			html_text = path.read_text(encoding="utf-8")
+		except Exception:
+			return False
+		try:
+			display(HTML(html_text))
+			return True
+		except Exception:
+			return False
+
+	def _maybe_render_tool_artifact(self, tool_name: str, observation: str) -> Optional[str]:
+		"""Render known artifact payloads and return a concise status string."""
+		html_path = _extract_html_file_path(observation)
+		if html_path is None:
+			return None
+		if self._display_html_artifact(html_path):
+			return f"Rendered HTML artifact from {html_path} in the active notebook/output view."
+		if html_path.exists():
+			return f"Generated HTML artifact: {html_path}"
+		return f"Tool {tool_name} reported HTML artifact path, but the file was not found: {html_path}"
+
 	# -------------- Notes / Compaction --------------
 	def _load_session_summary(self) -> str:
 		if not self.config.enable_session_summary:
@@ -1204,12 +1247,17 @@ class ContextAgent:
 		skill_names = self._active_skill_names(user_input)
 		skills_text = self._render_skills_text(skill_names)
 
+		working_set_lines: List[str] = []
+		if self._last_predicted_results_table:
+			working_set_lines.append(f"Latest predicted_results_table: {self._last_predicted_results_table}")
+		working_set = "\n".join(working_set_lines).strip()
+
 		return ContextPack(
 			system=self._system_prompt(),
 			task=f"User question: {user_input.strip()}",
 			tool_guidance=self._tool_guidance(),
 			skills=skills_text,
-			working_set="",
+			working_set=working_set,
 			session_summary=session_summary.strip(),
 			memory_notes=_truncate(memory_notes.strip(), self.config.budgets.budget_memory_notes),
 			retrieved=_truncate(retrieved_text.strip(), self.config.budgets.budget_retrieved),
@@ -1314,9 +1362,20 @@ class ContextAgent:
 						obs_text = "\n".join([_safe_text(x.get("text") if isinstance(x, dict) else x) for x in observation])
 					else:
 						obs_text = _safe_text(observation)
+
+					# Track the most recent predicted results table so the agent can
+					# reliably reference it in follow-up requests like plotting.
+					payload = _safe_json_loads(obs_text)
+					if isinstance(payload, dict):
+						latest = payload.get("predicted_results_table")
+						if isinstance(latest, str) and latest.strip():
+							self._last_predicted_results_table = latest.strip()
 					diagnostic = self._summarize_tool_observation(tool_name, obs_text)
 					if diagnostic:
 						tool_diagnostics.append(diagnostic)
+					artifact_note = self._maybe_render_tool_artifact(tool_name, obs_text)
+					if artifact_note:
+						tool_diagnostics.append(artifact_note)
 
 					tool_trace.append(f"### TOOL {tool_name} args={args_text}\n\n{_truncate(obs_text, 3000)}")
 					tool_return_snippets.append(f"[Tool Return] {tool_name} args={args_text}\n{_truncate(obs_text, 1200)}")
