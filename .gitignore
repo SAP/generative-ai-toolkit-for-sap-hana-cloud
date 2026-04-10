@@ -149,6 +149,9 @@ nutest/testscripts/bas/node_modules/
 nutest/testscripts/demo/e2e_scenarios/chat_history_vectorstore
 nutest/testscripts/demo/e2e_scenarios/chat_history.db
 
+# doc slides
+doc/slides
+
 *.pyc
 *~
 build/
