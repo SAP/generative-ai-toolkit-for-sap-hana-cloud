@@ -1,10 +1,13 @@
 import os
 import re
 import shutil
+import sys
 import tempfile
 import unittest
 import uuid
 from pathlib import Path
+from types import ModuleType
+from unittest.mock import patch
 
 
 class TestContextAgentE2EScenarios(unittest.TestCase):
@@ -41,6 +44,9 @@ class TestContextAgentE2EScenarios(unittest.TestCase):
         - prediction_analysis:
             prompt flow = train/predict -> line plot -> insight generation
             assertions = plot html exists, insight mentions error or quality signals
+        - prediction_analysis_notebook_render:
+            prompt flow = train/predict -> line plot in notebook-like frontend
+            assertions = html plot exists, notebook display hook receives rendered HTML
         - cap_artifacts:
             prompt flow = train/predict -> generate CAP artifacts
             assertions = artifact root exists and contains package.json
@@ -384,6 +390,40 @@ class TestContextAgentE2EScenarios(unittest.TestCase):
 
         insights_response = agent.chat("Give some insights from the predicted results.")
         self.assertTrue(any(token in insights_response.lower() for token in ("rmse", "mape", "mad", "bias", "error")))
+
+    def test_e2e_prediction_visualization_renders_in_notebook_scenario(self):
+        agent = self._new_agent("prediction_analysis_notebook_render")
+        model_name = f"{self.name_prefix}_MODEL_NOTEBOOK_RENDER"
+
+        self._run_training_pipeline(agent, model_name)
+
+        rendered = []
+        fake_ipython = ModuleType("IPython")
+        fake_display_module = ModuleType("IPython.display")
+
+        class FakeHTML:
+            def __init__(self, data):
+                self.data = data
+
+        def fake_display(obj):
+            rendered.append(obj)
+
+        fake_display_module.HTML = FakeHTML
+        fake_display_module.display = fake_display
+        fake_ipython.display = fake_display_module
+
+        with patch.dict(sys.modules, {"IPython": fake_ipython, "IPython.display": fake_display_module}):
+            plot_response = agent.chat(
+                f"Generate the line plot on the predicted results table and compared with the actual table {self.raw_table}"
+            )
+
+        plot_path = self._extract_html_path(plot_response)
+        self.assertIsNotNone(plot_path)
+        self.assertTrue(plot_path.exists())
+        self.assertTrue(rendered)
+        self.assertTrue(hasattr(rendered[0], "data"))
+        self.assertIn("<html", rendered[0].data.lower())
+        self.assertIn("Rendered HTML artifact", plot_response)
 
     def test_e2e_cap_artifact_generation_scenario(self):
         agent = self._new_agent("cap_artifacts")
