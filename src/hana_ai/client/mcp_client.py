@@ -196,6 +196,18 @@ class HTTPMCPClient(MCPClient):
                     "required": ["address", "port", "user", "password"]
                 }
             ),
+            "admin_reload_connection_context_from_file": MCPTool(
+                name="admin_reload_connection_context_from_file",
+                description="Reload HANA ConnectionContext from a VCAP_SERVICES file without restarting the MCP server.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "file_path": {"type": "string", "description": "Path to a file containing VCAP_SERVICES='...json...'."},
+                        "test_connection": {"type": "boolean", "description": "If true, test new connection before switching."},
+                    },
+                    "required": ["file_path"],
+                },
+            ),
             "discovery_agent": MCPTool(
                 name="discovery_agent",
                 description="Use the HANA discovery agent tool to run a query.",
@@ -510,6 +522,18 @@ class StdioMCPClient(MCPClient):
                         "test_connection": {"type": "boolean", "description": "Test new connection before switching."},
                     },
                     "required": ["address", "port", "user", "password"],
+                },
+            ),
+            "admin_reload_connection_context_from_file": MCPTool(
+                name="admin_reload_connection_context_from_file",
+                description="Reload HANA ConnectionContext from a VCAP_SERVICES file without restarting the MCP server.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "file_path": {"type": "string", "description": "Path to a file containing VCAP_SERVICES='...json...'."},
+                        "test_connection": {"type": "boolean", "description": "If true, test new connection before switching."},
+                    },
+                    "required": ["file_path"],
                 },
             ),
             "discovery_agent": MCPTool(

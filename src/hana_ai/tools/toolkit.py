@@ -9,12 +9,15 @@ The following class is available:
 import os
 import sys
 import socket
+import json
+import re
 from contextlib import closing
 import logging
 import threading
 import time
 from typing import Optional, List, Annotated, Any, ClassVar
 import inspect
+from urllib.parse import urlparse, parse_qs
 try:
     from pydantic import Field as PydField
 except Exception:
@@ -92,6 +95,148 @@ def _env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     if val is None:
         return default
     return val.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _str_to_bool(val: Optional[str]) -> Optional[bool]:
+    if val is None:
+        return None
+    v = str(val).strip().lower()
+    if v in {"1", "true", "yes", "on"}:
+        return True
+    if v in {"0", "false", "no", "off"}:
+        return False
+    return None
+
+
+def _read_kv_file(file_path: str) -> dict[str, str]:
+    """Read a simple env-style key/value file.
+
+    Supports lines like:
+      VCAP_SERVICES='...json...'
+      HDI_DEPLOY_OPTIONS='...json...'
+      export KEY=value
+
+    Important: For VCAP_SERVICES we must NOT unescape backslashes (e.g. \n),
+    because they are part of the JSON and must remain escaped for json.loads().
+    """
+    with open(file_path, "r", encoding="utf-8") as f:
+        raw_lines = f.read().splitlines()
+
+    out: dict[str, str] = {}
+    for line in raw_lines:
+        s = line.strip()
+        if not s or s.startswith("#"):
+            continue
+        if s.startswith("export "):
+            s = s[len("export "):].lstrip()
+        if "=" not in s:
+            continue
+        key, value = s.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if not key:
+            continue
+        # Strip optional trailing ';'
+        if value.endswith(";"):
+            value = value[:-1].rstrip()
+        # Strip surrounding quotes without interpreting escapes.
+        if (len(value) >= 2) and ((value[0] == value[-1]) and value[0] in ("'", '"')):
+            value = value[1:-1]
+        out[key] = value
+    return out
+
+
+def _build_cc_params_from_vcap_services_json(vcap_services: dict[str, Any]) -> dict[str, Any]:
+    """Build ConnectionContext params from a VCAP_SERVICES dict."""
+    if not isinstance(vcap_services, dict):
+        raise ValueError("VCAP_SERVICES must be a JSON object")
+
+    hana_services = vcap_services.get("hana")
+    if not hana_services or not isinstance(hana_services, list):
+        raise ValueError("VCAP_SERVICES does not contain a 'hana' service list")
+
+    svc0 = hana_services[0] if hana_services else None
+    if not isinstance(svc0, dict):
+        raise ValueError("VCAP_SERVICES['hana'][0] is invalid")
+
+    creds = svc0.get("credentials") or {}
+    if not isinstance(creds, dict):
+        raise ValueError("VCAP_SERVICES['hana'][0].credentials is invalid")
+
+    address = creds.get("host") or creds.get("address")
+    port_raw = creds.get("port", 443)
+    user = creds.get("user")
+    password = creds.get("password")
+
+    # Best-effort TLS flags from JDBC URL query: encrypt / validateCertificate
+    encrypt = None
+    ssl_validate = None
+    jdbc_url = creds.get("url")
+    if isinstance(jdbc_url, str) and jdbc_url:
+        try:
+            # url might be like: jdbc:sap://host:443?encrypt=true&validateCertificate=true
+            q = urlparse(jdbc_url).query
+            qs = parse_qs(q)
+            encrypt = _str_to_bool((qs.get("encrypt") or [None])[0])
+            ssl_validate = _str_to_bool((qs.get("validateCertificate") or [None])[0])
+        except Exception:
+            pass
+
+    missing = [
+        k
+        for k, v in {"address": address, "user": user, "password": password}.items()
+        if not v
+    ]
+    if missing:
+        raise ValueError(f"Missing required credential fields in VCAP_SERVICES: {', '.join(missing)}")
+
+    try:
+        port = int(port_raw)
+    except Exception as e:
+        raise ValueError(f"Invalid port in VCAP_SERVICES credentials: {port_raw}") from e
+
+    params: dict[str, Any] = {
+        "address": address,
+        "port": port,
+        "user": user,
+        "password": password,
+    }
+    if encrypt is not None:
+        params["encrypt"] = bool(encrypt)
+    if ssl_validate is not None:
+        params["sslValidateCertificate"] = bool(ssl_validate)
+    return params
+
+
+def _build_cc_params_from_vcap_services_file(file_path: str) -> dict[str, Any]:
+    """Load ConnectionContext params from a file containing VCAP_SERVICES='...json...'."""
+    if not file_path or not isinstance(file_path, str):
+        raise ValueError("file_path is required")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    kv = _read_kv_file(file_path)
+    vcap_raw = kv.get("VCAP_SERVICES")
+    if not vcap_raw:
+        raise ValueError("VCAP_SERVICES not found in file")
+
+    try:
+        vcap_services = json.loads(vcap_raw)
+    except Exception as e:
+        # Try a small salvage: remove a leading 'VCAP_SERVICES=' prefix if user pasted whole line.
+        m = re.match(r"^VCAP_SERVICES=(.+)$", vcap_raw.strip())
+        if m:
+            try:
+                candidate = m.group(1).strip()
+                if (len(candidate) >= 2) and ((candidate[0] == candidate[-1]) and candidate[0] in ("'", '"')):
+                    candidate = candidate[1:-1]
+                vcap_services = json.loads(candidate)
+            except Exception as e2:
+                raise ValueError(f"Invalid VCAP_SERVICES JSON in file: {e2}") from e2
+        else:
+            raise ValueError(f"Invalid VCAP_SERVICES JSON in file: {e}") from e
+
+    return _build_cc_params_from_vcap_services_json(vcap_services)
 
 
 def _build_cc_params_from_env() -> dict[str, Any]:
@@ -202,6 +347,30 @@ def _refresh_tools_for_new_context(toolkit: "HANAMLToolkit") -> dict[str, Any]:
         "tools_updated_in_place": updated_tools,
         "default_tools_rebuilt": recreated_default_tools,
     }
+
+
+def _connection_context_brief(cc: Any) -> dict[str, Any]:
+    """Best-effort extract of key ConnectionContext fields (non-sensitive)."""
+    if cc is None:
+        return {}
+    out: dict[str, Any] = {}
+    for key, attrs in {
+        "address": ("address", "_address", "host", "_host"),
+        "port": ("port", "_port"),
+        "user": ("user", "_user"),
+        "encrypt": ("encrypt", "_encrypt"),
+        "sslValidateCertificate": ("sslValidateCertificate", "_sslValidateCertificate"),
+        "userkey": ("userkey", "_userkey"),
+    }.items():
+        for attr in attrs:
+            try:
+                v = getattr(cc, attr, None)
+            except Exception:
+                v = None
+            if v is not None:
+                out[key] = v
+                break
+    return out
 
 class HANAMLToolkit(BaseToolkit):
     """
@@ -531,14 +700,18 @@ class HANAMLToolkit(BaseToolkit):
                 }
 
             @mcp.tool()
-            def admin_reload_connection_context_from_env(
+            def admin_reload_connection_context_from_file(
+                file_path: Annotated[str, TxtDoc("Path to a file containing VCAP_SERVICES='...json...' (required)") if TxtDoc is not None else str],
                 test_connection: Annotated[bool, TxtDoc("If true, open a test connection before switching") if TxtDoc is not None else bool] = False,
             ):
-                """Reload HANA ConnectionContext from server environment variables (HANA_*) without restarting the MCP server."""
+                """Reload HANA ConnectionContext from a file (VCAP_SERVICES) without restarting the MCP server."""
+                prev_cc = getattr(self, "connection_context", None)
+                prev_brief = _connection_context_brief(prev_cc)
+                prev_id = id(prev_cc) if prev_cc is not None else None
                 try:
-                    params = _build_cc_params_from_env()
+                    params = _build_cc_params_from_vcap_services_file(file_path)
                 except Exception as e:
-                    logging.error("Failed to read HANA_* env vars: %s", e)
+                    logging.error("Failed to read ConnectionContext from file '%s': %s", file_path, e)
                     return {"ok": False, "error": str(e)}
 
                 if test_connection:
@@ -554,17 +727,21 @@ class HANAMLToolkit(BaseToolkit):
                 try:
                     self.connection_context = ConnectionContext(**params)
                 except Exception as e:
-                    logging.error("Failed to build ConnectionContext from env: %s", e)
+                    logging.error("Failed to build ConnectionContext from file: %s", e)
                     return {"ok": False, "error": str(e)}
 
                 refresh_stats = _refresh_tools_for_new_context(self)
                 logging.warning(
-                    "✅ Reloaded ConnectionContext from env; tools updated=%s, defaults rebuilt=%s",
+                    "✅ Reloaded ConnectionContext from file; tools updated=%s, defaults rebuilt=%s",
                     refresh_stats.get("tools_updated_in_place"),
                     refresh_stats.get("default_tools_rebuilt"),
                 )
+                new_cc = getattr(self, "connection_context", None)
+                new_id = id(new_cc) if new_cc is not None else None
                 return {
                     "ok": True,
+                    "switched": (prev_id is not None and new_id is not None and prev_id != new_id),
+                    "previous_connection": _redact_dict(prev_brief),
                     "connection": _redact_dict(params),
                     **refresh_stats,
                 }

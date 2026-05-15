@@ -7,6 +7,9 @@ Claude Desktop, or any tool supporting the MCP stdio transport.
 
 Connection context can be provided via environment variables or CLI args.
 
+You can also point the server at an env-style file containing credentials
+(including VCAP_SERVICES) using `--env-file`.
+
 Environment variables:
 - HANA_ENV_FILE:    Path to a .env file to load into environment (optional)
 - ENV_FILE:         Alternative .env path variable (optional)
@@ -31,6 +34,9 @@ Usage examples:
     --address "$HANA_ADDRESS" --port "$HANA_PORT" \\
     --user "$HANA_USER" --password "$HANA_PASSWORD"
 
+    # Using an env-style file containing VCAP_SERVICES:
+    python examples/mcp_stdio_server.py --env-file nutest/testscripts/env.example
+
 
 Notes:
 - If your environment has an HTTP proxy configured, ensure the HANA host can bypass it:
@@ -39,7 +45,7 @@ Notes:
 Runtime update (no restart):
 - This server exposes two MCP admin tools:
     - `admin_update_connection_context`: pass new connection params explicitly.
-    - `admin_reload_connection_context_from_env`: re-read server-side env vars (HANA_*) and reload.
+    - `admin_reload_connection_context_from_file`: read a VCAP_SERVICES file and reload.
 - An MCP client can call either one to switch the live `ConnectionContext` after env/credentials change,
     without restarting the MCP server process.
 
@@ -64,10 +70,10 @@ Runtime update (no restart):
         )
         print(r)
 
-        # Or: reload from server env vars (HANA_ADDRESS/HANA_USER/HANA_PASSWORD/...)
+        # Or: reload from a VCAP_SERVICES file
         r2 = await c.call_tool(
-            "admin_reload_connection_context_from_env",
-            {"test_connection": True},
+            "admin_reload_connection_context_from_file",
+            {"file_path": "path/to/env.file", "test_connection": True},
         )
         print(r2)
         await c.close()
@@ -155,6 +161,22 @@ def _maybe_load_env_file_from_env() -> Optional[str]:
     return None
 
 
+def _resolve_env_file_path(candidate: str) -> Optional[str]:
+    if not candidate:
+        return None
+    candidate = os.path.expandvars(os.path.expanduser(candidate))
+    script_dir = os.path.dirname(__file__)
+    candidates = [
+        candidate,
+        os.path.join(os.getcwd(), candidate),
+        os.path.join(script_dir, candidate),
+    ]
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
+    return None
+
+
 def _maybe_apply_vcap_services() -> Optional[dict]:
     """Map VCAP_SERVICES hana credentials into HANA_* env vars if present.
 
@@ -209,6 +231,29 @@ def build_connection_context(
     return ConnectionContext(**params)
 
 
+def build_connection_context_from_userkey(
+    userkey: str,
+    encrypt: Optional[bool] = None,
+    ssl_validate_certificate: Optional[bool] = None,
+) -> ConnectionContext:
+    params: dict = {
+        "userkey": userkey,
+    }
+    if encrypt is not None:
+        params["encrypt"] = bool(encrypt)
+    if ssl_validate_certificate is not None:
+        params["sslValidateCertificate"] = bool(ssl_validate_certificate)
+
+    # Best-effort: use certifi trust store if available.
+    try:
+        import certifi
+        params["sslKeyStore"] = certifi.where()
+    except Exception:
+        pass
+
+    return ConnectionContext(**params)
+
+
 def env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     val = os.environ.get(name)
     if val is None:
@@ -228,19 +273,27 @@ def main():
         stream=sys.stderr,
     )
 
-    loaded_env_path = _maybe_load_env_file_from_env()
-    if loaded_env_path:
-        logging.warning("Loaded environment variables from %s", loaded_env_path)
-
-    vcap_credentials = _maybe_apply_vcap_services()
-    if vcap_credentials:
-        logging.warning("Applied HANA credentials from VCAP_SERVICES")
-
     parser = argparse.ArgumentParser(
         description="Start a stdio MCP server exposing HANA AI tools."
     )
 
+    # Optional env file (explicit) - loaded before resolving connection args.
+    parser.add_argument(
+        "--env-file",
+        dest="env_file",
+        default=None,
+        help="Path to an env-style file to load (supports VCAP_SERVICES='...json...').",
+    )
+    parser.add_argument(
+        "--override-env",
+        dest="override_env",
+        action="store_true",
+        help="If set, values in --env-file override existing environment variables.",
+    )
+
     # HANA connection args
+    parser.add_argument("--userkey", default=os.environ.get("HANA_USERKEY"),
+                        help="HANA userkey (e.g., RaysKey). If provided, it overrides address/user/password.")
     parser.add_argument("--address", default=os.environ.get("HANA_ADDRESS"),
                         help="HANA host/address")
     parser.add_argument("--port", type=int, default=int(os.environ.get("HANA_PORT", "443")),
@@ -264,6 +317,45 @@ def main():
 
     args = parser.parse_args()
 
+    # 1) Load env file (explicit CLI takes priority), else fallback to HANA_ENV_FILE/ENV_FILE.
+    loaded_env_path = None
+    if args.env_file:
+        resolved = _resolve_env_file_path(args.env_file)
+        if not resolved:
+            raise SystemExit(f"Env file not found: {args.env_file}")
+        _load_env_file(resolved, override=bool(args.override_env))
+        loaded_env_path = resolved
+    else:
+        loaded_env_path = _maybe_load_env_file_from_env()
+
+    if loaded_env_path:
+        logging.warning("Loaded environment variables from %s", loaded_env_path)
+
+    # 2) If VCAP_SERVICES exists (possibly from env file), map it into HANA_* env vars.
+    vcap_credentials = _maybe_apply_vcap_services()
+    if vcap_credentials:
+        logging.warning("Applied HANA credentials from VCAP_SERVICES")
+
+    # 3) If connection args were not explicitly provided, re-fill from env AFTER loading.
+    if not args.userkey:
+        args.userkey = os.environ.get("HANA_USERKEY")
+    if args.address is None:
+        args.address = os.environ.get("HANA_ADDRESS")
+    if args.user is None:
+        args.user = os.environ.get("HANA_USER")
+    if args.password is None:
+        args.password = os.environ.get("HANA_PASSWORD")
+    try:
+        # argparse already makes this int, but if it came from env after load, normalize.
+        if args.port is None:
+            args.port = int(os.environ.get("HANA_PORT", "443"))
+    except Exception:
+        pass
+    if args.encrypt is None:
+        args.encrypt = env_bool("HANA_ENCRYPT")
+    if args.ssl_validate is None:
+        args.ssl_validate = env_bool("HANA_SSL_VALIDATE", default=False)
+
     # Stdio transport: log to stderr so stdout stays clean for MCP protocol
     logging.basicConfig(
         level=logging.WARNING,
@@ -271,27 +363,35 @@ def main():
         stream=sys.stderr,
     )
 
-    # Validate required HANA parameters
-    missing = [name for name, val in {
-        "address": args.address,
-        "user": args.user,
-        "password": args.password,
-    }.items() if not val]
-    if missing:
-        raise SystemExit(
-            f"Missing required HANA connection parameters: {', '.join(missing)}. "
-            f"Provide via env or CLI (see --help)."
+    if args.userkey:
+        logging.warning("Connecting to HANA via userkey '%s'", args.userkey)
+        cc = build_connection_context_from_userkey(
+            userkey=args.userkey,
+            encrypt=args.encrypt,
+            ssl_validate_certificate=args.ssl_validate,
         )
+    else:
+        # Validate required HANA parameters
+        missing = [name for name, val in {
+            "address": args.address,
+            "user": args.user,
+            "password": args.password,
+        }.items() if not val]
+        if missing:
+            raise SystemExit(
+                f"Missing required HANA connection parameters: {', '.join(missing)}. "
+                f"Provide via env or CLI (see --help)."
+            )
 
-    logging.warning("Connecting to HANA at %s:%s", args.address, args.port)
-    cc = build_connection_context(
-        address=args.address,
-        port=args.port,
-        user=args.user,
-        password=args.password,
-        encrypt=args.encrypt,
-        ssl_validate_certificate=args.ssl_validate,
-    )
+        logging.warning("Connecting to HANA at %s:%s", args.address, args.port)
+        cc = build_connection_context(
+            address=args.address,
+            port=args.port,
+            user=args.user,
+            password=args.password,
+            encrypt=args.encrypt,
+            ssl_validate_certificate=args.ssl_validate,
+        )
 
     toolkit = HANAMLToolkit(connection_context=cc, used_tools="all")
 

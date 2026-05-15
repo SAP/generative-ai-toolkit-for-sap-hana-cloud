@@ -169,3 +169,6 @@ nutest/testscripts/visualizers/temp/
 *mlruns
 .mem_paper/
 
+# Keep the committed VCAP_SERVICES example under version control
+nutest/testscripts/env.example
+
