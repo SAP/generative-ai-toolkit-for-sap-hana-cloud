@@ -25,6 +25,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+import importlib
 import json
 import math
 import re
@@ -1084,7 +1085,11 @@ class ContextAgent:
 		if path.suffix.lower() != ".html" or not path.exists():
 			return False
 		try:
-			from IPython.display import HTML, display  # type: ignore
+			ipython_display = importlib.import_module("IPython.display")
+			html_factory = getattr(ipython_display, "HTML", None)
+			display_fn = getattr(ipython_display, "display", None)
+			if html_factory is None or display_fn is None:
+				return False
 		except Exception:
 			return False
 		try:
@@ -1092,7 +1097,7 @@ class ContextAgent:
 		except Exception:
 			return False
 		try:
-			display(HTML(html_text))
+			display_fn(html_factory(html_text))
 			return True
 		except Exception:
 			return False
