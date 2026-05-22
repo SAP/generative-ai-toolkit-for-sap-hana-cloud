@@ -6,11 +6,17 @@ from hana_ai.tools.hana_ml_tools.ts_check_tools import TimeSeriesCheck, TrendTes
 class TestTSCheckTools(TestML_BaseTestClass):
     tableDef = {
         '#HANAI_DATA_TBL_RAW':
-            'CREATE LOCAL TEMPORARY TABLE #HANAI_DATA_TBL_RAW ("TIMESTAMP" TIMESTAMP, "VALUE" DOUBLE)'
+            'CREATE LOCAL TEMPORARY TABLE #HANAI_DATA_TBL_RAW ("TIMESTAMP" TIMESTAMP, "VALUE" DOUBLE)',
+        '#HANAI_DATA_TBL_INTERMITTENT':
+            'CREATE LOCAL TEMPORARY TABLE #HANAI_DATA_TBL_INTERMITTENT ("TIMESTAMP" TIMESTAMP, "VALUE" DOUBLE)',
+        '#HANAI_DATA_TBL_LUMPY':
+            'CREATE LOCAL TEMPORARY TABLE #HANAI_DATA_TBL_LUMPY ("TIMESTAMP" TIMESTAMP, "VALUE" DOUBLE)'
     }
     def setUp(self):
         super(TestTSCheckTools, self).setUp()
         self._createTable('#HANAI_DATA_TBL_RAW')
+        self._createTable('#HANAI_DATA_TBL_INTERMITTENT')
+        self._createTable('#HANAI_DATA_TBL_LUMPY')
         data_list_raw = [
             ('1900-01-01 12:00:00', 998.23063348829),
             ('1900-01-01 13:00:00', 997.984413594973),
@@ -18,10 +24,38 @@ class TestTSCheckTools(TestML_BaseTestClass):
             ('1900-01-01 15:00:00', 997.9165407258),
             ('1900-01-01 16:00:00', 997.438758925335),
             ]
+        data_list_intermittent = [
+            ('1900-01-01 12:00:00', 5.0),
+            ('1900-01-01 13:00:00', 0.0),
+            ('1900-01-01 14:00:00', 0.0),
+            ('1900-01-01 15:00:00', 4.0),
+            ('1900-01-01 16:00:00', 0.0),
+            ('1900-01-01 17:00:00', 0.0),
+            ('1900-01-01 18:00:00', 3.0),
+            ('1900-01-01 19:00:00', 0.0),
+            ('1900-01-01 20:00:00', 0.0),
+            ('1900-01-01 21:00:00', 2.0),
+            ]
+        data_list_lumpy = [
+            ('1900-01-01 12:00:00', 10.0),
+            ('1900-01-01 13:00:00', 0.0),
+            ('1900-01-01 14:00:00', 0.0),
+            ('1900-01-01 15:00:00', 1.0),
+            ('1900-01-01 16:00:00', 0.0),
+            ('1900-01-01 17:00:00', 0.0),
+            ('1900-01-01 18:00:00', 9.0),
+            ('1900-01-01 19:00:00', 0.0),
+            ('1900-01-01 20:00:00', 0.0),
+            ('1900-01-01 21:00:00', 2.0),
+            ]
         self._insertData('#HANAI_DATA_TBL_RAW', data_list_raw)
+        self._insertData('#HANAI_DATA_TBL_INTERMITTENT', data_list_intermittent)
+        self._insertData('#HANAI_DATA_TBL_LUMPY', data_list_lumpy)
 
     def tearDown(self):
         self._dropTableIgnoreError('#HANAI_DATA_TBL_RAW')
+        self._dropTableIgnoreError('#HANAI_DATA_TBL_INTERMITTENT')
+        self._dropTableIgnoreError('#HANAI_DATA_TBL_LUMPY')
         super(TestTSCheckTools, self).tearDown()
 
     def test_TimeSeriesCheck(self):
@@ -31,11 +65,32 @@ class TestTSCheckTools(TestML_BaseTestClass):
         self.assertIn("Key: TIMESTAMP", result)
         self.assertIn("Endog: VALUE", result)
         self.assertIn("Index: starts from 1900-01-01 12:00:00 to 1900-01-01 16:00:00. Time series length is 5", result)
-        self.assertIn("Intermittent Test: proportion of zero values is 0.0", result)
+        self.assertIn("Intermittent Test (ADI/CV^2):", result)
+        self.assertIn("classification is smooth", result)
+        self.assertIn("intermittent=False", result)
         self.assertIn("Stationarity Test:", result)
         self.assertIn("Trend Test:", result)
         self.assertIn("Seasonality Test:", result)
+        self.assertIn("Model Recommendation: prefer Automatic Time Series Forecast as the default non-intermittent path.", result)
         self.assertIn("Available algorithms: Additive Model Forecast, Automatic Time Series Forecast", result)
+
+    def test_TimeSeriesCheck_IntermittentRecommendation(self):
+        tool = TimeSeriesCheck(connection_context=self.conn)
+        result = tool.run({"table_name": "#HANAI_DATA_TBL_INTERMITTENT", "key": "TIMESTAMP", "endog": "VALUE"})
+        self.assertIn("Intermittent Test (ADI/CV^2):", result)
+        self.assertIn("classification is intermittent", result)
+        self.assertIn("intermittent=True", result)
+        self.assertIn("Model Recommendation: prefer Intermittent Forecast with method=constant.", result)
+        self.assertIn("Available algorithms: Intermittent Forecast, Automatic Time Series Forecast", result)
+
+    def test_TimeSeriesCheck_LumpyRecommendation(self):
+        tool = TimeSeriesCheck(connection_context=self.conn)
+        result = tool.run({"table_name": "#HANAI_DATA_TBL_LUMPY", "key": "TIMESTAMP", "endog": "VALUE"})
+        self.assertIn("Intermittent Test (ADI/CV^2):", result)
+        self.assertIn("classification is lumpy", result)
+        self.assertIn("intermittent=True", result)
+        self.assertIn("Model Recommendation: prefer Intermittent Forecast with method=sporadic.", result)
+        self.assertIn("Available algorithms: Intermittent Forecast, Automatic Time Series Forecast", result)
 
     def test_TrendTest(self):
         tool = TrendTest(connection_context=self.conn)

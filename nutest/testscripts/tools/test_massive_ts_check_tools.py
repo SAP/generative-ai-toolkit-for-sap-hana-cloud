@@ -55,12 +55,14 @@ class TestMassiveTSCheckTools(TestML_BaseTestClass):
         self.assertIn("Key: TIMESTAMP", result)
         self.assertIn("Endog: VALUE", result)
         self.assertIn("Index: starts from 1900-01-01 12:00:00 to 1900-01-01 16:00:00", result)
-        self.assertIn("Intermittent Test: proportion of zero values is 0.0", result)
+        self.assertIn("Intermittent Test (ADI/CV^2):", result)
+        self.assertIn("classification is smooth", result)
+        self.assertIn("Model Recommendation:", result)
         
         # 验证分组B的内容
         self.assertIn("Trend Test:", result)
         self.assertIn("Seasonality Test:", result)
-        self.assertIn("Available algorithms:", result)
+        self.assertIn("Available algorithms: Additive Model Forecast, Automatic Time Series Forecast", result)
 
     def test_MassiveTimeSeriesCheck_MissingParams(self):
         """测试缺失参数的情况"""
