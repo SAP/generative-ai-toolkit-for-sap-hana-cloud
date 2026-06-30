@@ -72,6 +72,47 @@ def _atomic_append(path: Path, content: str) -> None:
 		f.write(content)
 
 
+def _sanitize_llm_sampling(llm: Any) -> Any:
+	"""Drop ``top_p`` when ``temperature`` is also set on the LLM.
+
+	SAP Cloud SDK for AI's ``init_llm`` always passes both ``temperature`` and
+	``top_p`` to the underlying chat model. Newer Anthropic Claude models on
+	Bedrock (e.g. ``anthropic--claude-4.6-sonnet``) reject this combination with
+	``temperature and top_p cannot both be specified for this model``. We
+	normalize on temperature here (deterministic-friendly, the parameter the
+	user is far more likely to have set on purpose) by clearing ``top_p`` to
+	``None`` when both are present. Plain callables and arbitrary objects pass
+	through untouched.
+	"""
+	if llm is None:
+		return llm
+	try:
+		has_temp = getattr(llm, "temperature", None) is not None
+		has_top_p = getattr(llm, "top_p", None) is not None
+	except Exception:
+		return llm
+	if has_temp and has_top_p:
+		try:
+			llm.top_p = None
+		except Exception:
+			# Pydantic v2 may guard against direct assignment; fall back to model_copy.
+			try:
+				llm = llm.model_copy(update={"top_p": None})
+			except Exception:
+				pass
+	# Some Bedrock wrappers carry sampling parameters inside ``model_kwargs``
+	# instead of on the model itself; clear ``top_p`` there as well when
+	# ``temperature`` is set.
+	try:
+		model_kwargs = getattr(llm, "model_kwargs", None)
+		if isinstance(model_kwargs, dict):
+			if "temperature" in model_kwargs and model_kwargs.get("top_p") is not None:
+				model_kwargs.pop("top_p", None)
+	except Exception:
+		pass
+	return llm
+
+
 def _reset_markdown_file(path: Path, heading: str) -> None:
 	_ensure_dir(path.parent)
 	path.write_text(f"# {heading}\n\n", encoding="utf-8")
@@ -195,7 +236,7 @@ class ContextBudgets:
 	budget_skills: int = 1400
 	budget_working_set: int = 1000
 	budget_session_summary: int = 1800
-	budget_memory_notes: int = 2200
+	budget_memory_notes: int = 3000
 	budget_retrieved: int = 2200
 
 
@@ -493,7 +534,7 @@ class ContextAgent:
 		progress_bar: bool = False,
 		progress_callback: Optional[Callable[[str], None]] = None,
 	) -> None:
-		self.llm = llm
+		self.llm = _sanitize_llm_sampling(llm)
 		self.tools: List[Tool] = list(tools or [])
 		self.session_id = session_id
 		self.config = config or AgentConfig()
@@ -1212,6 +1253,7 @@ class ContextAgent:
 			"- Use tools when the request requires external facts/actions (DB queries, stats checks, training, prediction, plots, artifact generation).\n"
 			"- It is OK to answer directly (no tool) for purely conceptual questions that do not depend on external data.\n"
 			"- Never fabricate table rows, metrics, or model results. If asked for data/results, call the appropriate tool.\n"
+			"- Never invent table names, model names, or model versions. Always reuse the exact identifiers recorded in <memory_notes> (NOTES/DECISIONS/TODO), <working_set>, or returned by a prior tool call. If a needed identifier (e.g. the predict table, model name, model version) is not present in context, ask the user before calling a tool — even if the name you have in mind 'looks right' (e.g. do not substitute SALES_REFUNDS_TEST for SALES_REFUNEDS_PREDICT, and do not assume model versions).\n"
 			"</instructions>"
 		)
 
@@ -1248,7 +1290,28 @@ class ContextAgent:
 			retrieved_text = "\n\n".join(lines)
 
 		session_summary = self._load_session_summary() if self.config.enable_session_summary else ""
-		memory_notes = self._read_text(self.storage_dir / "NOTES.md", limit_chars=1600)
+		# Load NOTES (facts/constraints/preferences), DECISIONS (committed table/model
+		# names, choices), and TODO (planned next steps) so the agent can reuse
+		# names it has already committed to instead of inventing new ones like
+		# ``SALES_REFUNDS_TEST`` when DECISIONS recorded ``SALES_REFUNEDS_PREDICT``.
+		def _strip_md_title(text: str, title: str) -> str:
+			s = text.lstrip()
+			head = f"# {title}"
+			if s.startswith(head):
+				s = s[len(head):].lstrip("\n")
+			return s.strip()
+
+		notes_text = _strip_md_title(self._read_text(self.storage_dir / "NOTES.md", limit_chars=1600), "NOTES")
+		decisions_text = _strip_md_title(self._read_text(self.storage_dir / "DECISIONS.md", limit_chars=1200), "DECISIONS")
+		todo_text = _strip_md_title(self._read_text(self.storage_dir / "TODO.md", limit_chars=800), "TODO")
+		memory_parts: List[str] = []
+		if notes_text:
+			memory_parts.append("# NOTES\n" + notes_text)
+		if decisions_text:
+			memory_parts.append("# DECISIONS\n" + decisions_text)
+		if todo_text:
+			memory_parts.append("# TODO\n" + todo_text)
+		memory_notes = "\n\n".join(memory_parts)
 		skill_names = self._active_skill_names(user_input)
 		skills_text = self._render_skills_text(skill_names)
 
