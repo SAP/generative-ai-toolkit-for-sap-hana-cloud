@@ -22,6 +22,7 @@ from hana_ml.algorithms.pal.tsa.additive_model_forecast import AdditiveModelFore
 
 from hana_ai.tools.hana_ml_tools.utility import (
   _CustomEncoder,
+  _hana_safe_identifier,
   build_repaired_predict_dataframe,
   format_predict_mismatch_diagnostic,
   generate_model_storage_version,
@@ -542,15 +543,20 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
             }
 
         ms.save_model(model=model, if_exists='replace_meta')
-        if predict_schema:
-            predicted_results = [f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"]
+        # Uppercase user-supplied name fragments so the created table aligns with
+        # HANA's default identifier folding on unquoted references.
+        safe_name = _hana_safe_identifier(name)
+        safe_predict_table = _hana_safe_identifier(predict_table)
+        safe_predict_schema = _hana_safe_identifier(predict_schema) if predict_schema else None
+        if safe_predict_schema:
+            predicted_results = [f"PREDICT_RESULT_{safe_predict_schema}_{safe_predict_table}_{safe_name}_{version}"]
         else:
-            predicted_results = [f"PREDICT_RESULT_{predict_table}_{name}_{version}"]
+            predicted_results = [f"PREDICT_RESULT_{safe_predict_table}_{safe_name}_{version}"]
         self.connection_context.table(model._predict_output_table_names[0]).smart_save(predicted_results[0], force=True)
         if show_explainer is True:
             predicted_results.append(
-                f"REASON_CODE_{predict_schema}_{predict_table}_{name}_{version}" if predict_schema else
-                f"REASON_CODE_{predict_table}_{name}_{version}"
+                f"REASON_CODE_{safe_predict_schema}_{safe_predict_table}_{safe_name}_{version}" if safe_predict_schema else
+                f"REASON_CODE_{safe_predict_table}_{safe_name}_{version}"
             )
             self.connection_context.table(model._predict_output_table_names[1]).smart_save(predicted_results[1], force=True)
             outputs = {
@@ -876,14 +882,19 @@ class MassiveAdditiveModelForecastLoadModelAndPredict(BaseTool):
             }
 
         ms.save_model(model=model, if_exists='replace_meta')
-        if predict_schema:
-            predicted_results = f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"
-            explainer_table = f"REASON_CODE_{predict_schema}_{predict_table}_{name}_{version}"
-            error_table = f"PREDICT_ERROR_{predict_schema}_{predict_table}_{name}_{version}"
+        # Uppercase user-supplied name fragments so the created table aligns with
+        # HANA's default identifier folding on unquoted references.
+        safe_name = _hana_safe_identifier(name)
+        safe_predict_table = _hana_safe_identifier(predict_table)
+        safe_predict_schema = _hana_safe_identifier(predict_schema) if predict_schema else None
+        if safe_predict_schema:
+            predicted_results = f"PREDICT_RESULT_{safe_predict_schema}_{safe_predict_table}_{safe_name}_{version}"
+            explainer_table = f"REASON_CODE_{safe_predict_schema}_{safe_predict_table}_{safe_name}_{version}"
+            error_table = f"PREDICT_ERROR_{safe_predict_schema}_{safe_predict_table}_{safe_name}_{version}"
         else:
-            predicted_results = f"PREDICT_RESULT_{predict_table}_{name}_{version}"
-            explainer_table = f"REASON_CODE_{predict_table}_{name}_{version}"
-            error_table = f"PREDICT_ERROR_{predict_table}_{name}_{version}"
+            predicted_results = f"PREDICT_RESULT_{safe_predict_table}_{safe_name}_{version}"
+            explainer_table = f"REASON_CODE_{safe_predict_table}_{safe_name}_{version}"
+            error_table = f"PREDICT_ERROR_{safe_predict_table}_{safe_name}_{version}"
 
         output_table_names = list(getattr(model, "_predict_output_table_names", []))
         self.connection_context.table(output_table_names[0]).smart_save(predicted_results, force=True)

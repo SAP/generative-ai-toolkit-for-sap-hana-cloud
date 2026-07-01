@@ -6,6 +6,7 @@ Changelog
 ``Bug Fixes``
     - Fixed ContextAgent failure with newer Anthropic Claude deployments (e.g. ``anthropic--claude-4.6-sonnet``) on SAP Generative AI Hub that reject ``temperature`` and ``top_p`` being set together; the agent now sanitizes the LLM sampling parameters on construction and drops ``top_p`` when ``temperature`` is also set.
     - Fixed ContextAgent hallucinating table, model, and version identifiers (e.g. substituting ``SALES_REFUNDS_TEST`` for the previously recorded ``SALES_REFUNEDS_PREDICT``) by feeding ``DECISIONS.md`` and ``TODO.md`` back into the per-turn ``memory_notes`` block alongside ``NOTES.md`` and hardening the system prompt to forbid inventing identifiers not present in context.
+    - Fixed ``invalid table name: Could not find table/view PREDICT_RESULT_...`` errors from ``AutomaticTimeSeriesLoadModelAndPredict``, ``AdditiveModelForecastLoadModelAndPredict``, and ``MassiveAutomaticTimeSeriesLoadModelAndPredict`` when the model storage name (or predict input table/schema) contained lower-case characters: user-supplied identifier fragments are now uppercased before being embedded in the ``PREDICT_RESULT_``/``REASON_CODE_``/``PREDICT_ERROR_`` table names so the created table aligns with HANA's default folding on unquoted references.
 
 **Version 1.1.260410**
 

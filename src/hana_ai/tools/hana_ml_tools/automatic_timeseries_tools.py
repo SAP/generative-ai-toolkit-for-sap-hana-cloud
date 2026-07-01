@@ -21,6 +21,7 @@ from hana_ml.algorithms.pal.auto_ml import AutomaticTimeSeries
 
 from hana_ai.tools.hana_ml_tools.utility import (
   _CustomEncoder,
+  _hana_safe_identifier,
   build_repaired_predict_dataframe,
   format_predict_mismatch_diagnostic,
   generate_model_storage_version,
@@ -493,7 +494,14 @@ class AutomaticTimeSeriesLoadModelAndPredict(BaseTool):
                 "predict_table_columns_used_for_prediction": kept_columns,
             }
         ms.save_model(model=model, if_exists='replace_meta')
-        predicted_results = f"PREDICT_RESULT_{predict_table}_{name}_{version}" if predict_schema is None else f"PREDICT_RESULT_{predict_schema}_{predict_table}_{name}_{version}"
+        # Uppercase user-supplied name fragments so the created table aligns with
+        # HANA's default identifier folding on unquoted references (see
+        # ``_hana_safe_identifier``); otherwise mixed-case model names like
+        # ``my_hana_ai_model`` produce a table the LLM/SQL cannot resolve.
+        safe_name = _hana_safe_identifier(name)
+        safe_predict_table = _hana_safe_identifier(predict_table)
+        safe_predict_schema = _hana_safe_identifier(predict_schema) if predict_schema else None
+        predicted_results = f"PREDICT_RESULT_{safe_predict_table}_{safe_name}_{version}" if safe_predict_schema is None else f"PREDICT_RESULT_{safe_predict_schema}_{safe_predict_table}_{safe_name}_{version}"
         self.connection_context.table(model._predict_output_table_names[0]).smart_save(predicted_results, force=True)
         stats = self.connection_context.table(model._predict_output_table_names[1]).collect()
         outputs = {
