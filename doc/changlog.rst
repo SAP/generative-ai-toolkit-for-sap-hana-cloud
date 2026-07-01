@@ -1,6 +1,12 @@
 Changelog
 =========
 
+**Version 1.1.260701**
+
+``Bug Fixes``
+    - Fixed ContextAgent failure with newer Anthropic Claude deployments (e.g. ``anthropic--claude-4.6-sonnet``) on SAP Generative AI Hub that reject ``temperature`` and ``top_p`` being set together; the agent now sanitizes the LLM sampling parameters on construction and drops ``top_p`` when ``temperature`` is also set.
+    - Fixed ContextAgent hallucinating table, model, and version identifiers (e.g. substituting ``SALES_REFUNDS_TEST`` for the previously recorded ``SALES_REFUNEDS_PREDICT``) by feeding ``DECISIONS.md`` and ``TODO.md`` back into the per-turn ``memory_notes`` block alongside ``NOTES.md`` and hardening the system prompt to forbid inventing identifiers not present in context.
+
 **Version 1.1.260410**
 
 ``Bug Fixes``
