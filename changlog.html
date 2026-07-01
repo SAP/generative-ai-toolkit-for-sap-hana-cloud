@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; hana.ai 1.1.26041000 documentation</title>
+  <title>Changelog &mdash; hana.ai 1.1.26070100 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=c062348d"></script>
+      <script src="_static/documentation_options.js?v=7f900545"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -302,6 +302,14 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<p><strong>Version 1.1.260701</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">Bug</span> <span class="pre">Fixes</span></code></dt><dd><ul class="simple">
+<li><p>Fixed ContextAgent failure with newer Anthropic Claude deployments (e.g. <code class="docutils literal notranslate"><span class="pre">anthropic--claude-4.6-sonnet</span></code>) on SAP Generative AI Hub that reject <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">top_p</span></code> being set together; the agent now sanitizes the LLM sampling parameters on construction and drops <code class="docutils literal notranslate"><span class="pre">top_p</span></code> when <code class="docutils literal notranslate"><span class="pre">temperature</span></code> is also set.</p></li>
+<li><p>Fixed ContextAgent hallucinating table, model, and version identifiers (e.g. substituting <code class="docutils literal notranslate"><span class="pre">SALES_REFUNDS_TEST</span></code> for the previously recorded <code class="docutils literal notranslate"><span class="pre">SALES_REFUNEDS_PREDICT</span></code>) by feeding <code class="docutils literal notranslate"><span class="pre">DECISIONS.md</span></code> and <code class="docutils literal notranslate"><span class="pre">TODO.md</span></code> back into the per-turn <code class="docutils literal notranslate"><span class="pre">memory_notes</span></code> block alongside <code class="docutils literal notranslate"><span class="pre">NOTES.md</span></code> and hardening the system prompt to forbid inventing identifiers not present in context.</p></li>
+</ul>
+</dd>
+</dl>
 <p><strong>Version 1.1.260410</strong></p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">Bug</span> <span class="pre">Fixes</span></code></dt><dd><ul class="simple">
