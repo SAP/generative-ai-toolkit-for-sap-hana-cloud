@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 import logging
 from datetime import datetime, date
-from typing import Optional, Union
+from typing import Optional, Union, Any
 from pandas import Timestamp
 from numpy import int64
 from hana_ml.model_storage import ModelStorage
@@ -99,6 +99,26 @@ class _CustomEncoder(json.JSONEncoder):
 def add_stopping_hint(x : str):
     """Added the hint for stopping the execution when an error message is returned."""
     return (x + ". Please stop the execution and return.").replace("..", ".")
+
+
+def _hana_safe_identifier(text: Any) -> str:
+    """Normalize a segment used to build a HANA table identifier.
+
+    HANA folds unquoted identifiers to upper case at parse time, but the
+    ``smart_save``/``save`` helpers in ``hana_ml`` quote the target table name.
+    That means when a user-supplied fragment like ``my_hana_ai_model`` is
+    embedded verbatim into a table identifier, the table is created
+    case-sensitively (``..._my_hana_ai_model_8``) yet any downstream
+    ``SELECT ... FROM PREDICT_RESULT_..._my_hana_ai_model_8`` written without
+    quotes is folded to ``..._MY_HANA_AI_MODEL_8`` and no longer matches.
+
+    Uppercasing every fragment before assembling the identifier keeps the
+    stored table name aligned with HANA's default folding so that downstream
+    unquoted references (issued by the agent, tools, or SQL written by the
+    user) resolve without needing to double-quote the name. Already-uppercase
+    inputs are idempotent under this transform.
+    """
+    return str(text).upper() if text is not None else text
 
 def generate_model_storage_version(ms : ModelStorage, version: Union[int, str, None], name: str) -> int:
     """Generate the model storage version."""

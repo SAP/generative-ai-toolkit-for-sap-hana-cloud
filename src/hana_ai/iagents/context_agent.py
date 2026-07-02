@@ -30,6 +30,8 @@ import json
 import math
 import re
 import sys
+import threading
+import time
 
 from hana_ai.langchain_compat import (
 	ChatPromptTemplate,
@@ -292,6 +294,15 @@ class AgentConfig:
 
 	budgets: ContextBudgets = field(default_factory=ContextBudgets)
 	max_tool_iterations: int = 8
+	# Wall-clock ceiling (seconds) for a single ``chat()`` turn. Once the executor
+	# has spent longer than this on tool calling, the current turn short-circuits
+	# with an actionable failure message instead of letting HANA/PAL retries pile
+	# up while the user watches the notebook cell hang. Set to 0 or None to
+	# disable the deadline (previous behaviour). 300s ≈ five minutes and is safe
+	# for the demo notebooks — a single fit/predict round trip is well under a
+	# minute even on a warm connection, so eight iterations × ~30s stays under
+	# the ceiling in the happy path.
+	max_turn_seconds: Optional[float] = 300.0
 	retrieval_top_k: int = 8
 	retrieval_chunk_chars: int = 900
 	retrieval_min_query_len: int = 6
@@ -1048,13 +1059,100 @@ class ContextAgent:
 			raise TypeError(f"Tool '{name}' is not callable")
 		raise KeyError(f"Unknown tool: {name}")
 
-	def _format_tool_executor_error(self, err: str, user_input: str) -> str:
-		"""Convert common tool/runtime failures into actionable guidance."""
-		err_text = _safe_text(err).strip()
-		lower_err = err_text.lower()
+	def _invoke_executor_with_deadline(self, agent_input: Dict[str, Any], *, user_input: str) -> Dict[str, Any]:
+		"""Run the agent executor with an optional wall-clock ceiling.
+
+		The default LangChain ``AgentExecutor`` bounds work by
+		``max_iterations`` but not by elapsed time. When a tool call gets
+		stuck on the backend (HANA/PAL retries, connection blips) each
+		iteration can take tens of seconds, so eight iterations may still
+		exceed ten minutes — long enough for a user to give up and Ctrl+C the
+		notebook cell. ``max_turn_seconds`` gives us a hard turn-level
+		deadline: we run the executor on a background daemon thread and, if
+		the deadline passes before it returns, hand the user an actionable
+		"we stopped waiting" message instead of hanging.
+
+		The runaway thread is left daemonised — we cannot cleanly kill a
+		blocking hdbcli call from Python — so any partial result it eventually
+		produces is discarded. This is intentional: correctness beats letting
+		zombie work bleed into the next turn.
+		"""
+		deadline = getattr(self.config, "max_turn_seconds", None)
+		if not deadline or deadline <= 0:
+			return self._executor.invoke(agent_input)
+
+		box: Dict[str, Any] = {}
+
+		def _target() -> None:
+			try:
+				box["result"] = self._executor.invoke(agent_input)
+			except BaseException as exc:  # pylint: disable=broad-except
+				box["exc"] = exc
+
+		worker = threading.Thread(target=_target, daemon=True, name="context-agent-executor")
+		start = time.monotonic()
+		worker.start()
+		worker.join(timeout=float(deadline))
+		if worker.is_alive():
+			elapsed = time.monotonic() - start
+			timeout_msg = (
+				f"Tool calling exceeded the ``max_turn_seconds={deadline:.0f}`` deadline "
+				f"(elapsed ~{elapsed:.0f}s) and was abandoned.\n\n"
+				"This usually means a backend HANA/PAL call is stuck, an identifier "
+				"reference is being retried in a loop, or the model keeps re-issuing the "
+				"same failing tool call. Look at the most recent tool observations for a "
+				"``259 invalid table name`` / ``73001007`` / ``connection`` error and re-run "
+				"with the exact identifiers reported in <memory_notes>. To wait longer, "
+				"increase ``AgentConfig.max_turn_seconds`` when constructing ContextAgent."
+			)
+			return {"output": timeout_msg, "intermediate_steps": []}
+		if "exc" in box:
+			raise box["exc"]
+		return box.get("result", {"output": "", "intermediate_steps": []})
+
+	def _classify_error_text(self, err_text: str, user_input: str) -> Optional[str]:
+		"""Translate known HANA/PAL/tool error strings into actionable hints.
+
+		Returns ``None`` when no pattern matches so callers can fall back to a
+		generic message. Shared between :meth:`_format_tool_executor_error`
+		(which handles executor-level exceptions) and
+		:meth:`_summarize_tool_observation` (which handles tool calls that
+		swallowed the exception and returned a ``{"error": ...}`` JSON payload)
+		so the agent gets the same hint no matter which path an error travels
+		down. Without this shared translation, the agent would see raw HANA
+		error tuples like ``(259, 'invalid table name: ...')`` and keep
+		retrying blindly — exactly the loop-until-Ctrl+C behaviour we've
+		observed against the SANDBOX schema.
+		"""
+		text = _safe_text(err_text).strip()
+		if not text:
+			return None
+		lower_err = text.lower()
 		lower_user = _safe_text(user_input).lower()
 		is_massive = any(token in lower_user for token in ("group key", "group_key", "multiple time series", "many series", "massive"))
 
+		# HANA error 259 "invalid table name / Could not find table/view ..." —
+		# almost always caused by an unquoted mixed-case reference. Give the
+		# agent the concrete fix so it stops retrying with the wrong identifier.
+		if "259" in lower_err and ("invalid table name" in lower_err or "could not find table/view" in lower_err):
+			return (
+				"Tool execution failed: HANA could not find the referenced table.\n\n"
+				"HANA folds unquoted identifiers to UPPER case at parse time. If the source "
+				"table was created with a mixed-case name (e.g. ``..._my_hana_ai_model_8``), an "
+				"unquoted ``SELECT ... FROM ...`` will look for the uppercase version and miss "
+				"the real table.\n\n"
+				"Do NOT invent, guess, or lowercase the table name. Reuse the exact "
+				"``predicted_results_table`` returned by the prediction tool's JSON output "
+				"(shown in <memory_notes>/<working_set>/prior tool observations). If the name "
+				"contains lowercase characters, double-quote it in SQL (e.g. "
+				"``SELECT * FROM \"my_hana_ai_model_8\"``).\n\n"
+				f"Error: {text}"
+			)
+
+		# PAL feature-count / 73001007 — predict shape mismatch, including the
+		# "Input Table could not empty, while FORECAST_LENGTH is not provided"
+		# variant which fires when the predict table is empty or the model is
+		# waiting on a forecast horizon.
 		if any(token in lower_err for token in (
 			"feature number of predict table does not match the trained model",
 			"predict table features do not match the trained model",
@@ -1065,12 +1163,21 @@ class ContextAgent:
 				+ (", the group key" if is_massive else "")
 				+ ", and any explicit exogenous columns used at training time."
 			)
+			extra = ""
+			if "forecast_length" in lower_err or "input table could not empty" in lower_err:
+				extra = (
+					"\nThe backend also reports ``Input Table could not empty, while FORECAST_LENGTH is not provided``. "
+					"Verify that the predict table is non-empty and that its rows share the same key type as training. "
+					"If you truly want to forecast beyond the last known point, build a future table with "
+					"``TSMakeFutureTableTool`` and use that as the predict input.\n"
+				)
 			return (
 				"Tool execution failed because the predict input shape does not match the trained model.\n\n"
 				+ shape_guidance
 				+ "\n"
-				+ "Do not include the label/endog column in the predict table; keep that column only for scoring or evaluation.\n\n"
-				+ f"Error: {err_text}\n\n"
+				+ "Do not include the label/endog column in the predict table; keep that column only for scoring or evaluation.\n"
+				+ extra
+				+ f"\nError: {text}\n\n"
 				+ "Tip: if you are predicting from a holdout table that still contains the target column, create or use a prediction input table that drops the target column first."
 			)
 
@@ -1086,9 +1193,17 @@ class ContextAgent:
 				"Tool execution failed due to a tool validation/runtime error.\n\n"
 				+ backend_hint
 				+ predict_hint
-				+ f"\n\nError: {err_text}"
+				+ f"\n\nError: {text}"
 			)
 
+		return None
+
+	def _format_tool_executor_error(self, err: str, user_input: str) -> str:
+		"""Convert common tool/runtime failures into actionable guidance."""
+		err_text = _safe_text(err).strip()
+		classified = self._classify_error_text(err_text, user_input)
+		if classified is not None:
+			return classified
 		return (
 			"Tool execution failed due to a tool validation/runtime error. "
 			"I can continue if you confirm the right parameters.\n\n"
@@ -1405,7 +1520,7 @@ class ContextAgent:
 		else:
 			self._emit_progress("Tool calling", step=3, total_steps=total_steps)
 			try:
-				result = self._executor.invoke({"input": prompt})
+				result = self._invoke_executor_with_deadline({"input": prompt}, user_input=user_input)
 			except Exception as exc:
 				# Never hard-fail a notebook cell due to tool validation/runtime errors.
 				err = _safe_text(exc)
