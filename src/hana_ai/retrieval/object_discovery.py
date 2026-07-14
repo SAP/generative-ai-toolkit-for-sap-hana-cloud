@@ -1,21 +1,21 @@
 """
-hana_ml.agents.discovery_agent
+hana_ai.retrieval.object_discovery
 
 The following classes are available:
-    * :class:`DiscoveryAgent`
+    * :class:`ObjectDiscovery`
 """
 import logging
 
-from .agent_base import AgentBase
+from .retrieval_base import RetrievalBase
 
 
 logger = logging.getLogger(__name__)
 
-class DiscoveryAgent(AgentBase):
+class ObjectDiscovery(RetrievalBase):
     """
-    Discovery Agent for interacting with AI Core services.
+    Object Discovery for interacting with AI Core services.
 
-    The user has the below privileges to create/drop remote source and PSE as well as call the Discovery Agent SQL:
+    The user has the below privileges to create/drop remote source and PSE as well as call the Object Discovery SQL:
 
     - EXECUTE privilege on the DISCOVERY_AGENT_DEV or DISCOVERY_AGENT stored procedure.
     - CREATE REMOTE SOURCE privilege.
@@ -26,17 +26,19 @@ class DiscoveryAgent(AgentBase):
     def __init__(
         self,
         connection_context,
-        agent_type: str = "DISCOVERY_AGENT_DEV",
+        agent_type: str = "AI_OBJECT_RETRIEVAL",
         *,
         schema_name: str = "SYS",
         procedure_name: str | None = None,
-        remote_source_name: str = "HANA_DISCOVERY_AGENT_CREDENTIALS",
-        knowledge_graph_name: str = "HANA_OBJECTS",
-        rag_schema_name: str = "SYSTEM",
-        rag_table_name: str = "RAG",
+        remote_source_name: str = None,
+        knowledge_graph_name: str = None,
+        rag_schema_name: str = None,
+        rag_table_name: str = None,
+        metadata_schema_name: str | None = None,
+        metadata_object_prefix: str | None = None,
     ):
         """
-        Initialize the DiscoveryAgent.
+        Initialize the ObjectDiscovery.
 
         Parameters
         ----------
@@ -52,6 +54,7 @@ class DiscoveryAgent(AgentBase):
             knowledge_graph_name=knowledge_graph_name,
             rag_schema_name=rag_schema_name,
             rag_table_name=rag_table_name,
+            metadata_schema_name=metadata_schema_name,
+            metadata_object_prefix=metadata_object_prefix,
         )
         self.conn_context = connection_context
-        self.pse_name = "AI_CORE_PSE"

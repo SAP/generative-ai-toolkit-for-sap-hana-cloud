@@ -73,7 +73,8 @@ class HTTPMCPClient(MCPClient):
         self,
         base_url: str = "http://localhost:8000/mcp",
         server_name: str = "hana-ml-tools",
-        timeout: int = 30
+        timeout: int = 30,
+        extra_headers: Optional[Dict[str, str]] = None,
     ):
         super().__init__(server_name)
         # Normalize base_url to ensure it ends with /mcp and has no trailing slash
@@ -82,6 +83,7 @@ class HTTPMCPClient(MCPClient):
             normalized = normalized + '/mcp'
         self.base_url = normalized.rstrip('/')
         self.timeout = timeout
+        self._extra_headers = {str(key): str(value) for key, value in (extra_headers or {}).items()}
         self._client: Optional[aiohttp.ClientSession] = None
         self._http_client: Optional[httpx.AsyncClient] = None
         self._session_id: Optional[str] = None
@@ -102,6 +104,7 @@ class HTTPMCPClient(MCPClient):
                 # Session id is assigned by server during initialization
                 "mcp-protocol-version": "2024-11-05",
             }
+            default_headers.update(self._extra_headers)
             self._http_client = httpx.AsyncClient(
                 base_url=self.base_url,
                 timeout=self.timeout,
@@ -152,6 +155,7 @@ class HTTPMCPClient(MCPClient):
                 "content-type": "application/json",
                 "mcp-protocol-version": "2024-11-05",
             }
+            headers.update(self._extra_headers)
             if hasattr(self, "_session_id") and self._session_id:
                 headers["mcp-session-id"] = self._session_id
             # Note: POST to /mcp (no trailing slash) to match server route
@@ -196,21 +200,9 @@ class HTTPMCPClient(MCPClient):
                     "required": ["address", "port", "user", "password"]
                 }
             ),
-            "admin_reload_connection_context_from_file": MCPTool(
-                name="admin_reload_connection_context_from_file",
-                description="Reload HANA ConnectionContext from a VCAP_SERVICES file without restarting the MCP server.",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "file_path": {"type": "string", "description": "Path to a file containing VCAP_SERVICES='...json...'."},
-                        "test_connection": {"type": "boolean", "description": "If true, test new connection before switching."},
-                    },
-                    "required": ["file_path"],
-                },
-            ),
-            "discovery_agent": MCPTool(
-                name="discovery_agent",
-                description="Use the HANA discovery agent tool to run a query.",
+            "object_discovery": MCPTool(
+                name="object_discovery",
+                description="Use the HANA object discovery tool to run a query.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -219,9 +211,9 @@ class HTTPMCPClient(MCPClient):
                     "required": ["query"]
                 }
             ),
-            "data_agent": MCPTool(
-                name="data_agent",
-                description="Use the HANA data agent tool to run a query.",
+            "data_retrieval": MCPTool(
+                name="data_retrieval",
+                description="Use the HANA data retrieval tool to run a query.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -268,6 +260,7 @@ class HTTPMCPClient(MCPClient):
                 },
             }
             headers = {}
+            headers.update(self._extra_headers)
             if effective_session_id:
                 headers["mcp-session-id"] = effective_session_id
 
@@ -524,21 +517,9 @@ class StdioMCPClient(MCPClient):
                     "required": ["address", "port", "user", "password"],
                 },
             ),
-            "admin_reload_connection_context_from_file": MCPTool(
-                name="admin_reload_connection_context_from_file",
-                description="Reload HANA ConnectionContext from a VCAP_SERVICES file without restarting the MCP server.",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "file_path": {"type": "string", "description": "Path to a file containing VCAP_SERVICES='...json...'."},
-                        "test_connection": {"type": "boolean", "description": "If true, test new connection before switching."},
-                    },
-                    "required": ["file_path"],
-                },
-            ),
-            "discovery_agent": MCPTool(
-                name="discovery_agent",
-                description="Use the HANA discovery agent tool to run a query.",
+            "object_discovery": MCPTool(
+                name="object_discovery",
+                description="Use the HANA object discovery tool to run a query.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -547,9 +528,9 @@ class StdioMCPClient(MCPClient):
                     "required": ["query"],
                 },
             ),
-            "data_agent": MCPTool(
-                name="data_agent",
-                description="Use the HANA data agent tool to run a query.",
+            "data_retrieval": MCPTool(
+                name="data_retrieval",
+                description="Use the HANA data retrieval tool to run a query.",
                 inputSchema={
                     "type": "object",
                     "properties": {

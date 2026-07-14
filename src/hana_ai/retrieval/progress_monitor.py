@@ -1,6 +1,6 @@
 
 """
-Text progress monitor for agent progress display.
+Text progress monitor for retrieval-procedure progress display.
 """
 import time
 from datetime import datetime

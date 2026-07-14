@@ -41,13 +41,11 @@ Preferred tools:
 
 Workflow:
 1. Confirm the training table, key column, and target column. Ask if any are missing.
-2. Use ts_dataset_report and ts_check to understand structure, seasonality, trend, and ADI/CV^2-based intermittent behavior.
+2. Use ts_dataset_report and ts_check to understand structure, seasonality, trend, and intermittent behavior.
 3. Suggest a model:
    - Prefer automatic_timeseries_fit_and_save for the default single-series path.
    - Use additive_model_forecast_fit_and_save when trend and seasonality assumptions are explicit.
-  - Use intermittent_forecast when ts_check reports ADI >= 1.32, which indicates sparse demand occurrence.
-  - Prefer intermittent_forecast with method=constant when ts_check classifies the series as intermittent: ADI >= 1.32 and CV^2 < 0.49.
-  - Prefer intermittent_forecast with method=sporadic when ts_check classifies the series as lumpy: ADI >= 1.32 and CV^2 >= 0.49.
+   - Use intermittent_forecast when the series contains many zeros or sparse demand.
 4. Train and save the model. Record the exact model name and version.
 5. If a future input table is needed, build it with ts_make_future_table.
 6. Predict with the matching load_model_and_predict tool.
@@ -201,7 +199,7 @@ Workflow:
 2. Use fetch_data when a small preview helps verify assumptions.
 3. Use ts_dataset_report for a broad report and ts_check for concise diagnostic output.
 4. If the user asks for deeper evidence, branch to stationarity_test, trend_test, seasonality_test, or white_noise_test.
-5. Summarize the characteristics that matter for later model selection, including whether the series is smooth, erratic, intermittent, or lumpy under ADI/CV^2, and whether it is seasonal, trending, or unstable.
+5. Summarize the characteristics that matter for later model selection, including whether the series appears sparse, seasonal, trending, or unstable.
 6. Recommend the next workflow explicitly: forecasting, outlier detection, or additional data preparation.
 
 Rules:
@@ -394,7 +392,7 @@ The current built-in set is directionally correct, but it is narrower than the r
 ## Weak spots in the current timeseries_forecasting skill
 
 - It does not separate profiling from forecasting, which makes selector behavior less precise.
-- It does not explicitly route ADI/CV^2-classified intermittent or lumpy demand cases to intermittent_forecast strongly enough.
+- It does not explicitly route sparse-demand cases to intermittent_forecast strongly enough.
 - It does not include automatic_timeseries_load_model_and_score as the preferred scoring path when a labeled test table exists.
 - It does not mention outlier detection as a pre-modeling branch.
 

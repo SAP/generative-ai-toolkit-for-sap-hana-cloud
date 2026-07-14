@@ -27,149 +27,6 @@ from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
 
 logger = logging.getLogger(__name__)
 
-INTERMITTENT_ADI_THRESHOLD = 1.32
-INTERMITTENT_CV2_THRESHOLD = 0.49
-
-
-def _format_metric(value):
-    if value is None:
-        return "n/a"
-    if value == float("inf"):
-        return "inf"
-    if isinstance(value, float):
-        return f"{value:.6f}"
-    return str(value)
-
-
-def _analyze_intermittent_demand(df, key, endog):
-    """Classify intermittent demand with the common ADI/CV^2 method."""
-    ordered = df.select(key, endog).sort_values(key).collect()
-    values = ordered[endog].tolist()
-    total_values = len(values)
-
-    if total_values == 0:
-        return {
-            "zero_proportion": 1.0,
-            "occurrence_rate": 0.0,
-            "occurrences": 0,
-            "adi": float("inf"),
-            "cv2": float("inf"),
-            "classification": "empty",
-            "is_intermittent": False,
-        }
-
-    non_zero_values = [value for value in values if value != 0]
-    occurrences = len(non_zero_values)
-    zero_proportion = (total_values - occurrences) / total_values
-    occurrence_rate = occurrences / total_values
-
-    if occurrences == 0:
-        return {
-            "zero_proportion": zero_proportion,
-            "occurrence_rate": occurrence_rate,
-            "occurrences": 0,
-            "adi": float("inf"),
-            "cv2": 0.0,
-            "classification": "all_zero",
-            "is_intermittent": True,
-        }
-
-    adi = total_values / occurrences
-    mean_non_zero = sum(non_zero_values) / occurrences
-    if occurrences == 1:
-        cv2 = 0.0
-    else:
-        variance = sum((value - mean_non_zero) ** 2 for value in non_zero_values) / occurrences
-        cv2 = float("inf") if mean_non_zero == 0 else variance / (mean_non_zero ** 2)
-
-    if adi >= INTERMITTENT_ADI_THRESHOLD and cv2 >= INTERMITTENT_CV2_THRESHOLD:
-        classification = "lumpy"
-    elif adi >= INTERMITTENT_ADI_THRESHOLD:
-        classification = "intermittent"
-    elif cv2 >= INTERMITTENT_CV2_THRESHOLD:
-        classification = "erratic"
-    else:
-        classification = "smooth"
-
-    return {
-        "zero_proportion": zero_proportion,
-        "occurrence_rate": occurrence_rate,
-        "occurrences": occurrences,
-        "adi": adi,
-        "cv2": cv2,
-        "classification": classification,
-        "is_intermittent": classification in {"intermittent", "lumpy", "all_zero"},
-    }
-
-
-def _format_intermittent_result(intermittent_metrics):
-    return (
-        "Intermittent Test (ADI/CV^2): "
-        f"non-zero occurrence rate is {_format_metric(intermittent_metrics['occurrence_rate'])}, "
-        f"zero proportion is {_format_metric(intermittent_metrics['zero_proportion'])}, "
-        f"occurrences are {intermittent_metrics['occurrences']}, "
-        f"average demand interval (ADI) is {_format_metric(intermittent_metrics['adi'])}, "
-        f"CV^2 of non-zero demand sizes is {_format_metric(intermittent_metrics['cv2'])}, "
-        f"classification is {intermittent_metrics['classification']}, "
-        f"intermittent={intermittent_metrics['is_intermittent']}"
-    )
-
-
-def _get_model_recommendation(intermittent_metrics):
-    classification = intermittent_metrics["classification"]
-
-    if classification == "intermittent":
-        return {
-            "available_algorithms": ["Intermittent Forecast", "Automatic Time Series Forecast"],
-            "message": (
-                "Model Recommendation: prefer Intermittent Forecast with method=constant. "
-                "ADI >= 1.32 and CV^2 < 0.49 indicate sparse demand occurrence with relatively stable "
-                "non-zero demand sizes. Alternative: Automatic Time Series Forecast."
-            ),
-        }
-    if classification == "lumpy":
-        return {
-            "available_algorithms": ["Intermittent Forecast", "Automatic Time Series Forecast"],
-            "message": (
-                "Model Recommendation: prefer Intermittent Forecast with method=sporadic. "
-                "ADI >= 1.32 and CV^2 >= 0.49 indicate sparse demand occurrence with highly variable "
-                "non-zero demand sizes. Alternative: Automatic Time Series Forecast."
-            ),
-        }
-    if classification == "all_zero":
-        return {
-            "available_algorithms": ["Intermittent Forecast", "Automatic Time Series Forecast"],
-            "message": (
-                "Model Recommendation: validate whether the series is structurally zero before training. "
-                "If forecasting is still required, start with Intermittent Forecast and keep "
-                "Automatic Time Series Forecast only as a fallback after data review."
-            ),
-        }
-    if classification == "erratic":
-        return {
-            "available_algorithms": ["Additive Model Forecast", "Automatic Time Series Forecast"],
-            "message": (
-                "Model Recommendation: prefer Automatic Time Series Forecast. ADI < 1.32 and CV^2 >= 0.49 "
-                "indicate frequent demand occurrence but volatile non-zero demand sizes. Alternative: "
-                "Additive Model Forecast when you want explicit seasonality and trend control."
-            ),
-        }
-    if classification == "empty":
-        return {
-            "available_algorithms": ["Intermittent Forecast", "Additive Model Forecast", "Automatic Time Series Forecast"],
-            "message": (
-                "Model Recommendation: the series is empty, so any model choice is provisional until data is available."
-            ),
-        }
-    return {
-        "available_algorithms": ["Additive Model Forecast", "Automatic Time Series Forecast"],
-        "message": (
-            "Model Recommendation: prefer Automatic Time Series Forecast as the default non-intermittent path. "
-            "ADI < 1.32 and CV^2 < 0.49 indicate regular demand occurrence with stable non-zero sizes. "
-            "Alternative: Additive Model Forecast when you want explicit seasonality and trend control."
-        ),
-    }
-
 def ts_char(df, key, endog):
     """
     This function is used to get the characteristics of time series data.
@@ -201,9 +58,14 @@ def ts_char(df, key, endog):
         key_ = "NEW_" + key
         df_ = df.add_id(key_, ref_col=key)
 
-    # Intermittent Test
-    intermittent_metrics = _analyze_intermittent_demand(df_, key_, endog)
-    analysis_result += _format_intermittent_result(intermittent_metrics) + "\n"
+    # Intermitent Test
+    zero_values = df_.filter(f'"{endog}" = 0').count()
+    total_values = df_.count()
+    if total_values == 0:
+        zero_proportion = 1
+    else:
+        zero_proportion = zero_values / total_values
+    analysis_result += f"Intermittent Test: proportion of zero values is {zero_proportion}\n"
 
     # Stationarity Test
     result = stationarity_test(df_, key_, endog).collect()
@@ -231,11 +93,8 @@ def ts_char(df, key, endog):
         analysis_result += f"The `{row['STAT_NAME']}` is {row['STAT_VALUE']}."
     analysis_result += "\n"
 
-    model_recommendation = _get_model_recommendation(intermittent_metrics)
-    analysis_result += model_recommendation["message"] + "\n"
-
     # Restrict time series algorithms
-    available_algorithms = model_recommendation["available_algorithms"]
+    available_algorithms = ["Additive Model Forecast", "Automatic Time Series Forecast"]
     analysis_result += f"Available algorithms: {', '.join(available_algorithms)}\n"
 
     return analysis_result
@@ -287,9 +146,14 @@ def ts_char_massive(df, group_key, key, endog):
             key_ = "NEW_" + key
             df_ = df_group.add_id(key_, ref_col=key)
 
-        # Intermittent Test
-        intermittent_metrics = _analyze_intermittent_demand(df_, key_, endog)
-        analysis_result += _format_intermittent_result(intermittent_metrics) + "\n"
+        # Intermitent Test
+        zero_values = df_.filter(f'"{endog}" = 0').count()
+        total_values = df_.count()
+        if total_values == 0:
+            zero_proportion = 1
+        else:
+            zero_proportion = zero_values / total_values
+        analysis_result += f"Intermittent Test: proportion of zero values is {zero_proportion}\n"
 
         # Stationarity Test
         result = stationarity_test(df_, key_, endog).collect()
@@ -317,11 +181,8 @@ def ts_char_massive(df, group_key, key, endog):
             analysis_result += f"The `{row['STAT_NAME']}` is {row['STAT_VALUE']}."
         analysis_result += "\n"
 
-        model_recommendation = _get_model_recommendation(intermittent_metrics)
-        analysis_result += model_recommendation["message"] + "\n"
-
         # Restrict time series algorithms
-        available_algorithms = model_recommendation["available_algorithms"]
+        available_algorithms = ["Additive Model Forecast", "Automatic Time Series Forecast"]
         analysis_result += f"Available algorithms: {', '.join(available_algorithms)}\n"
 
     return analysis_result

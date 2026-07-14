@@ -21,7 +21,7 @@ except Exception:
     from langchain_core.load.dump import dumps
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
-from langchain_community.vectorstores.hanavector import HanaDB  # pylint: disable=import-error,no-name-in-module
+from langchain_community.vectorstores.hanavector import HanaDB
 from hana_ml.algorithms.pal.utility import check_pal_function_exist
 
 try:
@@ -237,7 +237,7 @@ class HANAMLRAGAgent:
         )
         # Long-term memory storage
         if isinstance(self.long_term_db, str):
-            self.long_term_store = SQLChatMessageHistory(  # pylint: disable=unexpected-keyword-arg
+            self.long_term_store = SQLChatMessageHistory(
                 connection_string=self.long_term_db,
                 session_id=self.session_id
             )

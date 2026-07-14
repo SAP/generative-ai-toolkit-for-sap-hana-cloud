@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hana_ai"
-version = "1.1.26070101"
+version = "1.1.26071400"
 authors = [
     {name = "SAP"}
 ]
