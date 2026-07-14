@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; hana.ai 1.1.26070100 documentation</title>
+  <title>Changelog &mdash; hana.ai 1.1.26071400 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=7f900545"></script>
+      <script src="_static/documentation_options.js?v=00a75c23"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -125,6 +125,14 @@
 <li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.fetch_tools.FetchDataTool.html#hana_ai.tools.hana_ml_tools.fetch_tools.FetchDataTool"><code class="docutils literal notranslate"><span class="pre">FetchDataTool</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.graph_tools.ObjectDiscoveryTool.html">ObjectDiscoveryTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.graph_tools.ObjectDiscoveryTool.html#hana_ai.tools.hana_ml_tools.graph_tools.ObjectDiscoveryTool"><code class="docutils literal notranslate"><span class="pre">ObjectDiscoveryTool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.graph_tools.DataRetrievalTool.html">DataRetrievalTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.graph_tools.DataRetrievalTool.html#hana_ai.tools.hana_ml_tools.graph_tools.DataRetrievalTool"><code class="docutils literal notranslate"><span class="pre">DataRetrievalTool</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.html">HDIArtifactsTool</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.html#hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool"><code class="docutils literal notranslate"><span class="pre">HDIArtifactsTool</span></code></a></li>
 </ul>
@@ -219,6 +227,10 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.retrieval.html#clients">Clients</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.vectorstore.html">hana_ai.vectorstore</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.vectorstore.html#code-templates">code_templates</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="vectorstore/hana_ai.vectorstore.code_templates.get_code_templates.html">get_code_templates</a><ul>
@@ -302,11 +314,25 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<p><strong>Version 1.1.260714</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Functions</span></code></dt><dd><ul class="simple">
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">hana_ai.retrieval</span></code> package to host the HANA AI Core retrieval clients used by the MCP tools; the package exposes <code class="docutils literal notranslate"><span class="pre">ObjectDiscovery</span></code>, <code class="docutils literal notranslate"><span class="pre">DataRetrieval</span></code>, and the shared <code class="docutils literal notranslate"><span class="pre">RetrievalBase</span></code> used by both. The previous internal <code class="docutils literal notranslate"><span class="pre">hana_ai.agents.hana_agent</span></code> package has been removed in favor of <code class="docutils literal notranslate"><span class="pre">hana_ai.retrieval</span></code>.</p></li>
+<li><p>Renamed the MCP-exposed retrieval tools to <code class="docutils literal notranslate"><span class="pre">object_discovery</span></code> (schema/object metadata retrieval) and <code class="docutils literal notranslate"><span class="pre">data_retrieval</span></code> (data retrieval over remote-source-backed procedures), replacing the previous <code class="docutils literal notranslate"><span class="pre">discovery_agent</span></code>/<code class="docutils literal notranslate"><span class="pre">data_agent</span></code> names. The corresponding tool classes are <code class="docutils literal notranslate"><span class="pre">ObjectDiscoveryTool</span></code> and <code class="docutils literal notranslate"><span class="pre">DataRetrievalTool</span></code> in <code class="docutils literal notranslate"><span class="pre">hana_ai.tools.hana_ml_tools.graph_tools</span></code>.</p></li>
+<li><p>Added ADI / CV^2 based intermittent-demand classification in <code class="docutils literal notranslate"><span class="pre">TimeSeriesCheck</span></code> (<code class="docutils literal notranslate"><span class="pre">ts_check</span></code> MCP tool). The check now reports ADI and CV^2 alongside the previous statistics and labels each series as <code class="docutils literal notranslate"><span class="pre">smooth</span></code>, <code class="docutils literal notranslate"><span class="pre">erratic</span></code>, <code class="docutils literal notranslate"><span class="pre">intermittent</span></code>, or <code class="docutils literal notranslate"><span class="pre">lumpy</span></code> using the standard thresholds (ADI &gt;= 1.32, CV^2 &gt;= 0.49). ContextAgent skills routing was updated accordingly to prefer <code class="docutils literal notranslate"><span class="pre">intermittent_forecast</span></code> with <code class="docutils literal notranslate"><span class="pre">method=constant</span></code> for intermittent series and <code class="docutils literal notranslate"><span class="pre">method=sporadic</span></code> for lumpy series.</p></li>
+<li><p>Added HTTP MCP audit-context plumbing in <code class="docutils literal notranslate"><span class="pre">hana_ai.tools.toolkit</span></code>: the toolkit now attaches a <code class="docutils literal notranslate"><span class="pre">MCPAuditMiddleware</span></code> for HTTP transport (via <code class="docutils literal notranslate"><span class="pre">fastmcp.server.middleware</span></code>) and mirrors the same context capture on the stdio path so both transports emit consistently keyed audit events. Introduced <code class="docutils literal notranslate"><span class="pre">DEFAULT_MCP_SESSION_CONTEXT_KEYS</span></code> in <code class="docutils literal notranslate"><span class="pre">hana_ai.tools.hana_ml_tools.utility</span></code> as the canonical set of MCP audit fields (client-declared identity, HANA-authenticated identity, tool name, target tables, response size, model storage name/version, timing, and correlation identifiers).</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">ensure_mcp_audit_log</span></code> and <code class="docutils literal notranslate"><span class="pre">find_free_port</span></code> helpers in <code class="docutils literal notranslate"><span class="pre">hana_ai.tools.hana_ml_tools.utility</span></code> to make bootstrapping a local MCP audit-log file and picking a free HTTP port reusable from example scripts.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">extra_headers</span></code> on the MCP HTTP client in <code class="docutils literal notranslate"><span class="pre">hana_ai.client.mcp_client</span></code>. Callers can now pass arbitrary key/value pairs (for example, a routing hint or a trace-id header) that are merged into the outgoing <code class="docutils literal notranslate"><span class="pre">httpx</span></code> client and per-request headers on top of the standard MCP protocol and session headers.</p></li>
+</ul>
+</dd>
+</dl>
 <p><strong>Version 1.1.260701</strong></p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">Bug</span> <span class="pre">Fixes</span></code></dt><dd><ul class="simple">
 <li><p>Fixed ContextAgent failure with newer Anthropic Claude deployments (e.g. <code class="docutils literal notranslate"><span class="pre">anthropic--claude-4.6-sonnet</span></code>) on SAP Generative AI Hub that reject <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">top_p</span></code> being set together; the agent now sanitizes the LLM sampling parameters on construction and drops <code class="docutils literal notranslate"><span class="pre">top_p</span></code> when <code class="docutils literal notranslate"><span class="pre">temperature</span></code> is also set.</p></li>
 <li><p>Fixed ContextAgent hallucinating table, model, and version identifiers (e.g. substituting <code class="docutils literal notranslate"><span class="pre">SALES_REFUNDS_TEST</span></code> for the previously recorded <code class="docutils literal notranslate"><span class="pre">SALES_REFUNEDS_PREDICT</span></code>) by feeding <code class="docutils literal notranslate"><span class="pre">DECISIONS.md</span></code> and <code class="docutils literal notranslate"><span class="pre">TODO.md</span></code> back into the per-turn <code class="docutils literal notranslate"><span class="pre">memory_notes</span></code> block alongside <code class="docutils literal notranslate"><span class="pre">NOTES.md</span></code> and hardening the system prompt to forbid inventing identifiers not present in context.</p></li>
+<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">invalid</span> <span class="pre">table</span> <span class="pre">name:</span> <span class="pre">Could</span> <span class="pre">not</span> <span class="pre">find</span> <span class="pre">table/view</span> <span class="pre">PREDICT_RESULT_...</span></code> errors from <code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code>, <code class="docutils literal notranslate"><span class="pre">AdditiveModelForecastLoadModelAndPredict</span></code>, and <code class="docutils literal notranslate"><span class="pre">MassiveAutomaticTimeSeriesLoadModelAndPredict</span></code> when the model storage name (or predict input table/schema) contained lower-case characters: user-supplied identifier fragments are now uppercased before being embedded in the <code class="docutils literal notranslate"><span class="pre">PREDICT_RESULT_</span></code>/<code class="docutils literal notranslate"><span class="pre">REASON_CODE_</span></code>/<code class="docutils literal notranslate"><span class="pre">PREDICT_ERROR_</span></code> table names so the created table aligns with HANA's default folding on unquoted references.</p></li>
+<li><p>Fixed ContextAgent hanging notebook cells for many minutes when a tool call got stuck on the HANA/PAL backend (previously <code class="docutils literal notranslate"><span class="pre">max_iterations</span></code> bounded the number of tool calls but not the wall-clock time, so eight stuck iterations could exceed ten minutes). Added <code class="docutils literal notranslate"><span class="pre">AgentConfig.max_turn_seconds</span></code> (default 300s, set to <code class="docutils literal notranslate"><span class="pre">None</span></code>/<code class="docutils literal notranslate"><span class="pre">0</span></code> to disable) which runs the executor on a daemon thread with a join timeout; when the deadline fires the current turn short-circuits with an actionable message instead of hanging.</p></li>
 </ul>
 </dd>
 </dl>

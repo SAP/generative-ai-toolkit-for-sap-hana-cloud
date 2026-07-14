@@ -36,6 +36,8 @@ hana_ml_tools
    hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool
    hana_ml_tools.dataset_prep_tools.SplitTableForForecastingTool
    hana_ml_tools.fetch_tools.FetchDataTool
+   hana_ml_tools.graph_tools.ObjectDiscoveryTool
+   hana_ml_tools.graph_tools.DataRetrievalTool
    hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool
    hana_ml_tools.intermittent_forecast_tools.IntermittentForecast
    hana_ml_tools.model_storage_tools.ListModels

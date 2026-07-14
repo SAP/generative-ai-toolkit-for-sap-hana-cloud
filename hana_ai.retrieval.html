@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generative AI Toolkit for SAP HANA Cloud &mdash; hana.ai 1.1.26071400 documentation</title>
+  <title>hana_ai.retrieval &mdash; hana.ai 1.1.26071400 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -21,8 +21,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Changelog" href="changlog.html" />
-    <link rel="prev" title="Welcome to hana.ai&#39;s documentation!" href="index.html" /> 
+    <link rel="next" title="hana_ai.vectorstore" href="hana_ai.vectorstore.html" />
+    <link rel="prev" title="HANAMLToolkit" href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,13 +46,13 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Generative AI Toolkit for SAP HANA Cloud</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#smart-dataframe">Smart DataFrame</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hana_ai.html">Generative AI Toolkit for SAP HANA Cloud</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="changlog.html">Changelog</a></li>
@@ -227,8 +227,8 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hana_ai.retrieval.html#clients">Clients</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">hana_ai.retrieval</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#clients">Clients</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.vectorstore.html">hana_ai.vectorstore</a><ul>
@@ -299,125 +299,38 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Generative AI Toolkit for SAP HANA Cloud</li>
+      <li class="breadcrumb-item active">hana_ai.retrieval</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/hana_ai.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/hana_ai.retrieval.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to hana.ai&#39;s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="changlog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html" class="btn btn-neutral float-left" title="HANAMLToolkit" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hana_ai.vectorstore.html" class="btn btn-neutral float-right" title="hana_ai.vectorstore" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="generative-ai-toolkit-for-sap-hana-cloud">
-<h1>Generative AI Toolkit for SAP HANA Cloud<a class="headerlink" href="#generative-ai-toolkit-for-sap-hana-cloud" title="Link to this heading"></a></h1>
-<a class="reference internal image-reference" href="_images/SAP_R_grad2.jpg"><img alt="_images/SAP_R_grad2.jpg" src="_images/SAP_R_grad2.jpg" style="width: 100px; height: 50px;" />
-</a>
-<p>Welcome to Generative AI Toolkit for SAP HANA Cloud (hana.ai)!</p>
-<p>This package enables the users to access SAP HANA data and build various machine
-learning models using the data directly in SAP HANA via natural language. This page provides an overview of hana.ai.</p>
-<p>Generative AI Toolkit for SAP HANA Cloud consists of four main parts:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>AI tools, which provides a set of tools to analyze data and build machine learning models.</p></li>
-<li><p>HANA Vector Store and Knowledge Base API, which provides a way to store and retrieve vectors and knowledge bases.</p></li>
-<li><p>Smart DataFrame, which is a HANA dataframe Agent to interact with HANA data.</p></li>
-<li><p>ContextAgent, which provides the recommended way to interact with the AI tools via natural language using Markdown-backed memory and runtime skill routing.</p></li>
-<li><p>MCP server, which exposes the toolkit's tools (including the HANA object discovery and data retrieval tools) over either stdio or HTTP transport with structured audit context.</p></li>
-</ul>
-</div></blockquote>
-<section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
-<blockquote>
-<div><ul class="simple">
-<li><p><strong>SAP HANA Python Driver</strong> : hdbcli. Please see <a class="reference external" href="https://help.sap.com/docs/SAP_HANA_CLIENT/f1b440ded6144a54ada97ff95dac7adf/f3b8fabf34324302b123297cdbe710f0.html">SAP HANA Client Interface Programming Reference</a>
-for more information.</p></li>
-<li><p><strong>SAP HANA PAL</strong> : Security <strong>AFL__SYS_AFL_AFLPAL_EXECUTE</strong> and
-<strong>AFL__SYS_AFL_AFLPAL_EXECUTE_WITH_GRANT_OPTION</strong> roles. See <a class="reference external" href="https://help.sap.com/docs/hana-cloud-database/sap-hana-cloud-sap-hana-database-predictive-analysis-library/sap-hana-cloud-sap-hana-database-predictive-analysis-library-pal">SAP HANA
-Predictive Analysis Library</a>
-for more information.</p></li>
-<li><p><strong>SAP HANA APL</strong> 1905 or higher. See
-<a class="reference external" href="https://help.sap.com/viewer/product/apl/latest/en-US">SAP HANA Automated Predictive Library Developer Guide</a>
-for more information. Only valid when using the APL package.</p></li>
-<li><p><strong>Python Machine Learning Client for SAP HANA</strong> version 2.24 or higher : Install it using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">hana-ml</span></code>.
-For more details, refer to the <a class="reference external" href="https://help.sap.com/doc/cd94b08fe2e041c2ba778374572ddba9/latest/en-US/hana_ml.html">Documentation</a>.</p></li>
-<li><p><strong>SAP-AI-SDK-GEN</strong>: Install it using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;sap-ai-sdk-gen[all]&quot;</span></code>.
-For comprehensive instructions, see the <a class="reference external" href="https://help.sap.com/doc/generative-ai-hub-sdk/CLOUD/en-US/_reference/README_sphynx.html">SAP Help Documentation on Using SAP-AI-SDK-GEN</a>.</p></li>
-<li><p>Ensure that you have access to generative AI hub and deployed models in SAP Business Technology Platform. For more information, see the <a class="reference external" href="https://help.sap.com/docs/sap-ai-core/sap-ai-core-service-guide/create-deployment-for-generative-ai-model-in-sap-ai-core">Create a Deployment for a Generative AI Model</a>.</p></li>
-</ul>
-</div></blockquote>
-</section>
-<section id="contextagent-with-hanaml-toolkit">
-<h2>ContextAgent with HANAML Toolkit<a class="headerlink" href="#contextagent-with-hanaml-toolkit" title="Link to this heading"></a></h2>
-<p>HANAML Toolkit is a set of tools to analyze data and build machine learning models using the data directly in SAP HANA. It can be consumed by ContextAgent. cc is a connection to a SAP HANA instance.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.context_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextAgent</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.toolkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLToolkit</span>
-
-<span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
-<span class="n">chatbot</span> <span class="o">=</span> <span class="n">ContextAgent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">storage_dir</span><span class="o">=</span><span class="s2">&quot;.context_agent&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<a class="reference internal image-reference" href="_images/chatbotwithtoolkit.png"><img alt="A ContextAgent with HANAML Toolkit." src="_images/chatbotwithtoolkit.png" style="width: 960px; height: 480px;" />
-</a>
-<p>ContextAgent currently supports workflow skills for dataset preparation, time-series profiling, forecasting, prediction-result analysis, outlier inspection, grouped forecasting, model lifecycle operations, and dataframe-oriented fallback steps.</p>
-<p>ContextAgent also supports command-style controls during chat calls:</p>
-<ul class="simple">
-<li><p>Memory commands: <code class="docutils literal notranslate"><span class="pre">!clear_notes</span></code>, <code class="docutils literal notranslate"><span class="pre">!clear_session</span></code>, <code class="docutils literal notranslate"><span class="pre">!reset_memory</span></code>, <code class="docutils literal notranslate"><span class="pre">!clear_notes_file</span></code>, <code class="docutils literal notranslate"><span class="pre">!clear_todo</span></code>, <code class="docutils literal notranslate"><span class="pre">!clear_decisions</span></code>, <code class="docutils literal notranslate"><span class="pre">!clear_context</span></code>, <code class="docutils literal notranslate"><span class="pre">!clear_chat</span></code>, <code class="docutils literal notranslate"><span class="pre">!clear_summary</span></code></p></li>
-<li><p>Skill commands: <code class="docutils literal notranslate"><span class="pre">!list_skills</span></code>, <code class="docutils literal notranslate"><span class="pre">!active_skills</span></code>, <code class="docutils literal notranslate"><span class="pre">!skills_on</span></code>, <code class="docutils literal notranslate"><span class="pre">!skills_off</span></code>, <code class="docutils literal notranslate"><span class="pre">!enable_skill</span> <span class="pre">&lt;skill_name&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">!disable_skill</span> <span class="pre">&lt;skill_name&gt;</span></code></p></li>
-</ul>
-</section>
-<section id="hana-vector-store-and-knowledge-base-api">
-<h2>HANA Vector Store and Knowledge Base API<a class="headerlink" href="#hana-vector-store-and-knowledge-base-api" title="Link to this heading"></a></h2>
-<p>Create Knowledge Base for hana-ml codes in HANA Vector Engine.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hana_vec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;hana_vec_hana_ml_knowledge&quot;</span><span class="p">)</span>
-<span class="n">hana_vec</span><span class="o">.</span><span class="n">create_knowledge</span><span class="p">()</span>
-</pre></div>
-</div>
-</section>
-<section id="create-code-template-tool-and-add-knowledge-bases-to-it">
-<h2>Create Code Template Tool and Add Knowledge Bases to It<a class="headerlink" href="#create-code-template-tool-and-add-knowledge-bases-to-it" title="Link to this heading"></a></h2>
-<p>Create a code template tool and add knowledge bases to it.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.code_template_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetCodeTemplateFromVectorDB</span>
-
-<span class="n">code_tool</span> <span class="o">=</span> <span class="n">GetCodeTemplateFromVectorDB</span><span class="p">()</span>
-<span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="n">vectordb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vectordb</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="create-hana-dataframe-agent-and-execute-task">
-<h2>Create HANA Dataframe Agent and Execute Task<a class="headerlink" href="#create-hana-dataframe-agent-and-execute-task" title="Link to this heading"></a></h2>
-<p>Create a HANA dataframe agent and execute a task.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hana_dataframe_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_hana_dataframe_agent</span>
-
-<span class="n">agent</span> <span class="o">=</span> <span class="n">create_hana_dataframe_agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Create Automatic Regression model on this dataframe with max_eval_time_mins=10. Provide key is ID, background_size=100 and model_table_name=&#39;my_model&#39; in the fit function and execute it. &quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<a class="reference internal image-reference" href="_images/agent.png"><img alt="A HANA dataframe agent to build model." src="_images/agent.png" style="width: 768.8px; height: 400px;" />
-</a>
-<p>Build a dataset report.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;Build a dataset report&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<a class="reference internal image-reference" href="_images/dataset_report.png"><img alt="A HANA dataframe agent to generate a dataset report." src="_images/dataset_report.png" style="width: 768.8px; height: 520px;" />
-</a>
-</section>
-<section id="smart-dataframe">
-<h2>Smart DataFrame<a class="headerlink" href="#smart-dataframe" title="Link to this heading"></a></h2>
-<p>Smart DataFrame is a HANA dataframe Agent to interact with HANA data.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.smart_dataframe</span><span class="w"> </span><span class="kn">import</span> <span class="n">SmartDataFrame</span>
-
-<span class="n">sdf</span> <span class="o">=</span> <span class="n">SmartDataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="n">hana_df</span><span class="p">)</span>
-<span class="n">sdf</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
-<span class="n">new_df</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="s2">&quot;Get first two rows&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">new_df</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
-</pre></div>
-</div>
-<a class="reference internal image-reference" href="_images/smartdf_res.png"><img alt="A Smart DataFrame's transformed result." src="_images/smartdf_res.png" style="width: 450px; height: 63px;" />
-</a>
+  <section id="hana-ai-retrieval">
+<h1>hana_ai.retrieval<a class="headerlink" href="#hana-ai-retrieval" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">hana_ai.retrieval</span></code> package hosts the HANA AI Core retrieval clients used by the MCP-exposed retrieval tools (<code class="docutils literal notranslate"><span class="pre">object_discovery</span></code> and <code class="docutils literal notranslate"><span class="pre">data_retrieval</span></code>). <code class="docutils literal notranslate"><span class="pre">RetrievalBase</span></code> encapsulates the remote-source, procedure invocation, and progress-monitor plumbing shared by both clients.</p>
+<p id="module-hana_ai.retrieval">HANA AI Core retrieval clients (object discovery, data retrieval).</p>
+<section id="clients">
+<span id="retrieval-classes-label"></span><h2>Clients<a class="headerlink" href="#clients" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">object_discovery.ObjectDiscovery</span></code>(...[, ...])</p></td>
+<td><p>Object Discovery for interacting with AI Core services.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_retrieval.DataRetrieval</span></code>(connection_context)</p></td>
+<td><p>Data Retrieval for interacting with AI Core services.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieval_base.RetrievalBase</span></code>(connection_context)</p></td>
+<td><p>Base class for HANA AI Core retrieval procedures (object discovery, data retrieval).</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 
