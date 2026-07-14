@@ -17,6 +17,7 @@ Generative AI Toolkit for SAP HANA Cloud consists of four main parts:
   - HANA Vector Store and Knowledge Base API, which provides a way to store and retrieve vectors and knowledge bases.
   - Smart DataFrame, which is a HANA dataframe Agent to interact with HANA data.
   - ContextAgent, which provides the recommended way to interact with the AI tools via natural language using Markdown-backed memory and runtime skill routing.
+  - MCP server, which exposes the toolkit's tools (including the HANA object discovery and data retrieval tools) over either stdio or HTTP transport with structured audit context.
 
 Prerequisites
 -------------

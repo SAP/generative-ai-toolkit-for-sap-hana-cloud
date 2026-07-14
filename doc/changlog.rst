@@ -1,6 +1,16 @@
 Changelog
 =========
 
+**Version 1.1.260714**
+
+``New Functions``
+    - Added the ``hana_ai.retrieval`` package to host the HANA AI Core retrieval clients used by the MCP tools; the package exposes ``ObjectDiscovery``, ``DataRetrieval``, and the shared ``RetrievalBase`` used by both. The previous internal ``hana_ai.agents.hana_agent`` package has been removed in favor of ``hana_ai.retrieval``.
+    - Renamed the MCP-exposed retrieval tools to ``object_discovery`` (schema/object metadata retrieval) and ``data_retrieval`` (data retrieval over remote-source-backed procedures), replacing the previous ``discovery_agent``/``data_agent`` names. The corresponding tool classes are ``ObjectDiscoveryTool`` and ``DataRetrievalTool`` in ``hana_ai.tools.hana_ml_tools.graph_tools``.
+    - Added ADI / CV^2 based intermittent-demand classification in ``TimeSeriesCheck`` (``ts_check`` MCP tool). The check now reports ADI and CV^2 alongside the previous statistics and labels each series as ``smooth``, ``erratic``, ``intermittent``, or ``lumpy`` using the standard thresholds (ADI >= 1.32, CV^2 >= 0.49). ContextAgent skills routing was updated accordingly to prefer ``intermittent_forecast`` with ``method=constant`` for intermittent series and ``method=sporadic`` for lumpy series.
+    - Added HTTP MCP audit-context plumbing in ``hana_ai.tools.toolkit``: the toolkit now attaches a ``MCPAuditMiddleware`` for HTTP transport (via ``fastmcp.server.middleware``) and mirrors the same context capture on the stdio path so both transports emit consistently keyed audit events. Introduced ``DEFAULT_MCP_SESSION_CONTEXT_KEYS`` in ``hana_ai.tools.hana_ml_tools.utility`` as the canonical set of MCP audit fields (client-declared identity, HANA-authenticated identity, tool name, target tables, response size, model storage name/version, timing, and correlation identifiers).
+    - Added ``ensure_mcp_audit_log`` and ``find_free_port`` helpers in ``hana_ai.tools.hana_ml_tools.utility`` to make bootstrapping a local MCP audit-log file and picking a free HTTP port reusable from example scripts.
+    - Added ``extra_headers`` on the MCP HTTP client in ``hana_ai.client.mcp_client``. Callers can now pass arbitrary key/value pairs (for example, a routing hint or a trace-id header) that are merged into the outgoing ``httpx`` client and per-request headers on top of the standard MCP protocol and session headers.
+
 **Version 1.1.260701**
 
 ``Bug Fixes``

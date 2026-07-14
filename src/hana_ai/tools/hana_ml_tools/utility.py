@@ -5,16 +5,53 @@ import os
 import shutil
 import json
 import re
+import socket
 from pathlib import Path
 import logging
 from datetime import datetime, date
 from typing import Optional, Union, Any
+import pandas as pd
 from pandas import Timestamp
 from numpy import int64
 from hana_ml.model_storage import ModelStorage
 #pylint: disable=too-many-nested-blocks, unexpected-keyword-arg, invalid-name
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_MCP_SESSION_CONTEXT_KEYS = [
+    "EVENT_TYPE",
+    "OCCURRED_AT",
+    "MCP_SESSION_ID",
+    "CLIENT_IP",
+    "CLIENT_DECLARED_NAME",
+    "CLIENT_DECLARED_AGENT_NAME",
+    "CLIENT_DECLARED_MODEL_NAME",
+    # HANA-authenticated identity of the connection the tool ran on. Sourced from
+    # HANA built-ins (CURRENT_USER / SESSION_USER / CURRENT_CONNECTION) plus the
+    # driver's setclientinfo channel (APPLICATION / APPLICATION_USER / CLIENT_HOST).
+    # These sit alongside CLIENT_DECLARED_* so an auditor can compare
+    # "who the client says it is" vs "who HANA authenticated".
+    "HANA_DB_USER",
+    "HANA_DB_SESSION_USER",
+    "HANA_CONNECTION_ID",
+    "HANA_APPLICATION_USER",
+    "HANA_APPLICATION",
+    "HANA_CLIENT_HOST",
+    "TOOL_NAME",
+    "TARGET_TABLES",
+    "TOOL_ARGS_JSON",
+    "RESPONSE_SIZE",
+    "MODEL_STORAGE_NAME",
+    "MODEL_STORAGE_VERSION",
+    "STATUS",
+    "DURATION_MS",
+    "HANA_CORRELATION_ID",
+    "INVOCATION_ID",
+    "MCP_CLIENT_NAME",
+    "MCP_CLIENT_ID",
+    "AI_AGENT_NAME",
+    "AI_MODEL_NAME",
+]
 
 def convert_cap_to_hdi(source_dir, target_dir, archive=True):
     """
@@ -231,3 +268,344 @@ def format_predict_mismatch_diagnostic(*, predict_table: str, predict_schema: Op
     if original_error:
         payload["original_error"] = original_error
     return json.dumps(payload, cls=_CustomEncoder)
+
+
+def find_free_port(start: int = 8600, end: int = 8700) -> int:
+    """Return an available localhost TCP port."""
+    for port in range(start, end):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                sock.bind(("127.0.0.1", port))
+                return port
+            except OSError:
+                continue
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+
+
+def ensure_mcp_audit_log(audit_log_path: str = "logs/mcp-audit.jsonl") -> Path:
+    """Ensure the MCP audit JSONL file exists and return its resolved path."""
+    log_path = Path(audit_log_path).expanduser().resolve()
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.touch(exist_ok=True)
+    return log_path
+
+
+def fetch_mcp_audit_rows(audit_log_path: str, session_id: str):
+    """Fetch audit rows for a given MCP session id from the JSONL audit log."""
+    log_path = ensure_mcp_audit_log(audit_log_path)
+    rows: list[dict[str, Any]] = []
+
+    with log_path.open("r", encoding="utf-8") as log_file:
+        for raw_line in log_file:
+            line = raw_line.strip()
+            if not line:
+                continue
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            session = event.get("session", {}) or {}
+            if session.get("mcp_session_id") != session_id:
+                continue
+
+            correlation = event.get("correlation", {}) or {}
+            payload = event.get("payload", {}) or {}
+            rows.append(
+                {
+                    "EVENT_TYPE": event.get("event_type"),
+                    "OCCURRED_AT": event.get("occurred_at"),
+                    "MCP_SESSION_ID": session.get("mcp_session_id"),
+                    "CLIENT_IP": session.get("client_ip"),
+                    "CLIENT_DECLARED_NAME": session.get("client_declared_name"),
+                    "CLIENT_DECLARED_AGENT_NAME": session.get("client_declared_agent_name"),
+                    "CLIENT_DECLARED_MODEL_NAME": session.get("client_declared_model_name"),
+                    "HANA_DB_USER": session.get("hana_db_user"),
+                    "HANA_DB_SESSION_USER": session.get("hana_db_session_user"),
+                    "HANA_CONNECTION_ID": session.get("hana_connection_id"),
+                    "HANA_APPLICATION_USER": session.get("hana_application_user"),
+                    "HANA_APPLICATION": session.get("hana_application"),
+                    "HANA_CLIENT_HOST": session.get("hana_client_host"),
+                    "TOOL_NAME": payload.get("tool_name"),
+                    "TARGET_TABLES": payload.get("target_tables"),
+                    "TOOL_ARGS_JSON": payload.get("tool_args_json"),
+                    "RESPONSE_SIZE": payload.get("response_size"),
+                    "MODEL_STORAGE_NAME": payload.get("model_storage_name"),
+                    "MODEL_STORAGE_VERSION": payload.get("model_storage_version"),
+                    "STATUS": payload.get("status"),
+                    "DURATION_MS": payload.get("duration_ms"),
+                    "HANA_CORRELATION_ID": correlation.get("hana_correlation_id"),
+                }
+            )
+
+    if not rows:
+        return pd.DataFrame(
+            columns=[
+                "EVENT_TYPE",
+                "OCCURRED_AT",
+                "MCP_SESSION_ID",
+                "CLIENT_IP",
+                "CLIENT_DECLARED_NAME",
+                "CLIENT_DECLARED_AGENT_NAME",
+                "CLIENT_DECLARED_MODEL_NAME",
+                "HANA_DB_USER",
+                "HANA_DB_SESSION_USER",
+                "HANA_CONNECTION_ID",
+                "HANA_APPLICATION_USER",
+                "HANA_APPLICATION",
+                "HANA_CLIENT_HOST",
+                "TOOL_NAME",
+                "TARGET_TABLES",
+                "TOOL_ARGS_JSON",
+                "RESPONSE_SIZE",
+                "MODEL_STORAGE_NAME",
+                "MODEL_STORAGE_VERSION",
+                "STATUS",
+                "DURATION_MS",
+                "HANA_CORRELATION_ID",
+            ]
+        )
+
+    audit_rows = pd.DataFrame(rows)
+    audit_rows["OCCURRED_AT"] = pd.to_datetime(audit_rows["OCCURRED_AT"], errors="coerce")
+    return audit_rows.sort_values(by="OCCURRED_AT", ascending=False).reset_index(drop=True)
+
+
+def fetch_hana_session_context(connection, keys: Optional[list[str]] = None) -> pd.DataFrame:
+    """Fetch selected HANA SESSION_CONTEXT values into a single-row DataFrame."""
+    selected_keys = [str(key) for key in (keys or DEFAULT_MCP_SESSION_CONTEXT_KEYS)]
+    if not selected_keys:
+        raise ValueError("keys must contain at least one session context name.")
+
+    select_sql = "SELECT " + ", ".join(
+        "SESSION_CONTEXT('{literal}') AS \"{identifier}\"".format(
+            literal=key.replace("'", "''"),
+            identifier=key.replace('"', '""'),
+        )
+        for key in selected_keys
+    ) + " FROM DUMMY"
+
+    cursor = connection.cursor()
+    try:
+        cursor.execute(select_sql)
+        row = cursor.fetchone()
+    finally:
+        cursor.close()
+
+    if row is None:
+        return pd.DataFrame([{key: None for key in selected_keys}])
+
+    return pd.DataFrame(
+        [{
+            key: (str(row[idx]) if row[idx] is not None else None)
+            for idx, key in enumerate(selected_keys)
+        }]
+    )
+
+
+class SyncHTTPMCPClient:
+    """Synchronous JSON-RPC MCP client for notebook/demo flows."""
+
+    def __init__(self, base_url: str, timeout: int = 60):
+        import httpx
+
+        normalized = base_url.rstrip("/")
+        if not normalized.endswith("/mcp"):
+            normalized = normalized + "/mcp"
+        self.base_url = normalized.rstrip("/")
+        self.timeout = timeout
+        self.session_id: Optional[str] = None
+        self.tools: dict[str, dict[str, Any]] = {}
+        self._httpx = httpx
+        self.client = httpx.Client(
+            base_url=self.base_url,
+            timeout=timeout,
+            follow_redirects=True,
+            trust_env=False,
+            headers={
+                "accept": "application/json",
+                "content-type": "application/json",
+                "mcp-protocol-version": "2024-11-05",
+            },
+        )
+
+    def initialize(
+        self,
+        *,
+        client_name: str,
+        client_version: str = "0.1",
+        metadata: Optional[dict[str, Any]] = None,
+    ) -> None:
+        """Send the MCP initialize request and refresh the local tool cache."""
+        client_name = (client_name or "").strip()
+        if not client_name:
+            raise ValueError("client_name is required and must be a non-empty user name.")
+
+        identity_metadata = dict(metadata or {})
+        headers = {
+            "x-mcp-client-name": client_name,
+            "x-mcp-client-version": client_version,
+        }
+        if identity_metadata.get("client_id"):
+            headers["x-mcp-client-id"] = str(identity_metadata["client_id"])
+        if identity_metadata.get("agent_name"):
+            headers["x-ai-agent-name"] = str(identity_metadata["agent_name"])
+        if identity_metadata.get("model_name"):
+            headers["x-ai-model-name"] = str(identity_metadata["model_name"])
+        if identity_metadata.get("model_version"):
+            headers["x-ai-model-version"] = str(identity_metadata["model_version"])
+        self.client.headers.update(headers)
+
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": {
+                    "name": client_name,
+                    "version": client_version,
+                },
+                "metadata": identity_metadata,
+            },
+        }
+        response = self.client.post("", json=payload)
+        response.raise_for_status()
+        self.session_id = response.headers.get("mcp-session-id")
+        if self.session_id:
+            self.client.headers["mcp-session-id"] = self.session_id
+        self.list_tools(force_refresh=True)
+
+    def list_tools(self, force_refresh: bool = False) -> list[dict[str, Any]]:
+        """Return the cached MCP tool list, optionally refreshing it from the server."""
+        if self.tools and not force_refresh:
+            return list(self.tools.values())
+
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "tools/list",
+            "params": ({"session": {"id": self.session_id}} if self.session_id else {}),
+        }
+        response = self.client.post("", json=payload)
+        response.raise_for_status()
+        result = response.json().get("result", {})
+        tool_list = result.get("tools", []) or []
+        self.tools = {tool["name"]: tool for tool in tool_list}
+        return tool_list
+
+    def call_tool(self, tool_name: str, arguments: dict[str, Any]) -> str:
+        """Invoke ``tool_name`` on the MCP server with ``arguments`` and return the flattened text result."""
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "tools/call",
+            "params": {
+                "name": tool_name,
+                "arguments": arguments,
+                **({"session": {"id": self.session_id}} if self.session_id else {}),
+            },
+        }
+        response = self.client.post("", json=payload)
+        response.raise_for_status()
+        rpc_response = response.json()
+        if "error" in rpc_response:
+            raise RuntimeError(str(rpc_response["error"]))
+
+        result_data = rpc_response.get("result", {})
+        content = result_data.get("content", [])
+        text_parts = [
+            item.get("text", "")
+            for item in content
+            if isinstance(item, dict) and item.get("type") == "text"
+        ]
+        return "\n".join(part for part in text_parts if part) or json.dumps(result_data, ensure_ascii=False)
+
+    def close(self) -> None:
+        """Close the underlying HTTP client."""
+        self.client.close()
+
+
+def _json_type_to_python(spec: dict[str, Any]) -> Any:
+    json_type_map = {
+        "string": str,
+        "integer": int,
+        "number": float,
+        "boolean": bool,
+    }
+    json_type = spec.get("type")
+    if json_type == "array":
+        return list[Any]
+    if json_type == "object":
+        return dict[str, Any]
+    return json_type_map.get(json_type, Any)
+
+
+def _schema_to_model(tool_name: str, input_schema: dict[str, Any]):
+    from pydantic import Field, create_model
+
+    properties = input_schema.get("properties", {}) or {}
+    required = set(input_schema.get("required", []) or [])
+    fields: dict[str, tuple[Any, Any]] = {}
+
+    for field_name, field_spec in properties.items():
+        annotation = _json_type_to_python(field_spec)
+        description = field_spec.get("description", "")
+        if field_name in required:
+            fields[field_name] = (annotation, Field(..., description=description))
+        else:
+            default = field_spec.get("default", None)
+            fields[field_name] = (annotation | None, Field(default=default, description=description))
+
+    if not fields:
+        return create_model(f"{tool_name.title().replace('_', '')}Input")
+
+    return create_model(f"{tool_name.title().replace('_', '')}Input", **fields)
+
+
+def build_context_agent_mcp_tools(
+    base_url: str,
+    *,
+    timeout: int = 120,
+    client_name: str,
+    client_version: str = "0.1",
+    client_metadata: Optional[dict[str, Any]] = None,
+    skip_admin_tools: bool = True,
+):
+    """Build LangChain-compatible tools backed by an HTTP MCP server.
+
+    Returns a tuple of (tools, client).
+    """
+    from langchain_core.tools import StructuredTool
+
+    client = SyncHTTPMCPClient(base_url=base_url, timeout=timeout)
+    client.initialize(
+        client_name=client_name,
+        client_version=client_version,
+        metadata=client_metadata,
+    )
+
+    tools = []
+    for remote_tool in client.list_tools():
+        tool_name = remote_tool["name"]
+        if skip_admin_tools and tool_name.startswith("admin_"):
+            continue
+
+        args_schema = _schema_to_model(tool_name, remote_tool.get("inputSchema", {}))
+
+        def _invoke(_tool_name: str = tool_name, **kwargs):
+            filtered_kwargs = {key: value for key, value in kwargs.items() if value is not None}
+            return client.call_tool(_tool_name, filtered_kwargs)
+
+        structured_tool = StructuredTool.from_function(
+            func=_invoke,
+            name=tool_name,
+            description=remote_tool.get("description", tool_name),
+            args_schema=args_schema,
+        )
+        tools.append(structured_tool)
+
+    return tools, client

@@ -1,5 +1,5 @@
 """
-This module contains utility functions used for agents.
+This module contains utility functions used for HANA AI Core retrieval procedures.
 """
 import json
 import logging
@@ -350,29 +350,90 @@ def _drop_certificate(connection_context, certificate_name: str):
     except Exception as exc:
         raise Exception("Failed to drop certificate: %s" % str(exc))
 
-def _call_agent_sql(query: str, config: dict, schema_name: str, procedure_name: str) -> str:
+def _call_procedure_sql(
+    query: str,
+    config: dict,
+    schema_name: str,
+    procedure_name: str,
+    *,
+    metadata_schema_name: str | None = None,
+    metadata_object_prefix: str | None = None,
+) -> str:
     """
-    Create SQL string to call an agent procedure.
+    Create SQL string to call a retrieval stored procedure.
 
     Parameters
     ----------
     query : str
         The query string.
     config : dict
-        The configuration dictionary.
+        The configuration dictionary. If all values are None/empty, the config
+        positional argument is omitted from the CALL — some custom procedures
+        are declared as ``(IN query NCLOB, OUT output NCLOB)`` and reject a
+        third argument with ``too many arguments``.
     schema_name : str
         The schema name where the procedure resides (e.g., "SYS", "DD_AGENT_ADMIN").
     procedure_name : str
         The procedure name to invoke (e.g., "DISCOVERY_AGENT", "DATA_AGENT_CUSTOM").
+    metadata_schema_name : str, optional
+        Value for the procedure's ``AI_METADATA_SCHEMA_NAME`` IN parameter. Only
+        used when at least one of ``metadata_schema_name`` /
+        ``metadata_object_prefix`` is set; in that case the CALL is emitted
+        with named-parameter syntax (``param => 'value'``) so the procedure's
+        own positional layout is irrelevant and wrapper-style 2-/3-arg CALLs
+        are not affected.
+    metadata_object_prefix : str, optional
+        Value for ``AI_METADATA_OBJECT_PREFIX``. See ``metadata_schema_name``.
 
     Returns
     -------
     str
         The SQL string to call the specified procedure.
     """
-    config_json = json.dumps(config).replace("'", "''")
     query = json.dumps(query).replace("'", "''")
+    has_config = bool(config) and any(v is not None for v in config.values())
+    has_metadata = bool(metadata_schema_name) or bool(metadata_object_prefix)
+
+    # Named-parameter form: used only when caller explicitly supplied AI
+    # metadata fields. This is the shape SYS.AI_OBJECT_RETRIEVAL /
+    # SYS.AI_DATA_RETRIEVAL expects in the no-wrapper deployment, where the
+    # procedure declares AI_METADATA_SCHEMA_NAME / AI_METADATA_OBJECT_PREFIX
+    # as IN parameters (without defaults). Custom wrapper procedures
+    # (EPM_*_TOOL95 style) never reach this branch and continue to use the
+    # original 2-/3-arg positional CALL.
+    #
+    # The named-form CALL deliberately does NOT pass a CONFIG/CONFIGURATION
+    # blob: the SYS retrieval procedures resolve their own RAG/KG wiring
+    # from the metadata catalog identified by AI_METADATA_SCHEMA_NAME +
+    # AI_METADATA_OBJECT_PREFIX. The OUT parameter name is RESPONSE in this
+    # deployment; if a future variant uses a different OUT name, we'll need
+    # to surface that as a configurable too.
+    if has_metadata:
+        named_args = [f"QUERY => '{query}'"]
+        if metadata_schema_name:
+            ms = metadata_schema_name.replace("'", "''")
+            named_args.append(f"AI_METADATA_SCHEMA_NAME => '{ms}'")
+        if metadata_object_prefix:
+            mp = metadata_object_prefix.replace("'", "''")
+            named_args.append(f"AI_METADATA_OBJECT_PREFIX => '{mp}'")
+        if config and config.get("remoteSourceName"):
+            rs = str(config["remoteSourceName"]).replace("'", "''")
+            named_args.append(f"REMOTE_SOURCE_NAME => '{rs}'")
+        named_args.append("RESPONSE => output")
+        call_args = ",\n     ".join(named_args)
+        return (
+            "DO\nBEGIN\nDECLARE output NCLOB;\n"
+            f"CALL {schema_name}.{procedure_name}(\n     {call_args}\n);\n"
+            "select :output FROM DUMMY;\nEND"
+        )
+
+    if has_config:
+        config_json = json.dumps(config).replace("'", "''")
+        return (
+            "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', '%s', output);\nselect :output FROM DUMMY;\nEND"
+            % (schema_name, procedure_name, query, config_json)
+        )
     return (
-        "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', '%s', output);\nselect :output FROM DUMMY;\nEND"
-        % (schema_name, procedure_name, query, config_json)
+        "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', output);\nselect :output FROM DUMMY;\nEND"
+        % (schema_name, procedure_name, query)
     )
