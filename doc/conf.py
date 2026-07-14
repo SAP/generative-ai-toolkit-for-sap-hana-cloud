@@ -44,6 +44,12 @@ extensions = [
 
 autosummary_generate = True
 numpydoc_class_members_toctree = False
+# Suppress numpydoc's auto-generated "Methods" and "Attributes" summary tables at
+# the top of each class page — they pull in every inherited Runnable/BaseModel
+# member (abatch, astream, bind, pipe, model_dump, from_orm, ...) which is pure
+# noise for tool classes. The relevant fields still render via autoclass.
+numpydoc_show_class_members = False
+numpydoc_show_inherited_class_members = False
 autodoc_member_order = 'bysource'
 
 #autosummary_default_options = {"members": True, "inherited-members": True}
