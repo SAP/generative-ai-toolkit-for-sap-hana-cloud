@@ -5,9 +5,9 @@ ObjectDiscoveryTool
 
 .. autoclass:: ObjectDiscoveryTool
    :members:
-   :inherited-members: BaseTool, BaseModel
+   :no-inherited-members:
    :no-undoc-members:
-   :exclude-members: _global_mcp_servers, launch_mcp_server, mcp_servers, stop_all_mcp_servers, stop_mcp_server, from_orm, get_prompts, parse_file, parse_obj, parse_raw, schema, schema_json, to_json_not_implemented, validate
+   :exclude-members: model_config, model_fields, model_computed_fields, Config, InputType, OutputType, args_schema, return_direct, verbose, callbacks, callback_manager, tags, metadata, response_format, handle_tool_error, handle_validation_error
 
 .. raw:: html
 
