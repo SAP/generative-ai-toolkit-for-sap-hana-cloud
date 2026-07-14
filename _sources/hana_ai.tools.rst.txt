@@ -17,6 +17,16 @@ agent_as_a_tool
 
    agent_as_a_tool.AgentAsATool
 
+.. _code_template_tools-label:
+
+code_template_tools
+-------------------
+.. autosummary::
+   :toctree: tools/
+   :template: class.rst
+
+   code_template_tools.GetCodeTemplateFromVectorDB
+
 .. _hana_ml_tools-label:
 
 hana_ml_tools
