@@ -36,8 +36,6 @@ hana_ml_tools
    hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool
    hana_ml_tools.dataset_prep_tools.SplitTableForForecastingTool
    hana_ml_tools.fetch_tools.FetchDataTool
-   hana_ml_tools.graph_tools.ObjectDiscoveryTool
-   hana_ml_tools.graph_tools.DataRetrievalTool
    hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool
    hana_ml_tools.intermittent_forecast_tools.IntermittentForecast
    hana_ml_tools.model_storage_tools.ListModels
@@ -52,6 +50,20 @@ hana_ml_tools
    hana_ml_tools.ts_outlier_detection_tools.TSOutlierDetection
    hana_ml_tools.ts_visualizer_tools.TimeSeriesDatasetReport
    hana_ml_tools.ts_visualizer_tools.ForecastLinePlot
+
+.. _graph_tools-label:
+
+graph_tools
+-----------
+
+Knowledge-graph-backed retrieval tools exposed on the MCP server. ``ObjectDiscoveryTool`` calls the HANA AI Core object-discovery procedure (default ``AI_OBJECT_RETRIEVAL``) to surface schemas, tables, columns, and their relationships as narrative context. ``DataRetrievalTool`` calls the paired data-retrieval procedure to fetch rows or aggregations for a natural-language question. Both tools share the ``hana_ai.retrieval`` clients and expect a HANA remote source connected to AI Core.
+
+.. autosummary::
+   :toctree: tools/
+   :template: class.rst
+
+   hana_ml_tools.graph_tools.ObjectDiscoveryTool
+   hana_ml_tools.graph_tools.DataRetrievalTool
 
 .. _df_tools-label:
 
