@@ -1738,6 +1738,8 @@ class HANAMLToolkit(BaseToolkit):
                 current_port = port
 
                 class MCPAuditMiddleware(Middleware):
+                    """FastMCP middleware that hooks initialize and call_tool events to emit MCP audit context."""
+
                     async def on_initialize(self, context, call_next):
                         result = await call_next(context)
                         session_id = toolkit._resolve_context_session_id(

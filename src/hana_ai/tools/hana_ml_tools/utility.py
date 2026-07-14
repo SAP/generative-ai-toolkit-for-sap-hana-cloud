@@ -438,6 +438,7 @@ class SyncHTTPMCPClient:
         client_version: str = "0.1",
         metadata: Optional[dict[str, Any]] = None,
     ) -> None:
+        """Send the MCP initialize request and refresh the local tool cache."""
         client_name = (client_name or "").strip()
         if not client_name:
             raise ValueError("client_name is required and must be a non-empty user name.")
@@ -479,6 +480,7 @@ class SyncHTTPMCPClient:
         self.list_tools(force_refresh=True)
 
     def list_tools(self, force_refresh: bool = False) -> list[dict[str, Any]]:
+        """Return the cached MCP tool list, optionally refreshing it from the server."""
         if self.tools and not force_refresh:
             return list(self.tools.values())
 
@@ -496,6 +498,7 @@ class SyncHTTPMCPClient:
         return tool_list
 
     def call_tool(self, tool_name: str, arguments: dict[str, Any]) -> str:
+        """Invoke ``tool_name`` on the MCP server with ``arguments`` and return the flattened text result."""
         payload = {
             "jsonrpc": "2.0",
             "id": 3,
@@ -522,6 +525,7 @@ class SyncHTTPMCPClient:
         return "\n".join(part for part in text_parts if part) or json.dumps(result_data, ensure_ascii=False)
 
     def close(self) -> None:
+        """Close the underlying HTTP client."""
         self.client.close()
 
 

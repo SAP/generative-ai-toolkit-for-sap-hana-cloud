@@ -1,7 +1,6 @@
 """
 hana_ai.retrieval.retrieval_base
 """
-import json
 import logging
 import threading
 import time
@@ -10,7 +9,7 @@ from hana_ml.ml_base import MLBase
 from hana_ml.visualizers.shared import EmbeddedUI
 
 from .progress_monitor import TextProgressMonitor
-from .utility import _call_procedure_sql, _create_ai_core_remote_source, _delete_ai_core_pse, _drop_ai_core_remote_source, _drop_certificate
+from .utility import _call_procedure_sql
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +158,7 @@ class RetrievalBase(MLBase):
             finally:
                 execution_completed.set()
 
+        monitor = None
         if show_progress:
             # Try to create progress monitor. EmbeddedUI.create_connection_context
             # clones the cc with password="" when sslKeyStore is set on the
@@ -167,7 +167,6 @@ class RetrievalBase(MLBase):
             # the user authenticates with username/password. If the clone or
             # monitor setup fails for any reason, degrade gracefully to the
             # no-progress path rather than aborting the whole query.
-            monitor = None
             try:
                 monitor = TextProgressMonitor(
                     connection=EmbeddedUI.create_connection_context(self.conn_context).connection,

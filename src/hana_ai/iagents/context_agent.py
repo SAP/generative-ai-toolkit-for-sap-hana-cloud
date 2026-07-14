@@ -1240,7 +1240,7 @@ class ContextAgent:
 		if path.suffix.lower() != ".html" or not path.exists():
 			return False
 		try:
-			from IPython.display import HTML, display  # type: ignore
+			from IPython.display import HTML, display  # type: ignore  # pylint: disable=import-error,import-outside-toplevel
 		except Exception:
 			return False
 		try:
