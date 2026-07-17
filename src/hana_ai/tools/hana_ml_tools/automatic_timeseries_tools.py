@@ -10,6 +10,7 @@ The following class are available:
 
 import json
 import logging
+import os
 from typing import Optional, Type, Union
 from pydantic import BaseModel, Field
 
@@ -201,7 +202,23 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
     """
     name: str = "automatic_timeseries_fit_and_save"
     """Name of the tool."""
-    description: str = "To fit an AutomaticTimeseries model and save it in the model storage."
+    description: str = (
+        "Fit an AutomaticTimeseries (PAL AutoML) model and save it in the model storage. "
+        "If you want the search space tailored to the data, the preferred flow is: "
+        "(1) call 'get_pal_pipeline_info' to see the operators/parameters this HANA "
+        "instance supports; (2) hand-build a full explicit config_dict as a JSON object "
+        "of the form {\"<Operator>\": {\"<PARAM>\": [candidates...], ...}}; "
+        "(3) call 'modify_automl_config_dict' with config_dict=<your JSON>, verify=True, "
+        "and NO config_add/remove/replace/modify — that returns the PAL-normalized "
+        "config_dict; (4) pass that PAL-normalized config_dict verbatim into this tool. "
+        "DO NOT hand-author the config_dict from ts_check's textual report — the operator "
+        "and parameter names in a PAL config_dict are NOT the human words used in the "
+        "report. Example anti-pattern: writing {'Seasonality': {...}} because ts_check "
+        "printed 'Seasonality Test'; 'Seasonality' is not a PAL operator and PAL will "
+        "fail with 'Illegal operator for pipeline type timeseries: Seasonality'. If you "
+        "just want PAL's built-in template, pass config_dict='default' (or 'light'/"
+        "'empty') as a string — this tool will skip the preflight."
+    )
     """Description of the tool."""
     connection_context: ConnectionContext = None
     """Connection context to the HANA database."""
@@ -251,6 +268,66 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         crossover_rate = kwargs.get("crossover_rate", None)
         random_seed = kwargs.get("random_seed", None)
         config_dict = kwargs.get("config_dict", None)
+        # Optional guard: refuse to run the AutoML search without a config_dict
+        # so the agent is forced through the ts_check -> get_automl_config_dict
+        # -> (optional modify_automl_config_dict) -> fit flow. Off by default
+        # (the fit tool has always accepted a bare call and produced the PAL
+        # default pipeline). Set the environment variable
+        # HANA_AI_AUTOML_REQUIRE_CONFIG_DICT=1 to enable — used by the demo
+        # notebook to make the workflow observable.
+        if (
+            config_dict is None
+            and os.environ.get("HANA_AI_AUTOML_REQUIRE_CONFIG_DICT", "").strip().lower()
+            in ("1", "true", "yes", "on")
+        ):
+            return json.dumps({
+                "error": "config_dict_required",
+                "message": (
+                    "This AutoML search requires a config_dict. "
+                    "Call `get_automl_config_dict` first (typically right after "
+                    "`ts_check`) to fetch PAL's 'default'/'light'/'empty' template, "
+                    "then either pass that config_dict verbatim to "
+                    "`automatic_timeseries_fit_and_save`, or run "
+                    "`modify_automl_config_dict` (with verify=True) to tailor it "
+                    "before the fit. If you deliberately want the full default "
+                    "search, pass config_dict='default' (or 'light' for a cheap run)."
+                ),
+                "next_action": {
+                    "tool": "get_automl_config_dict",
+                    "pipeline_type": "timeseries",
+                    "recommended_next": "modify_automl_config_dict",
+                },
+            })
+
+        # Pre-flight validation: if the caller supplied a custom config_dict
+        # (i.e. anything other than the PAL template strings), let PAL itself
+        # verify it via PAL_AUTOML_CONFIG(VERIFY_CONFIG=1). This is the same
+        # authoritative check `modify_automl_config_dict` runs and catches
+        # cryptic AFL errors ("Illegal operator for pipeline type timeseries:
+        # Seasonality") before we spin up the AutoML search.
+        if config_dict is not None and not (
+            isinstance(config_dict, str)
+            and config_dict.strip().lower() in ("light", "default", "empty")
+        ):
+            from hana_ai.tools.hana_ml_tools.config_dict_validator_tools import (
+                _call_pal_automl_config,
+            )
+            _, _, _pal_err = _call_pal_automl_config(
+                self.connection_context,
+                pipeline_type="timeseries",
+                config_dict=config_dict,
+                verify=True,
+            )
+            if _pal_err is not None:
+                return json.dumps({
+                    "error": "invalid_config_dict",
+                    "message": (
+                        "PAL_AUTOML_CONFIG (VERIFY_CONFIG=1) rejected the supplied "
+                        "config_dict. Fix the error below and call this tool again, "
+                        "or use `modify_automl_config_dict` to rebuild a valid one."
+                    ),
+                    "verdict": {"valid": False, "errors": [_pal_err]},
+                })
         progress_indicator_id = kwargs.get("progress_indicator_id", None)
         fold_num = kwargs.get("fold_num", None)
         resampling_method = kwargs.get("resampling_method", None)
@@ -277,6 +354,30 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         fit_df = self.connection_context.table(fit_table, schema=fit_schema)
         if key not in self.connection_context.table(fit_table, schema=fit_schema).columns:
             return f"Key {key} does not exist in the table {fit_table}."
+
+        # Auto-regularize the key column. PAL AutoML requires an integer key
+        # with regular intervals; a raw date/timestamp column (e.g. BOOKING_DATE
+        # with weekend/holiday gaps) makes PAL crash with:
+        #   "TimeSeries Pipeline: timestamp intervals are not equal."
+        # Mirror what ts_check already does: when the key type is not integer,
+        # add a monotonically-increasing integer ID ordered by the original key
+        # and use it as the fit key. The original key column is preserved in the
+        # dataframe so it can still act as exog if the caller opted in.
+        key_col_type = fit_df.get_table_structure().get(key, "")
+        fit_key = key
+        auto_key_added = None
+        if "INT" not in key_col_type.upper():
+            fit_key = "AUTOML_KEY_" + key
+            fit_df = fit_df.add_id(fit_key, ref_col=key)
+            auto_key_added = {
+                "original_key": key,
+                "original_key_type": key_col_type,
+                "fit_key": fit_key,
+                "reason": (
+                    "PAL AutoML requires an integer key with regular intervals; "
+                    "added an integer ID ordered by the original key column."
+                ),
+            }
 
         auto_ts = AutomaticTimeSeries(
             scorings=scorings,
@@ -310,7 +411,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         else:
             auto_ts.disable_workload_class_check()
         auto_ts.fit(fit_df,
-                    key=key,
+                    key=fit_key,
                     endog=endog,
                     exog=exog,
                     categorical_variable=categorical_variable,
@@ -321,7 +422,10 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         ms = ModelStorage(connection_context=self.connection_context)
         auto_ts.version = generate_model_storage_version(ms, version, name)
         ms.save_model(model=auto_ts, if_exists='replace')
-        return json.dumps({"trained_table": fit_table, "model_storage_name": name, "model_storage_version": auto_ts.version}, cls=_CustomEncoder)
+        outputs = {"trained_table": fit_table, "model_storage_name": name, "model_storage_version": auto_ts.version}
+        if auto_key_added is not None:
+            outputs["auto_key_added"] = auto_key_added
+        return json.dumps(outputs, cls=_CustomEncoder)
 
     async def _arun(
         self,
