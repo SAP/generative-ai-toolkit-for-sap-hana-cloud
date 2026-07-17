@@ -43,6 +43,9 @@ hana_ml_tools
    hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict
    hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore
    hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool
+   hana_ml_tools.config_dict_validator_tools.GetPALPipelineInfo
+   hana_ml_tools.config_dict_validator_tools.GetAutoMLConfigDict
+   hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict
    hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool
    hana_ml_tools.dataset_prep_tools.SplitTableForForecastingTool
    hana_ml_tools.fetch_tools.FetchDataTool

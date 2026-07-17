@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 from typing import Optional, Type, Union
 
 from pydantic import BaseModel, Field
@@ -107,7 +108,23 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
     """Fit a grouped massive automatic time-series model and save it to model storage."""
 
     name: str = "massive_automatic_timeseries_fit_and_save"
-    description: str = "To fit an MassiveAutomaticTimeseries model or a timeseries per group(group_key Column) and save it in the model storage."
+    description: str = (
+        "Fit a MassiveAutomaticTimeseries (PAL AutoML per-group) model and save it in the "
+        "model storage. If you want the search space tailored to the data, the preferred "
+        "flow is: (1) call 'get_pal_pipeline_info' to see the operators/parameters this "
+        "HANA instance supports; (2) hand-build a full explicit config_dict as a JSON "
+        "object of the form {\"<Operator>\": {\"<PARAM>\": [candidates...], ...}}; "
+        "(3) call 'modify_automl_config_dict' with config_dict=<your JSON>, verify=True, "
+        "and NO config_add/remove/replace/modify — that returns the PAL-normalized "
+        "config_dict; (4) pass that PAL-normalized config_dict verbatim into this tool. "
+        "DO NOT hand-author the config_dict from ts_check's textual report — the operator "
+        "and parameter names in a PAL config_dict are NOT the human words used in the "
+        "report. Example anti-pattern: writing {'Seasonality': {...}} because the report "
+        "printed 'Seasonality Test'; 'Seasonality' is not a PAL operator and PAL will "
+        "fail with 'Illegal operator for pipeline type timeseries: Seasonality'. If you "
+        "just want PAL's built-in template, pass config_dict='default' (or 'light'/"
+        "'empty') as a string — this tool will skip the preflight."
+    )
     connection_context: ConnectionContext = None
     args_schema: Type[BaseModel] = ModelFitInput
     return_direct: bool = False
@@ -145,6 +162,64 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
         background_sampling_seed = kwargs.get("background_sampling_seed", None)
         use_explain = kwargs.get("use_explain", None)
         workload_class = kwargs.get("workload_class", None)
+
+        # Optional guard: refuse to run the massive AutoML search without a
+        # config_dict. Off by default; enable with
+        # HANA_AI_AUTOML_REQUIRE_CONFIG_DICT=1. Mirrors the guard in
+        # automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave._run.
+        if (
+            kwargs.get("config_dict") is None
+            and os.environ.get("HANA_AI_AUTOML_REQUIRE_CONFIG_DICT", "").strip().lower()
+            in ("1", "true", "yes", "on")
+        ):
+            return json.dumps({
+                "error": "config_dict_required",
+                "message": (
+                    "This massive AutoML search requires a config_dict. "
+                    "Call `get_automl_config_dict` first (typically after "
+                    "`massive_ts_check`) to fetch PAL's 'default'/'light'/'empty' "
+                    "template, then either pass that config_dict verbatim to "
+                    "`massive_automatic_timeseries_fit_and_save`, or run "
+                    "`modify_automl_config_dict` (with verify=True) to tailor it "
+                    "before the fit. If you deliberately want the full default search, "
+                    "pass config_dict='default' (or 'light' for a cheap run)."
+                ),
+                "next_action": {
+                    "tool": "get_automl_config_dict",
+                    "pipeline_type": "timeseries",
+                    "recommended_next": "modify_automl_config_dict",
+                },
+            })
+
+        # Pre-flight config_dict validation — see the sibling guard in
+        # automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave for the
+        # rationale. Delegates to PAL_AUTOML_CONFIG(VERIFY_CONFIG=1) so the
+        # check stays authoritative even as PAL adds new operators.
+        _cfg = kwargs.get("config_dict")
+        if _cfg is not None and not (
+            isinstance(_cfg, str)
+            and _cfg.strip().lower() in ("light", "default", "empty")
+        ):
+            from hana_ai.tools.hana_ml_tools.config_dict_validator_tools import (
+                _call_pal_automl_config,
+            )
+            _, _, _pal_err = _call_pal_automl_config(
+                self.connection_context,
+                pipeline_type="timeseries",
+                config_dict=_cfg,
+                verify=True,
+            )
+            if _pal_err is not None:
+                return json.dumps({
+                    "error": "invalid_config_dict",
+                    "message": (
+                        "PAL_AUTOML_CONFIG (VERIFY_CONFIG=1) rejected the supplied "
+                        "config_dict. Fix the error below and call this tool again, "
+                        "or use `modify_automl_config_dict` to rebuild a valid one."
+                    ),
+                    "verdict": {"valid": False, "errors": [_pal_err]},
+                })
+
 
         if not self.connection_context.has_table(fit_table, schema=fit_schema):
             return f"Table {fit_table} does not exist in the database."
