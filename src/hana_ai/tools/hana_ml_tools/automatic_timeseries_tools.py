@@ -355,29 +355,12 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         if key not in self.connection_context.table(fit_table, schema=fit_schema).columns:
             return f"Key {key} does not exist in the table {fit_table}."
 
-        # Auto-regularize the key column. PAL AutoML requires an integer key
-        # with regular intervals; a raw date/timestamp column (e.g. BOOKING_DATE
-        # with weekend/holiday gaps) makes PAL crash with:
-        #   "TimeSeries Pipeline: timestamp intervals are not equal."
-        # Mirror what ts_check already does: when the key type is not integer,
-        # add a monotonically-increasing integer ID ordered by the original key
-        # and use it as the fit key. The original key column is preserved in the
-        # dataframe so it can still act as exog if the caller opted in.
         key_col_type = fit_df.get_table_structure().get(key, "")
         fit_key = key
-        auto_key_added = None
         if "INT" not in key_col_type.upper():
-            fit_key = "AUTOML_KEY_" + key
-            fit_df = fit_df.add_id(fit_key, ref_col=key)
-            auto_key_added = {
-                "original_key": key,
-                "original_key_type": key_col_type,
-                "fit_key": fit_key,
-                "reason": (
-                    "PAL AutoML requires an integer key with regular intervals; "
-                    "added an integer ID ordered by the original key column."
-                ),
-            }
+            if key_col_type.upper() in ("VARCHAR", "NVARCHAR") or "DATE" in key_col_type.upper():
+                if key_col_type.upper() not in ("TIMESTAMP", "SECONDDATE", "DATE"):
+                    fit_df = fit_df.cast({key_col_type: "SECONDDATE"})
 
         auto_ts = AutomaticTimeSeries(
             scorings=scorings,
@@ -423,8 +406,7 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         auto_ts.version = generate_model_storage_version(ms, version, name)
         ms.save_model(model=auto_ts, if_exists='replace')
         outputs = {"trained_table": fit_table, "model_storage_name": name, "model_storage_version": auto_ts.version}
-        if auto_key_added is not None:
-            outputs["auto_key_added"] = auto_key_added
+
         return json.dumps(outputs, cls=_CustomEncoder)
 
     async def _arun(
