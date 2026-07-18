@@ -229,6 +229,35 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
         if group_key not in fit_df.columns:
             return f"Group key {group_key} does not exist in the table {fit_table}."
 
+        key_col_type = fit_df.get_table_structure().get(key, "")
+        fit_key = key
+        auto_key_added = None
+        if "INT" not in key_col_type.upper():
+            if key_col_type.upper() in ("VARCHAR", "NVARCHAR") or "DATE" in key_col_type.upper():
+                if key_col_type.upper() not in ("TIMESTAMP", "SECONDDATE", "DATE"):
+                    fit_df = fit_df.cast({key_col_type: "SECONDDATE"})
+
+        # Project to the columns PAL will actually consume so leftover
+        # date/timestamp columns don't trigger "Invalid column type".
+        if isinstance(exog, str):
+            exog_cols = [exog]
+        elif isinstance(exog, (list, tuple)):
+            exog_cols = list(exog)
+        else:
+            exog_cols = []
+        wanted_cols = [group_key, fit_key, endog] + [
+            c for c in exog_cols if c not in (group_key, fit_key, endog)
+        ]
+        available_cols = list(fit_df.columns)
+        select_cols = [c for c in wanted_cols if c in available_cols]
+        missing = [c for c in wanted_cols if c not in available_cols]
+        if missing:
+            return (
+                f"Column(s) {missing} do not exist in the table {fit_table}. "
+                f"Available columns: {available_cols}."
+            )
+        fit_df = fit_df.select(*select_cols)
+
         auto_ts = MassiveAutomaticTimeSeries(
             scorings=kwargs.get("scorings", None),
             generations=kwargs.get("generations", None),
@@ -262,7 +291,7 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
             auto_ts.disable_workload_class_check()
         auto_ts.fit(
             fit_df,
-            key=key,
+            key=fit_key,
             group_key=group_key,
             endog=endog,
             exog=exog,
@@ -275,14 +304,14 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
         ms = ModelStorage(connection_context=self.connection_context)
         auto_ts.version = generate_model_storage_version(ms, version, name)
         ms.save_model(model=auto_ts, if_exists="replace")
-        return json.dumps(
-            {
-                "trained_table": fit_table,
-                "model_storage_name": name,
-                "model_storage_version": auto_ts.version,
-            },
-            cls=_CustomEncoder,
-        )
+        outputs = {
+            "trained_table": fit_table,
+            "model_storage_name": name,
+            "model_storage_version": auto_ts.version,
+        }
+        if auto_key_added is not None:
+            outputs["auto_key_added"] = auto_key_added
+        return json.dumps(outputs, cls=_CustomEncoder)
 
     async def _arun(self, **kwargs) -> str:
         return self._run(**kwargs)

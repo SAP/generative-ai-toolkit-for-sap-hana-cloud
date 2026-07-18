@@ -61,7 +61,7 @@ from hana_ai.langchain_compat import BaseToolkit, BaseTool
 
 from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
 from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool
-from hana_ai.tools.hana_ml_tools.model_storage_tools import DeleteModels, ListModels
+from hana_ai.tools.hana_ml_tools.model_storage_tools import DeleteModels, DisplayConfigDict, ListModels
 from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict, MassiveAdditiveModelForecastFitAndSave, MassiveAdditiveModelForecastLoadModelAndPredict
 from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsForBASTool, CAPArtifactsTool
@@ -205,6 +205,7 @@ def _refresh_tools_for_new_context(toolkit: "HANAMLToolkit") -> dict[str, Any]:
             GetPALPipelineInfo(connection_context=toolkit.connection_context),
             GetAutoMLConfigDict(connection_context=toolkit.connection_context),
             ModifyAutoMLConfigDict(connection_context=toolkit.connection_context),
+            DisplayConfigDict(connection_context=toolkit.connection_context),
         ]
         recreated_default_tools = len(toolkit.default_tools)
 
@@ -328,6 +329,7 @@ class HANAMLToolkit(BaseToolkit):
             GetPALPipelineInfo(connection_context=self.connection_context),
             GetAutoMLConfigDict(connection_context=self.connection_context),
             ModifyAutoMLConfigDict(connection_context=self.connection_context),
+            DisplayConfigDict(connection_context=self.connection_context),
         ]
         if isinstance(return_direct, dict):
             for tool in self.default_tools:
