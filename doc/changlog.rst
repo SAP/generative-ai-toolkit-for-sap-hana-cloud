@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.1.26072000**
+
+``New Functions``
+    - Added a set of config dict tools to hana_ml_tools, requiring hana-ml 2.29.26072000.
+
 **Version 1.1.260714**
 
 ``New Functions``
