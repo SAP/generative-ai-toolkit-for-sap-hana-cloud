@@ -4,7 +4,7 @@ langchain-text-splitters
 numpy
 pandas
 
-hana-ml>=2.27.26020601
+hana-ml>=2.29.26072000
 
 pydantic>=2.11,<2.13
 sap-ai-sdk-gen[all]
