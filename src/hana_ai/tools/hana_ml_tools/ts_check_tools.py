@@ -66,6 +66,7 @@ def ts_char(df, key, endog):
     else:
         zero_proportion = zero_values / total_values
     analysis_result += f"Intermittent Test: proportion of zero values is {zero_proportion}\n"
+    has_intermittency = zero_proportion > 0.05
 
     # Stationarity Test
     result = stationarity_test(df_, key_, endog).collect()
@@ -76,12 +77,15 @@ def ts_char(df, key, endog):
 
     # Trend Test
     result = trend_test(df_, key_, endog)[0].collect()
+    has_trend = False
     for _, row in result.iterrows():
         if row['STAT_NAME'] == 'TREND':
             if row['STAT_VALUE'] == 1:
                 analysis_result += 'Trend Test:' + " Upward trend."
+                has_trend = True
             elif row['STAT_VALUE'] == -1:
                 analysis_result += 'Trend Test:' + " Downward trend."
+                has_trend = True
             else:
                 analysis_result += 'Trend Test:' + " No trend."
     analysis_result += "\n"
@@ -89,13 +93,38 @@ def ts_char(df, key, endog):
     # Seasonality Test
     result = seasonal_decompose(df_, key_, endog)[0].collect()
     analysis_result += "Seasonality Test: "
+    has_seasonality = False
     for _, row in result.iterrows():
         analysis_result += f"The `{row['STAT_NAME']}` is {row['STAT_VALUE']}."
+        if row['STAT_NAME'] == 'SEASONAL' and str(row['STAT_VALUE']).strip() in ('1', '2', 'True', 'true'):
+            # STL / seasonal_decompose flags a seasonal component as 1/2 (additive/multiplicative).
+            has_seasonality = True
     analysis_result += "\n"
 
     # Restrict time series algorithms
     available_algorithms = ["Additive Model Forecast", "Automatic Time Series Forecast"]
     analysis_result += f"Available algorithms: {', '.join(available_algorithms)}\n"
+
+    # Next-step guidance — point at the HANA-backed PAL config tools instead
+    # of letting the LLM hand-author a config_dict from the words in the
+    # analysis above (e.g. "Seasonality"), which is NOT the PAL operator name
+    # and gets rejected at execution time.
+    analysis_result += (
+        "\nNext step for AutoML forecasting: "
+        "call `get_pal_pipeline_info` to see the operator catalogue (NAME / CATEGORY / "
+        "PARAMETER), then build an EXPLICIT config_dict as a JSON object "
+        '{"<Operator>": {"<PARAM>": [candidates...], ...}} using operator/parameter '
+        "names taken verbatim from that catalogue and matched to the flags derived "
+        f"above (has_intermittency={has_intermittency}, "
+        f"has_seasonality={has_seasonality}, has_trend={has_trend}). "
+        "Verify it via `modify_automl_config_dict` with pipeline_type='timeseries', "
+        "config_dict=<your JSON>, verify=True (NO config_add/remove/replace/modify) — "
+        "on invalid_config_dict, fix the offending name and re-verify. Pass the "
+        "PAL-normalized config_dict returned in the response verbatim to "
+        "`automatic_timeseries_fit_and_save`. "
+        "DO NOT hand-author the config_dict from the words in this report "
+        "(e.g. 'Seasonality') — those are NOT PAL operator names."
+    )
 
     return analysis_result
 
@@ -184,6 +213,24 @@ def ts_char_massive(df, group_key, key, endog):
         # Restrict time series algorithms
         available_algorithms = ["Additive Model Forecast", "Automatic Time Series Forecast"]
         analysis_result += f"Available algorithms: {', '.join(available_algorithms)}\n"
+
+    # Next-step guidance for massive AutoML — same rationale as ts_char() but
+    # the per-group findings are summarised in the report body above. Point at
+    # the HANA-backed PAL config tools so the agent doesn't compose an operator
+    # name from the words above.
+    analysis_result += (
+        "\nNext step for massive AutoML forecasting: "
+        "call `get_pal_pipeline_info` to see the operator catalogue, then build an "
+        'EXPLICIT config_dict as a JSON object {"<Operator>": {"<PARAM>": [candidates...], ...}} '
+        "using operator/parameter names taken verbatim from that catalogue and matched to "
+        "the per-group findings above. Verify it via `modify_automl_config_dict` with "
+        "pipeline_type='timeseries', config_dict=<your JSON>, verify=True (NO "
+        "config_add/remove/replace/modify) — on invalid_config_dict, fix the offending "
+        "name and re-verify. Pass the PAL-normalized config_dict returned in the response "
+        "verbatim to `massive_automatic_timeseries_fit_and_save`. "
+        "DO NOT hand-author the config_dict from the words in this report (e.g. "
+        "'Seasonality') — those are NOT PAL operator names."
+    )
 
     return analysis_result
 

@@ -61,7 +61,7 @@ from hana_ai.langchain_compat import BaseToolkit, BaseTool
 
 from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
 from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool
-from hana_ai.tools.hana_ml_tools.model_storage_tools import DeleteModels, ListModels
+from hana_ai.tools.hana_ml_tools.model_storage_tools import DeleteModels, DisplayConfigDict, ListModels
 from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 from hana_ai.tools.hana_ml_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict, MassiveAdditiveModelForecastFitAndSave, MassiveAdditiveModelForecastLoadModelAndPredict
 from hana_ai.tools.hana_ml_tools.cap_artifacts_tools import CAPArtifactsForBASTool, CAPArtifactsTool
@@ -79,6 +79,7 @@ from hana_ai.tools.hana_ml_tools.select_statement_to_table_tools import SelectSt
 from hana_ai.tools.hana_ml_tools.massive_automatic_timeseries_tools import MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeSeriesLoadModelAndPredict, MassiveAutomaticTimeSeriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.massive_ts_outlier_detection_tools import MassiveTSOutlierDetection
 from hana_ai.tools.hana_ml_tools.python_exec_tools import PythonHanaMLExecTool
+from hana_ai.tools.hana_ml_tools.config_dict_validator_tools import GetPALPipelineInfo, GetAutoMLConfigDict, ModifyAutoMLConfigDict
 
 ImportCSVToTableTool = dataset_prep_tools_module.ImportCSVToTableTool
 SplitTableForForecastingTool = getattr(
@@ -201,6 +202,10 @@ def _refresh_tools_for_new_context(toolkit: "HANAMLToolkit") -> dict[str, Any]:
             TSMakeFutureTableForMassiveForecastTool(connection_context=toolkit.connection_context),
             MassiveTSOutlierDetection(connection_context=toolkit.connection_context),
             PythonHanaMLExecTool(connection_context=toolkit.connection_context),
+            GetPALPipelineInfo(connection_context=toolkit.connection_context),
+            GetAutoMLConfigDict(connection_context=toolkit.connection_context),
+            ModifyAutoMLConfigDict(connection_context=toolkit.connection_context),
+            DisplayConfigDict(connection_context=toolkit.connection_context),
         ]
         recreated_default_tools = len(toolkit.default_tools)
 
@@ -321,6 +326,10 @@ class HANAMLToolkit(BaseToolkit):
             TSMakeFutureTableForMassiveForecastTool(connection_context=self.connection_context),
             MassiveTSOutlierDetection(connection_context=self.connection_context),
             PythonHanaMLExecTool(connection_context=self.connection_context),
+            GetPALPipelineInfo(connection_context=self.connection_context),
+            GetAutoMLConfigDict(connection_context=self.connection_context),
+            ModifyAutoMLConfigDict(connection_context=self.connection_context),
+            DisplayConfigDict(connection_context=self.connection_context),
         ]
         if isinstance(return_direct, dict):
             for tool in self.default_tools:
