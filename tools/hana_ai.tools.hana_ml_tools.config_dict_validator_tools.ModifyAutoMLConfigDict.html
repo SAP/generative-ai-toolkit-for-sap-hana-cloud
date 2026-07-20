@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HDIArtifactsTool &mdash; hana.ai 1.1.26072000 documentation</title>
+  <title>ModifyAutoMLConfigDict &mdash; hana.ai 1.1.26072000 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="IntermittentForecast" href="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.html" />
-    <link rel="prev" title="FetchDataTool" href="hana_ai.tools.hana_ml_tools.fetch_tools.FetchDataTool.html" /> 
+    <link rel="next" title="ImportCSVToTableTool" href="hana_ai.tools.hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool.html" />
+    <link rel="prev" title="GetAutoMLConfigDict" href="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetAutoMLConfigDict.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -136,8 +136,8 @@
 <li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetAutoMLConfigDict.html#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetAutoMLConfigDict"><code class="docutils literal notranslate"><span class="pre">GetAutoMLConfigDict</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.html">ModifyAutoMLConfigDict</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.html#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict"><code class="docutils literal notranslate"><span class="pre">ModifyAutoMLConfigDict</span></code></a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ModifyAutoMLConfigDict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict"><code class="docutils literal notranslate"><span class="pre">ModifyAutoMLConfigDict</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool.html">ImportCSVToTableTool</a><ul>
@@ -152,8 +152,8 @@
 <li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.fetch_tools.FetchDataTool.html#hana_ai.tools.hana_ml_tools.fetch_tools.FetchDataTool"><code class="docutils literal notranslate"><span class="pre">FetchDataTool</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">HDIArtifactsTool</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool"><code class="docutils literal notranslate"><span class="pre">HDIArtifactsTool</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.html">HDIArtifactsTool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.html#hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool"><code class="docutils literal notranslate"><span class="pre">HDIArtifactsTool</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.html">IntermittentForecast</a><ul>
@@ -352,42 +352,62 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../hana_ai.tools.html">hana_ai.tools</a></li>
-      <li class="breadcrumb-item active">HDIArtifactsTool</li>
+      <li class="breadcrumb-item active">ModifyAutoMLConfigDict</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/tools/hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tools/hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="hana_ai.tools.hana_ml_tools.fetch_tools.FetchDataTool.html" class="btn btn-neutral float-left" title="FetchDataTool" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="hana_ai.tools.hana_ml_tools.intermittent_forecast_tools.IntermittentForecast.html" class="btn btn-neutral float-right" title="IntermittentForecast" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetAutoMLConfigDict.html" class="btn btn-neutral float-left" title="GetAutoMLConfigDict" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hana_ai.tools.hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool.html" class="btn btn-neutral float-right" title="ImportCSVToTableTool" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="hdiartifactstool">
-<h1>HDIArtifactsTool<a class="headerlink" href="#hdiartifactstool" title="Link to this heading"></a></h1>
+  <section id="modifyautomlconfigdict">
+<h1>ModifyAutoMLConfigDict<a class="headerlink" href="#modifyautomlconfigdict" title="Link to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.</span></span><span class="sig-name descname"><span class="pre">HDIArtifactsTool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConnectionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_direct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool" title="Link to this definition"></a></dt>
-<dd><p>This tool generates HDI artifacts for a given model.</p>
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.config_dict_validator_tools.</span></span><span class="sig-name descname"><span class="pre">ModifyAutoMLConfigDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConnectionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_direct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict" title="Link to this definition"></a></dt>
+<dd><p>Verify (and, if needed, amend) an AutoML <code class="docutils literal notranslate"><span class="pre">config_dict</span></code> via
+<code class="docutils literal notranslate"><span class="pre">_SYS_AFL.PAL_AUTOML_CONFIG</span></code>.</p>
+<p><strong>Preferred usage — explicit config_dict.</strong> Build the full <code class="docutils literal notranslate"><span class="pre">config_dict</span></code>
+yourself from the catalogue returned by <a class="reference internal" href="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetPALPipelineInfo.html#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetPALPipelineInfo" title="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetPALPipelineInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">GetPALPipelineInfo</span></code></a>, pass
+it as <code class="docutils literal notranslate"><span class="pre">config_dict=&lt;full</span> <span class="pre">JSON</span> <span class="pre">object&gt;</span></code> with <code class="docutils literal notranslate"><span class="pre">verify=True</span></code> and <em>no</em>
+<code class="docutils literal notranslate"><span class="pre">config_add</span></code> / <code class="docutils literal notranslate"><span class="pre">config_remove</span></code> / <code class="docutils literal notranslate"><span class="pre">config_replace</span></code> / <code class="docutils literal notranslate"><span class="pre">config_modify</span></code>
+modifiers. The returned <code class="docutils literal notranslate"><span class="pre">config_dict</span></code> field is the PAL-normalized dict —
+hand that verbatim to the fit tool. This keeps the search space explicit
+and auditable, and any invalid operator / parameter is surfaced up-front
+with <code class="docutils literal notranslate"><span class="pre">{&quot;error&quot;:</span> <span class="pre">&quot;invalid_config_dict&quot;,</span> <span class="pre">&quot;detail&quot;:</span> <span class="pre">&lt;pal</span> <span class="pre">message&gt;}</span></code> so the
+agent can fix it and re-verify.</p>
+<p><strong>Delta usage — modifiers on top of a template.</strong> The optional
+<code class="docutils literal notranslate"><span class="pre">CONFIG_REMOVE</span></code> / <code class="docutils literal notranslate"><span class="pre">CONFIG_ADD</span></code> / <code class="docutils literal notranslate"><span class="pre">CONFIG_REPLACE</span></code> / <code class="docutils literal notranslate"><span class="pre">CONFIG_MODIFY</span></code>
+rows exist for tweaking a starting template. PAL applies them in the
+order documented at the SAP Help portal: <code class="docutils literal notranslate"><span class="pre">CONFIG_DICT</span> <span class="pre">→</span> <span class="pre">CONFIG_REMOVE</span> <span class="pre">→</span>
+<span class="pre">CONFIG_ADD</span> <span class="pre">→</span> <span class="pre">CONFIG_REPLACE</span> <span class="pre">→</span> <span class="pre">CONFIG_MODIFY</span></code>. Because the layering is
+less predictable than an explicit dict, reach for these modifiers only
+when you really want a delta against <code class="docutils literal notranslate"><span class="pre">'default'</span></code> / <code class="docutils literal notranslate"><span class="pre">'light'</span></code> /
+<code class="docutils literal notranslate"><span class="pre">'empty'</span></code>.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>connection_context</strong><span class="classifier">ConnectionContext</span></dt><dd><p>Connection context to the HANA database.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl>
-<dt>str</dt><dd><p>The directory to the generated HDI artifacts.</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt>str</dt><dd><p>A JSON string with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pipeline_type</span></code> : the normalised pipeline type.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config_dict</span></code> : the resolved config_dict as a JSON object.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operators</span></code> : per-operator INFO rows.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">error</span></code> / <code class="docutils literal notranslate"><span class="pre">detail</span></code> (optional): populated when PAL rejects the
+modification. <code class="docutils literal notranslate"><span class="pre">error</span> <span class="pre">==</span> <span class="pre">'invalid_config_dict'</span></code> when
+<code class="docutils literal notranslate"><span class="pre">verify=True</span></code> and PAL raises.</p></li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>args_schema is used to define the schema of the inputs as follows:</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 23.1%" />
-<col style="width: 76.9%" />
+<col style="width: 28.6%" />
+<col style="width: 71.4%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Field</p></th>
@@ -395,23 +415,26 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>name</p></td>
-<td><p>The name of the model in model storage. If not provided, ask the user. Do not guess.</p></td>
+<tr class="row-even"><td><p>pipeline_type</p></td>
+<td><p>AutoML pipeline type: 'classifier', 'regressor' or 'timeseries'.</p></td>
 </tr>
-<tr class="row-odd"><td><p>version</p></td>
-<td><p>The version of the model in model storage. If not provided, ask the user. Do not guess.</p></td>
+<tr class="row-odd"><td><p>config_dict</p></td>
+<td><p>Starting template or custom JSON. Defaults to 'default'.</p></td>
 </tr>
-<tr class="row-even"><td><p>project_name</p></td>
-<td><p>The name of the project for HDI project. If not provided, ask the user. Do not guess.</p></td>
+<tr class="row-even"><td><p>config_remove</p></td>
+<td><p>Estimator configs to remove (dict / JSON string).</p></td>
 </tr>
-<tr class="row-odd"><td><p>output_dir</p></td>
-<td><p>The output directory for HDI project. If not provided, ask the user. Do not guess.</p></td>
+<tr class="row-odd"><td><p>config_add</p></td>
+<td><p>Estimator configs to add.</p></td>
 </tr>
-<tr class="row-even"><td><p>namespace</p></td>
-<td><p>The namespace for HDI project, it is optional.</p></td>
+<tr class="row-even"><td><p>config_replace</p></td>
+<td><p>Estimator configs to replace.</p></td>
 </tr>
-<tr class="row-odd"><td><p>archive</p></td>
-<td><p>Whether to archive the output directory if output_dir has content, default is True.</p></td>
+<tr class="row-odd"><td><p>config_modify</p></td>
+<td><p>Estimator configs to modify in place.</p></td>
+</tr>
+<tr class="row-even"><td><p>verify</p></td>
+<td><p>When True (default) PAL raises on invalid entries (VERIFY_CONFIG=1).</p></td>
 </tr>
 </tbody>
 </table>
@@ -421,20 +444,20 @@
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.name" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.name" title="Link to this definition"></a></dt>
 <dd><p>Name of the tool.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.description">
-<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.description" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.description" title="Link to this definition"></a></dt>
 <dd><p>Description of the tool.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.connection_context">
-<span class="sig-name descname"><span class="pre">connection_context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ConnectionContext</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.connection_context" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.connection_context">
+<span class="sig-name descname"><span class="pre">connection_context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ConnectionContext</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.connection_context" title="Link to this definition"></a></dt>
 <dd><p>Connection context to the HANA database.</p>
 </dd></dl>
 

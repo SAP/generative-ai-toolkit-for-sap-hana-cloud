@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; hana.ai 1.1.26071400 documentation</title>
+  <title>Changelog &mdash; hana.ai 1.1.26072000 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=00a75c23"></script>
+      <script src="_static/documentation_options.js?v=2bc93728"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -128,6 +128,18 @@
 <li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html#hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool"><code class="docutils literal notranslate"><span class="pre">CAPArtifactsTool</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetPALPipelineInfo.html">GetPALPipelineInfo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetPALPipelineInfo.html#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetPALPipelineInfo"><code class="docutils literal notranslate"><span class="pre">GetPALPipelineInfo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetAutoMLConfigDict.html">GetAutoMLConfigDict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetAutoMLConfigDict.html#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetAutoMLConfigDict"><code class="docutils literal notranslate"><span class="pre">GetAutoMLConfigDict</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.html">ModifyAutoMLConfigDict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict.html#hana_ai.tools.hana_ml_tools.config_dict_validator_tools.ModifyAutoMLConfigDict"><code class="docutils literal notranslate"><span class="pre">ModifyAutoMLConfigDict</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool.html">ImportCSVToTableTool</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool.html#hana_ai.tools.hana_ml_tools.dataset_prep_tools.ImportCSVToTableTool"><code class="docutils literal notranslate"><span class="pre">ImportCSVToTableTool</span></code></a></li>
 </ul>
@@ -150,6 +162,14 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.model_storage_tools.ListModels.html">ListModels</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.model_storage_tools.ListModels.html#hana_ai.tools.hana_ml_tools.model_storage_tools.ListModels"><code class="docutils literal notranslate"><span class="pre">ListModels</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.model_storage_tools.DeleteModels.html">DeleteModels</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.model_storage_tools.DeleteModels.html#hana_ai.tools.hana_ml_tools.model_storage_tools.DeleteModels"><code class="docutils literal notranslate"><span class="pre">DeleteModels</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.model_storage_tools.DisplayConfigDict.html">DisplayConfigDict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.model_storage_tools.DisplayConfigDict.html#hana_ai.tools.hana_ml_tools.model_storage_tools.DisplayConfigDict"><code class="docutils literal notranslate"><span class="pre">DisplayConfigDict</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.select_statement_to_table_tools.SelectStatementToTableTool.html">SelectStatementToTableTool</a><ul>
@@ -346,6 +366,13 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<p><strong>Version 1.1.26072000</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Functions</span></code></dt><dd><ul class="simple">
+<li><p>Added a set of config dict tools to hana_ml_tools, requiring hana-ml 2.29.26072000.</p></li>
+</ul>
+</dd>
+</dl>
 <p><strong>Version 1.1.260714</strong></p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Functions</span></code></dt><dd><ul class="simple">
