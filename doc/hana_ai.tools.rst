@@ -52,8 +52,9 @@ hana_ml_tools
    hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool
    hana_ml_tools.intermittent_forecast_tools.IntermittentForecast
    hana_ml_tools.model_storage_tools.ListModels
+   hana_ml_tools.model_storage_tools.DeleteModels
+   hana_ml_tools.model_storage_tools.DisplayConfigDict
    hana_ml_tools.select_statement_to_table_tools.SelectStatementToTableTool
-   hana_ml_tools.convert_column_types_tools.ConvertColumnTypesTool
    hana_ml_tools.ts_accuracy_measure_tools.AccuracyMeasure
    hana_ml_tools.ts_check_tools.TimeSeriesCheck
    hana_ml_tools.ts_check_tools.StationarityTest
