@@ -56,13 +56,14 @@ except ImportError:
         get_fastmcp_context = None
         Middleware = None
 
+from hana_ml import ConnectionContext
+
 from hana_ai import __version__ as _HANA_AI_VERSION
 from hana_ai.tools.hana_ml_tools.utility import (
     APPLICATIONSOURCE_MAX_BYTES,
     MCP_BEACON_SQL_MARKER,
     build_appsource_pack,
 )
-from hana_ml import ConnectionContext
 from hana_ai.langchain_compat import BaseToolkit, BaseTool
 
 from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB

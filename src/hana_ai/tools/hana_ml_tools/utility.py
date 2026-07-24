@@ -753,7 +753,10 @@ def fetch_hana_mcp_audit_view(
 
     cursor = connection.cursor()
     try:
-        cursor.execute(sql, params) if params else cursor.execute(sql)
+        if params:
+            cursor.execute(sql, params)
+        else:
+            cursor.execute(sql)
         rows = cursor.fetchall()
     finally:
         cursor.close()
