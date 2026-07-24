@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>hana_ai.retrieval &mdash; hana.ai 1.1.26072400 documentation</title>
+  <title>MCP session auditing &mdash; hana.ai 1.1.26072400 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -21,8 +21,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ObjectDiscovery" href="retrieval/hana_ai.retrieval.object_discovery.ObjectDiscovery.html" />
-    <link rel="prev" title="MCP session auditing" href="mcp_audit.html" /> 
+    <link rel="next" title="hana_ai.retrieval" href="hana_ai.retrieval.html" />
+    <link rel="prev" title="HANAMLToolkit" href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -282,19 +282,19 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="mcp_audit.html">MCP session auditing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#what-lands-on-the-hana-side-automatically">What lands on the HANA side automatically</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="mcp_audit.html#surfacing-response-size-on-the-hana-side">Surfacing <code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> on the HANA side</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MCP session auditing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-lands-on-the-hana-side-automatically">What lands on the HANA side automatically</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#surfacing-response-size-on-the-hana-side">Surfacing <code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> on the HANA side</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#querying-hana-side-without-an-audit-policy">Querying HANA-side without an audit policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#querying-hana-side-with-an-audit-policy">Querying HANA-side with an audit policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#hana-side-field-reference">HANA-side field reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#inspecting-a-live-mcp-connection-s-pack">Inspecting a live MCP connection's pack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#querying-hana-side-without-an-audit-policy">Querying HANA-side without an audit policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#querying-hana-side-with-an-audit-policy">Querying HANA-side with an audit policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hana-side-field-reference">HANA-side field reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inspecting-a-live-mcp-connection-s-pack">Inspecting a live MCP connection's pack</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">hana_ai.retrieval</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#clients">Clients</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.retrieval.html#clients">Clients</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="retrieval/hana_ai.retrieval.object_discovery.ObjectDiscovery.html">ObjectDiscovery</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="retrieval/hana_ai.retrieval.object_discovery.ObjectDiscovery.html#hana_ai.retrieval.object_discovery.ObjectDiscovery"><code class="docutils literal notranslate"><span class="pre">ObjectDiscovery</span></code></a></li>
 </ul>
@@ -379,38 +379,313 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">hana_ai.retrieval</li>
+      <li class="breadcrumb-item active">MCP session auditing</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/hana_ai.retrieval.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/mcp_audit.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="mcp_audit.html" class="btn btn-neutral float-left" title="MCP session auditing" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="retrieval/hana_ai.retrieval.object_discovery.ObjectDiscovery.html" class="btn btn-neutral float-right" title="ObjectDiscovery" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html" class="btn btn-neutral float-left" title="HANAMLToolkit" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hana_ai.retrieval.html" class="btn btn-neutral float-right" title="hana_ai.retrieval" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="hana-ai-retrieval">
-<h1>hana_ai.retrieval<a class="headerlink" href="#hana-ai-retrieval" title="Link to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">hana_ai.retrieval</span></code> package hosts the HANA AI Core retrieval clients used by the MCP-exposed retrieval tools (<code class="docutils literal notranslate"><span class="pre">object_discovery</span></code> and <code class="docutils literal notranslate"><span class="pre">data_retrieval</span></code>). <code class="docutils literal notranslate"><span class="pre">RetrievalBase</span></code> encapsulates the remote-source, procedure invocation, and progress-monitor plumbing shared by both clients.</p>
-<p id="module-hana_ai.retrieval">HANA AI Core retrieval clients (object discovery, data retrieval).</p>
-<section id="clients">
-<span id="retrieval-classes-label"></span><h2>Clients<a class="headerlink" href="#clients" title="Link to this heading"></a></h2>
-<table class="autosummary longtable docutils align-default">
+  <section id="mcp-session-auditing">
+<h1>MCP session auditing<a class="headerlink" href="#mcp-session-auditing" title="Link to this heading"></a></h1>
+<p>This page answers the practical question: <em>when a tool call happens on an
+MCP server that is running on some host you don't control, what does the
+HANA side see, and how does an auditor with only HANA access query it?</em></p>
+<p>Every field this page describes is populated automatically on every tool
+call via <code class="docutils literal notranslate"><span class="pre">setclientinfo</span></code>. No coordination with the MCP host is required;
+an auditor with <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> on <code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE</span></code> — or, with an audit
+policy enabled, <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG</span></code> — has the full picture.</p>
+<section id="what-lands-on-the-hana-side-automatically">
+<h2>What lands on the HANA side automatically<a class="headerlink" href="#what-lands-on-the-hana-side-automatically" title="Link to this heading"></a></h2>
+<p>Every tool call sets five <code class="docutils literal notranslate"><span class="pre">setclientinfo</span></code> channels on the toolkit's HANA
+connection before executing SQL:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>setclientinfo channel</p></th>
+<th class="head"><p>Carried value</p></th>
+<th class="head"><p>HANA-side visibility</p></th>
+</tr>
+</thead>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="retrieval/hana_ai.retrieval.object_discovery.ObjectDiscovery.html#hana_ai.retrieval.object_discovery.ObjectDiscovery" title="hana_ai.retrieval.object_discovery.ObjectDiscovery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object_discovery.ObjectDiscovery</span></code></a>(...[, ...])</p></td>
-<td><p>Object Discovery for interacting with AI Core services.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">APPLICATION</span></code></p></td>
+<td><p>MCP client's declared name</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_CONNECTIONS.APPLICATION_NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG.APPLICATION_NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.APPLICATION_NAME</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="retrieval/hana_ai.retrieval.data_retrieval.DataRetrieval.html#hana_ai.retrieval.data_retrieval.DataRetrieval" title="hana_ai.retrieval.data_retrieval.DataRetrieval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_retrieval.DataRetrieval</span></code></a>(connection_context)</p></td>
-<td><p>Data Retrieval for interacting with AI Core services.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">APPLICATIONUSER</span></code></p></td>
+<td><p>MCP client's declared end-user / id</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">AUDIT_LOG.APPLICATION_USER_NAME</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="retrieval/hana_ai.retrieval.retrieval_base.RetrievalBase.html#hana_ai.retrieval.retrieval_base.RetrievalBase" title="hana_ai.retrieval.retrieval_base.RetrievalBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieval_base.RetrievalBase</span></code></a>(connection_context)</p></td>
-<td><p>Base class for HANA AI Core retrieval procedures (object discovery, data retrieval).</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">APPLICATIONVERSION</span></code></p></td>
+<td><p>client version / env tag</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_CONNECTIONS.APPLICATION_VERSION</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">APPLICATIONCOMPONENT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TOOL_NAME</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_CONNECTIONS.APPLICATION_COMPONENT</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE</span></code></p></td>
+<td><p>Pipe-delimited pack of MCP identity + per-call correlation ids + optional <code class="docutils literal notranslate"><span class="pre">resp=&lt;response_size&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.APPLICATION_SOURCE</span></code>, <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG</span></code> (when audit policy is on)</p></td>
 </tr>
 </tbody>
 </table>
+<p>The <code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE</span></code> pack is the key mechanism: HANA gives us five
+setclientinfo slots, but we have ~10 fields to surface, so all the MCP-only
+identity + invocation ids ride on one channel in a compact key=value form.</p>
+<p>Pack layout:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcp</span><span class="o">=</span><span class="n">hana</span><span class="o">-</span><span class="n">ai</span><span class="o">/&lt;</span><span class="n">ver</span><span class="o">&gt;|</span><span class="n">sess</span><span class="o">=&lt;</span><span class="n">mcp_session_id</span><span class="o">&gt;|</span><span class="n">agent</span><span class="o">=&lt;</span><span class="n">agent_name</span><span class="o">&gt;|</span><span class="n">model</span><span class="o">=&lt;</span><span class="n">model_name</span><span class="o">&gt;</span>
+  <span class="o">|</span><span class="n">cli</span><span class="o">=&lt;</span><span class="n">client_name</span><span class="o">&gt;|</span><span class="n">mcp_ip</span><span class="o">=&lt;</span><span class="n">client_ip</span><span class="o">&gt;|</span><span class="n">tool</span><span class="o">=&lt;</span><span class="n">tool_name</span><span class="o">&gt;|</span><span class="n">inv</span><span class="o">=&lt;</span><span class="n">invocation_id</span><span class="o">&gt;</span>
+  <span class="o">|</span><span class="n">corr</span><span class="o">=&lt;</span><span class="n">hana_correlation_id</span><span class="o">&gt;</span><span class="p">[</span><span class="o">|</span><span class="n">resp</span><span class="o">=&lt;</span><span class="n">response_size</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Real example captured from a live MCP HTTP session:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcp</span><span class="o">=</span><span class="n">hana</span><span class="o">-</span><span class="n">ai</span><span class="o">/</span><span class="mf">1.1.26072000</span><span class="o">|</span><span class="n">sess</span><span class="o">=</span><span class="n">d71dfba1752941aab632db0f6c2adb01</span>
+<span class="o">|</span><span class="n">agent</span><span class="o">=</span><span class="n">probe</span><span class="o">-</span><span class="n">agent</span><span class="o">|</span><span class="n">model</span><span class="o">=</span><span class="n">claude</span><span class="o">-</span><span class="n">opus</span><span class="o">-</span><span class="mi">4</span><span class="o">-</span><span class="mi">8</span><span class="o">|</span><span class="n">cli</span><span class="o">=</span><span class="n">appsource</span><span class="o">-</span><span class="n">probe</span><span class="o">-</span><span class="mi">535</span><span class="n">c0807</span>
+<span class="o">|</span><span class="n">mcp_ip</span><span class="o">=</span><span class="mf">127.0.0.1</span><span class="o">|</span><span class="n">tool</span><span class="o">=</span><span class="n">list_models</span>
+<span class="o">|</span><span class="n">inv</span><span class="o">=</span><span class="n">inv</span><span class="o">-</span><span class="n">b98880b44944408286382131b7e2f92c</span>
+<span class="o">|</span><span class="n">corr</span><span class="o">=</span><span class="n">hana</span><span class="o">-</span><span class="n">corr</span><span class="o">-</span><span class="n">d4ba732436c8422085147bf45e81b8ae</span>
+<span class="o">|</span><span class="n">resp</span><span class="o">=</span><span class="mi">42</span>
+</pre></div>
+</div>
+<p>Pack contract:</p>
+<ul class="simple">
+<li><p><strong>ASCII-only</strong>, <strong>≤ 254 bytes</strong> — HANA silently truncates
+<code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE</span></code> past 256 wire bytes, so the builder enforces a hard
+254-byte cap and refuses non-ASCII input.</p></li>
+<li><p><strong>Field order is fixed</strong> so simple <code class="docutils literal notranslate"><span class="pre">SUBSTR_REGEXPR</span></code> on the HANA side
+works.</p></li>
+<li><p><strong>resp is optional and last</strong> — it is only emitted on the post-completion
+&quot;beacon&quot; write (see below); the started-path pack has no <code class="docutils literal notranslate"><span class="pre">resp=</span></code>
+segment. When identity plus <code class="docutils literal notranslate"><span class="pre">resp=</span></code> would overflow the 254-byte cap,
+<code class="docutils literal notranslate"><span class="pre">resp=</span></code> is dropped first (tail-first truncation on a <code class="docutils literal notranslate"><span class="pre">|</span></code> boundary).</p></li>
+<li><p><strong>Sanitised</strong> — every field value is passed through a
+<code class="docutils literal notranslate"><span class="pre">[A-Za-z0-9._:/&#64;-]</span></code> whitelist so a malicious tool name cannot inject
+fake <code class="docutils literal notranslate"><span class="pre">|sess=</span></code> segments.</p></li>
+<li><p><strong>Plan-cache safe</strong> — verified against HANA Cloud 4.00 that
+<code class="docutils literal notranslate"><span class="pre">setclientinfo</span></code> does not participate in <code class="docutils literal notranslate"><span class="pre">STATEMENT_HASH</span></code>, so a fresh
+<code class="docutils literal notranslate"><span class="pre">inv=</span></code> per call does not fragment <code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE</span></code>.</p></li>
+</ul>
+<section id="surfacing-response-size-on-the-hana-side">
+<h3>Surfacing <code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> on the HANA side<a class="headerlink" href="#surfacing-response-size-on-the-hana-side" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> is only known <em>after</em> the tool body runs, so it cannot
+travel in the started-path pack that HANA freezes onto the tool's own
+plan-cache rows (<code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.APPLICATION_SOURCE</span></code> follows
+first-execution-wins semantics). Instead, after each successful tool call
+the MCP host rewrites <code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE</span></code> with a beacon pack carrying
+<code class="docutils literal notranslate"><span class="pre">resp=&lt;N&gt;</span></code> and executes one uniquely-tagged synthetic statement:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">/*</span> <span class="n">mcp</span><span class="o">-</span><span class="n">audit</span><span class="o">-</span><span class="n">beacon</span> <span class="n">inv</span><span class="o">=&lt;</span><span class="n">invocation_id</span><span class="o">&gt;</span> <span class="o">*/</span> <span class="n">CURRENT_UTCTIMESTAMP</span> <span class="n">FROM</span> <span class="n">DUMMY</span>
+</pre></div>
+</div>
+<p>The comment embeds the invocation id so each beacon hashes to a distinct
+plan-cache entry (no cross-invocation reuse of a cached beacon plan).
+<code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_hana_mcp_audit_view()</span></code> reads back the plan cache, extracts
+<code class="docutils literal notranslate"><span class="pre">resp=</span></code> per invocation, left-joins it onto every row of the same
+<code class="docutils literal notranslate"><span class="pre">INVOCATION_ID</span></code>, and drops the beacon rows themselves (identified by
+<code class="docutils literal notranslate"><span class="pre">STATEMENT_STRING</span></code> containing <code class="docutils literal notranslate"><span class="pre">mcp-audit-beacon</span></code>). Rows without a
+beacon — failed tool calls, or plan cache evicted before the beacon fired
+— show <code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span> <span class="pre">=</span> <span class="pre">None</span></code>.</p>
+</section>
+</section>
+<section id="querying-hana-side-without-an-audit-policy">
+<h2>Querying HANA-side without an audit policy<a class="headerlink" href="#querying-hana-side-without-an-audit-policy" title="Link to this heading"></a></h2>
+<p>If your DBA cannot or will not enable HANA audit policies, an auditor with
+<code class="docutils literal notranslate"><span class="pre">SELECT</span></code> on <code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE</span></code> alone can already reconstruct which MCP
+session / agent / tool / invocation produced which SQL:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span>
+<span class="w">       </span><span class="n">STATEMENT_HASH</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;sess=([^|]*)&#39;</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">MCP_SESSION_ID</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;agent=([^|]*)&#39;</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">AGENT_NAME</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;model=([^|]*)&#39;</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">MODEL_NAME</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;tool=([^|]*)&#39;</span><span class="w">  </span><span class="k">IN</span><span class="w"> </span><span class="n">APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">TOOL_NAME</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;inv=([^|]*)&#39;</span><span class="w">   </span><span class="k">IN</span><span class="w"> </span><span class="n">APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">INVOCATION_ID</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;resp=([0-9]+)&#39;</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">RESPONSE_SIZE</span><span class="p">,</span>
+<span class="w">       </span><span class="n">APPLICATION_USER_NAME</span><span class="p">,</span><span class="w">   </span><span class="c1">-- MCP-declared end user</span>
+<span class="w">       </span><span class="n">APPLICATION_NAME</span><span class="p">,</span><span class="w">         </span><span class="c1">-- MCP-declared client name</span>
+<span class="w">       </span><span class="n">USER_NAME</span><span class="p">,</span><span class="w">                </span><span class="c1">-- HANA-authenticated DB user</span>
+<span class="w">       </span><span class="n">EXECUTION_COUNT</span><span class="p">,</span>
+<span class="w">       </span><span class="n">LAST_EXECUTION_TIMESTAMP</span>
+<span class="k">FROM</span><span class="w">   </span><span class="n">M_SQL_PLAN_CACHE</span>
+<span class="k">WHERE</span><span class="w">  </span><span class="n">APPLICATION_SOURCE</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;mcp=hana-ai/%&#39;</span>
+<span class="k">ORDER</span><span class="w">  </span><span class="k">BY</span><span class="w"> </span><span class="n">LAST_EXECUTION_TIMESTAMP</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Or, via the Python convenience wrapper that also fans out <code class="docutils literal notranslate"><span class="pre">resp=</span></code> per
+invocation and hides the beacon rows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.hana_ml_tools.utility</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_hana_mcp_audit_view</span>
+
+<span class="n">audit_df</span> <span class="o">=</span> <span class="n">fetch_hana_mcp_audit_view</span><span class="p">(</span>
+    <span class="n">cc</span><span class="o">.</span><span class="n">connection</span><span class="p">,</span>
+    <span class="n">application_name</span><span class="o">=</span><span class="s1">&#39;context-agent-notebook&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">audit_df</span><span class="p">[[</span>
+    <span class="s1">&#39;LAST_EXECUTION_TIMESTAMP&#39;</span><span class="p">,</span> <span class="s1">&#39;TOOL_NAME&#39;</span><span class="p">,</span> <span class="s1">&#39;RESPONSE_SIZE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;AGENT_NAME&#39;</span><span class="p">,</span> <span class="s1">&#39;MODEL_NAME&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;MCP_SESSION_ID&#39;</span><span class="p">,</span> <span class="s1">&#39;INVOCATION_ID&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;HANA_AUTHENTICATED_USER&#39;</span><span class="p">,</span> <span class="s1">&#39;EXECUTION_COUNT&#39;</span><span class="p">,</span>
+<span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Limits of this view:</p>
+<ul class="simple">
+<li><p><strong>First-execution-wins semantics.</strong> HANA writes
+<code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.APPLICATION_SOURCE</span></code> at plan-caching time and does
+not update it on subsequent executions. Different tools produce
+different SQL, so each tool's rows carry that tool's own pack; but
+repeated calls to the <em>same</em> tool from <em>different</em> MCP sessions all
+appear under the first session's pack.</p></li>
+<li><p><strong>Plan cache ages out</strong> — this is a near-term audit view, not long-term
+retention. Once a plan is evicted the row is gone. For permanent
+retention, enable audit policies (next section).</p></li>
+<li><p><strong>``RESPONSE_SIZE`` is best-effort</strong> — populated for successful tool
+calls whose beacon plan-cache row is still resident. Failed tool calls
+do not emit a beacon and evicted beacons drop the value.</p></li>
+</ul>
+</section>
+<section id="querying-hana-side-with-an-audit-policy">
+<h2>Querying HANA-side with an audit policy<a class="headerlink" href="#querying-hana-side-with-an-audit-policy" title="Link to this heading"></a></h2>
+<p>For long-term retention on HANA, the DBA enables audit policies on the
+relevant schemas:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="c1">-- One-time DBA setup</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">ALTER</span><span class="w"> </span><span class="n">CONFIGURATION</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;global.ini&#39;</span><span class="p">,</span><span class="s1">&#39;SYSTEM&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">SET</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;auditing configuration&#39;</span><span class="p">,</span><span class="s1">&#39;global_auditing_state&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;true&#39;</span>
+<span class="w">  </span><span class="k">WITH</span><span class="w"> </span><span class="n">RECONFIGURE</span><span class="p">;</span>
+
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">ALTER</span><span class="w"> </span><span class="n">CONFIGURATION</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;global.ini&#39;</span><span class="p">,</span><span class="s1">&#39;SYSTEM&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">SET</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;auditing configuration&#39;</span><span class="p">,</span><span class="s1">&#39;maximum_statement_string_length&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;16000&#39;</span>
+<span class="w">  </span><span class="k">WITH</span><span class="w"> </span><span class="n">RECONFIGURE</span><span class="p">;</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="n">AUDIT</span><span class="w"> </span><span class="n">POLICY</span><span class="w"> </span><span class="n">p_mcp_tools</span>
+<span class="w">  </span><span class="n">AUDITING</span><span class="w"> </span><span class="n">SUCCESSFUL</span><span class="w"> </span><span class="k">EXECUTE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="ss">&quot;MY_MCP_SCHEMA&quot;</span>
+<span class="w">  </span><span class="k">LEVEL</span><span class="w"> </span><span class="n">INFO</span><span class="w"> </span><span class="n">TRAIL</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="k">TABLE</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="n">AUDIT</span><span class="w"> </span><span class="n">POLICY</span><span class="w"> </span><span class="n">p_mcp_tools</span><span class="w"> </span><span class="n">ENABLE</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Once policies are on, the same pack lands in <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG</span></code> alongside every
+audited SQL, permanently:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="p">,</span>
+<span class="w">       </span><span class="n">USER_NAME</span><span class="p">,</span>
+<span class="w">       </span><span class="n">APPLICATION_USER_NAME</span><span class="p">,</span>
+<span class="w">       </span><span class="n">APPLICATION_NAME</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;sess=([^|]*)&#39;</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">CLIENT_APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">MCP_SESSION_ID</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;inv=([^|]*)&#39;</span><span class="w">  </span><span class="k">IN</span><span class="w"> </span><span class="n">CLIENT_APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">INVOCATION_ID</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;tool=([^|]*)&#39;</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">CLIENT_APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">TOOL_NAME</span><span class="p">,</span>
+<span class="w">       </span><span class="n">SUBSTR_REGEXPR</span><span class="p">(</span><span class="s1">&#39;resp=([0-9]+)&#39;</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="n">CLIENT_APPLICATION_SOURCE</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">RESPONSE_SIZE</span><span class="p">,</span>
+<span class="w">       </span><span class="n">STATEMENT_STRING</span>
+<span class="k">FROM</span><span class="w">   </span><span class="n">AUDIT_LOG</span>
+<span class="k">WHERE</span><span class="w">  </span><span class="n">CLIENT_APPLICATION_SOURCE</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;mcp=hana-ai/%&#39;</span>
+<span class="w">  </span><span class="k">AND</span><span class="w">  </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">ADD_SECONDS</span><span class="p">(</span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">86400</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w">  </span><span class="k">BY</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The audit-log column that mirrors <code class="docutils literal notranslate"><span class="pre">setclientinfo('APPLICATIONSOURCE')</span></code>
+may be exposed under different names on different HANA builds
+(<code class="docutils literal notranslate"><span class="pre">CLIENT_APPLICATION_SOURCE</span></code> on recent HANA Cloud). Adjust the
+projection accordingly.</p>
+</div>
+</section>
+<section id="hana-side-field-reference">
+<h2>HANA-side field reference<a class="headerlink" href="#hana-side-field-reference" title="Link to this heading"></a></h2>
+<p>The columns surfaced by <code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_hana_mcp_audit_view()</span></code> and their
+positions in the HANA views:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>HANA-side location</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MCP_SESSION_ID</span></code></p></td>
+<td><p>Pack <code class="docutils literal notranslate"><span class="pre">sess=</span></code> in <code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.APPLICATION_SOURCE</span></code> / <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG.CLIENT_APPLICATION_SOURCE</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CLIENT_IP</span></code></p></td>
+<td><p>Pack <code class="docutils literal notranslate"><span class="pre">mcp_ip=</span></code> (MCP-observed remote IP, distinct from HANA-observed peer)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CLIENT_DECLARED_NAME</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_CONNECTIONS.APPLICATION_NAME</span></code>, pack <code class="docutils literal notranslate"><span class="pre">cli=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">AGENT_NAME</span></code></p></td>
+<td><p>Pack <code class="docutils literal notranslate"><span class="pre">agent=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MODEL_NAME</span></code></p></td>
+<td><p>Pack <code class="docutils literal notranslate"><span class="pre">model=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">MCP_VERSION</span></code></p></td>
+<td><p>Pack <code class="docutils literal notranslate"><span class="pre">mcp=</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">hana-ai/1.1.26072000</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HANA_AUTHENTICATED_USER</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.USER_NAME</span></code> / <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG.USER_NAME</span></code> (HANA-authenticated identity)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HANA_SESSION_USER</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.SESSION_USER_NAME</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">APPLICATION_NAME</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.APPLICATION_NAME</span></code> (from <code class="docutils literal notranslate"><span class="pre">setclientinfo('APPLICATION')</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TOOL_NAME</span></code></p></td>
+<td><p>Pack <code class="docutils literal notranslate"><span class="pre">tool=</span></code> + <code class="docutils literal notranslate"><span class="pre">M_CONNECTIONS.APPLICATION_COMPONENT</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">INVOCATION_ID</span></code></p></td>
+<td><p>Pack <code class="docutils literal notranslate"><span class="pre">inv=</span></code> — the join key across plan-cache rows of a single tool call</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HANA_CORRELATION_ID</span></code></p></td>
+<td><p>Pack <code class="docutils literal notranslate"><span class="pre">corr=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code></p></td>
+<td><p>Pack <code class="docutils literal notranslate"><span class="pre">resp=</span></code> on the post-completion beacon row; <code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_hana_mcp_audit_view()</span></code> projects it onto every row of the same <code class="docutils literal notranslate"><span class="pre">INVOCATION_ID</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">LAST_EXECUTION_TIMESTAMP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.LAST_EXECUTION_TIMESTAMP</span></code> / <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG.TIMESTAMP</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">EXECUTION_COUNT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.EXECUTION_COUNT</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">STATEMENT_HASH</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.STATEMENT_HASH</span></code> — join key onto the tool's underlying SQL</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">APPLICATION_SOURCE</span></code></p></td>
+<td><p>The raw pack string, kept for troubleshooting when a field decodes unexpectedly</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="inspecting-a-live-mcp-connection-s-pack">
+<h2>Inspecting a live MCP connection's pack<a class="headerlink" href="#inspecting-a-live-mcp-connection-s-pack" title="Link to this heading"></a></h2>
+<p>For interactive debugging you can decode the pack from the currently active
+HANA connection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.hana_ml_tools.utility</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_hana_appsource_pack</span>
+
+<span class="n">fetch_hana_appsource_pack</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">connection</span><span class="p">)</span>
+<span class="c1"># -&gt; {</span>
+<span class="c1">#   &#39;mcp&#39;: &#39;hana-ai/1.1.26072000&#39;,</span>
+<span class="c1">#   &#39;sess&#39;: &#39;d71dfba1752941aab632db0f6c2adb01&#39;,</span>
+<span class="c1">#   &#39;agent&#39;: &#39;probe-agent&#39;,</span>
+<span class="c1">#   &#39;model&#39;: &#39;claude-opus-4-8&#39;,</span>
+<span class="c1">#   &#39;cli&#39;: &#39;appsource-probe-535c0807&#39;,</span>
+<span class="c1">#   &#39;mcp_ip&#39;: &#39;127.0.0.1&#39;,</span>
+<span class="c1">#   &#39;tool&#39;: &#39;list_models&#39;,</span>
+<span class="c1">#   &#39;inv&#39;: &#39;inv-b98880b44944408286382131b7e2f92c&#39;,</span>
+<span class="c1">#   &#39;corr&#39;: &#39;hana-corr-d4ba732436c8422085147bf45e81b8ae&#39;,</span>
+<span class="c1">#   &#39;response_size&#39;: 42,      # only after the beacon has fired</span>
+<span class="c1"># }</span>
+</pre></div>
+</div>
 </section>
 </section>
 

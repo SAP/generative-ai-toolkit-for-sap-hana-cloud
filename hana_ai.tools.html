@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>hana_ai.tools &mdash; hana.ai 1.1.26072000 documentation</title>
+  <title>hana_ai.tools &mdash; hana.ai 1.1.26072400 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=2bc93728"></script>
+      <script src="_static/documentation_options.js?v=37ed180d"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -263,6 +263,34 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#hana-ml-tools-utility">hana_ml_tools.utility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.build_context_agent_mcp_tools"><code class="docutils literal notranslate"><span class="pre">build_context_agent_mcp_tools()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.ensure_mcp_audit_log"><code class="docutils literal notranslate"><span class="pre">ensure_mcp_audit_log()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.fetch_mcp_audit_rows"><code class="docutils literal notranslate"><span class="pre">fetch_mcp_audit_rows()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.fetch_hana_session_context"><code class="docutils literal notranslate"><span class="pre">fetch_hana_session_context()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.fetch_hana_appsource_pack"><code class="docutils literal notranslate"><span class="pre">fetch_hana_appsource_pack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.fetch_hana_mcp_audit_view"><code class="docutils literal notranslate"><span class="pre">fetch_hana_mcp_audit_view()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.build_appsource_pack"><code class="docutils literal notranslate"><span class="pre">build_appsource_pack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.parse_appsource_pack"><code class="docutils literal notranslate"><span class="pre">parse_appsource_pack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.find_free_port"><code class="docutils literal notranslate"><span class="pre">find_free_port()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.DEFAULT_MCP_SESSION_CONTEXT_KEYS"><code class="docutils literal notranslate"><span class="pre">DEFAULT_MCP_SESSION_CONTEXT_KEYS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.APPLICATIONSOURCE_MAX_BYTES"><code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE_MAX_BYTES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.APPLICATIONSOURCE_FIELD_ORDER"><code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE_FIELD_ORDER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.HANA_MCP_AUDIT_VIEW_COLUMNS"><code class="docutils literal notranslate"><span class="pre">HANA_MCP_AUDIT_VIEW_COLUMNS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.MCP_BEACON_SQL_MARKER"><code class="docutils literal notranslate"><span class="pre">MCP_BEACON_SQL_MARKER</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mcp_audit.html">MCP session auditing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#what-lands-on-the-hana-side-automatically">What lands on the HANA side automatically</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mcp_audit.html#surfacing-response-size-on-the-hana-side">Surfacing <code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> on the HANA side</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#querying-hana-side-without-an-audit-policy">Querying HANA-side without an audit policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#querying-hana-side-with-an-audit-policy">Querying HANA-side with an audit policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#hana-side-field-reference">HANA-side field reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_audit.html#inspecting-a-live-mcp-connection-s-pack">Inspecting a live MCP connection's pack</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
@@ -532,6 +560,301 @@
 </tr>
 </tbody>
 </table>
+</section>
+<section id="hana-ml-tools-utility">
+<span id="hana-ml-tools-utility-label"></span><h2>hana_ml_tools.utility<a class="headerlink" href="#hana-ml-tools-utility" title="Link to this heading"></a></h2>
+<p>Module-level helpers for MCP server/client bootstrap, audit inspection, and
+the HANA-side <code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE</span></code> pack that carries MCP identity into
+<code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE</span></code> / <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG</span></code>. See <a class="reference internal" href="mcp_audit.html"><span class="doc">MCP session auditing</span></a> for the audit
+story end-to-end.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.build_context_agent_mcp_tools">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">build_context_agent_mcp_tools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_admin_tools</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.build_context_agent_mcp_tools" title="Link to this definition"></a></dt>
+<dd><p>Build LangChain-compatible tools backed by an HTTP MCP server.</p>
+<p>Opens an HTTP MCP session against <code class="docutils literal notranslate"><span class="pre">base_url</span></code> via
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SyncHTTPMCPClient</span></code>, calls <code class="docutils literal notranslate"><span class="pre">initialize</span></code> to hand the server the
+end-user / agent / model identity that will show up in every HANA audit
+row (see <a class="reference internal" href="mcp_audit.html"><span class="doc">MCP session auditing</span></a>), enumerates the server's tool catalogue via
+<code class="docutils literal notranslate"><span class="pre">tools/list</span></code>, and wraps each one as a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">langchain_core.tools.StructuredTool</span></code> whose <code class="docutils literal notranslate"><span class="pre">args_schema</span></code> is
+derived from the tool's JSON Schema. The returned tools are drop-in
+replacements for local <code class="docutils literal notranslate"><span class="pre">BaseTool</span></code> instances — hand them to
+<a class="reference internal" href="agents/hana_ai.agents.context_agent.ContextAgent.html#hana_ai.agents.context_agent.ContextAgent" title="hana_ai.iagents.context_agent.ContextAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextAgent</span></code></a> (or any LangChain
+agent) and every invocation transparently round-trips through the MCP
+server, so the HANA-side audit path (setclientinfo, plan cache, audit
+log) is exercised end-to-end.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>base_url</strong><span class="classifier">str</span></dt><dd><p>MCP server URL. Trailing <code class="docutils literal notranslate"><span class="pre">/mcp</span></code> is added automatically if absent
+(e.g. <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8001</span></code> and <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8001/mcp</span></code>
+are both accepted). Only <code class="docutils literal notranslate"><span class="pre">http</span></code>/<code class="docutils literal notranslate"><span class="pre">https</span></code> transports are
+supported by this helper — for stdio, use the stdio client
+directly.</p>
+</dd>
+<dt><strong>timeout</strong><span class="classifier">int, default 120</span></dt><dd><p>Per-request HTTP timeout in seconds. Applied to every <code class="docutils literal notranslate"><span class="pre">tools/list</span></code>
+and <code class="docutils literal notranslate"><span class="pre">tools/call</span></code> request.</p>
+</dd>
+<dt><strong>client_name</strong><span class="classifier">str</span></dt><dd><p>End-user identity or client name passed to the server via
+<code class="docutils literal notranslate"><span class="pre">clientInfo.name</span></code> and the <code class="docutils literal notranslate"><span class="pre">x-mcp-client-name</span></code> header. Lands on
+HANA's <code class="docutils literal notranslate"><span class="pre">APPLICATIONUSER</span></code> channel and inside the pack's <code class="docutils literal notranslate"><span class="pre">cli=</span></code>
+segment.</p>
+</dd>
+<dt><strong>client_version</strong><span class="classifier">str, default &quot;0.1&quot;</span></dt><dd><p>Client version tag; lands on HANA's <code class="docutils literal notranslate"><span class="pre">APPLICATIONVERSION</span></code>.</p>
+</dd>
+<dt><strong>client_metadata</strong><span class="classifier">dict, optional</span></dt><dd><p>Optional identity metadata forwarded to the server. Recognised
+keys:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">client_id</span></code> — sets the <code class="docutils literal notranslate"><span class="pre">x-mcp-client-id</span></code> header</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">agent_name</span></code> — sets <code class="docutils literal notranslate"><span class="pre">x-ai-agent-name</span></code>; lands in pack <code class="docutils literal notranslate"><span class="pre">agent=</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_name</span></code> — sets <code class="docutils literal notranslate"><span class="pre">x-ai-model-name</span></code>; lands in pack <code class="docutils literal notranslate"><span class="pre">model=</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_version</span></code> — sets <code class="docutils literal notranslate"><span class="pre">x-ai-model-version</span></code></p></li>
+</ul>
+<p>Values are stringified. Unknown keys are ignored.</p>
+</dd>
+<dt><strong>skip_admin_tools</strong><span class="classifier">bool, default True</span></dt><dd><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, tools whose name starts with <code class="docutils literal notranslate"><span class="pre">admin_</span></code> (e.g.
+<code class="docutils literal notranslate"><span class="pre">admin_update_connection_context</span></code>) are excluded from the returned
+list. Set to <code class="docutils literal notranslate"><span class="pre">False</span></code> if the agent needs to manage the server's
+connection context at runtime.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[list[StructuredTool], SyncHTTPMCPClient]</dt><dd><p><code class="docutils literal notranslate"><span class="pre">(tools,</span> <span class="pre">client)</span></code> — the LangChain-ready tools, and the live MCP
+client. Keep the client alive for the duration of the agent
+session; when done, call <code class="docutils literal notranslate"><span class="pre">client.close()</span></code> to release the HTTP
+session and its MCP session id.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">SyncHTTPMCPClient</span></code></dt><dd><p>the underlying JSON-RPC client, exposed for callers that want direct access (session id inspection, manual <code class="docutils literal notranslate"><span class="pre">call_tool</span></code> invocations, etc.).</p>
+</dd>
+<dt><a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.fetch_hana_mcp_audit_view" title="hana_ai.tools.hana_ml_tools.utility.fetch_hana_mcp_audit_view"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_hana_mcp_audit_view</span></code></a></dt><dd><p>query the HANA-side audit view populated by every tool call made through the returned tools.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<p>Launch the MCP server on one process, then wire it into a
+<code class="docutils literal notranslate"><span class="pre">ContextAgent</span></code> from another:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.hana_ml_tools.utility</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_context_agent_mcp_tools</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tools</span><span class="p">,</span> <span class="n">client</span> <span class="o">=</span> <span class="n">build_context_agent_mcp_tools</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;http://127.0.0.1:8001/mcp&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">client_name</span><span class="o">=</span><span class="s2">&quot;context-agent-notebook&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">client_metadata</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">&quot;agent_name&quot;</span><span class="p">:</span> <span class="s2">&quot;context-agent&quot;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4.1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tools</span><span class="p">][:</span><span class="mi">3</span><span class="p">]</span>
+<span class="go">[&#39;fetch_data&#39;, &#39;list_models&#39;, &#39;display_config_dict&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Hand `tools` to any LangChain agent; every call now carries the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># context-agent identity all the way into HANA&#39;s audit trail.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.ensure_mcp_audit_log">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">ensure_mcp_audit_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audit_log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'logs/mcp-audit.jsonl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.ensure_mcp_audit_log" title="Link to this definition"></a></dt>
+<dd><p>Ensure the MCP audit JSONL file exists and return its resolved path.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.fetch_mcp_audit_rows">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">fetch_mcp_audit_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audit_log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.fetch_mcp_audit_rows" title="Link to this definition"></a></dt>
+<dd><p>Fetch audit rows for a given MCP session id from the JSONL audit log.</p>
+<p>In addition to the flat MCP audit event columns, each row includes
+<code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE_PACK</span></code> — the pipe-delimited pack that would land in
+HANA's setclientinfo APPLICATIONSOURCE for that invocation. This makes the
+JSONL sink self-describing for the &quot;what did HANA see?&quot; question without a
+separate live connection.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.fetch_hana_session_context">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">fetch_hana_session_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.fetch_hana_session_context" title="Link to this definition"></a></dt>
+<dd><p>Fetch selected HANA SESSION_CONTEXT values into a single-row DataFrame.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.fetch_hana_appsource_pack">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">fetch_hana_appsource_pack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.fetch_hana_appsource_pack" title="Link to this definition"></a></dt>
+<dd><p>Read APPLICATIONSOURCE off the current HANA connection and parse it.</p>
+<p>Convenience wrapper around <code class="docutils literal notranslate"><span class="pre">SESSION_CONTEXT('APPLICATIONSOURCE')</span></code> +
+<code class="docutils literal notranslate"><span class="pre">parse_appsource_pack</span></code>. Returns an empty dict when APPLICATIONSOURCE
+is unset. Useful when hand-inspecting a live MCP session's HANA-side
+context without opening the JSONL / HANA audit sink.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.fetch_hana_mcp_audit_view">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">fetch_hana_mcp_audit_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcp_session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">application_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">since_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.fetch_hana_mcp_audit_view" title="Link to this definition"></a></dt>
+<dd><p>Query <code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE</span></code> for MCP-tagged SQL and decode the pack.</p>
+<p>Returns a DataFrame of <a class="reference internal" href="#hana_ai.tools.hana_ml_tools.utility.HANA_MCP_AUDIT_VIEW_COLUMNS" title="hana_ai.tools.hana_ml_tools.utility.HANA_MCP_AUDIT_VIEW_COLUMNS"><code class="xref py py-data docutils literal notranslate"><span class="pre">HANA_MCP_AUDIT_VIEW_COLUMNS</span></code></a>, one row per
+plan-cache entry produced by an MCP tool call visible on this HANA
+instance. Each row's identity fields (<code class="docutils literal notranslate"><span class="pre">MCP_SESSION_ID</span></code>, <code class="docutils literal notranslate"><span class="pre">TOOL_NAME</span></code>,
+<code class="docutils literal notranslate"><span class="pre">INVOCATION_ID</span></code>, <code class="docutils literal notranslate"><span class="pre">AGENT_NAME</span></code> etc.) are decoded from the pack in
+<code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.APPLICATION_SOURCE</span></code>.</p>
+<p>This gives an auditor sitting on the HANA side, with only <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> on
+<code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE</span></code>, a picture of which MCP session / agent / tool /
+invocation first produced each cached SQL plan — without needing HANA
+audit policies to be enabled and without touching the MCP host at all.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>connection</strong></dt><dd><p>A live HANA <code class="docutils literal notranslate"><span class="pre">dbapi.Connection</span></code>. Any connection with SELECT on
+<code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE</span></code> works — it does not have to be the same
+connection that ran the MCP tools.</p>
+</dd>
+<dt><strong>mcp_session_id</strong><span class="classifier">str, optional</span></dt><dd><p>Filter to a single MCP session id. Matches the <code class="docutils literal notranslate"><span class="pre">sess=</span></code> field.</p>
+</dd>
+<dt><strong>application_name</strong><span class="classifier">str, optional</span></dt><dd><p>Filter by the setclientinfo <code class="docutils literal notranslate"><span class="pre">APPLICATION</span></code> value (MCP client's
+declared name). Useful when several MCP fleets share one HANA
+landscape.</p>
+</dd>
+<dt><strong>tool_name</strong><span class="classifier">str, optional</span></dt><dd><p>Filter to a specific tool invocation. Matches the pack's <code class="docutils literal notranslate"><span class="pre">tool=</span></code>
+field via <code class="docutils literal notranslate"><span class="pre">APPLICATION_SOURCE</span> <span class="pre">LIKE</span></code> so schema differences across
+HANA builds don't matter.</p>
+</dd>
+<dt><strong>since_seconds</strong><span class="classifier">int, optional</span></dt><dd><p>Only rows with <code class="docutils literal notranslate"><span class="pre">LAST_EXECUTION_TIMESTAMP</span></code> newer than this many
+seconds ago. <code class="docutils literal notranslate"><span class="pre">None</span></code> returns everything the plan cache still holds.</p>
+</dd>
+<dt><strong>limit</strong><span class="classifier">int</span></dt><dd><p>Maximum rows returned. Default 200. Set to a high number if you
+expect to paginate on the client side.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p><strong>First-execution-wins semantics</strong>: HANA populates
+<code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE.APPLICATION_SOURCE</span></code> from the first process that
+caused a given plan to be cached. Subsequent executions of the
+<em>same</em> SQL update <code class="docutils literal notranslate"><span class="pre">EXECUTION_COUNT</span></code> and <code class="docutils literal notranslate"><span class="pre">LAST_EXECUTION_TIMESTAMP</span></code>
+but leave the pack untouched. Different tools produce different SQL
+so each tool's rows carry that tool's own pack, but repeated calls
+to the <em>same</em> tool from <em>different</em> MCP sessions all appear under
+the first session's pack. This is a HANA server-side property; no
+client-side merge with local files is done here (audit is
+server-side by contract).</p></li>
+<li><p><strong>``RESPONSE_SIZE`` population</strong>: only known <em>after</em> the tool body
+runs, so it cannot travel in the started-path pack that HANA freezes
+onto the tool's own plan-cache rows. Instead, after each successful
+tool call the MCP host executes a synthetic &quot;beacon&quot; statement
+(<code class="docutils literal notranslate"><span class="pre">SELECT</span> <span class="pre">...</span> <span class="pre">mcp-audit-beacon</span> <span class="pre">inv=&lt;invocation_id&gt;</span> <span class="pre">...</span></code>) whose
+APPLICATION_SOURCE carries <code class="docutils literal notranslate"><span class="pre">resp=&lt;N&gt;</span></code>. This function extracts that
+<code class="docutils literal notranslate"><span class="pre">resp=</span></code> per invocation and left-joins it back onto every row of the
+same <code class="docutils literal notranslate"><span class="pre">INVOCATION_ID</span></code> (so the tool's real SQL rows show
+<code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> too). The beacon rows themselves are filtered out
+of the returned DataFrame — auditors see one row per real cached
+plan, with <code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> populated when the beacon fired.
+Failed tool calls have no beacon, so <code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> stays
+<code class="docutils literal notranslate"><span class="pre">None</span></code> — check the JSONL sink or the audit sink to distinguish
+&quot;beacon evicted / not yet fired&quot; from &quot;tool failed before returning&quot;.</p></li>
+<li><p><strong>Plan cache eviction</strong>: entries age out on their own schedule. For
+long-term retention on the HANA side, enable HANA audit policies so
+the pack is recorded in <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG</span></code> at each SQL execution rather
+than only at plan-caching time.</p></li>
+<li><p><strong>APPLICATION_USER_NAME</strong>: not exposed on every HANA build; this
+function uses <code class="docutils literal notranslate"><span class="pre">USER_NAME</span></code> (HANA-authenticated) and
+<code class="docutils literal notranslate"><span class="pre">APPLICATION_NAME</span></code> (setclientinfo APPLICATION) which are portable.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.build_appsource_pack">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">build_appsource_pack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcp_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcp_session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_declared_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_declared_agent_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_declared_model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_ip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invocation_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hana_correlation_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">254</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.build_appsource_pack" title="Link to this definition"></a></dt>
+<dd><p>Build the pipe-delimited pack for setclientinfo('APPLICATIONSOURCE').</p>
+<p>All identity fields (<code class="docutils literal notranslate"><span class="pre">mcp</span></code>, <code class="docutils literal notranslate"><span class="pre">sess</span></code>, <code class="docutils literal notranslate"><span class="pre">agent</span></code>, <code class="docutils literal notranslate"><span class="pre">model</span></code>, <code class="docutils literal notranslate"><span class="pre">cli</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mcp_ip</span></code>, <code class="docutils literal notranslate"><span class="pre">tool</span></code>, <code class="docutils literal notranslate"><span class="pre">inv</span></code>, <code class="docutils literal notranslate"><span class="pre">corr</span></code>) are packed in fixed order; each
+is sanitized to an ASCII token (<cite>[A-Za-z0-9._:/&#64;-]</cite>). <code class="docutils literal notranslate"><span class="pre">resp</span></code> (a decimal
+integer, tool response_size) is optional and packed last; it is only known
+after the tool body runs, so the started-path pack has no <code class="docutils literal notranslate"><span class="pre">resp</span></code> and the
+success-path &quot;beacon&quot; pack adds it. When identity plus <code class="docutils literal notranslate"><span class="pre">resp</span></code> overflows
+the 254-byte cap, <code class="docutils literal notranslate"><span class="pre">resp</span></code> is dropped first (tail-first truncation via
+<code class="docutils literal notranslate"><span class="pre">_truncate_on_pipe</span></code>); auditors can still recover the value from the
+JSONL sink.</p>
+<p>The returned string is ASCII and its byte length is guaranteed to be
+<code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">max_bytes</span></code> (verified against HANA's 256-byte setclientinfo cap).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.parse_appsource_pack">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">parse_appsource_pack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pack</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.parse_appsource_pack" title="Link to this definition"></a></dt>
+<dd><p>Parse the pipe-delimited APPLICATIONSOURCE pack into a dict.</p>
+<p>Returns a dict of the identity K=V pairs (<code class="docutils literal notranslate"><span class="pre">mcp</span></code>, <code class="docutils literal notranslate"><span class="pre">sess</span></code>, <code class="docutils literal notranslate"><span class="pre">agent</span></code>,
+<code class="docutils literal notranslate"><span class="pre">model</span></code>, <code class="docutils literal notranslate"><span class="pre">cli</span></code>, <code class="docutils literal notranslate"><span class="pre">mcp_ip</span></code>, <code class="docutils literal notranslate"><span class="pre">tool</span></code>, <code class="docutils literal notranslate"><span class="pre">inv</span></code>, <code class="docutils literal notranslate"><span class="pre">corr</span></code>) and, when
+present, <code class="docutils literal notranslate"><span class="pre">response_size</span></code> (parsed from the <code class="docutils literal notranslate"><span class="pre">resp=</span></code> segment written by
+the post-completion beacon; missing on started-path packs).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.find_free_port">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">find_free_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8700</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.find_free_port" title="Link to this definition"></a></dt>
+<dd><p>Return an available localhost TCP port.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.DEFAULT_MCP_SESSION_CONTEXT_KEYS">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_MCP_SESSION_CONTEXT_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['EVENT_TYPE',</span> <span class="pre">'OCCURRED_AT',</span> <span class="pre">'MCP_SESSION_ID',</span> <span class="pre">'CLIENT_IP',</span> <span class="pre">'CLIENT_DECLARED_NAME',</span> <span class="pre">'CLIENT_DECLARED_AGENT_NAME',</span> <span class="pre">'CLIENT_DECLARED_MODEL_NAME',</span> <span class="pre">'HANA_DB_USER',</span> <span class="pre">'HANA_DB_SESSION_USER',</span> <span class="pre">'HANA_CONNECTION_ID',</span> <span class="pre">'HANA_APPLICATION_USER',</span> <span class="pre">'HANA_APPLICATION',</span> <span class="pre">'HANA_CLIENT_HOST',</span> <span class="pre">'TOOL_NAME',</span> <span class="pre">'TARGET_TABLES',</span> <span class="pre">'TOOL_ARGS_JSON',</span> <span class="pre">'RESPONSE_SIZE',</span> <span class="pre">'MODEL_STORAGE_NAME',</span> <span class="pre">'MODEL_STORAGE_VERSION',</span> <span class="pre">'STATUS',</span> <span class="pre">'DURATION_MS',</span> <span class="pre">'HANA_CORRELATION_ID',</span> <span class="pre">'INVOCATION_ID',</span> <span class="pre">'MCP_CLIENT_NAME',</span> <span class="pre">'MCP_CLIENT_ID',</span> <span class="pre">'AI_AGENT_NAME',</span> <span class="pre">'AI_MODEL_NAME']</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.DEFAULT_MCP_SESSION_CONTEXT_KEYS" title="Link to this definition"></a></dt>
+<dd><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.APPLICATIONSOURCE_MAX_BYTES">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">APPLICATIONSOURCE_MAX_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">254</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.APPLICATIONSOURCE_MAX_BYTES" title="Link to this definition"></a></dt>
+<dd><p>int([x]) -&gt; integer
+int(x, base=10) -&gt; integer</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is a number, return x.__int__().  For floating point
+numbers, this truncates towards zero.</p>
+<p>If x is not a number or if base is given, then x must be a string,
+bytes, or bytearray instance representing an integer literal in the
+given base.  The literal can be preceded by '+' or '-' and be surrounded
+by whitespace.  The base defaults to 10.  Valid bases are 0 and 2-36.
+Base 0 means to interpret the base from the string as an integer literal.
+&gt;&gt;&gt; int('0b100', base=0)
+4</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.APPLICATIONSOURCE_FIELD_ORDER">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">APPLICATIONSOURCE_FIELD_ORDER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('mcp',</span> <span class="pre">'sess',</span> <span class="pre">'agent',</span> <span class="pre">'model',</span> <span class="pre">'cli',</span> <span class="pre">'mcp_ip',</span> <span class="pre">'tool',</span> <span class="pre">'inv',</span> <span class="pre">'corr',</span> <span class="pre">'resp')</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.APPLICATIONSOURCE_FIELD_ORDER" title="Link to this definition"></a></dt>
+<dd><p>Built-in immutable sequence.</p>
+<p>If no argument is given, the constructor returns an empty tuple.
+If iterable is specified the tuple is initialized from iterable's items.</p>
+<p>If the argument is a tuple, the return value is the same object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.HANA_MCP_AUDIT_VIEW_COLUMNS">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">HANA_MCP_AUDIT_VIEW_COLUMNS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['LAST_EXECUTION_TIMESTAMP',</span> <span class="pre">'MCP_SESSION_ID',</span> <span class="pre">'INVOCATION_ID',</span> <span class="pre">'HANA_CORRELATION_ID',</span> <span class="pre">'TOOL_NAME',</span> <span class="pre">'RESPONSE_SIZE',</span> <span class="pre">'AGENT_NAME',</span> <span class="pre">'MODEL_NAME',</span> <span class="pre">'CLIENT_DECLARED_NAME',</span> <span class="pre">'CLIENT_IP',</span> <span class="pre">'MCP_VERSION',</span> <span class="pre">'HANA_AUTHENTICATED_USER',</span> <span class="pre">'HANA_SESSION_USER',</span> <span class="pre">'STATEMENT_HASH',</span> <span class="pre">'EXECUTION_COUNT',</span> <span class="pre">'APPLICATION_NAME',</span> <span class="pre">'APPLICATION_SOURCE']</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.HANA_MCP_AUDIT_VIEW_COLUMNS" title="Link to this definition"></a></dt>
+<dd><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hana_ai.tools.hana_ml_tools.utility.MCP_BEACON_SQL_MARKER">
+<span class="sig-prename descclassname"><span class="pre">hana_ai.tools.hana_ml_tools.utility.</span></span><span class="sig-name descname"><span class="pre">MCP_BEACON_SQL_MARKER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mcp-audit-beacon'</span></em><a class="headerlink" href="#hana_ai.tools.hana_ml_tools.utility.MCP_BEACON_SQL_MARKER" title="Link to this definition"></a></dt>
+<dd><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p>
+</dd></dl>
+
 </section>
 </section>
 
