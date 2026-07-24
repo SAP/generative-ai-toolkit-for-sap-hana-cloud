@@ -131,3 +131,9 @@ story end-to-end.
 .. autodata::     APPLICATIONSOURCE_FIELD_ORDER
 .. autodata::     HANA_MCP_AUDIT_VIEW_COLUMNS
 .. autodata::     MCP_BEACON_SQL_MARKER
+
+.. toctree::
+   :maxdepth: 1
+   :caption: MCP auditing
+
+   mcp_audit
