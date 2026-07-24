@@ -56,6 +56,12 @@ except ImportError:
         get_fastmcp_context = None
         Middleware = None
 
+from hana_ai import __version__ as _HANA_AI_VERSION
+from hana_ai.tools.hana_ml_tools.utility import (
+    APPLICATIONSOURCE_MAX_BYTES,
+    MCP_BEACON_SQL_MARKER,
+    build_appsource_pack,
+)
 from hana_ml import ConnectionContext
 from hana_ai.langchain_compat import BaseToolkit, BaseTool
 
@@ -1238,6 +1244,32 @@ class HANAMLToolkit(BaseToolkit):
             )
         self._write_hana_session_variables(values)
 
+    def _extract_response_size_for_appsource(
+        self,
+        event: Optional[dict[str, Any]],
+    ) -> Optional[int]:
+        """Return the tool's response_size for the APPLICATIONSOURCE beacon pack.
+
+        The success audit event carries ``response_size`` under
+        ``payload.response_size`` (populated by ``_extract_tool_audit_metadata``
+        with a live ``result``). Returns ``None`` when the value is missing or
+        cannot be coerced to a non-negative int — in that case the pack builder
+        omits the ``resp=`` segment entirely.
+        """
+        if event is None:
+            return None
+        payload = event.get("payload") or {}
+        raw = payload.get("response_size")
+        if raw is None or isinstance(raw, bool):
+            return None
+        try:
+            value = int(raw)
+        except (TypeError, ValueError):
+            return None
+        if value < 0:
+            return None
+        return value
+
     def _set_hana_client_info(
         self,
         session_id: Optional[str],
@@ -1264,10 +1296,36 @@ class HANAMLToolkit(BaseToolkit):
             session_metadata.get("client_declared_id")
             or session_metadata.get("client_declared_name")
         )
+        # APPLICATIONSOURCE carries a pipe-delimited pack of MCP identity +
+        # per-invocation correlation fields so HANA-side audit (which only
+        # exposes a small set of setclientinfo channels natively) can join
+        # against the MCP audit sink without needing a custom audit table.
+        # The pack is ASCII, byte-budget-capped, and safe for HANA plan cache
+        # (verified: setclientinfo does NOT participate in statement hash).
+        # See utility.build_appsource_pack for the pack layout. ``response_size``
+        # is only known on the success path (via _update_hana_session_event ->
+        # here with the success event); the started path passes event=None or
+        # a started_event whose payload has no response_size, so the pack
+        # builder omits the ``resp=`` segment. The follow-up beacon SQL (see
+        # _emit_beacon_sql) is what makes ``resp=`` land in a plan-cache row.
+        response_size = self._extract_response_size_for_appsource(event)
+        appsource_pack = build_appsource_pack(
+            mcp_version=_HANA_AI_VERSION,
+            mcp_session_id=session_id,
+            client_declared_name=session_metadata.get("client_declared_name"),
+            client_declared_agent_name=session_metadata.get("client_declared_agent_name"),
+            client_declared_model_name=session_metadata.get("client_declared_model_name"),
+            client_ip=session_metadata.get("client_ip"),
+            tool_name=tool_name or None,
+            invocation_id=invocation_id,
+            hana_correlation_id=hana_correlation_id,
+            response_size=response_size,
+        )
         values = {
             "APPLICATION": session_metadata.get("client_declared_name") or self.audit_service_name,
             "APPLICATIONVERSION": session_metadata.get("client_declared_version") or self.audit_environment,
             "APPLICATIONUSER": declared_end_user,
+            "APPLICATIONSOURCE": appsource_pack or None,
             "APPLICATIONCOMPONENT": tool_name,
             "APPLICATIONCOMPONENTTYPE": "HANA AI Toolkit MCP Server",
             **self._build_hana_attribution_values(
@@ -1282,7 +1340,19 @@ class HANAMLToolkit(BaseToolkit):
 
         try:
             for key, value in values.items():
-                if value is not None:
+                if value is None:
+                    continue
+                if key == "APPLICATIONSOURCE":
+                    # The pack builder already enforces the 254-byte cap.
+                    # Bypass the generic 512-char cap so we never mangle the pack.
+                    text = str(value)
+                    if len(text.encode("ascii", errors="replace")) > APPLICATIONSOURCE_MAX_BYTES:
+                        # Defensive — should never trigger since builder enforces this.
+                        text = text.encode("ascii", errors="replace")[:APPLICATIONSOURCE_MAX_BYTES].decode(
+                            "ascii", errors="replace"
+                        )
+                    connection.setclientinfo(key, text)
+                else:
                     connection.setclientinfo(key, str(value)[:512])
             return True
         except Exception as exc:
@@ -1325,10 +1395,61 @@ class HANAMLToolkit(BaseToolkit):
                 payload.get("tool_name") or "",
                 event=event,
             )
+            # Success path only: fire the beacon SQL so a plan-cache row
+            # carries the ``resp=<N>`` we just re-packed onto APPLICATIONSOURCE.
+            # Without this, HANA's first-execution-wins plan-cache semantics
+            # would leave the tool's own SQL row frozen on the started-path
+            # pack (no ``resp``) — see fetch_hana_mcp_audit_view docs.
+            if payload.get("status") == "success" and payload.get("response_size") is not None:
+                self._emit_beacon_sql(correlation.get("invocation_id"))
         except Exception as exc:
             if strict:
                 raise
             logging.warning("Failed to update HANA session event snapshot: %s", exc)
+
+    def _emit_beacon_sql(self, invocation_id: Optional[str]) -> None:
+        """Fire a synthetic uniquely-tagged SELECT so plan cache records ``resp=``.
+
+        Best-effort: swallows driver exceptions (logs a warning) — the audit
+        contract already tolerates missing HANA-side data. The SQL text embeds
+        the invocation id inside an SQL comment so each invocation produces a
+        distinct plan-cache row (avoiding cross-invocation reuse of a single
+        cached plan whose APPLICATION_SOURCE was frozen on an earlier
+        invocation's ``resp=``).
+        """
+        if self.connection_context is None:
+            return
+        connection = getattr(self.connection_context, "connection", None)
+        if connection is None or not hasattr(connection, "cursor"):
+            return
+        # Sanitize invocation_id to an ASCII token so it is safe to embed in
+        # an SQL comment. `_APP_SOURCE_SAFE_VALUE_RE`-equivalent whitelist,
+        # inlined here to avoid crossing module boundaries for one call.
+        safe_inv = re.sub(r"[^A-Za-z0-9._:/@\-]", "_", str(invocation_id or "none"))
+        beacon_sql = (
+            f"SELECT /* {MCP_BEACON_SQL_MARKER} inv={safe_inv} */ "
+            "CURRENT_UTCTIMESTAMP FROM DUMMY"
+        )
+        cursor = None
+        try:
+            cursor = connection.cursor()
+            cursor.execute(beacon_sql)
+            try:
+                cursor.fetchall()
+            except Exception:
+                # Some drivers require fetch to consume the result; tolerate
+                # drivers where the SELECT returns nothing fetchable.
+                pass
+        except Exception as exc:
+            logging.warning("Failed to emit MCP audit beacon SQL: %s", exc)
+        finally:
+            if cursor is not None:
+                close_method = getattr(cursor, "close", None)
+                if callable(close_method):
+                    try:
+                        close_method()
+                    except Exception:
+                        pass
 
     def _summarize_tool_result(self, result: Any) -> dict[str, Any]:
         audit_result = self._extract_audit_result_payload(result)

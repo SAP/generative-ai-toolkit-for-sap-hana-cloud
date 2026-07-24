@@ -104,3 +104,30 @@ hana_ml_toolkit
    :template: class.rst
 
    toolkit.HANAMLToolkit
+
+.. _hana_ml_tools_utility-label:
+
+hana_ml_tools.utility
+---------------------
+
+Module-level helpers for MCP server/client bootstrap, audit inspection, and
+the HANA-side ``APPLICATIONSOURCE`` pack that carries MCP identity into
+``M_SQL_PLAN_CACHE`` / ``AUDIT_LOG``. See :doc:`mcp_audit` for the audit
+story end-to-end.
+
+.. currentmodule:: hana_ai.tools.hana_ml_tools.utility
+
+.. autofunction:: build_context_agent_mcp_tools
+.. autofunction:: ensure_mcp_audit_log
+.. autofunction:: fetch_mcp_audit_rows
+.. autofunction:: fetch_hana_session_context
+.. autofunction:: fetch_hana_appsource_pack
+.. autofunction:: fetch_hana_mcp_audit_view
+.. autofunction:: build_appsource_pack
+.. autofunction:: parse_appsource_pack
+.. autofunction:: decode_appsource_args
+.. autofunction:: find_free_port
+.. autodata::     DEFAULT_MCP_SESSION_CONTEXT_KEYS
+.. autodata::     APPLICATIONSOURCE_MAX_BYTES
+.. autodata::     APPLICATIONSOURCE_FIELD_ORDER
+.. autodata::     HANA_MCP_AUDIT_VIEW_COLUMNS
