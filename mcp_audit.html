@@ -554,22 +554,25 @@ do not emit a beacon and evicted beacons drop the value.</p></li>
 </section>
 <section id="querying-hana-side-with-an-audit-policy">
 <h2>Querying HANA-side with an audit policy<a class="headerlink" href="#querying-hana-side-with-an-audit-policy" title="Link to this heading"></a></h2>
-<p>For long-term retention on HANA, the DBA enables audit policies on the
-relevant schemas:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="c1">-- One-time DBA setup</span>
-<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">ALTER</span><span class="w"> </span><span class="n">CONFIGURATION</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;global.ini&#39;</span><span class="p">,</span><span class="s1">&#39;SYSTEM&#39;</span><span class="p">)</span>
-<span class="w">  </span><span class="k">SET</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;auditing configuration&#39;</span><span class="p">,</span><span class="s1">&#39;global_auditing_state&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;true&#39;</span>
-<span class="w">  </span><span class="k">WITH</span><span class="w"> </span><span class="n">RECONFIGURE</span><span class="p">;</span>
-
-<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">ALTER</span><span class="w"> </span><span class="n">CONFIGURATION</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;global.ini&#39;</span><span class="p">,</span><span class="s1">&#39;SYSTEM&#39;</span><span class="p">)</span>
-<span class="w">  </span><span class="k">SET</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;auditing configuration&#39;</span><span class="p">,</span><span class="s1">&#39;maximum_statement_string_length&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;16000&#39;</span>
-<span class="w">  </span><span class="k">WITH</span><span class="w"> </span><span class="n">RECONFIGURE</span><span class="p">;</span>
-
+<p>For long-term retention on HANA Cloud, the DBA enables audit policies on
+the relevant schemas. On HANA Cloud, <code class="docutils literal notranslate"><span class="pre">global_auditing_state</span></code> is enabled
+by default at the tenant level, so no <code class="docutils literal notranslate"><span class="pre">ALTER</span> <span class="pre">SYSTEM</span> <span class="pre">...</span> <span class="pre">CONFIGURATION</span></code>
+call is required (and the on-prem <code class="docutils literal notranslate"><span class="pre">'SYSTEM'</span></code> layer is not exposed to
+tenants anyway). Only <code class="docutils literal notranslate"><span class="pre">TRAIL</span> <span class="pre">TYPE</span> <span class="pre">TABLE</span></code> is supported on HANA Cloud:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="c1">-- One-time DBA setup on HANA Cloud</span>
 <span class="k">CREATE</span><span class="w"> </span><span class="n">AUDIT</span><span class="w"> </span><span class="n">POLICY</span><span class="w"> </span><span class="n">p_mcp_tools</span>
 <span class="w">  </span><span class="n">AUDITING</span><span class="w"> </span><span class="n">SUCCESSFUL</span><span class="w"> </span><span class="k">EXECUTE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="ss">&quot;MY_MCP_SCHEMA&quot;</span>
-<span class="w">  </span><span class="k">LEVEL</span><span class="w"> </span><span class="n">INFO</span><span class="w"> </span><span class="n">TRAIL</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="k">TABLE</span><span class="p">;</span>
+<span class="w">  </span><span class="k">LEVEL</span><span class="w"> </span><span class="n">INFO</span><span class="w"> </span><span class="n">TRAIL</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="k">TABLE</span><span class="p">;</span><span class="w">   </span><span class="c1">-- TABLE is the only trail type on HANA Cloud</span>
 <span class="k">ALTER</span><span class="w"> </span><span class="n">AUDIT</span><span class="w"> </span><span class="n">POLICY</span><span class="w"> </span><span class="n">p_mcp_tools</span><span class="w"> </span><span class="n">ENABLE</span><span class="p">;</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">maximum_statement_string_length</span></code> is a platform-managed setting on
+HANA Cloud and cannot be adjusted by the tenant. If <code class="docutils literal notranslate"><span class="pre">STATEMENT_STRING</span></code>
+in <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG</span></code> is truncated for your workload, fall back to the
+<code class="docutils literal notranslate"><span class="pre">M_SQL_PLAN_CACHE</span></code> path (previous section), whose full SQL text is
+not subject to this cap.</p>
 </div>
 <p>Once policies are on, the same pack lands in <code class="docutils literal notranslate"><span class="pre">AUDIT_LOG</span></code> alongside every
 audited SQL, permanently:</p>
@@ -591,9 +594,7 @@ audited SQL, permanently:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The audit-log column that mirrors <code class="docutils literal notranslate"><span class="pre">setclientinfo('APPLICATIONSOURCE')</span></code>
-may be exposed under different names on different HANA builds
-(<code class="docutils literal notranslate"><span class="pre">CLIENT_APPLICATION_SOURCE</span></code> on recent HANA Cloud). Adjust the
-projection accordingly.</p>
+is exposed as <code class="docutils literal notranslate"><span class="pre">CLIENT_APPLICATION_SOURCE</span></code> on HANA Cloud.</p>
 </div>
 </section>
 <section id="hana-side-field-reference">
