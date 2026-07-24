@@ -14,7 +14,6 @@ Welcome to hana.ai's documentation!
    changlog
    hana_ai.agents
    hana_ai.tools
-   mcp_audit
    hana_ai.retrieval
    hana_ai.vectorstore
    hana_ai.smart_dataframe
