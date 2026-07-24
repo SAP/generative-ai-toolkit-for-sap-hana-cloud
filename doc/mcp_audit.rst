@@ -162,24 +162,27 @@ Limits of this view:
 Querying HANA-side with an audit policy
 ---------------------------------------
 
-For long-term retention on HANA, the DBA enables audit policies on the
-relevant schemas:
+For long-term retention on HANA Cloud, the DBA enables audit policies on
+the relevant schemas. On HANA Cloud, ``global_auditing_state`` is enabled
+by default at the tenant level, so no ``ALTER SYSTEM ... CONFIGURATION``
+call is required (and the on-prem ``'SYSTEM'`` layer is not exposed to
+tenants anyway). Only ``TRAIL TYPE TABLE`` is supported on HANA Cloud:
 
 .. code-block:: sql
 
-    -- One-time DBA setup
-    ALTER SYSTEM ALTER CONFIGURATION ('global.ini','SYSTEM')
-      SET ('auditing configuration','global_auditing_state') = 'true'
-      WITH RECONFIGURE;
-
-    ALTER SYSTEM ALTER CONFIGURATION ('global.ini','SYSTEM')
-      SET ('auditing configuration','maximum_statement_string_length') = '16000'
-      WITH RECONFIGURE;
-
+    -- One-time DBA setup on HANA Cloud
     CREATE AUDIT POLICY p_mcp_tools
       AUDITING SUCCESSFUL EXECUTE ON SCHEMA "MY_MCP_SCHEMA"
-      LEVEL INFO TRAIL TYPE TABLE;
+      LEVEL INFO TRAIL TYPE TABLE;   -- TABLE is the only trail type on HANA Cloud
     ALTER AUDIT POLICY p_mcp_tools ENABLE;
+
+.. note::
+
+   ``maximum_statement_string_length`` is a platform-managed setting on
+   HANA Cloud and cannot be adjusted by the tenant. If ``STATEMENT_STRING``
+   in ``AUDIT_LOG`` is truncated for your workload, fall back to the
+   ``M_SQL_PLAN_CACHE`` path (previous section), whose full SQL text is
+   not subject to this cap.
 
 Once policies are on, the same pack lands in ``AUDIT_LOG`` alongside every
 audited SQL, permanently:
@@ -203,9 +206,7 @@ audited SQL, permanently:
 .. note::
 
    The audit-log column that mirrors ``setclientinfo('APPLICATIONSOURCE')``
-   may be exposed under different names on different HANA builds
-   (``CLIENT_APPLICATION_SOURCE`` on recent HANA Cloud). Adjust the
-   projection accordingly.
+   is exposed as ``CLIENT_APPLICATION_SOURCE`` on HANA Cloud.
 
 
 HANA-side field reference
