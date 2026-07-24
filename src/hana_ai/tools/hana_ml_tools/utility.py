@@ -997,7 +997,87 @@ def build_context_agent_mcp_tools(
 ):
     """Build LangChain-compatible tools backed by an HTTP MCP server.
 
-    Returns a tuple of (tools, client).
+    Opens an HTTP MCP session against ``base_url`` via
+    :class:`SyncHTTPMCPClient`, calls ``initialize`` to hand the server the
+    end-user / agent / model identity that will show up in every HANA audit
+    row (see :doc:`mcp_audit`), enumerates the server's tool catalogue via
+    ``tools/list``, and wraps each one as a
+    :class:`langchain_core.tools.StructuredTool` whose ``args_schema`` is
+    derived from the tool's JSON Schema. The returned tools are drop-in
+    replacements for local ``BaseTool`` instances — hand them to
+    :class:`~hana_ai.iagents.context_agent.ContextAgent` (or any LangChain
+    agent) and every invocation transparently round-trips through the MCP
+    server, so the HANA-side audit path (setclientinfo, plan cache, audit
+    log) is exercised end-to-end.
+
+    Parameters
+    ----------
+    base_url : str
+        MCP server URL. Trailing ``/mcp`` is added automatically if absent
+        (e.g. ``http://127.0.0.1:8001`` and ``http://127.0.0.1:8001/mcp``
+        are both accepted). Only ``http``/``https`` transports are
+        supported by this helper — for stdio, use the stdio client
+        directly.
+    timeout : int, default 120
+        Per-request HTTP timeout in seconds. Applied to every ``tools/list``
+        and ``tools/call`` request.
+    client_name : str
+        End-user identity or client name passed to the server via
+        ``clientInfo.name`` and the ``x-mcp-client-name`` header. Lands on
+        HANA's ``APPLICATIONUSER`` channel and inside the pack's ``cli=``
+        segment.
+    client_version : str, default "0.1"
+        Client version tag; lands on HANA's ``APPLICATIONVERSION``.
+    client_metadata : dict, optional
+        Optional identity metadata forwarded to the server. Recognised
+        keys:
+
+        * ``client_id`` — sets the ``x-mcp-client-id`` header
+        * ``agent_name`` — sets ``x-ai-agent-name``; lands in pack ``agent=``
+        * ``model_name`` — sets ``x-ai-model-name``; lands in pack ``model=``
+        * ``model_version`` — sets ``x-ai-model-version``
+
+        Values are stringified. Unknown keys are ignored.
+    skip_admin_tools : bool, default True
+        When ``True``, tools whose name starts with ``admin_`` (e.g.
+        ``admin_update_connection_context``) are excluded from the returned
+        list. Set to ``False`` if the agent needs to manage the server's
+        connection context at runtime.
+
+    Returns
+    -------
+    tuple[list[StructuredTool], SyncHTTPMCPClient]
+        ``(tools, client)`` — the LangChain-ready tools, and the live MCP
+        client. Keep the client alive for the duration of the agent
+        session; when done, call ``client.close()`` to release the HTTP
+        session and its MCP session id.
+
+    Examples
+    --------
+    Launch the MCP server on one process, then wire it into a
+    ``ContextAgent`` from another:
+
+    >>> from hana_ai.tools.hana_ml_tools.utility import build_context_agent_mcp_tools
+    >>> tools, client = build_context_agent_mcp_tools(
+    ...     "http://127.0.0.1:8001/mcp",
+    ...     client_name="context-agent-notebook",
+    ...     client_metadata={
+    ...         "agent_name": "context-agent",
+    ...         "model_name": "gpt-4.1",
+    ...     },
+    ... )
+    >>> [t.name for t in tools][:3]
+    ['fetch_data', 'list_models', 'display_config_dict']
+    >>> # Hand `tools` to any LangChain agent; every call now carries the
+    >>> # context-agent identity all the way into HANA's audit trail.
+
+    See Also
+    --------
+    SyncHTTPMCPClient : the underlying JSON-RPC client, exposed for callers
+        that want direct access (session id inspection, manual ``call_tool``
+        invocations, etc.).
+    fetch_hana_mcp_audit_view : query the HANA-side audit view populated by
+        every tool call made through the returned tools.
     """
     from langchain_core.tools import StructuredTool
 

@@ -125,9 +125,9 @@ story end-to-end.
 .. autofunction:: fetch_hana_mcp_audit_view
 .. autofunction:: build_appsource_pack
 .. autofunction:: parse_appsource_pack
-.. autofunction:: decode_appsource_args
 .. autofunction:: find_free_port
 .. autodata::     DEFAULT_MCP_SESSION_CONTEXT_KEYS
 .. autodata::     APPLICATIONSOURCE_MAX_BYTES
 .. autodata::     APPLICATIONSOURCE_FIELD_ORDER
 .. autodata::     HANA_MCP_AUDIT_VIEW_COLUMNS
+.. autodata::     MCP_BEACON_SQL_MARKER
