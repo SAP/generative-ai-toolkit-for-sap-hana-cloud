@@ -14,9 +14,6 @@ The following classes are available:
 from typing import List
 import uuid
 
-import subprocess
-import sys
-
 try:
     from gen_ai_hub.proxy.langchain import init_embedding_model as gen_ai_hub_embedding_model
 except ImportError:
