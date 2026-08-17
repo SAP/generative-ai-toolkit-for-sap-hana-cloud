@@ -14,14 +14,10 @@ The following classes are available:
 from typing import List
 import uuid
 
-import subprocess
-import sys
-
 try:
     from gen_ai_hub.proxy.langchain import init_embedding_model as gen_ai_hub_embedding_model
 except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "sap-ai-sdk-gen[all]"])
-    from gen_ai_hub.proxy.langchain import init_embedding_model as gen_ai_hub_embedding_model
+    gen_ai_hub_embedding_model = None
 
 import pandas as pd
 from langchain.embeddings.base import Embeddings
@@ -217,6 +213,11 @@ class GenAIHubEmbeddings(Embeddings):
         """
         Init embedding service from llm_commons.
         """
+        if gen_ai_hub_embedding_model is None:
+            raise ImportError(
+                "GenAIHubEmbeddings requires the 'generative-ai-hub-sdk' package. "
+                "Install it with: pip install generative-ai-hub-sdk"
+            )
         self.model = gen_ai_hub_embedding_model(model_id, **kwargs)
 
     def __call__(self, input):
