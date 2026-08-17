@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HANAMLToolkit &mdash; hana.ai 1.1.26072400 documentation</title>
+  <title>HANAMLToolkit &mdash; hana.ai 1.1.26081400 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=37ed180d"></script>
+      <script src="../_static/documentation_options.js?v=19210906"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -278,19 +278,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../hana_ai.tools.html#hana_ai.tools.hana_ml_tools.utility.APPLICATIONSOURCE_FIELD_ORDER"><code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE_FIELD_ORDER</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../hana_ai.tools.html#hana_ai.tools.hana_ml_tools.utility.HANA_MCP_AUDIT_VIEW_COLUMNS"><code class="docutils literal notranslate"><span class="pre">HANA_MCP_AUDIT_VIEW_COLUMNS</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../hana_ai.tools.html#hana_ai.tools.hana_ml_tools.utility.MCP_BEACON_SQL_MARKER"><code class="docutils literal notranslate"><span class="pre">MCP_BEACON_SQL_MARKER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../mcp_audit.html">MCP session auditing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../mcp_audit.html#what-lands-on-the-hana-side-automatically">What lands on the HANA side automatically</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../mcp_audit.html#querying-hana-side-without-an-audit-policy">Querying HANA-side without an audit policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../mcp_audit.html#querying-hana-side-with-an-audit-policy">Querying HANA-side with an audit policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../mcp_audit.html#hana-side-field-reference">HANA-side field reference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../mcp_audit.html#inspecting-a-live-mcp-connection-s-pack">Inspecting a live MCP connection's pack</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../mcp_audit.html">MCP session auditing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../mcp_audit.html#what-lands-on-the-hana-side-automatically">What lands on the HANA side automatically</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../mcp_audit.html#surfacing-response-size-on-the-hana-side">Surfacing <code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> on the HANA side</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../mcp_audit.html#querying-hana-side-without-an-audit-policy">Querying HANA-side without an audit policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mcp_audit.html#querying-hana-side-with-an-audit-policy">Querying HANA-side with an audit policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mcp_audit.html#hana-side-field-reference">HANA-side field reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mcp_audit.html#inspecting-a-live-mcp-connection-s-pack">Inspecting a live MCP connection's pack</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
@@ -495,7 +492,7 @@ If None, reset to default tools.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server">
-<span class="sig-name descname"><span class="pre">launch_mcp_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HANATools'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stdio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">launch_mcp_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HANATools'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stdio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stateless_http</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit.launch_mcp_server" title="Link to this definition"></a></dt>
 <dd><p>Launch the MCP server with the specified configuration.
 This method initializes the MCP server, registers all tools, and starts the server in a background thread.
 If the specified port is occupied, it will try the next port up to <cite>max_retries</cite> times.</p>
@@ -513,6 +510,15 @@ If the specified port is occupied, it will try the next port up to <cite>max_ret
 <dt><strong>auth_token</strong><span class="classifier">str, optional</span></dt><dd><p>Authentication token for the server. If provided, the server will require this token for access.</p>
 </dd>
 <dt><strong>max_retries</strong><span class="classifier">int</span></dt><dd><p>Maximum number of retries to find an available port. Default is 5.</p>
+</dd>
+<dt><strong>stateless_http</strong><span class="classifier">bool</span></dt><dd><p>HTTP transport only. When True, run the Streamable HTTP server in stateless
+mode: no per-client <code class="docutils literal notranslate"><span class="pre">mcp-session-id</span></code> is issued or enforced, so clients that
+hold a previously-cached session id (e.g. Joule Desktop after a server
+restart) can reconnect without a handshake error. Every request is treated
+independently by the transport, but the audit layer still correlates them
+under a single process-lifetime session id so <code class="docutils literal notranslate"><span class="pre">mcp.session.started</span></code> is
+emitted exactly once per server start. Ignored for <code class="docutils literal notranslate"><span class="pre">stdio</span></code> / <code class="docutils literal notranslate"><span class="pre">sse</span></code>.
+Default is False (stateful — unchanged legacy behavior).</p>
 </dd>
 </dl>
 </dd>

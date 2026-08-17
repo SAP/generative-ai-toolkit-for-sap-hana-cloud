@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MCP session auditing &mdash; hana.ai 1.1.26072400 documentation</title>
+  <title>MCP session auditing &mdash; hana.ai 1.1.26081400 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=37ed180d"></script>
+      <script src="_static/documentation_options.js?v=19210906"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -80,7 +80,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hana_ai.tools.html">hana_ai.tools</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="hana_ai.tools.html">hana_ai.tools</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.tools.html#agent-as-a-tool">agent_as_a_tool</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.agent_as_a_tool.AgentAsATool.html">AgentAsATool</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.agent_as_a_tool.AgentAsATool.html#hana_ai.tools.agent_as_a_tool.AgentAsATool"><code class="docutils literal notranslate"><span class="pre">AgentAsATool</span></code></a></li>
@@ -263,7 +263,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="hana_ai.tools.html#hana-ml-tools-utility">hana_ml_tools.utility</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="hana_ai.tools.html#hana-ml-tools-utility">hana_ml_tools.utility</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.tools.hana_ml_tools.utility.build_context_agent_mcp_tools"><code class="docutils literal notranslate"><span class="pre">build_context_agent_mcp_tools()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.tools.hana_ml_tools.utility.ensure_mcp_audit_log"><code class="docutils literal notranslate"><span class="pre">ensure_mcp_audit_log()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.tools.hana_ml_tools.utility.fetch_mcp_audit_rows"><code class="docutils literal notranslate"><span class="pre">fetch_mcp_audit_rows()</span></code></a></li>
@@ -278,19 +278,16 @@
 <li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.tools.hana_ml_tools.utility.APPLICATIONSOURCE_FIELD_ORDER"><code class="docutils literal notranslate"><span class="pre">APPLICATIONSOURCE_FIELD_ORDER</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.tools.hana_ml_tools.utility.HANA_MCP_AUDIT_VIEW_COLUMNS"><code class="docutils literal notranslate"><span class="pre">HANA_MCP_AUDIT_VIEW_COLUMNS</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.tools.hana_ml_tools.utility.MCP_BEACON_SQL_MARKER"><code class="docutils literal notranslate"><span class="pre">MCP_BEACON_SQL_MARKER</span></code></a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">MCP session auditing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-lands-on-the-hana-side-automatically">What lands on the HANA side automatically</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#querying-hana-side-without-an-audit-policy">Querying HANA-side without an audit policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#querying-hana-side-with-an-audit-policy">Querying HANA-side with an audit policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hana-side-field-reference">HANA-side field reference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#inspecting-a-live-mcp-connection-s-pack">Inspecting a live MCP connection's pack</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">MCP session auditing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#what-lands-on-the-hana-side-automatically">What lands on the HANA side automatically</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#surfacing-response-size-on-the-hana-side">Surfacing <code class="docutils literal notranslate"><span class="pre">RESPONSE_SIZE</span></code> on the HANA side</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#querying-hana-side-without-an-audit-policy">Querying HANA-side without an audit policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#querying-hana-side-with-an-audit-policy">Querying HANA-side with an audit policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hana-side-field-reference">HANA-side field reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#inspecting-a-live-mcp-connection-s-pack">Inspecting a live MCP connection's pack</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
@@ -379,6 +376,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="hana_ai.tools.html">hana_ai.tools</a></li>
       <li class="breadcrumb-item active">MCP session auditing</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/mcp_audit.rst.txt" rel="nofollow"> View page source</a>

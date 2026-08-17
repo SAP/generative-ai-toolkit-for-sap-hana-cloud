@@ -1,6 +1,11 @@
 Changelog
 =========
 
+**Version 1.1.26081400**
+
+``API Changes``
+    - Split ``sap-ai-sdk-gen`` out of the default install. ``pip install hana_ai`` no longer pulls in ``sap-ai-sdk-gen[all]``; use ``pip install hana_ai[all]`` to opt back into the full generative AI stack.
+
 **Version 1.1.26072000**
 
 ``New Functions``
