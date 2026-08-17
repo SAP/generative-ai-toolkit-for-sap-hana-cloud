@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hana_ai"
-version = "1.1.26072400"
+version = "1.1.26081400"
 authors = [
     {name = "SAP"}
 ]
@@ -15,6 +15,9 @@ license = {text = "Apache-2.0"}
 keywords = ["Generative AI Toolkit SAP HANA Cloud"]
 
 dynamic = ["dependencies"]
+
+[project.optional-dependencies]
+all = ["sap-ai-sdk-gen[all]"]
 
 [project.urls]
 Homepage = "https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud"

@@ -1798,7 +1798,8 @@ class HANAMLToolkit(BaseToolkit):
         transport: str = "stdio",
         port: int = 8001,
         auth_token: Optional[str] = None,
-        max_retries: int = 5
+        max_retries: int = 5,
+        stateless_http: bool = False,
     ):
         """
         Launch the MCP server with the specified configuration.
@@ -1819,6 +1820,15 @@ class HANAMLToolkit(BaseToolkit):
             Authentication token for the server. If provided, the server will require this token for access.
         max_retries : int
             Maximum number of retries to find an available port. Default is 5.
+        stateless_http : bool
+            HTTP transport only. When True, run the Streamable HTTP server in stateless
+            mode: no per-client ``mcp-session-id`` is issued or enforced, so clients that
+            hold a previously-cached session id (e.g. Joule Desktop after a server
+            restart) can reconnect without a handshake error. Every request is treated
+            independently by the transport, but the audit layer still correlates them
+            under a single process-lifetime session id so ``mcp.session.started`` is
+            emitted exactly once per server start. Ignored for ``stdio`` / ``sse``.
+            Default is False (stateful — unchanged legacy behavior).
         """
         attempts = 0
         original_port = port
@@ -1852,7 +1862,18 @@ class HANAMLToolkit(BaseToolkit):
                     raise RuntimeError("HTTP transport not supported (fastmcp missing)")
                 # HTTP transport relies on the wrapped function signature for schema inference.
                 # Register each tool exactly once to avoid FastMCP duplicate-tool warnings.
-                mcp = FastMCPHTTP(server_settings.get("name", "HANATools"), host=server_settings.get("host", "127.0.0.1"), port=port, streamable_http_path="/mcp", json_response=True)
+                #
+                # ``stateless_http`` is forwarded to fastmcp so the Streamable HTTP layer
+                # stops issuing / enforcing per-client ``mcp-session-id`` values. This is
+                # opt-in (default False) — legacy stateful behavior is unchanged.
+                mcp = FastMCPHTTP(
+                    server_settings.get("name", "HANATools"),
+                    host=server_settings.get("host", "127.0.0.1"),
+                    port=port,
+                    streamable_http_path="/mcp",
+                    json_response=True,
+                    stateless_http=stateless_http,
+                )
                 # 检查端口可用性
                 if not self.is_port_available(port):
                     logging.warning("⚠️  Port %s occupied, trying next port", port)
@@ -1861,6 +1882,7 @@ class HANAMLToolkit(BaseToolkit):
                     time.sleep(0.2)
                     continue
             else:
+                # stdio / sse: stateless_http is HTTP-only; silently ignore for other transports.
                 mcp = FastMCP(**server_settings)
 
             if transport == "http" and Middleware is not None and hasattr(mcp, "add_middleware"):
@@ -1868,28 +1890,75 @@ class HANAMLToolkit(BaseToolkit):
                 current_host = server_settings.get("host", "127.0.0.1")
                 current_port = port
 
+                # Stateless mode: fastmcp does not issue / accept per-client session ids,
+                # so the resolver would return None for every request. We coalesce all
+                # traffic into a single process-lifetime session id so audit correlation
+                # and the once-per-session semantics of ``mcp.session.started`` still hold.
+                # In stateful mode this stays None and behavior is unchanged.
+                stable_session_id: Optional[str] = (
+                    f"stateless-http-{os.getpid()}-{uuid4().hex[:8]}"
+                    if stateless_http else None
+                )
+                started_sessions: set[str] = set()
+                started_lock = threading.Lock()
+
+                def _effective_session_id(ctx: Any) -> Optional[str]:
+                    """Return the session id used for audit/metadata bookkeeping.
+
+                    Stateless mode collapses every request onto ``stable_session_id`` so
+                    ``mcp_session_metadata`` cannot grow unbounded and ``session.started``
+                    fires exactly once for the server's lifetime.
+                    """
+                    if stateless_http:
+                        return stable_session_id
+                    return toolkit._resolve_context_session_id(ctx, transport=transport)
+
+                def _maybe_emit_session_started(
+                    session_id: Optional[str],
+                    *,
+                    ctx: Any = None,
+                    message: Any = None,
+                ) -> None:
+                    """Emit ``mcp.session.started`` at most once per session id.
+
+                    Stateful path (session_id from client / transport): each new client
+                    session gets exactly one started event, matching legacy behavior.
+                    Stateless path (session_id == stable_session_id): only the first
+                    initialize (or first tool call, whichever wins) emits — all
+                    subsequent requests short-circuit.
+                    """
+                    if not session_id:
+                        return
+                    with started_lock:
+                        if session_id in started_sessions:
+                            return
+                        started_sessions.add(session_id)
+                    toolkit._apply_audit_session_started(
+                        session_id,
+                        transport=transport,
+                        server_host=current_host,
+                        server_port=current_port,
+                        ctx=ctx,
+                        message=message,
+                    )
+
                 class MCPAuditMiddleware(Middleware):
                     """FastMCP middleware that hooks initialize and call_tool events to emit MCP audit context."""
 
                     async def on_initialize(self, context, call_next):
                         result = await call_next(context)
-                        session_id = toolkit._resolve_context_session_id(
+                        session_id = _effective_session_id(
                             getattr(context, "fastmcp_context", None),
-                            transport=transport,
                         )
-                        toolkit._apply_audit_session_started(
+                        _maybe_emit_session_started(
                             session_id,
-                            transport=transport,
-                            server_host=current_host,
-                            server_port=current_port,
                             message=context.message,
                         )
                         return result
 
                     async def on_call_tool(self, context, call_next):
-                        session_id = toolkit._resolve_context_session_id(
+                        session_id = _effective_session_id(
                             getattr(context, "fastmcp_context", None),
-                            transport=transport,
                         )
                         if session_id:
                             metadata = toolkit._extract_request_identity_metadata(
@@ -1907,18 +1976,15 @@ class HANAMLToolkit(BaseToolkit):
 
                     async def audited_call_tool_middleware(key: str, arguments: dict[str, Any]) -> Any:
                         ctx = get_fastmcp_context() if get_fastmcp_context is not None else None
-                        session_id = toolkit._resolve_context_session_id(ctx, transport)
+                        session_id = _effective_session_id(ctx)
                         current_metadata = toolkit._get_session_metadata(session_id)
                         if not current_metadata and session_id:
                             # Fallback bootstrap if on_initialize did not fire
                             # (e.g. legacy clients that skip the initialize step).
-                            toolkit._apply_audit_session_started(
-                                session_id,
-                                transport=transport,
-                                server_host=current_host,
-                                server_port=current_port,
-                                ctx=ctx,
-                            )
+                            # Routed through _maybe_emit_session_started so a stateless
+                            # server that boots via a first tool call still emits
+                            # session.started exactly once.
+                            _maybe_emit_session_started(session_id, ctx=ctx)
 
                         invocation_id = toolkit._generate_invocation_id()
                         hana_correlation_id = toolkit._generate_hana_correlation_id()
