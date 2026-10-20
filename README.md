@@ -29,7 +29,7 @@ Core ContextAgent skills include:
 - `outlier_detection_and_repair_prep` for anomaly inspection before model training
 - `massive_forecasting` for grouped forecasting across many related series
 - `model_lifecycle_and_artifacts` for listing, deleting, and packaging saved models
-- `hana_dataframe_fallback` for SQL and restricted Python fallback transformations
+- `hana_dataframe_fallback` for SQL transformations (Python fallback requires explicit trusted-host opt-in)
 
 ## Tools
 
@@ -43,7 +43,7 @@ Core forecasting and analysis tools include:
 - `additive_model_forecast_fit_and_save`, `additive_model_forecast_load_model_and_predict`, `intermittent_forecast`
 - `ts_outlier_detection`, `ts_make_future_table`, `forecast_line_plot`, `accuracy_measure`
 - `list_models`, `delete_models`, `cap_artifacts`, `hdi_artifacts`
-- `SelectStatement_to_table`, `python_hanaml_exec`
+- `SelectStatement_to_table`
 
 Grouped and massive forecasting tools include:
 
@@ -53,6 +53,27 @@ Grouped and massive forecasting tools include:
 - `ts_make_future_table_for_massive_forecast`
 
 See the ContextAgent notebook for an end-to-end example at [nutest/testscripts/demo/e2e_scenarios/context_agent.ipynb](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/blob/main/nutest/testscripts/demo/e2e_scenarios/context_agent.ipynb).
+
+### Python execution trust boundary
+
+`python_hanaml_exec` is **disabled by default** and is not included in the default
+`HANAMLToolkit` tool list, including `used_tools='all'`, name-based selection, and
+connection refreshes. Directly constructed instances also refuse to execute code
+unless the host explicitly opts in. Tool-call arguments cannot enable execution.
+
+This tool is **not a sandbox**. Code runs in the host process with its filesystem,
+network, and HANA database permissions. The AST checks and reduced builtins are
+best-effort guardrails only: full pandas/hana-ml objects support file I/O and raw
+database access, and `sql()` does not enforce SQL authorization. There is no
+execution timeout or resource isolation.
+
+Applications that deliberately run **fully trusted code from trusted callers**
+must construct `PythonHanaMLExecTool(connection_context=cc, allow_dangerous_code=True)`
+from `hana_ai.tools.hana_ml_tools.python_exec_tools` and register that instance
+using `toolkit.add_custom_tool(tool)`. Never expose an enabled instance to
+untrusted agent or MCP callers. Untrusted-code execution requires a separately
+designed OS-level isolation boundary, scoped credentials, and resource limits;
+do not rely on this tool's syntax checks for containment.
 
 ## Support, Feedback, Contributing
 

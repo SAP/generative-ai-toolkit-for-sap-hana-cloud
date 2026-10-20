@@ -85,7 +85,6 @@ from hana_ai.tools.hana_ml_tools.ts_make_predict_table import TSMakeFutureTableT
 from hana_ai.tools.hana_ml_tools.select_statement_to_table_tools import SelectStatementToTableTool
 from hana_ai.tools.hana_ml_tools.massive_automatic_timeseries_tools import MassiveAutomaticTimeSeriesFitAndSave, MassiveAutomaticTimeSeriesLoadModelAndPredict, MassiveAutomaticTimeSeriesLoadModelAndScore
 from hana_ai.tools.hana_ml_tools.massive_ts_outlier_detection_tools import MassiveTSOutlierDetection
-from hana_ai.tools.hana_ml_tools.python_exec_tools import PythonHanaMLExecTool
 from hana_ai.tools.hana_ml_tools.config_dict_validator_tools import GetPALPipelineInfo, GetAutoMLConfigDict, ModifyAutoMLConfigDict
 
 ImportCSVToTableTool = dataset_prep_tools_module.ImportCSVToTableTool
@@ -208,7 +207,6 @@ def _refresh_tools_for_new_context(toolkit: "HANAMLToolkit") -> dict[str, Any]:
             MassiveTimeSeriesCheck(connection_context=toolkit.connection_context),
             TSMakeFutureTableForMassiveForecastTool(connection_context=toolkit.connection_context),
             MassiveTSOutlierDetection(connection_context=toolkit.connection_context),
-            PythonHanaMLExecTool(connection_context=toolkit.connection_context),
             GetPALPipelineInfo(connection_context=toolkit.connection_context),
             GetAutoMLConfigDict(connection_context=toolkit.connection_context),
             ModifyAutoMLConfigDict(connection_context=toolkit.connection_context),
@@ -241,7 +239,10 @@ class HANAMLToolkit(BaseToolkit):
     connection_context : ConnectionContext
         Connection context to the HANA database.
     used_tools : list, optional
-        List of tools to use. If None or 'all', all tools are used. Default to None.
+        List of tools to use. If None or 'all', all default tools are used.
+        Default to None. Python execution is never included automatically;
+        it requires a separately constructed, explicitly enabled trusted-code
+        tool registered with add_custom_tool.
 
     Examples
     --------
@@ -332,7 +333,6 @@ class HANAMLToolkit(BaseToolkit):
             MassiveTimeSeriesCheck(connection_context=self.connection_context),
             TSMakeFutureTableForMassiveForecastTool(connection_context=self.connection_context),
             MassiveTSOutlierDetection(connection_context=self.connection_context),
-            PythonHanaMLExecTool(connection_context=self.connection_context),
             GetPALPipelineInfo(connection_context=self.connection_context),
             GetAutoMLConfigDict(connection_context=self.connection_context),
             ModifyAutoMLConfigDict(connection_context=self.connection_context),

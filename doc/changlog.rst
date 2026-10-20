@@ -1,6 +1,12 @@
 Changelog
 =========
 
+**Unreleased**
+
+``Security / API Changes``
+    - Disabled ``PythonHanaMLExecTool`` execution by default and removed it from both default toolkit construction and connection-context refreshes. Calling the tool, selecting it by name, or using ``used_tools='all'`` cannot enable Python execution.
+    - Trusted host applications must explicitly construct the tool with ``allow_dangerous_code=True`` and register it as a custom tool. This is a breaking security change: the executor is not a sandbox, and its AST checks cannot contain pandas file I/O, raw database access, or implicit attribute traversal. Never expose an enabled instance to untrusted code or callers.
+
 **Version 1.1.26081400**
 
 ``API Changes``

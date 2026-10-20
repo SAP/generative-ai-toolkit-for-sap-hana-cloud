@@ -38,7 +38,7 @@ The ContextAgent currently supports the following workflow skills:
 | outlier_detection_and_repair_prep | Detect anomalous points or groups before modeling. |
 | massive_forecasting | Run grouped forecasting across many related series with group_key-aware tools. |
 | model_lifecycle_and_artifacts | List, delete, and package saved models as CAP or HDI artifacts. |
-| hana_dataframe_fallback | Materialize SQL or restricted Python fallback logic when dedicated tools are insufficient. |
+| hana_dataframe_fallback | Materialize SQL fallback logic when dedicated tools are insufficient; Python requires explicit trusted-host opt-in. |
 
 The ContextAgent also exposes command-style controls during `chat()`:
 
@@ -63,7 +63,7 @@ Provided AI-tools for streamlining usage of HANA ML functions in context of the 
 | import_csv_to_table | To import a local CSV file into a HANA table with optional datetime parsing. | since 1.1.26040800 |
 | intermittent_forecast | To forecast the intermittent time series data. |
 | list_models | To list the models in the model storage. |
-| python_hanaml_exec | To run restricted hana-ml Python logic for transformations or fallback analyses. |
+| python_hanaml_exec | Disabled by default and excluded from default tools. Unsandboxed Python for fully trusted code and callers only; requires explicit host-side `allow_dangerous_code=True` and custom-tool registration. |
 | seasonality_test | To check the seasonality of the time series data. |
 | SelectStatement_to_table | To execute a SELECT SQL statement and store the result in a new table. | since 1.0.250909 |
 | split_table_for_forecasting | To create train, test, and validation tables from an existing HANA table using time-ordered splitting for forecasting workflows. | since 1.1.26040800 |
