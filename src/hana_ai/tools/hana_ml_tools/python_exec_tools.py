@@ -1,15 +1,20 @@
-"""Python execution tool (restricted) for hana-ml DataFrame workflows.
+"""Opt-in Python execution for fully trusted hana-ml DataFrame workflows.
 
 This tool is intended for agent-driven data analysis when an operation is easier
-expressed as a short hana-ml DataFrame snippet.
+expressed as a short hana-ml DataFrame snippet, but only when the host application
+can trust all code submitted to it.
 
-Security model
+Trust boundary
 --------------
-- Disallows imports and common unsafe builtins (open/eval/exec/etc.)
-- Executes with a restricted set of builtins
-- Exposes only a small, explicit environment: cc, dataframe, pd, sql(), table(), head_collect()
+- Execution is disabled unless the host explicitly sets allow_dangerous_code=True.
+- This tool is not included in HANAMLToolkit's default tools.
+- Code runs in the host process with its filesystem, network and database access.
+- cc, dataframe, pd and returned DataFrames expose unrestricted capabilities;
+    sql() and table() are convenience helpers, not authorization checks.
+- The AST checks and reduced builtins are best-effort guardrails, NOT a sandbox.
 
-This is not a general-purpose Python sandbox.
+Never enable this tool for untrusted code or untrusted agent/MCP callers. There
+is no process isolation, resource limit or execution timeout.
 """
 
 from __future__ import annotations
@@ -21,7 +26,7 @@ import logging
 from contextlib import redirect_stdout
 from typing import Any, Dict, Optional, Type
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 try:
     from langchain_core.tools import BaseTool
 except Exception:  # pragma: no cover
@@ -34,11 +39,12 @@ logger = logging.getLogger(__name__)
 
 
 class PythonExecInput(BaseModel):
-    """Input schema for the restricted Python execution tool."""
+    """Input schema for trusted, unsandboxed Python execution."""
 
     code: str = Field(
         description=(
-            "Python code to execute in a restricted environment. "
+            "Fully trusted Python code to execute in the host process (NOT sandboxed). "
+            "Requires explicit host-side opt-in; tool arguments cannot enable execution. "
             "Write hana-ml DataFrame operations using the provided variables: cc, dataframe, pd, sql(), table(). "
             "Assign your final output to a variable named `result` (recommended)."
         )
@@ -74,8 +80,8 @@ _FORBIDDEN_CALLS = {
 }
 
 
-class _RestrictedAstValidator(ast.NodeVisitor):
-    """AST validator that rejects unsafe constructs for this tool."""
+class _BestEffortAstValidator(ast.NodeVisitor):
+    """Reject some unsafe syntax; this is not a security boundary."""
 
     def __init__(self) -> None:
         """Create a validator instance."""
@@ -163,25 +169,54 @@ def _format_result(obj: Any, *, head_rows: int) -> str:
 
 
 class PythonHanaMLExecTool(BaseTool):
-    """Execute a restricted Python snippet for hana-ml dataframe operations."""
+    """Execute fully trusted Python only after explicit host-side opt-in.
+
+    Setting allow_dangerous_code=True accepts in-process code execution with
+    the host's permissions. It does not enable a sandbox or SQL authorization.
+    """
 
     name: str = "python_hanaml_exec"
     description: str = (
-        "Execute a restricted Python snippet for hana-ml DataFrame operations. "
-        "Use for complex dataframe transformations/metrics that are hard to express with existing tools. "
+        "DANGEROUS: execute fully trusted Python in the host process for hana-ml DataFrame operations. "
+        "NOT sandboxed: code has the host's filesystem, network and database permissions. "
+        "Disabled unless explicitly enabled by the host; never use with untrusted callers or code. "
         "Assign your final output to `result`."
     )
     connection_context: ConnectionContext = None
     args_schema: Type[BaseModel] = PythonExecInput
     return_direct: bool = False
+    # Configuration belongs to the trusted host, never to the tool input schema.
+    _allow_dangerous_code: bool = PrivateAttr(default=False)
 
-    def __init__(self, connection_context: ConnectionContext, return_direct: bool = False) -> None:
+    def __init__(
+        self,
+        connection_context: ConnectionContext,
+        return_direct: bool = False,
+        *,
+        allow_dangerous_code: bool = False,
+    ) -> None:
         super().__init__(  # type: ignore[call-arg]
             connection_context=connection_context,
             return_direct=return_direct,
         )
+        # Require an actual True, rather than coercing strings such as "false".
+        self._allow_dangerous_code = allow_dangerous_code is True
+        if self._allow_dangerous_code:
+            logger.warning(
+                "python_hanaml_exec enabled for fully trusted code only; "
+                "execution is not sandboxed and uses the host's permissions"
+            )
 
     def _run(self, **kwargs: Any) -> str:
+        # Fail closed before interpreting any caller-controlled code or options.
+        if self._allow_dangerous_code is not True:
+            return (
+                "Error: python_hanaml_exec is disabled. This tool is not a sandbox. "
+                "Only the host application can opt in with allow_dangerous_code=True "
+                "when constructing the tool for fully trusted code and callers. "
+                "Tool-call arguments cannot enable execution."
+            )
+
         if "kwargs" in kwargs:
             kwargs = kwargs["kwargs"]
 
@@ -199,12 +234,14 @@ class PythonHanaMLExecTool(BaseTool):
         except SyntaxError as exc:
             return f"SyntaxError: {exc}"
 
-        validator = _RestrictedAstValidator()
+        validator = _BestEffortAstValidator()
         validator.visit(tree)
         if validator.errors:
-            return "Error: unsafe code rejected.\n" + "\n".join(f"- {e}" for e in validator.errors)
+            return "Error: code rejected by best-effort syntax checks.\n" + "\n".join(
+                f"- {e}" for e in validator.errors
+            )
 
-        # Restricted builtins
+        # Reduced builtins are a convenience guardrail, not containment.
         safe_builtins: Dict[str, Any] = {
             "True": True,
             "False": False,
@@ -226,7 +263,7 @@ class PythonHanaMLExecTool(BaseTool):
             "print": print,
         }
 
-        # Exposed environment
+        # Full-capability environment: only reachable after trusted host opt-in.
         try:
             import pandas as pd  # host env dependency
         except Exception:

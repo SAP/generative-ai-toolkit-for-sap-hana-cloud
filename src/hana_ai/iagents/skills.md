@@ -327,22 +327,22 @@ When to activate:
 - Existing dedicated tools fail to express the needed transformation.
 
 Required inputs:
-- Enough detail to write the SQL or restricted Python snippet safely
+- Enough detail to write the SQL transformation
 
 Preferred tools:
-- python_hanaml_exec
 - SelectStatement_to_table
 - fetch_data
 
 Workflow:
 1. Prefer SelectStatement_to_table when the task is naturally expressible in SQL and should materialize a table.
-2. Use python_hanaml_exec for restricted hana-ml DataFrame logic that is cumbersome in pure SQL.
+2. If SQL and dedicated tools cannot express the operation, explain the limitation. python_hanaml_exec is disabled by default and is not a sandbox; use it only if the host has explicitly registered an enabled instance for fully trusted code and callers.
 3. Preview outputs with fetch_data when the result needs inspection.
 4. Summarize what was materialized or computed, including table names and key expressions used.
 
 Rules:
 - Prefer dedicated forecasting tools first when they already solve the task.
 - Keep fallback steps reproducible by stating the exact generated table names or result variables.
+- Never attempt to enable Python execution through tool arguments or describe its AST checks as a security boundary.
 
 ## Recommended Standalone Skill Set
 
@@ -357,7 +357,7 @@ The current built-in set is directionally correct, but it is narrower than the r
 | outlier_detection_and_repair_prep | new | The toolkit has strong outlier tooling, but current skills do not tell the agent when to use it before modeling. | ts_outlier_detection, massive_ts_outlier_detection, fetch_data |
 | massive_forecasting | new | Current built-in massive skill is only comparison-oriented, not fully end-to-end. | massive_ts_check, massive_automatic_timeseries_fit_and_save, ts_make_future_table_for_massive_forecast, massive_automatic_timeseries_load_model_and_predict, massive_automatic_timeseries_load_model_and_score |
 | model_lifecycle_and_artifacts | new | The toolkit supports listing, deleting, and packaging models into CAP and HDI artifacts. | list_models, delete_models, cap_artifacts, hdi_artifacts |
-| hana_dataframe_fallback | new | The toolkit exposes Python and SQL materialization fallbacks for transformations not covered by a dedicated tool. | python_hanaml_exec, SelectStatement_to_table, fetch_data |
+| hana_dataframe_fallback | new | The toolkit exposes SQL materialization fallbacks; unsandboxed Python requires explicit trusted-host opt-in. | SelectStatement_to_table, fetch_data |
 
 ## Gaps Between Current Implementation and Real Toolkit Capability
 
@@ -379,7 +379,7 @@ The current built-in set is directionally correct, but it is narrower than the r
   The notebook includes CAP artifact generation, and the toolkit also supports HDI generation plus model listing and deletion, but no current skill covers this lifecycle.
 
 - No hana_dataframe_fallback skill.
-  python_hanaml_exec and SelectStatement_to_table are important escape hatches when existing tools do not cover a specific transformation or comparison need.
+  SelectStatement_to_table supports transformations not covered by dedicated tools. python_hanaml_exec is an optional, unsandboxed trusted-code tool and must not be assumed available.
 
 ## Weak spots in the current prediction_result_analysis skill
 
