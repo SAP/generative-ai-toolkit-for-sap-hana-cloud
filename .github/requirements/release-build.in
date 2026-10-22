@@ -1,0 +1,5 @@
+setuptools==84.2.1
+wheel==0.48.0
+build==1.6.1
+pkginfo==1.13.3
+twine==7.0.0

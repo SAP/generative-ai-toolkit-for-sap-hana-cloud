@@ -271,6 +271,19 @@ def test_v166_group_values_and_identifiers_are_encoded(module_name):
     assert mod._sql_ident("GROUP_ID") == '"GROUP_ID"'
     with pytest.raises(ValueError):
         mod._sql_ident('G" OR 1=1--')
+    assert mod._sql_number(1.25) == "1.25"
+    with pytest.raises(ValueError):
+        mod._sql_number("0; DROP TABLE T")
+
+
+def test_v166_increment_type_is_allowlisted_and_none_keeps_legacy_default():
+    mod = importlib.import_module(
+        "hana_ai.tools.hana_ml_tools.ts_make_predict_table"
+    )
+    assert mod._normalize_increment_type(None) == "seconds"
+    assert mod._normalize_increment_type("day") == "days"
+    with pytest.raises(ValueError, match="increment_type"):
+        mod._normalize_increment_type("SECONDS); DROP TABLE T;--")
 
 
 # ============================ V-156: dangerous Python tool defaults off ============================
@@ -384,12 +397,40 @@ class TestV171ReadOnlySQLDatabase:
             "UPDATE foo SET a=1",
             "INSERT INTO foo VALUES (1)",
             "SELECT 1; DROP TABLE foo",  # stacked
+            "SELECT 1 INTO foo",
         ],
     )
     def test_non_readonly_rejected(self, stmt):
         db = self._db()
         with pytest.raises(ValueError):
             db.run(stmt)
+
+    def test_table_access_requires_and_enforces_allowlist(self):
+        sqlalchemy = pytest.importorskip("sqlalchemy")
+        mod = importlib.import_module("hana_ai.agents.hana_sql_agent")
+        engine = sqlalchemy.create_engine("sqlite://")
+        with engine.begin() as connection:
+            connection.exec_driver_sql("CREATE TABLE allowed_table (id INTEGER)")
+            connection.exec_driver_sql("CREATE TABLE secret_table (id INTEGER)")
+
+        unscoped = mod._ReadOnlySQLDatabase(engine)
+        with pytest.raises(ValueError, match="no table allowlist"):
+            unscoped.run("SELECT * FROM secret_table")
+
+        scoped = mod._ReadOnlySQLDatabase(
+            engine, include_tables=["allowed_table"],
+            allowed_tables=["allowed_table"]
+        )
+        assert scoped.run("SELECT * FROM allowed_table") == ""
+        with pytest.raises(ValueError, match="not allowlisted"):
+            scoped.run("SELECT * FROM secret_table")
+        with pytest.raises(ValueError, match="comma-separated"):
+            scoped.run("SELECT * FROM allowed_table, secret_table")
+
+    def test_cte_cannot_hide_a_write(self):
+        db = self._db()
+        with pytest.raises(ValueError, match="forbidden keyword"):
+            db.run("WITH changed AS (DELETE FROM foo) SELECT 1")
 
 
 # ============================ V-174: stable identity, not repr parsing ============================
@@ -407,13 +448,13 @@ class TestV174Identity:
         cc = types.SimpleNamespace(userkey=None, connection=conn)
         assert self._get_user_info()(cc) == "BOB"
 
-    def test_repr_parsing_is_last_resort(self):
+    def test_repr_parsing_is_rejected(self):
         class _Conn:
             def __str__(self):
                 return "<dbapi.Connection Connection object : host,port,CAROL,extra>"
         cc = types.SimpleNamespace(userkey=None, connection=_Conn())
-        # No structured .user/.get_user -> falls back to repr parse -> 3rd field.
-        assert self._get_user_info()(cc) == "CAROL"
+        with pytest.raises(ValueError, match="stable HANA identity"):
+            self._get_user_info()(cc)
 
 
 # ============================ V-163: credential temp files always cleaned ============================
@@ -471,6 +512,16 @@ def test_v155_runtime_http_admin_requires_token(monkeypatch):
         toolkit.launch_mcp_server(transport="http", auth_token=None, max_retries=1)
 
 
+def test_http_mcp_non_loopback_binding_requires_token(monkeypatch):
+    mod = importlib.import_module("hana_ai.tools.toolkit")
+    toolkit = object.__new__(mod.HANAMLToolkit)
+    monkeypatch.delenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", raising=False)
+    with pytest.raises(ValueError, match="outside loopback require auth_token"):
+        toolkit.launch_mcp_server(
+            transport="http", host="0.0.0.0", auth_token=None, max_retries=1
+        )
+
+
 def test_v155_runtime_admin_rejected_for_sse(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     toolkit = object.__new__(mod.HANAMLToolkit)
@@ -486,3 +537,72 @@ def test_v167_tls_certificate_validation_defaults_on(monkeypatch):
     monkeypatch.setenv("HANA_PASSWORD", "secret")
     monkeypatch.delenv("HANA_SSL_VALIDATE", raising=False)
     assert mod._build_cc_params_from_env()["sslValidateCertificate"] is True
+
+
+def test_v167_empty_tls_setting_uses_secure_default(monkeypatch):
+    mod = importlib.import_module("hana_ai.tools.toolkit")
+    monkeypatch.setenv("HANA_ADDRESS", "hana.example.test")
+    monkeypatch.setenv("HANA_USER", "USER")
+    monkeypatch.setenv("HANA_PASSWORD", "secret")
+    monkeypatch.setenv("HANA_SSL_VALIDATE", "   ")
+    assert mod._build_cc_params_from_env()["sslValidateCertificate"] is True
+    monkeypatch.setenv("HANA_SSL_VALIDATE", "maybe")
+    with pytest.raises(ValueError, match="must be a boolean"):
+        mod._build_cc_params_from_env()
+
+
+# ============================ V-169: tenant/session memory isolation ============================
+class TestV169MemoryIsolation:
+    class _Store:
+        def __init__(self):
+            self.docs = []
+            self.deleted_filters = []
+
+        def add_documents(self, docs):
+            self.docs.extend(docs)
+            return [str(index) for index, _ in enumerate(docs)]
+
+        def similarity_search_with_score(self, query, k=5, **_kwargs):
+            # Deliberately return every tenant. The adapter must filter again.
+            return [(doc, 1.0) for doc in self.docs[:k]]
+
+        def delete(self, filter):
+            self.deleted_filters.append(filter)
+            before = len(self.docs)
+            self.docs = [
+                doc for doc in self.docs
+                if not all(doc.metadata.get(key) == value for key, value in filter.items())
+            ]
+            return before - len(self.docs)
+
+    @staticmethod
+    def _manager(store, tenant, session):
+        adapter_mod = importlib.import_module("hana_ai.mem0.hana_mem0_adapter")
+        manager_mod = importlib.import_module("hana_ai.mem0.memory_manager")
+        adapter = adapter_mod.Mem0HanaAdapter(vectorstore=store)
+        return manager_mod.Mem0MemoryManager(
+            connection_context=None, table_name=None, adapter=adapter,
+            tenant_id=tenant, session_id=session
+        )
+
+    def test_scope_is_required(self):
+        manager_mod = importlib.import_module("hana_ai.mem0.memory_manager")
+        with pytest.raises(ValueError, match="tenant_id and session_id"):
+            manager_mod.Mem0MemoryManager(
+                connection_context=None, table_name=None, adapter=object()
+            )
+
+    def test_add_retrieve_and_clear_are_scoped(self):
+        store = self._Store()
+        manager_a = self._manager(store, "tenant-a", "session-1")
+        manager_b = self._manager(store, "tenant-b", "session-1")
+        manager_a.add_memory("alpha")
+        manager_b.add_memory("beta")
+
+        assert manager_a.retrieve_texts("anything") == ["alpha"]
+        assert manager_b.retrieve_texts("anything") == ["beta"]
+        manager_a.clear_all()
+        assert [doc.page_content for doc in store.docs] == ["beta"]
+        assert store.deleted_filters[-1] == {
+            "tenant_id": "tenant-a", "session_id": "session-1"
+        }

@@ -74,9 +74,7 @@ def _get_user_info(connection_context):
                 val = None
         if val:
             return str(val)
-    # Last-resort, brittle fallback: parse the connection repr.
-    try:
-        conn_config = str(conn).replace('<dbapi.Connection Connection object : ', '').replace('>', '').split(',')
-        return conn_config[2].strip()
-    except Exception:
-        return "unknown_user"
+    raise ValueError(
+        "Unable to determine a stable HANA identity from userkey or the "
+        "structured DBAPI user attribute"
+    )

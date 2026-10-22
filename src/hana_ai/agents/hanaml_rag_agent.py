@@ -10,6 +10,7 @@ The following class is available:
 
 from typing import Any, List
 from datetime import datetime
+import hashlib
 import logging
 import os
 from pathlib import Path
@@ -95,7 +96,8 @@ class HANAMLRAGAgent:
                  vectorstore_path: str = None, # FAISS vectorstore path
                  drop_existing_hana_vector_table: bool = False,
                  verbose: bool = False,
-                 session_id: str = "global_session",
+                 session_id: str = None,
+                 tenant_id: str = None,
                  **kwargs):
         """
         Initialize the chatbot with integrated tools and memory systems.
@@ -179,19 +181,34 @@ class HANAMLRAGAgent:
             Defaults to False.
         session_id : str
             Session ID for long-term memory storage.
-
-            Defaults to "global_session".
+            Required; there is no shared global default.
+        tenant_id : str
+            Tenant identifier used with session_id to isolate all memory operations.
+            Required.
         """
         with warnings.catch_warnings():
             warnings.simplefilter("always")
             warnings.warn("This agent has been deprecated. Please use context_agent instead.", DeprecationWarning, stacklevel=2)
+        self.session_id = str(session_id or "").strip()
+        self.tenant_id = str(tenant_id or "").strip()
+        if not self.session_id or not self.tenant_id:
+            raise ValueError("tenant_id and session_id are required for isolated memory access")
+        scope_digest = hashlib.sha256(
+            f"{self.tenant_id}\0{self.session_id}".encode("utf-8")
+        ).hexdigest()
+        self.memory_partition_id = scope_digest
+        self._memory_filter = {
+            "tenant_id": self.tenant_id,
+            "session_id": self.session_id,
+        }
+
         self.llm = llm
         self.tools = tools
         if vectorstore_path is None:
             data_root = os.environ.get("HANA_AI_DATA_DIR")
             root = Path(data_root).expanduser() if data_root else Path.home() / ".hana_ai"
             vectorstore_path = str(root / "chat_history_vectorstore")
-        vector_path = Path(vectorstore_path).expanduser().resolve()
+        vector_path = Path(vectorstore_path).expanduser().resolve() / scope_digest[:24]
         vector_path.mkdir(parents=True, exist_ok=True)
         try:
             vector_path.chmod(0o700)
@@ -237,7 +254,6 @@ class HANAMLRAGAgent:
                 self.long_term_db = self.hana_connection_context.to_sqlalchemy()
             else:
                 self.long_term_db = f"sqlite:///chat_history_{self.user}.db"
-        self.session_id = session_id
         # Initialize memory systems
         self._initialize_memory()
 
@@ -256,7 +272,7 @@ class HANAMLRAGAgent:
         if isinstance(self.long_term_db, str):
             self.long_term_store = SQLChatMessageHistory(  # pylint: disable=unexpected-keyword-arg
                 connection_string=self.long_term_db,
-                session_id=self.session_id
+                session_id=self.memory_partition_id
             )
         else:
             table_name = f"HANAAI_LONG_TERM_DB_{self.user}"
@@ -272,7 +288,7 @@ class HANAMLRAGAgent:
             self.long_term_store = SQLChatMessageHistory(
                 connection=self.long_term_db,
                 table_name=table_name,
-                session_id=self.session_id
+                session_id=self.memory_partition_id
             )
 
         # Initialize RAG vectorstore
@@ -343,15 +359,16 @@ class HANAMLRAGAgent:
         if not self.hana_connection_context:
             raise ValueError("HANA connection context is required for HANA DB vectorstore")
 
-        # Initialize or load HANA vectorstore
-        if self.drop_existing_hana_vector_table:
-            self.hana_connection_context.drop_table(self.hana_vector_table)
+        # Initialize or load the shared HANA vectorstore. A requested reset is
+        # applied only to this tenant/session after initialization.
         try:
             self.vectorstore = HanaDB(
                 embedding=self.embedding_service,
                 connection=self.hana_connection_context.connection,
                 table_name=self.hana_vector_table
             )
+            if self.drop_existing_hana_vector_table:
+                self.vectorstore.delete(filter=self._memory_filter)
             logger.info("Initialized HANA DB vectorstore with table %s", self.hana_vector_table)
         except Exception as e:
             logger.error("Failed to initialize HANA DB vectorstore: %s", str(e))
@@ -378,9 +395,10 @@ class HANAMLRAGAgent:
         current_time = datetime.now().isoformat()
 
         # Add messages with metadata
+        message_metadata = {"timestamp": current_time, **self._memory_filter}
         self.long_term_store.add_messages([
-            HumanMessage(content=[{"type": "text", "text": user_input}], metadata={"timestamp": current_time}),
-            AIMessage(content=[{"type": "text", "text": str(response)}], metadata={"timestamp": current_time})
+            HumanMessage(content=[{"type": "text", "text": user_input}], metadata=message_metadata),
+            AIMessage(content=[{"type": "text", "text": str(response)}], metadata=message_metadata)
         ])
 
         # Create documents for vector store
@@ -391,7 +409,7 @@ class HANAMLRAGAgent:
 
         documents = splitter.create_documents(
             texts=[f"User: {user_input}\nAssistant: {response_str}"],
-            metadatas=[{"timestamp": current_time}]
+            metadatas=[message_metadata]
         )
 
         # Update vector store
@@ -403,7 +421,10 @@ class HANAMLRAGAgent:
         self._forget_old_memories()
 
     def _forget_past_messages_in_hana_db(self, timestamp: str):
-        self.vectorstore.delete(filter={"timestamp": {"$lte": timestamp}})
+        self.vectorstore.delete(filter={
+            **self._memory_filter,
+            "timestamp": {"$lte": timestamp},
+        })
 
     def _forget_old_memories(self):
         """Remove oldest memories when storage limit is exceeded"""
@@ -450,7 +471,10 @@ class HANAMLRAGAgent:
                         ai_msg = remaining_messages[i+1]
                         # Create combined document
                         text = f"User: {user_msg.content}\nAssistant: {ai_msg.content}"
-                        metadata = {"timestamp": user_msg.metadata.get('timestamp', '')}
+                        metadata = {
+                            "timestamp": user_msg.metadata.get('timestamp', ''),
+                            **self._memory_filter,
+                        }
                         # Split and add to documents
                         docs = splitter.create_documents(
                             texts=[text],
@@ -481,13 +505,15 @@ class HANAMLRAGAgent:
             candidate_docs = self.vectorstore.similarity_search_with_score(
                 query=query,
                 k=self.rerank_candidates,
-                score_threshold=self.score_threshold
+                score_threshold=self.score_threshold,
+                filter=self._memory_filter,
             )
         else:
             candidate_docs = self.vectorstore.similarity_search_with_relevance_scores(
                 query=query,
                 k=self.rerank_candidates,
-                score_threshold=self.score_threshold
+                score_threshold=self.score_threshold,
+                filter=self._memory_filter,
             )
 
         if not candidate_docs:
@@ -580,18 +606,12 @@ class HANAMLRAGAgent:
         except Exception as e:
             logger.error("Unexpected error clearing SQL store: %s", str(e))
 
-        # 重建空向量库（无需前置检查）
+        # FAISS paths are isolated per tenant/session; HANA uses a scoped delete.
         if self.vectorstore_type.lower() == "faiss":
             self.vectorstore = FAISS.from_texts([""], embedding=self.embedding_service)  # 空文本占位
             self.vectorstore.save_local(self.vectorstore_path)
         else:
-            self.hana_connection_context.drop_table(self.hana_vector_table)
-            self.vectorstore = HanaDB.from_texts(
-                texts=[""],
-                embedding=self.embedding_service,
-                connection=self.hana_connection_context.connection,
-                table_name=self.hana_vector_table
-            )
+            self.vectorstore.delete(filter=self._memory_filter)
         logger.info("Long-term memory cleared and vectorstore reset.")
 
     def clear_short_term_memory(self):

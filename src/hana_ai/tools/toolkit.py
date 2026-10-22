@@ -104,9 +104,14 @@ def _redact_dict(d: dict) -> dict:
 
 def _env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     val = os.environ.get(name)
-    if val is None:
+    if val is None or not val.strip():
         return default
-    return val.strip().lower() in {"1", "true", "yes", "on"}
+    normalized = val.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"{name} must be a boolean value")
 
 
 def _build_cc_params_from_env() -> dict[str, Any]:
@@ -1833,6 +1838,15 @@ class HANAMLToolkit(BaseToolkit):
             runtime_update_enabled = os.environ.get(
                 "HANA_ALLOW_RUNTIME_CONN_UPDATE", ""
             ).lower() in ("1", "true", "yes")
+            if transport == "http":
+                try:
+                    is_loopback = ipaddress.ip_address(host).is_loopback
+                except ValueError:
+                    is_loopback = str(host).strip().lower() == "localhost"
+                if not is_loopback and not auth_token:
+                    raise ValueError(
+                        "HTTP MCP servers bound outside loopback require auth_token"
+                    )
             if runtime_update_enabled and transport == "http" and not auth_token:
                 raise ValueError(
                     "runtime connection updates over HTTP require auth_token; refusing to "

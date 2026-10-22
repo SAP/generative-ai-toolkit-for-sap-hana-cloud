@@ -256,13 +256,18 @@ def build_connection_context_from_userkey(
 
 def env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     val = os.environ.get(name)
-    if val is None:
+    if val is None or not val.strip():
         return default
-    return val.strip().lower() in {"1", "true", "yes", "on"}
+    return parse_bool(val)
 
 
 def parse_bool(val: str) -> bool:
-    return val.strip().lower() in {"1", "true", "yes", "on"}
+    normalized = val.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise argparse.ArgumentTypeError("expected a boolean value")
 
 
 def main():

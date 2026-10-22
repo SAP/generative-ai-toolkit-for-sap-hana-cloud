@@ -11,7 +11,6 @@ import json
 import logging
 import os
 from pathlib import Path
-import tempfile
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
