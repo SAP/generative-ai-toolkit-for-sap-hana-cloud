@@ -30,7 +30,7 @@ from hana_ai.tools.df_tools.ts_visualizer_tools import TimeSeriesDatasetReport
 
 _SQL_WRITE_KEYWORDS = {
     "ALTER", "CALL", "CREATE", "DELETE", "DO", "DROP", "EXEC", "EXECUTE",
-    "GRANT", "INSERT", "INTO", "MERGE", "REPLACE", "REVOKE", "TRUNCATE",
+    "GRANT", "INSERT", "INTO", "MERGE", "REVOKE", "TRUNCATE",
     "UPDATE", "UPSERT",
 }
 
@@ -75,7 +75,40 @@ def _readonly_sql_tokens(sql: str) -> List[str]:
         i += 1
     if state != "normal":
         raise ValueError("unterminated SQL string or quoted identifier")
-    return re.findall(r"[A-Za-z_][A-Za-z0-9_]*|;", "".join(visible).upper())
+    return re.findall(r"[A-Za-z_][A-Za-z0-9_]*|[(),;]", "".join(visible).upper())
+
+
+def _top_level_statement_verb(tokens: List[str]) -> str:
+    """Return SELECT, or the verb following a top-level WITH CTE list."""
+    if not tokens:
+        return ""
+    if tokens[0] != "WITH":
+        return tokens[0]
+    depth = 0
+    saw_as = False
+    completed_cte = False
+    for token in tokens[1:]:
+        if depth:
+            if token == "(":
+                depth += 1
+            elif token == ")":
+                depth -= 1
+                if depth == 0:
+                    completed_cte = True
+            continue
+        if completed_cte:
+            if token == ",":
+                completed_cte = False
+                saw_as = False
+                continue
+            if token not in {"(", ")"}:
+                return token
+        elif token == "AS":
+            saw_as = True
+        elif token == "(" and saw_as:
+            depth = 1
+            saw_as = False
+    return ""
 
 
 def _extract_readonly_select(llm_output: str) -> str:
@@ -86,7 +119,7 @@ def _extract_readonly_select(llm_output: str) -> str:
     if text.endswith(";"):
         text = text[:-1].rstrip()
     tokens = _readonly_sql_tokens(text)
-    if not tokens or tokens[0] not in {"SELECT", "WITH"}:
+    if not tokens or _top_level_statement_verb(tokens) != "SELECT":
         raise ValueError("generated SQL must contain only a SELECT or WITH statement")
     if ";" in tokens:
         raise ValueError("multiple or stacked SQL statements are not allowed")

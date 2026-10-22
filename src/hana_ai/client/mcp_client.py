@@ -393,7 +393,12 @@ def _validate_stdio_command(command: str, args: List[str]) -> str:
     args = list(args or [])
     if not all(isinstance(arg, str) and "\x00" not in arg for arg in args):
         raise ValueError("stdio args must be strings without NUL bytes")
-    if any(arg.lower() in _STDIO_INLINE_CODE_FLAGS for arg in args):
+    if any(
+        lowered == flag or lowered.startswith(flag)
+        for arg in args
+        for lowered in (arg.lower(),)
+        for flag in _STDIO_INLINE_CODE_FLAGS
+    ):
         raise ValueError("inline code or shell execution flags are not allowed in stdio args")
 
     resolved = _resolve_stdio_executable(command)

@@ -41,7 +41,6 @@ class _ReadOnlySQLDatabase(SQLDatabase):
     schema-scoped read-only DB role.
     """
 
-    _READONLY_PREFIXES = ("select", "with")
     _FORBIDDEN_KEYWORDS = {
         "alter", "call", "create", "delete", "do", "drop",
         "grant", "insert", "into", "lock", "merge", "revoke",
@@ -92,29 +91,82 @@ class _ReadOnlySQLDatabase(SQLDatabase):
     def _mask_literals_and_reject_comments(statement: str) -> str:
         masked = []
         index = 0
-        in_string = False
+        state = "normal"
         while index < len(statement):
             char = statement[index]
-            if in_string:
+            if state == "string":
                 masked.append(" ")
                 if char == "'":
                     if index + 1 < len(statement) and statement[index + 1] == "'":
                         masked.append(" ")
                         index += 1
                     else:
-                        in_string = False
+                        state = "normal"
+            elif state == "identifier":
+                # Preserve quoted identifiers for the object allowlist while ensuring that
+                # apostrophes and comment markers inside them cannot alter scanner state.
+                masked.append(char)
+                if char == '"':
+                    if index + 1 < len(statement) and statement[index + 1] == '"':
+                        masked.append('"')
+                        index += 1
+                    else:
+                        state = "normal"
             else:
                 if char == "'":
-                    in_string = True
+                    state = "string"
                     masked.append(" ")
+                elif char == '"':
+                    state = "identifier"
+                    masked.append(char)
                 elif statement.startswith("--", index) or statement.startswith("/*", index):
                     raise ValueError("read-only SQL agent: SQL comments are not allowed")
                 else:
                     masked.append(char)
             index += 1
-        if in_string:
-            raise ValueError("read-only SQL agent: unterminated string literal")
+        if state != "normal":
+            raise ValueError(
+                "read-only SQL agent: unterminated string literal or quoted identifier"
+            )
         return "".join(masked)
+
+    @classmethod
+    def _top_level_statement_verb(cls, masked_statement: str) -> Optional[str]:
+        """Return SELECT, or the verb following a top-level WITH CTE list."""
+        keyword_text = re.sub(r'"(?:[^"]|"")*"', " ", masked_statement)
+        tokens = re.findall(
+            r"[A-Za-z_][A-Za-z0-9_$#]*|[(),]", keyword_text.lower()
+        )
+        if not tokens:
+            return None
+        if tokens[0] != "with":
+            return tokens[0]
+
+        depth = 0
+        saw_as = False
+        completed_cte = False
+        for token in tokens[1:]:
+            if depth:
+                if token == "(":
+                    depth += 1
+                elif token == ")":
+                    depth -= 1
+                    if depth == 0:
+                        completed_cte = True
+                continue
+            if completed_cte:
+                if token == ",":
+                    completed_cte = False
+                    saw_as = False
+                    continue
+                if token not in {"(", ")"}:
+                    return token
+            elif token == "as":
+                saw_as = True
+            elif token == "(" and saw_as:
+                depth = 1
+                saw_as = False
+        return None
 
     def _enforce_object_allowlist(self, masked_statement: str) -> None:
         if self._COMMA_JOIN.search(masked_statement):
@@ -140,6 +192,10 @@ class _ReadOnlySQLDatabase(SQLDatabase):
                     raise ValueError(
                         "read-only SQL agent: every table must be qualified with the allowed schema"
                     )
+            elif schema and table_ref not in self._allowed_tables:
+                raise ValueError(
+                    "read-only SQL agent: schema-qualified tables must be explicitly allowlisted"
+                )
             if self._allowed_tables and (
                 table not in self._allowed_tables and table_ref not in self._allowed_tables
             ):
@@ -155,7 +211,7 @@ class _ReadOnlySQLDatabase(SQLDatabase):
         # Reject stacked/multiple statements (allow a single optional trailing semicolon).
         if ";" in masked_stmt.rstrip().rstrip(";"):
             raise ValueError("read-only SQL agent: multiple/stacked statements are not allowed")
-        if not masked_stmt.lower().startswith(self._READONLY_PREFIXES):
+        if self._top_level_statement_verb(masked_stmt) != "select":
             raise ValueError("read-only SQL agent: only SELECT/WITH queries are permitted")
         keyword_text = re.sub(r'"(?:[^"]|"")*"', " ", masked_stmt)
         words = set(re.findall(r"[A-Za-z_][A-Za-z0-9_$#]*", keyword_text.lower()))

@@ -1818,7 +1818,8 @@ class HANAMLToolkit(BaseToolkit):
         port : int
             Network port to use for server transports that require a port (SSE/HTTP). Default is 8001. Ignored for stdio.
         auth_token : str, optional
-            Authentication token for the server. If provided, the server will require this token for access.
+            Bearer token for HTTP transport. SSE does not provide a verified authentication
+            boundary in this launcher; stdio relies on the host process boundary.
         max_retries : int
             Maximum number of retries to find an available port. Default is 5.
         stateless_http : bool
@@ -1856,6 +1857,14 @@ class HANAMLToolkit(BaseToolkit):
                 raise ValueError(
                     "runtime connection updates are not supported on SSE because this launcher "
                     "does not provide a verified authorization boundary for that transport"
+                )
+            if auth_token and transport == "sse":
+                raise ValueError(
+                    "auth_token is not supported on SSE; use authenticated HTTP transport"
+                )
+            if auth_token and transport == "stdio":
+                logging.info(
+                    "Ignoring auth_token for stdio; access is controlled by the host process"
                 )
             # 初始化MCP配置
             server_settings = {
@@ -2499,10 +2508,6 @@ class HANAMLToolkit(BaseToolkit):
                 port = original_port  # 重置端口重试
                 attempts = 0         # 重置尝试次数
                 continue
-
-            if auth_token:
-                server_args["auth_token"] = auth_token
-                logging.info("🔐 Authentication enabled")
 
             # 启动服务器线程
             def run_server(mcp_instance, server_args):

@@ -23,6 +23,12 @@ from hana_ai.utility import secure_report_dir, sanitize_artifact_name
 
 logger = logging.getLogger(__name__)
 
+
+def _raw_html_render_enabled() -> bool:
+    return os.environ.get("HANA_ALLOW_RAW_HTML_RENDER", "").lower() in (
+        "1", "true", "yes"
+    )
+
 # Note: hana_ml.visualizers.visualizer_base.forecast_line_plot does not require
 # specific forecast column names; it plots all non-index columns by default.
 # Keep known confidence column names for optional auto-detection only.
@@ -167,8 +173,13 @@ class TimeSeriesDatasetReport(BaseTool):
                     destination_dir,
                     f"{sanitize_artifact_name(table_name, fallback='table')}_ts_report")
         ur.display(save_html=output_file)
-        if not self.bas:
-            ur.display() #directly display in jupyter
+        if not self.bas and _raw_html_render_enabled():
+            ur.display()  # Explicitly trusted notebook rendering.
+        elif not self.bas:
+            logger.info(
+                "Raw HTML notebook rendering is disabled; report saved to %s.html",
+                output_file,
+            )
         return json.dumps({"html_file": str(Path(output_file + ".html").as_posix())}, ensure_ascii=False)
 
     async def _arun(
