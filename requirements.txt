@@ -1,11 +1,10 @@
-langchain-community
-langchain-text-splitters
-
-numpy
-pandas
-
-hana-ml>=2.29.26072000
-
-pydantic>=2.11,<2.13
-langchain-hana
-fastmcp>=2.0,<3.0
+# V-175: direct dependencies pinned; transitive dependencies still require a lock.
+# Generate a hash-checked lock/constraints file with pip-compile and review upgrades.
+langchain-community==0.3.18
+langchain-text-splitters==0.3.11
+numpy==2.2.3
+pandas==2.2.3
+hana-ml==2.29.26072000
+pydantic==2.11.7
+langchain-hana==0.3.4
+fastmcp==2.14.7

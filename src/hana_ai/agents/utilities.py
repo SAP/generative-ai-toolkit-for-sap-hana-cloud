@@ -58,9 +58,25 @@ def _inspect_python_code(intermediate_steps, tools):
     return collect_tool_call
 
 def _get_user_info(connection_context):
-    if connection_context.userkey:
-        user = connection_context.userkey
-    else:
-        conn_config = str(connection_context.connection).replace('<dbapi.Connection Connection object : ', '').replace('>', '').split(',')
-        user = conn_config[2]
-    return user
+    # V-174: derive identity from a stable, structured identifier rather than string-parsing
+    # the DBAPI connection repr (which is not a security-grade identifier and can collide or
+    # be attacker-shaped, mis-mapping the memory table across tenants).
+    userkey = getattr(connection_context, "userkey", None)
+    if userkey:
+        return userkey
+    conn = getattr(connection_context, "connection", None)
+    for attr in ("user", "get_user"):
+        val = getattr(conn, attr, None)
+        if callable(val):
+            try:
+                val = val()
+            except Exception:
+                val = None
+        if val:
+            return str(val)
+    # Last-resort, brittle fallback: parse the connection repr.
+    try:
+        conn_config = str(conn).replace('<dbapi.Connection Connection object : ', '').replace('>', '').split(',')
+        return conn_config[2].strip()
+    except Exception:
+        return "unknown_user"

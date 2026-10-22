@@ -31,7 +31,12 @@ from datetime import datetime
 import logging
 import hashlib
 
-from langchain_community.vectorstores.hanavector import HanaDB  # pylint: disable=import-error,no-name-in-module
+try:
+    # langchain-community <=0.3 compatibility
+    from langchain_community.vectorstores.hanavector import HanaDB  # pylint: disable=import-error,no-name-in-module
+except ImportError:
+    # HanaDB moved to its maintained standalone integration package.
+    from langchain_hana import HanaDB  # pylint: disable=import-error,no-name-in-module
 from langchain_core.documents import Document
 from langchain.embeddings.base import Embeddings
 

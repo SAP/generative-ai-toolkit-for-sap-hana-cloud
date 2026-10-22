@@ -5,6 +5,7 @@ The following class is available:
 
     * :class `SmartDataFrame`
 """
+import re
 from typing import List
 
 from hana_ml.dataframe import DataFrame
@@ -25,6 +26,76 @@ from hana_ai.tools.df_tools.fetch_tools import FetchDataTool
 from hana_ai.tools.df_tools.intermittent_forecast_tools import IntermittentForecast
 from hana_ai.tools.df_tools.ts_outlier_detection_tools import TSOutlierDetection
 from hana_ai.tools.df_tools.ts_visualizer_tools import TimeSeriesDatasetReport
+
+
+_SQL_WRITE_KEYWORDS = {
+    "ALTER", "CALL", "CREATE", "DELETE", "DO", "DROP", "EXEC", "EXECUTE",
+    "GRANT", "INSERT", "INTO", "MERGE", "REPLACE", "REVOKE", "TRUNCATE",
+    "UPDATE", "UPSERT",
+}
+
+
+def _readonly_sql_tokens(sql: str) -> List[str]:
+    """Return tokens outside literals/quoted identifiers and reject SQL comments."""
+    visible = []
+    i = 0
+    state = "normal"
+    while i < len(sql):
+        char = sql[i]
+        nxt = sql[i + 1] if i + 1 < len(sql) else ""
+        if state == "normal":
+            if char == "'":
+                state = "string"
+                visible.append(" ")
+            elif char == '"':
+                state = "identifier"
+                visible.append(" ")
+            elif (char == "-" and nxt == "-") or (char == "/" and nxt == "*"):
+                raise ValueError("SQL comments are not allowed in generated SQL")
+            else:
+                visible.append(char)
+        elif state == "string":
+            if char == "'" and nxt == "'":
+                visible.extend((" ", " "))
+                i += 1
+            elif char == "'":
+                state = "normal"
+                visible.append(" ")
+            else:
+                visible.append(" ")
+        else:
+            if char == '"' and nxt == '"':
+                visible.extend((" ", " "))
+                i += 1
+            elif char == '"':
+                state = "normal"
+                visible.append(" ")
+            else:
+                visible.append(" ")
+        i += 1
+    if state != "normal":
+        raise ValueError("unterminated SQL string or quoted identifier")
+    return re.findall(r"[A-Za-z_][A-Za-z0-9_]*|;", "".join(visible).upper())
+
+
+def _extract_readonly_select(llm_output: str) -> str:
+    """Accept exactly one comment-free SELECT/WITH statement from an LLM response."""
+    if not isinstance(llm_output, str) or not llm_output.strip():
+        raise ValueError("LLM did not return a SQL statement")
+    text = llm_output.strip()
+    if text.endswith(";"):
+        text = text[:-1].rstrip()
+    tokens = _readonly_sql_tokens(text)
+    if not tokens or tokens[0] not in {"SELECT", "WITH"}:
+        raise ValueError("generated SQL must contain only a SELECT or WITH statement")
+    if ";" in tokens:
+        raise ValueError("multiple or stacked SQL statements are not allowed")
+    forbidden = sorted(_SQL_WRITE_KEYWORDS.intersection(tokens))
+    if forbidden:
+        raise ValueError(f"generated SQL contains forbidden operation(s): {', '.join(forbidden)}")
+    if re.search(r"\bFOR\s+UPDATE\b", " ".join(tokens)):
+        raise ValueError("SELECT FOR UPDATE is not read-only")
+    return text
 
 class SmartDataFrame(DataFrame):
     """
@@ -175,22 +246,7 @@ class SmartDataFrame(DataFrame):
         result = self.transform_executor.invoke(agent_input)
         select_statement = result['output']
 
-        # Extract SQL from response if needed
-        if not select_statement.strip().upper().startswith(('SELECT')):
-            import re
-            # Regex to find SQL starting with SELECT/WITH
-            sql_match = re.search(
-                r'\b(SELECT)\b.*',
-                select_statement,
-                re.DOTALL | re.IGNORECASE
-            )
-            if sql_match:
-                select_statement = sql_match.group(0).strip()
-            else:
-                raise ValueError(
-                    "Failed to extract valid SQL from agent response: "
-                    f"{select_statement[:100]}..."
-                )
+        select_statement = _extract_readonly_select(select_statement)
 
         # Create new SmartDataFrame with generated SQL
         sdf = self._construct(

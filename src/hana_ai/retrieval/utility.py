@@ -80,37 +80,37 @@ def _get_access_token(credentials: dict) -> str:
     key_certificate = credentials.get("key", "")
     # Save certificate and private key to temporary files certificate.pem and private_key.pem
 
-    with tempfile.NamedTemporaryFile(delete=False) as cert_file:
-        cert_file.write(certificate.encode())
-        cert_file_path = cert_file.name
-    with tempfile.NamedTemporaryFile(delete=False) as key_file:
-        key_file.write(key_certificate.encode())
-        key_file_path = key_file.name
-    token_url = urllib.parse.urljoin(certurl, "/oauth/token")
-    data = {
-        "grant_type": "client_credentials",
-        "client_id": clientid
-    }
-    response = requests.post(token_url, data=data, cert=(cert_file_path, key_file_path), timeout=_get_request_timeout())
-    if response.status_code == 200:
-        token_data = response.json()
-        access_token = token_data.get("access_token", "")
-        logger.info("Successfully obtained access token.")
-        # If temporary files exist, delete them
-        if os.path.exists(cert_file_path):
-            os.remove(cert_file_path)
-        if os.path.exists(key_file_path):
-            os.remove(key_file_path)
-        logger.info("Temporary certificate files removed.")
-        return access_token
-    else:
-        # Delete temporary files
-        if os.path.exists(cert_file_path):
-            os.remove(cert_file_path)
-        if os.path.exists(key_file_path):
-            os.remove(key_file_path)
-        logger.info("Temporary certificate files removed.")
+    cert_file_path = None
+    key_file_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False) as cert_file:
+            cert_file.write(certificate.encode())
+            cert_file_path = cert_file.name
+        with tempfile.NamedTemporaryFile(delete=False) as key_file:
+            key_file.write(key_certificate.encode())
+            key_file_path = key_file.name
+        token_url = urllib.parse.urljoin(certurl, "/oauth/token")
+        data = {
+            "grant_type": "client_credentials",
+            "client_id": clientid
+        }
+        response = requests.post(token_url, data=data, cert=(cert_file_path, key_file_path), timeout=_get_request_timeout())
+        if response.status_code == 200:
+            token_data = response.json()
+            access_token = token_data.get("access_token", "")
+            logger.info("Successfully obtained access token.")
+            return access_token
         raise Exception(f"Failed to get access token: {response.status_code} {response.text}")
+    finally:
+        # V-163: always remove the private key + cert temp files, even if requests.post()/.json()
+        # raises between write and cleanup, so the client credential is never left on disk.
+        for _tmp_path in (cert_file_path, key_file_path):
+            if _tmp_path and os.path.exists(_tmp_path):
+                try:
+                    os.remove(_tmp_path)
+                except OSError:
+                    logger.warning("Failed to remove temporary certificate file: %s", _tmp_path)
+        logger.info("Temporary certificate files removed.")
 
 def _get_deployment_id(credentials: dict) -> str:
     """
@@ -423,7 +423,7 @@ def _call_procedure_sql(
         call_args = ",\n     ".join(named_args)
         return (
             "DO\nBEGIN\nDECLARE output NCLOB;\n"
-            f"CALL {schema_name}.{procedure_name}(\n     {call_args}\n);\n"
+            f"CALL {_qident(schema_name)}.{_qident(procedure_name)}(\n     {call_args}\n);\n"
             "select :output FROM DUMMY;\nEND"
         )
 
@@ -431,9 +431,15 @@ def _call_procedure_sql(
         config_json = json.dumps(config).replace("'", "''")
         return (
             "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', '%s', output);\nselect :output FROM DUMMY;\nEND"
-            % (schema_name, procedure_name, query, config_json)
+            % (_qident(schema_name), _qident(procedure_name), query, config_json)
         )
     return (
         "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', output);\nselect :output FROM DUMMY;\nEND"
-        % (schema_name, procedure_name, query)
+        % (_qident(schema_name), _qident(procedure_name), query)
     )
+def _qident(name):
+    """Quote a SQL identifier; reject embedded double-quote characters."""
+    name = str(name)
+    if not name or '"' in name or "\x00" in name:
+        raise ValueError(f"invalid SQL identifier: {name!r}")
+    return '"' + name + '"'

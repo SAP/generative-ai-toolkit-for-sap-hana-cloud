@@ -28,6 +28,14 @@ from hana_ai.mem0.memory_entity_extractor import Mem0EntityExtractor
 logger = logging.getLogger(__name__)
 
 
+def _quote_hana_identifier(name: str) -> str:
+    """Quote one HANA identifier component and reject breakout characters."""
+    value = str(name)
+    if not value or '"' in value or "\x00" in value:
+        raise ValueError(f"invalid HANA table identifier: {value!r}")
+    return '"' + value + '"'
+
+
 @dataclass
 class IngestionRules:
     """
@@ -50,7 +58,7 @@ def default_hana_export_handler(connection_context: Any, table_name: str, filter
         conn = connection_context.connection  # DBAPI connection
         cur = conn.cursor()
         # Best-effort: select all then normalize
-        cur.execute(f'SELECT * FROM "{table_name}"')
+        cur.execute(f'SELECT * FROM {_quote_hana_identifier(table_name)}')
         colnames = [d[0] for d in cur.description]
         for rec in cur.fetchall():
             row = {colnames[i]: rec[i] for i in range(len(colnames))}
@@ -349,6 +357,16 @@ class Mem0MemoryManager:
         """
         Clear all memories from the table.
         """
+        # V-169: an unscoped, tenant-wide wipe must not be possible by default. Without an
+        # explicit host opt-in, refuse so one logical user/tenant sharing the DB login cannot
+        # delete everyone else's memories. Full fix is to key memory by an explicit tenant id.
+        import os
+        if os.environ.get("HANA_ALLOW_GLOBAL_MEMORY_CLEAR", "").lower() not in ("1", "true", "yes"):
+            logger.warning(
+                "clear_all() refused: unscoped global memory clear is disabled "
+                "(set HANA_ALLOW_GLOBAL_MEMORY_CLEAR=true to allow a tenant-wide wipe)."
+            )
+            return
         try:
             # Best-effort clear: delete all by timestamp <= now
             from datetime import datetime

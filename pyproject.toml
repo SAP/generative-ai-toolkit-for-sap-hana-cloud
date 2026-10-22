@@ -10,14 +10,20 @@ authors = [
 ]
 description = "Generative AI Toolkit for SAP HANA Cloud"
 readme = "README.md"
-requires-python = ">=3.0"
+requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
 keywords = ["Generative AI Toolkit SAP HANA Cloud"]
 
 dynamic = ["dependencies"]
 
 [project.optional-dependencies]
-all = ["sap-ai-sdk-gen[all]"]
+nlp = ["nltk>=3.9,<4"]
+graph = ["langgraph>=0.2,<2"]
+all = [
+    "sap-ai-sdk-gen[all]",
+    "nltk>=3.9,<4",
+    "langgraph>=0.2,<2",
+]
 
 [project.urls]
 Homepage = "https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud"

@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import Any, List, Optional
 import logging
 import json
+import os
 import re
 import warnings
 
@@ -297,6 +298,14 @@ class Mem0HANARAGAgent:
     # ------------------------------------------------------------------
     def chat(self, user_input: str) -> str:
         """Process user input and return agent response, managing long-term memory."""
+        # V-170: '!'-commands are privileged memory-admin operations (tenant-wide wipe via
+        # clear_long_term_memory, plus export/enumeration). They carry no authorization, so any
+        # user of a shared agent chat could trigger them. Require an explicit host opt-in that is
+        # expected to sit behind an authenticated admin surface.
+        if user_input.startswith("!"):
+            if os.environ.get("HANA_MEM0_ALLOW_ADMIN_COMMANDS", "").lower() not in ("1", "true", "yes"):
+                return ("Memory admin commands are disabled. Set HANA_MEM0_ALLOW_ADMIN_COMMANDS=true "
+                        "behind an authenticated admin surface to enable them.")
         if user_input.startswith("!clear_long_term_memory"):
             self.clear_long_term_memory()
             return "Long-term memory has been cleared."

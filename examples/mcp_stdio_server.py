@@ -305,7 +305,7 @@ def main():
     parser.add_argument("--encrypt", type=parse_bool, default=env_bool("HANA_ENCRYPT"),
                         help="Use TLS encrypt (true/false)")
     parser.add_argument("--ssl-validate", dest="ssl_validate",
-                        type=parse_bool, default=env_bool("HANA_SSL_VALIDATE", default=False),
+                        type=parse_bool, default=None,
                         help="Validate TLS certificate (true/false)")
 
     # MCP server args
@@ -354,7 +354,7 @@ def main():
     if args.encrypt is None:
         args.encrypt = env_bool("HANA_ENCRYPT")
     if args.ssl_validate is None:
-        args.ssl_validate = env_bool("HANA_SSL_VALIDATE", default=False)
+        args.ssl_validate = env_bool("HANA_SSL_VALIDATE", default=True)
 
     # Stdio transport: log to stderr so stdout stays clean for MCP protocol
     logging.basicConfig(
