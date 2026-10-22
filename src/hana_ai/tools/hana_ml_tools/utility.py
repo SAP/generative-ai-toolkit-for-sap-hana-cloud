@@ -831,10 +831,19 @@ def fetch_hana_mcp_audit_view(
 class SyncHTTPMCPClient:
     """Synchronous JSON-RPC MCP client for notebook/demo flows."""
 
-    def __init__(self, base_url: str, timeout: int = 60):
+    def __init__(
+        self,
+        base_url: str,
+        timeout: int = 60,
+        *,
+        allow_insecure_http: bool = False,
+    ):
         import httpx
+        from hana_ai.client.mcp_client import _validate_http_base_url
 
-        normalized = base_url.rstrip("/")
+        normalized = _validate_http_base_url(
+            base_url, allow_insecure_http=allow_insecure_http
+        ).rstrip("/")
         if not normalized.endswith("/mcp"):
             normalized = normalized + "/mcp"
         self.base_url = normalized.rstrip("/")
@@ -845,7 +854,8 @@ class SyncHTTPMCPClient:
         self.client = httpx.Client(
             base_url=self.base_url,
             timeout=timeout,
-            follow_redirects=True,
+            # Never forward mcp-session-id across an attacker-controlled redirect.
+            follow_redirects=False,
             trust_env=False,
             headers={
                 "accept": "application/json",

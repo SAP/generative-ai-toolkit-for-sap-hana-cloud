@@ -20,6 +20,7 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.model_storage import ModelStorage
 from hana_ml.artifacts.generators.hana import HANAGeneratorForCAP
+from hana_ai.utility import secure_report_dir, sanitize_artifact_name
 from .utility import convert_cap_to_hdi
 
 logger = logging.getLogger(__name__)
@@ -109,6 +110,8 @@ class HDIArtifactsTool(BaseTool):
         project_name = kwargs.get("project_name", None)
         if project_name is None:
             return "Project name is required"
+        # V-162: sanitize caller-controlled project_name before it is joined into filesystem paths.
+        project_name = sanitize_artifact_name(project_name, fallback="hdiproject")
         output_dir = kwargs.get("output_dir", None)
         if output_dir is None:
             return "Output directory is required"
@@ -116,9 +119,8 @@ class HDIArtifactsTool(BaseTool):
         archive = kwargs.get("archive", True)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
-        temp_root = Path(tempfile.gettempdir())
-        cap_dir = os.path.join(temp_root, "hana-ai-cap2hdi")
-        os.makedirs(cap_dir, exist_ok=True)
+        # V-162: use a private, randomized 0700 dir instead of predictable <tmp>/hana-ai-cap2hdi.
+        cap_dir = secure_report_dir("hana-ai-cap2hdi")
         generator = HANAGeneratorForCAP(
             project_name=project_name,
             output_dir=cap_dir,

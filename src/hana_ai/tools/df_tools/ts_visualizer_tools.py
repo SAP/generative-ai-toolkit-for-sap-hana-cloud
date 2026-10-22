@@ -16,6 +16,7 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.visualizers.unified_report import UnifiedReport
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+from hana_ai.utility import secure_report_dir
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +111,8 @@ class TimeSeriesDatasetReport(BaseTool):
         df = self.connection_context.sql(select_statement).select(key, endog)
         ur = UnifiedReport(df).build(key=key, endog=endog)
         if output_dir is None:
-            destination_dir = os.path.join(tempfile.gettempdir(), "hanaml_report")
+            # V-162: private randomized 0700 dir instead of predictable <tmp>/hanaml_report.
+            destination_dir = secure_report_dir("hanaml_report")
         else:
             destination_dir = output_dir
         if not os.path.exists(destination_dir):

@@ -76,7 +76,7 @@ def main():
         "--ssl-validate",
         dest="ssl_validate",
         type=env_bool,
-        default=env_bool("HANA_SSL_VALIDATE"),
+        default=env_bool("HANA_SSL_VALIDATE", default=True),
         help="Validate TLS certificate (true/false)",
     )
 

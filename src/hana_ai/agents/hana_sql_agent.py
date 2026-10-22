@@ -29,6 +29,29 @@ from hana_ml.dataframe import ConnectionContext
 
 from hana_ai.langchain_compat import AgentType
 
+
+class _ReadOnlySQLDatabase(SQLDatabase):
+    """V-171: enforce read-only access for the LLM SQL agent at the code level.
+
+    The LangChain ``SQLDatabaseToolkit`` otherwise exposes full DML/DDL. Any generated
+    statement that is not a single ``SELECT``/``WITH`` query is rejected here, so the agent
+    cannot mutate or drop data even when the underlying HANA connection is privileged.
+    This is defense-in-depth; production should also run under a least-privilege,
+    schema-scoped read-only DB role.
+    """
+
+    _READONLY_PREFIXES = ("select", "with")
+
+    def run(self, command, *args, **kwargs):  # type: ignore[override]
+        stmt = (command or "").strip()
+        # Reject stacked/multiple statements (allow a single optional trailing semicolon).
+        if ";" in stmt.rstrip().rstrip(";"):
+            raise ValueError("read-only SQL agent: multiple/stacked statements are not allowed")
+        if not stmt.lower().startswith(self._READONLY_PREFIXES):
+            raise ValueError("read-only SQL agent: only SELECT/WITH queries are permitted")
+        return super().run(command, *args, **kwargs)
+
+
 class _sql_toolkit(object):
     def __init__(self, llm, db, tools=None):
         self.tools = tools
@@ -146,7 +169,7 @@ def create_hana_sql_agent(
         views=True,
         case_sensitive=True
     )
-    db = SQLDatabase(engine, metadata=metadata)
+    db = _ReadOnlySQLDatabase(engine, metadata=metadata)  # V-171: read-only enforcement
     toolkit = _sql_toolkit(llm=llm, db=db, tools=tools)
     return create_sql_agent(llm=llm,
                             toolkit=toolkit,
@@ -190,5 +213,5 @@ def create_hana_sql_toolkit(
         views=True,
         case_sensitive=True
     )
-    db = SQLDatabase(engine, metadata=metadata)
+    db = _ReadOnlySQLDatabase(engine, metadata=metadata)  # V-171: read-only enforcement
     return _sql_toolkit(llm=llm, db=db)

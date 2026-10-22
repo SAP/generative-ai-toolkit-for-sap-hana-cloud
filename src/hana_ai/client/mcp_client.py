@@ -6,6 +6,10 @@ MCP client for connecting to HANA ML MCP server
 
 import asyncio
 import json
+import ipaddress
+import os
+import shutil
+from urllib.parse import urlsplit
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from enum import Enum
@@ -75,10 +79,14 @@ class HTTPMCPClient(MCPClient):
         server_name: str = "hana-ml-tools",
         timeout: int = 30,
         extra_headers: Optional[Dict[str, str]] = None,
+        allow_insecure_http: bool = False,
     ):
         super().__init__(server_name)
         # Normalize base_url to ensure it ends with /mcp and has no trailing slash
-        normalized = base_url.rstrip('/')
+        normalized = _validate_http_base_url(
+            base_url,
+            allow_insecure_http=allow_insecure_http,
+        ).rstrip('/')
         if not normalized.endswith('/mcp'):
             normalized = normalized + '/mcp'
         self.base_url = normalized.rstrip('/')
@@ -109,7 +117,10 @@ class HTTPMCPClient(MCPClient):
                 base_url=self.base_url,
                 timeout=self.timeout,
                 trust_env=False,
-                follow_redirects=True,
+                # V-164: do not auto-follow redirects — a malicious/MitM'd server could 307 the
+                # client to an attacker origin and leak the mcp-session-id (and same-origin, the
+                # Authorization header). Handle redirects explicitly if ever needed.
+                follow_redirects=False,
                 headers=default_headers,
             )
 
@@ -317,6 +328,100 @@ class HTTPMCPClient(MCPClient):
             self._http_client = None
 
 
+def _validate_http_base_url(base_url: str, *, allow_insecure_http: bool = False) -> str:
+    """Require TLS outside loopback while preserving the bundled local HTTP flow."""
+    if not isinstance(base_url, str) or not base_url.strip():
+        raise ValueError("MCP base_url must be a non-empty absolute URL")
+    parsed = urlsplit(base_url)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise ValueError("MCP base_url must use http:// or https:// with an explicit host")
+    if parsed.username or parsed.password:
+        raise ValueError("MCP credentials must be supplied as headers, not embedded in base_url")
+    host = parsed.hostname.lower().rstrip(".")
+    try:
+        loopback = ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        loopback = host == "localhost"
+    if parsed.scheme == "http" and not loopback and not allow_insecure_http:
+        raise ValueError(
+            "plaintext MCP HTTP is allowed only on loopback; use https:// or set "
+            "allow_insecure_http=True explicitly for a trusted isolated network"
+        )
+    return base_url
+
+
+_STDIO_INLINE_CODE_FLAGS = {
+    "-c", "-e", "--eval", "--evaluate", "-command", "-encodedcommand", "/c",
+}
+
+
+def _resolve_stdio_executable(command: str) -> str:
+    resolved = command if os.path.isabs(command) else shutil.which(command)
+    if not resolved or not os.path.isfile(resolved):
+        raise ValueError(f"stdio command not found: {command!r}")
+    return os.path.realpath(resolved)
+
+
+def _load_stdio_profiles() -> List[Dict[str, Any]]:
+    """Load host-controlled executable and argument prefixes for stdio servers."""
+    raw = os.environ.get("HANA_MCP_STDIO_ALLOWED_PROFILES", "")
+    if not raw:
+        raise ValueError(
+            "stdio process spawning is disabled; set HANA_MCP_STDIO_ALLOWED_PROFILES "
+            "to a JSON list of trusted command/args_prefix profiles"
+        )
+    try:
+        profiles = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError("HANA_MCP_STDIO_ALLOWED_PROFILES must be valid JSON") from exc
+    if not isinstance(profiles, list) or not profiles:
+        raise ValueError("HANA_MCP_STDIO_ALLOWED_PROFILES must be a non-empty JSON list")
+    return profiles
+
+
+def _validate_stdio_command(command: str, args: List[str]) -> str:
+    """Match an untrusted stdio command against a host-controlled server profile.
+
+    An executable-name allowlist is insufficient because a Python or package runner can
+    still execute attacker-selected code. A profile therefore fixes the resolved executable
+    and a non-empty argument list. Additional operational arguments are rejected unless the
+    host profile explicitly sets ``allow_additional_args: true``.
+    """
+    if not command or not isinstance(command, str):
+        raise ValueError("stdio command must be a non-empty string")
+    args = list(args or [])
+    if not all(isinstance(arg, str) and "\x00" not in arg for arg in args):
+        raise ValueError("stdio args must be strings without NUL bytes")
+    if any(arg.lower() in _STDIO_INLINE_CODE_FLAGS for arg in args):
+        raise ValueError("inline code or shell execution flags are not allowed in stdio args")
+
+    resolved = _resolve_stdio_executable(command)
+    normalized = os.path.normcase(resolved)
+    for profile in _load_stdio_profiles():
+        if not isinstance(profile, dict):
+            continue
+        allowed_command = profile.get("command")
+        prefix = profile.get("args_prefix")
+        if not isinstance(allowed_command, str) or not isinstance(prefix, list) or not prefix:
+            continue
+        if not all(isinstance(arg, str) for arg in prefix):
+            continue
+        try:
+            allowed_resolved = os.path.normcase(_resolve_stdio_executable(allowed_command))
+        except ValueError:
+            continue
+        allow_additional_args = profile.get("allow_additional_args") is True
+        args_match = args == prefix or (
+            allow_additional_args and args[:len(prefix)] == prefix
+        )
+        if normalized == allowed_resolved and args_match:
+            return resolved
+    raise ValueError(
+        "stdio command and args do not match any trusted "
+        "HANA_MCP_STDIO_ALLOWED_PROFILES entry"
+    )
+
+
 class StdioMCPClient(MCPClient):
     """MCP client using Stdio transport (for Claude Desktop, etc.)"""
 
@@ -340,8 +445,12 @@ class StdioMCPClient(MCPClient):
     async def _ensure_process(self) -> None:
         if self._process is not None:
             return
+        # V-165: the stdio command/args come from untrusted config; validate and
+        # resolve to an absolute path before spawning (no shells, no inline code,
+        # allowlisted binaries only).
+        resolved_command = _validate_stdio_command(self.command, self.args)
         self._process = await asyncio.create_subprocess_exec(
-            self.command,
+            resolved_command,
             *self.args,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
@@ -598,7 +707,9 @@ class MCPClientFactory:
             return HTTPMCPClient(
                 base_url=base_url,
                 server_name=server_name,
-                timeout=timeout
+                timeout=timeout,
+                extra_headers=kwargs.get("extra_headers"),
+                allow_insecure_http=kwargs.get("allow_insecure_http", False),
             )
 
         elif transport == MCPTransport.STDIO:

@@ -11,6 +11,8 @@ The following class is available:
 from typing import Any, List
 from datetime import datetime
 import logging
+import os
+from pathlib import Path
 import warnings
 import pandas as pd
 from sqlalchemy import delete
@@ -21,7 +23,12 @@ except Exception:
     from langchain_core.load.dump import dumps
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
-from langchain_community.vectorstores.hanavector import HanaDB  # pylint: disable=import-error,no-name-in-module
+try:
+    # langchain-community <=0.3 compatibility
+    from langchain_community.vectorstores.hanavector import HanaDB  # pylint: disable=import-error,no-name-in-module
+except ImportError:
+    # HanaDB moved to its maintained standalone integration package.
+    from langchain_hana import HanaDB  # pylint: disable=import-error,no-name-in-module
 from hana_ml.algorithms.pal.utility import check_pal_function_exist
 
 try:
@@ -85,7 +92,7 @@ class HANAMLRAGAgent:
                  score_threshold: float = 0.5,
                  vector_store_type = "hanadb", # 'faiss' or 'hanadb'
                  hana_vector_table: str = None,
-                 vectorstore_path: str = "chat_history_vectorstore", # FAISS vectorstore path
+                 vectorstore_path: str = None, # FAISS vectorstore path
                  drop_existing_hana_vector_table: bool = False,
                  verbose: bool = False,
                  session_id: str = "global_session",
@@ -180,7 +187,17 @@ class HANAMLRAGAgent:
             warnings.warn("This agent has been deprecated. Please use context_agent instead.", DeprecationWarning, stacklevel=2)
         self.llm = llm
         self.tools = tools
-        self.vectorstore_path = vectorstore_path
+        if vectorstore_path is None:
+            data_root = os.environ.get("HANA_AI_DATA_DIR")
+            root = Path(data_root).expanduser() if data_root else Path.home() / ".hana_ai"
+            vectorstore_path = str(root / "chat_history_vectorstore")
+        vector_path = Path(vectorstore_path).expanduser().resolve()
+        vector_path.mkdir(parents=True, exist_ok=True)
+        try:
+            vector_path.chmod(0o700)
+        except OSError:
+            pass
+        self.vectorstore_path = str(vector_path)
         self.long_term_db = long_term_db
         self.long_term_memory_limit = long_term_memory_limit
         self.memory_window = memory_window
@@ -287,16 +304,33 @@ class HANAMLRAGAgent:
     def _initialize_faiss_vectorstore(self):
         """Initialize or load FAISS vectorstore for long-term memory"""
 
-        # Try loading existing vectorstore
-        try:
+        store_path = Path(self.vectorstore_path)
+        faiss_file = store_path / "index.faiss"
+        pickle_file = store_path / "index.pkl"
+        if faiss_file.exists() != pickle_file.exists():
+            raise RuntimeError(
+                f"incomplete FAISS store at {store_path}; refusing to overwrite existing data"
+            )
+        if faiss_file.exists():
+            # LangChain's FAISS docstore format uses pickle. Never deserialize it implicitly;
+            # a trusted host must explicitly accept that code-execution boundary.
+            allow_dangerous = os.environ.get(
+                "HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION", ""
+            ).lower() in ("1", "true", "yes")
+            if not allow_dangerous:
+                raise RuntimeError(
+                    "existing FAISS store requires pickle deserialization, which is disabled. "
+                    "Migrate to a non-pickle store or, only for an integrity-verified trusted "
+                    "index, set HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION=true."
+                )
+            logger.warning("Loading an explicitly trusted FAISS pickle from %s", store_path)
             self.vectorstore = FAISS.load_local(
                 self.vectorstore_path,
                 self.embedding_service,
-                allow_dangerous_deserialization=True
+                allow_dangerous_deserialization=True,
             )
             logger.info("Loaded existing vectorstore from %s", self.vectorstore_path)
-        except:
-            # Initialize new vectorstore if loading fails
+        else:
             self.vectorstore = FAISS.from_texts(
                 texts=["Initialization text"],
                 embedding=self.embedding_service

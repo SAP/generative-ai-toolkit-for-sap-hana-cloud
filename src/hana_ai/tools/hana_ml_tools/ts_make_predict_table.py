@@ -8,6 +8,7 @@ The following classes are available:
 """
 
 import logging
+import re
 from typing import Optional, Type
 import uuid
 from pydantic import BaseModel, Field
@@ -140,9 +141,9 @@ def make_future_dataframe_for_massive_forecast(data=None, key=None, group_key=No
     timeframe = []
     for group in group_list:
         if 'INT' in group_id_type.upper():
-            m_data = data.filter(f"{group_key}={group}")
+            m_data = data.filter(f"{_sql_ident(group_key)}={_sql_number(group)}")
         else:
-            m_data = data.filter(f"{group_key}='{group}'")
+            m_data = data.filter(f"{_sql_ident(group_key)}={_sql_str_lit(group)}")
         max_ = m_data.select(key).max()
         sec_max_ = m_data.select(key).distinct().sort_values(key, ascending=False).head(2).collect().iat[1, 0]
         delta = max_ - sec_max_
@@ -175,14 +176,14 @@ def make_future_dataframe_for_massive_forecast(data=None, key=None, group_key=No
         for period in range(0, periods):
             if 'INT' in group_id_type.upper():
                 if is_int:
-                    timeframe.append(f"SELECT {group} AS \"{group_key}\", TO_INT({forecast_start} + {timedelta} * {period}) AS \"{key}\" FROM DUMMY")
+                    timeframe.append(f"SELECT {_sql_number(group)} AS {_sql_ident(group_key)}, TO_INT({_sql_number(forecast_start)} + {_sql_number(timedelta)} * {period}) AS {_sql_ident(key)} FROM DUMMY")
                 else:
-                    timeframe.append(f"SELECT {group} AS \"{group_key}\", ADD_{increment_type}('{forecast_start}', {timedelta} * {period}) AS \"{key}\" FROM DUMMY")
+                    timeframe.append(f"SELECT {_sql_number(group)} AS {_sql_ident(group_key)}, ADD_{increment_type}({_sql_str_lit(forecast_start)}, {_sql_number(timedelta)} * {period}) AS {_sql_ident(key)} FROM DUMMY")
             else:
                 if is_int:
-                    timeframe.append(f"SELECT '{group}' AS \"{group_key}\", TO_INT({forecast_start} + {timedelta} * {period}) AS \"{key}\" FROM DUMMY")
+                    timeframe.append(f"SELECT {_sql_str_lit(group)} AS {_sql_ident(group_key)}, TO_INT({_sql_number(forecast_start)} + {_sql_number(timedelta)} * {period}) AS {_sql_ident(key)} FROM DUMMY")
                 else:
-                    timeframe.append(f"SELECT '{group}' AS \"{group_key}\", ADD_{increment_type}('{forecast_start}', {timedelta} * {period}) AS \"{key}\" FROM DUMMY")
+                    timeframe.append(f"SELECT {_sql_str_lit(group)} AS {_sql_ident(group_key)}, ADD_{increment_type}({_sql_str_lit(forecast_start)}, {_sql_number(timedelta)} * {period}) AS {_sql_ident(key)} FROM DUMMY")
     sql = ' UNION ALL '.join(timeframe)
 
     return data.connection_context.sql(sql).sort_values([group_key, key])
@@ -344,3 +345,27 @@ class TSMakeFutureTableForMassiveForecastTool(BaseTool):
     ) -> str:
         """Use the tool asynchronously."""
         return self._run(**kwargs)
+
+
+def _sql_str_lit(value):
+    """Return a safely single-quoted HANA string literal for `value` (V-166)."""
+    value = str(value)
+    if "\x00" in value:
+        raise ValueError("NUL bytes are not allowed in SQL string values")
+    return "'" + value.replace("'", "''") + "'"
+
+
+def _sql_ident(value):
+    """Quote one HANA identifier component."""
+    value = str(value)
+    if not value or '"' in value or "\x00" in value:
+        raise ValueError(f"invalid HANA identifier: {value!r}")
+    return '"' + value + '"'
+
+
+def _sql_number(value):
+    """Accept only a numeric token before placing it in generated SQL."""
+    text = str(value)
+    if not re.fullmatch(r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", text):
+        raise ValueError(f"invalid numeric SQL value: {value!r}")
+    return text

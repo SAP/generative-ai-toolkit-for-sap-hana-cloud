@@ -151,9 +151,9 @@ def ts_char_massive(df, group_key, key, endog):
     # 遍历每个分组
     for i, group_val in enumerate(groups):
         if isinstance(group_val, str):
-            df_group = df.filter(f'"{group_key}" = \'{group_val}\'')
+            df_group = df.filter(f'{_sql_ident(group_key)} = {_sql_str_lit(group_val)}')
         else:
-            df_group = df.filter(f'"{group_key}" = {group_val}')
+            df_group = df.filter(f'{_sql_ident(group_key)} = {group_val}')
 
         analysis_result += f"Group {i+1}/{len(groups)}: {group_key} = {group_val}\n"
         analysis_result += "-" * 60 + "\n"
@@ -968,3 +968,19 @@ class WhiteNoiseTest(BaseTool):
     ) -> str:
         """Use the tool asynchronously."""
         return self._run(**kwargs)
+
+
+def _sql_str_lit(value):
+    """Return a safely single-quoted HANA string literal for `value` (V-166)."""
+    value = str(value)
+    if "\x00" in value:
+        raise ValueError("NUL bytes are not allowed in SQL string values")
+    return "'" + value.replace("'", "''") + "'"
+
+
+def _sql_ident(value):
+    """Quote one HANA identifier component."""
+    value = str(value)
+    if not value or '"' in value or "\x00" in value:
+        raise ValueError(f"invalid HANA identifier: {value!r}")
+    return '"' + value + '"'

@@ -21,7 +21,8 @@ class TestML_BaseTestClass(unittest.TestCase):
     def setUp(self):
         self.config = configparser.ConfigParser()
         trust_store = certifi.where()
-        self.conn = dataframe.ConnectionContext(userkey="RaysKey",sslValidateCertificate=False)
+        userkey = os.environ.get("HANA_USERKEY", "RaysKey")
+        self.conn = dataframe.ConnectionContext(userkey=userkey,sslValidateCertificate=False)
         self.conn.sql_tracer.enable_sql_trace(True)
 
     def tearDown(self):

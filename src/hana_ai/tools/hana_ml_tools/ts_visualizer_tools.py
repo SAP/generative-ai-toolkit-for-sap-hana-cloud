@@ -20,6 +20,7 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.visualizers.visualizer_base import forecast_line_plot
 from hana_ml.visualizers.unified_report import UnifiedReport
+from hana_ai.utility import secure_report_dir, sanitize_artifact_name
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +153,8 @@ class TimeSeriesDatasetReport(BaseTool):
         df = self.connection_context.table(table_name, schema=schema_name).select(key, endog)
         ur = UnifiedReport(df).build(key=key, endog=endog)
         if output_dir is None:
-            destination_dir = os.path.join(tempfile.gettempdir(), "hanaml_report")
+            # V-162: private randomized 0700 dir instead of predictable <tmp>/hanaml_report.
+            destination_dir = secure_report_dir("hanaml_report")
         else:
             destination_dir = output_dir
         if not os.path.exists(destination_dir):
@@ -164,7 +166,7 @@ class TimeSeriesDatasetReport(BaseTool):
 
         output_file = os.path.join(
                     destination_dir,
-                    f"{table_name}_ts_report")
+                    f"{sanitize_artifact_name(table_name, fallback='table')}_ts_report")
         ur.display(save_html=output_file)
         if not self.bas:
             ur.display() #directly display in jupyter
@@ -361,7 +363,8 @@ class ForecastLinePlot(BaseTool):
                 payload["actual_columns"] = list(getattr(actual_df, "columns", []))
             return self._json_error("Unable to generate forecast line plot. Check that the required key/value columns are present.", **payload)
         if output_dir is None:
-            destination_dir = os.path.join(tempfile.gettempdir(), "hanaml_chart")
+            # V-162: private randomized 0700 dir instead of predictable <tmp>/hanaml_chart.
+            destination_dir = secure_report_dir("hanaml_chart")
         else:
             destination_dir = output_dir
         if not os.path.exists(destination_dir):
@@ -372,7 +375,7 @@ class ForecastLinePlot(BaseTool):
                 raise
         output_file = os.path.join(
                     destination_dir,
-                    f"{predict_result}_forecast_line_plot.html",
+                    f"{sanitize_artifact_name(predict_result, fallback='forecast')}_forecast_line_plot.html",
                 )
         with Path(output_file).open("w", encoding="utf-8") as f:
             f.write(fig.to_html(full_html=True))

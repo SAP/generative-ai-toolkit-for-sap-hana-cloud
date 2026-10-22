@@ -12,7 +12,7 @@ connection_context = ConnectionContext(address='<address>',
                                        user='<user>',
                                        password='<password>',
                                        encrypt=True,
-                                       sslValidateCertificate=False)
+                                       sslValidateCertificate=True)
 
 # Create a HANA DataFrame
 df_fit = DataFrame(connection_context, '<table_name>')
