@@ -114,7 +114,6 @@ class HTTPMCPClient(MCPClient):
             }
             default_headers.update(self._extra_headers)
             self._http_client = httpx.AsyncClient(
-                base_url=self.base_url,
                 timeout=self.timeout,
                 trust_env=False,
                 # V-164: do not auto-follow redirects — a malicious/MitM'd server could 307 the
@@ -136,7 +135,7 @@ class HTTPMCPClient(MCPClient):
                     "clientInfo": {"name": "hana-ai-client", "version": "0.1"},
                 },
             }
-            init_resp = await self._http_client.post("", json=init_payload)
+            init_resp = await self._http_client.post(self.base_url, json=init_payload)
             sid = init_resp.headers.get("mcp-session-id")
             if sid:
                 self._session_id = sid
@@ -169,8 +168,8 @@ class HTTPMCPClient(MCPClient):
             headers.update(self._extra_headers)
             if hasattr(self, "_session_id") and self._session_id:
                 headers["mcp-session-id"] = self._session_id
-            # Note: POST to /mcp (no trailing slash) to match server route
-            response = await self._http_client.post("", json=payload, headers=headers)
+            # Use the exact configured URL so redirect handling remains disabled.
+            response = await self._http_client.post(self.base_url, json=payload, headers=headers)
             if response.status_code == 200:
                 resp = response.json()
                 result = resp.get("result") or {}
@@ -282,7 +281,9 @@ class HTTPMCPClient(MCPClient):
                 "content-type": "application/json",
                 "mcp-protocol-version": "2024-11-05",
             }
-            response = await self._http_client.post("", json=rpc_payload, headers=headers)
+            response = await self._http_client.post(
+                self.base_url, json=rpc_payload, headers=headers
+            )
 
             if response.status_code != 200:
                 return MCPCallResult(

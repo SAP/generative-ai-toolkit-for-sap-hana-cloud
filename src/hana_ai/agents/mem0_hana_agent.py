@@ -152,7 +152,9 @@ class Mem0HANARAGAgent:
         hana_vector_table: Optional[str] = None,
         drop_existing_hana_vector_table: bool = False,
         verbose: bool = False,
-        session_id: str = "global_session",
+        session_id: Optional[str] = None,
+        tenant_id: Optional[str] = None,
+        _adapter: Optional[Any] = None,
         _auto_init_agent: bool = True,
     ) -> None:
         with warnings.catch_warnings():
@@ -165,7 +167,10 @@ class Mem0HANARAGAgent:
         self.rerank_k = rerank_k
         self.score_threshold = score_threshold
         self.verbose = verbose
-        self.session_id = session_id
+        self.session_id = str(session_id or "").strip()
+        self.tenant_id = str(tenant_id or "").strip()
+        if not self.session_id or not self.tenant_id:
+            raise ValueError("tenant_id and session_id are required for isolated memory access")
         self.drop_existing_hana_vector_table = drop_existing_hana_vector_table
 
         # Detect HANA connection_context from tools
@@ -183,14 +188,19 @@ class Mem0HANARAGAgent:
         if hana_vector_table is None and self.hana_connection_context:
             self.user = _get_user_info(self.hana_connection_context)
             self.hana_vector_table = f"HANA_AI_CHAT_HISTORY_{self.user}"
+        elif hana_vector_table is None and _adapter is not None:
+            self.hana_vector_table = _adapter.table_name
         else:
             self.hana_vector_table = hana_vector_table or "HANA_AI_CHAT_HISTORY_DEFAULT"
 
         # Initialize memory manager (internal injection via _adapter for tests kept for BC but discouraged)
-        if not self.hana_connection_context:
+        if not self.hana_connection_context and _adapter is None:
             raise ValueError("HANA connection context is required for Mem0HANARAGAgent")
         # Initialize embedding service and optional reranker
-        self.embedding_service = HANAVectorEmbeddings(self.hana_connection_context)
+        self.embedding_service = (
+            _adapter.embedder if _adapter is not None
+            else HANAVectorEmbeddings(self.hana_connection_context)
+        )
         reranker = None
         try:
             if self.hana_connection_context and check_pal_function_exist(self.hana_connection_context, '%PAL_CROSSENCODER%', like=True):
@@ -214,16 +224,20 @@ class Mem0HANARAGAgent:
             architecture="vector",
             default_ttl_seconds=None,
             short_term_ttl_seconds=None,
-            partition_defaults={"agent_id": "mem0_hana_agent", "session_id": self.session_id},
+            partition_defaults={"agent_id": "mem0_hana_agent"},
+            tenant_id=self.tenant_id,
+            session_id=self.session_id,
+            adapter=_adapter,
             ingestion_rules=ingestion_rules,
             auto_classification_enabled=True,
             auto_entity_extraction_enabled=True,
             entity_assignment_mode="merge",
         )
+        self.mem0_adapter = self.memory_manager.adapter
 
-        # Scope manager to current user entity
-        if getattr(self, "user", None):
-            self.memory_manager.set_entity(self.user, "user")
+        # Entity metadata remains useful for retrieval, but the mandatory tenant/session
+        # scope above is the authorization boundary.
+        self.memory_manager.set_entity(self.tenant_id, "tenant")
         try:
             classifier = Mem0IngestionClassifier(self.llm)
             self.memory_manager.set_classifier(classifier)

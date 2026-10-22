@@ -852,7 +852,6 @@ class SyncHTTPMCPClient:
         self.tools: dict[str, dict[str, Any]] = {}
         self._httpx = httpx
         self.client = httpx.Client(
-            base_url=self.base_url,
             timeout=timeout,
             # Never forward mcp-session-id across an attacker-controlled redirect.
             follow_redirects=False,
@@ -905,7 +904,7 @@ class SyncHTTPMCPClient:
                 "metadata": identity_metadata,
             },
         }
-        response = self.client.post("", json=payload)
+        response = self.client.post(self.base_url, json=payload)
         response.raise_for_status()
         self.session_id = response.headers.get("mcp-session-id")
         if self.session_id:
@@ -923,7 +922,7 @@ class SyncHTTPMCPClient:
             "method": "tools/list",
             "params": ({"session": {"id": self.session_id}} if self.session_id else {}),
         }
-        response = self.client.post("", json=payload)
+        response = self.client.post(self.base_url, json=payload)
         response.raise_for_status()
         result = response.json().get("result", {})
         tool_list = result.get("tools", []) or []
@@ -942,7 +941,7 @@ class SyncHTTPMCPClient:
                 **({"session": {"id": self.session_id}} if self.session_id else {}),
             },
         }
-        response = self.client.post("", json=payload)
+        response = self.client.post(self.base_url, json=payload)
         response.raise_for_status()
         rpc_response = response.json()
         if "error" in rpc_response:

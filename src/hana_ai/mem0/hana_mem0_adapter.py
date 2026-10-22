@@ -49,6 +49,27 @@ except Exception:  # pragma: no cover - optional
 logger = logging.getLogger(__name__)
 
 
+def _metadata_matches_filters(metadata: Dict[str, Any], filters: Optional[Dict[str, Any]]) -> bool:
+    """Apply the small metadata-filter subset used by the memory manager."""
+    for key, expected in (filters or {}).items():
+        actual = metadata.get(key)
+        if isinstance(expected, dict):
+            if "$contains" in expected:
+                wanted = expected["$contains"]
+                wanted_values = wanted if isinstance(wanted, list) else [wanted]
+                actual_values = actual if isinstance(actual, list) else [actual]
+                if not all(value in actual_values for value in wanted_values):
+                    return False
+            elif "$lte" in expected:
+                if actual is None or actual > expected["$lte"]:
+                    return False
+            else:
+                return False
+        elif actual != expected:
+            return False
+    return True
+
+
 @dataclass
 class SearchResult:
     """
@@ -155,7 +176,9 @@ class Mem0HanaAdapter:
             md_input = dict(metadata or {})
             md_input.update(m.get("metadata", {}))
             # Merge partition defaults
-            md = {**self.partition_defaults, **md_input}
+            # Partition defaults are security boundaries, so caller metadata cannot
+            # replace tenant/session keys supplied by the manager.
+            md = {**md_input, **self.partition_defaults}
             # tags / entity partitioning
             if "tags" in m and isinstance(m["tags"], list):
                 md["tags"] = m["tags"]
@@ -232,15 +255,26 @@ class Mem0HanaAdapter:
         else:
             # Fallback to (doc, score) API or plain similarity_search
             if hasattr(self.vectorstore, "similarity_search_with_score"):
-                pairs = self.vectorstore.similarity_search_with_score(query=query, k=top_k)
+                try:
+                    pairs = self.vectorstore.similarity_search_with_score(
+                        query=query, k=top_k, filter=filters
+                    )
+                except TypeError:
+                    pairs = self.vectorstore.similarity_search_with_score(query=query, k=top_k)
                 docs, vec_scores = zip(*pairs) if pairs else ([], [])
             else:
-                docs = self.vectorstore.similarity_search(query=query, k=top_k)
+                try:
+                    docs = self.vectorstore.similarity_search(
+                        query=query, k=top_k, filter=filters
+                    )
+                except TypeError:
+                    docs = self.vectorstore.similarity_search(query=query, k=top_k)
                 vec_scores = [0.0] * len(docs)
 
         results: List[SearchResult] = [
             SearchResult(text=d.page_content, score=float(s), metadata=dict(d.metadata))
             for d, s in zip(docs, vec_scores)
+            if _metadata_matches_filters(dict(d.metadata), filters)
         ]
 
         # Optional reranking
@@ -275,12 +309,18 @@ class Mem0HanaAdapter:
             return 0
 
     # ---------------------- Advanced features ----------------------
-    def delete_expired(self, now_iso: Optional[str] = None) -> int:
+    def delete_expired(
+        self,
+        now_iso: Optional[str] = None,
+        filters: Optional[Dict[str, Any]] = None,
+    ) -> int:
         """
         Delete expired memories based on `expires_at` metadata.
         """
         now_iso = now_iso or datetime.now().isoformat()
-        return self.delete({"expires_at": {"$lte": now_iso}})
+        delete_filter = dict(filters or {})
+        delete_filter["expires_at"] = {"$lte": now_iso}
+        return self.delete(delete_filter)
 
     def search_by_tags(
         self,

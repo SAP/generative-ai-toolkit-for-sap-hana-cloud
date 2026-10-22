@@ -59,9 +59,18 @@ def build_connection_context(
 
 def env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     val = os.environ.get(name)
-    if val is None:
+    if val is None or not val.strip():
         return default
-    return val.strip().lower() in {"1", "true", "yes", "on"}
+    return parse_bool(val)
+
+
+def parse_bool(val: str) -> bool:
+    normalized = val.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise argparse.ArgumentTypeError("expected a boolean value")
 
 
 def main():
@@ -71,11 +80,11 @@ def main():
     parser.add_argument("--port", type=int, default=int(os.environ.get("HANA_PORT", "443")), help="HANA port")
     parser.add_argument("--user", default=os.environ.get("HANA_USER"), help="HANA user")
     parser.add_argument("--password", default=os.environ.get("HANA_PASSWORD"), help="HANA password")
-    parser.add_argument("--encrypt", type=env_bool, default=env_bool("HANA_ENCRYPT"), help="Use TLS encrypt (true/false)")
+    parser.add_argument("--encrypt", type=parse_bool, default=env_bool("HANA_ENCRYPT"), help="Use TLS encrypt (true/false)")
     parser.add_argument(
         "--ssl-validate",
         dest="ssl_validate",
-        type=env_bool,
+        type=parse_bool,
         default=env_bool("HANA_SSL_VALIDATE", default=True),
         help="Validate TLS certificate (true/false)",
     )
@@ -84,7 +93,7 @@ def main():
     parser.add_argument("--host", dest="host", default="127.0.0.1", help="Server host for HTTP MCP")
     parser.add_argument("--port-http", dest="port_http", type=int, default=8001, help="Server port for HTTP MCP")
     parser.add_argument("--server-name", dest="server_name", default="HANAGraphTools", help="MCP server name")
-    parser.add_argument("--auth-token", dest="auth_token", default=None, help="Optional auth token (Bearer)")
+    parser.add_argument("--auth-token", dest="auth_token", default=None, help="Bearer token (required for non-loopback binding)")
     parser.add_argument("--max-retries", dest="max_retries", type=int, default=5, help="Port retry count if occupied")
 
     args = parser.parse_args()

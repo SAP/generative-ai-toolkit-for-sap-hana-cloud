@@ -75,6 +75,21 @@ untrusted agent or MCP callers. Untrusted-code execution requires a separately
 designed OS-level isolation boundary, scoped credentials, and resource limits;
 do not rely on this tool's syntax checks for containment.
 
+### SQL agent deployment boundary
+
+The SQL agent requires an explicit schema or table allowlist. For example, pass
+`schema="APP_READ"` or `include_tables=["SALES_VIEW"]` to
+`create_hana_sql_agent()` and `create_hana_sql_toolkit()`. The application rejects
+queries outside that configured scope, but this parser-level check is defense in
+depth and does not replace HANA authorization.
+
+Run SQL agents with a dedicated HANA technical user or role that has only the
+required `SELECT` privileges on approved schemas, tables, or restricted views. Do
+not grant DDL/DML, unrestricted cross-schema access, or procedure execution unless
+the application explicitly needs it. Validate effective privileges against the
+target HANA deployment as part of release testing. Views and synonyms must be
+reviewed together with the privileges of their underlying objects.
+
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/blob/main/CONTRIBUTING.md).

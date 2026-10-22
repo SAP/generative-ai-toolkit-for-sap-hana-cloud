@@ -1,8 +1,12 @@
-# V-175: direct dependencies pinned; transitive dependencies still require a lock.
-# Generate a hash-checked lock/constraints file with pip-compile and review upgrades.
+# V-175: direct runtime dependencies are pinned here. GitHub Actions installs the
+# target-specific, hash-checked locks under .github/requirements/.
 langchain-community==0.3.18
 langchain-text-splitters==0.3.11
-numpy==2.2.3
+# langchain-community 0.3.18 requires NumPy <2 on Python <3.12.  Keep the
+# newer NumPy pin on newer interpreters without making the Python 3.11 CI
+# environment impossible to resolve.
+numpy==1.26.4; python_version < "3.12"
+numpy==2.2.3; python_version >= "3.12"
 pandas==2.2.3
 hana-ml==2.29.26072000
 pydantic==2.11.7

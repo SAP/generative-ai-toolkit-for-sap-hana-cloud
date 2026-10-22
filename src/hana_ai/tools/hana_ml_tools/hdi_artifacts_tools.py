@@ -10,7 +10,6 @@ The following class is available:
 
 import logging
 import os
-import tempfile
 from pathlib import Path
 from typing import Optional, Type
 from pydantic import BaseModel, Field

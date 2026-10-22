@@ -37,7 +37,7 @@ packages = {find = {where = ["src"]}}
 include-package-data = true
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+dependencies = {file = ["requirements-runtime.txt"]}
 
 [tool.setuptools.package-data]
 hana_ai = [
