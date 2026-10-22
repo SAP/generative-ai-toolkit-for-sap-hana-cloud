@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=62.4", "wheel"]
+requires = ["setuptools==84.2.1", "wheel==0.48.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -18,11 +18,11 @@ dynamic = ["dependencies"]
 
 [project.optional-dependencies]
 nlp = ["nltk>=3.9,<4"]
-graph = ["langgraph>=0.2,<2"]
+graph = ["langgraph>=0.2,<1"]
 all = [
-    "sap-ai-sdk-gen[all]",
+    "sap-ai-sdk-gen[all]>=5.11.0,<6",
     "nltk>=3.9,<4",
-    "langgraph>=0.2,<2",
+    "langgraph>=0.2,<1",
 ]
 
 [project.urls]

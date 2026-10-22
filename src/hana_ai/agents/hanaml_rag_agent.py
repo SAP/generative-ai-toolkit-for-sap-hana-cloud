@@ -11,6 +11,7 @@ The following class is available:
 from typing import Any, List
 from datetime import datetime
 import hashlib
+import hmac
 import logging
 import os
 from pathlib import Path
@@ -329,30 +330,79 @@ class HANAMLRAGAgent:
             )
         if faiss_file.exists():
             # LangChain's FAISS docstore format uses pickle. Never deserialize it implicitly;
-            # a trusted host must explicitly accept that code-execution boundary.
+            # load only a locally-created, integrity-verified store or one explicitly trusted
+            # by the host for migration.
             allow_dangerous = os.environ.get(
                 "HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION", ""
             ).lower() in ("1", "true", "yes")
-            if not allow_dangerous:
+            locally_trusted = self._is_locally_trusted_faiss_store(store_path)
+            if not allow_dangerous and not locally_trusted:
                 raise RuntimeError(
                     "existing FAISS store requires pickle deserialization, which is disabled. "
-                    "Migrate to a non-pickle store or, only for an integrity-verified trusted "
-                    "index, set HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION=true."
+                    "The local integrity manifest is missing or invalid. Migrate to a "
+                    "non-pickle store or, only for an independently verified trusted index, "
+                    "set HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION=true once."
                 )
-            logger.warning("Loading an explicitly trusted FAISS pickle from %s", store_path)
+            if allow_dangerous and not locally_trusted:
+                logger.warning("Loading an explicitly trusted FAISS pickle from %s", store_path)
+            else:
+                logger.info("Loading an integrity-verified local FAISS store from %s", store_path)
             self.vectorstore = FAISS.load_local(
                 self.vectorstore_path,
                 self.embedding_service,
                 allow_dangerous_deserialization=True,
             )
+            if allow_dangerous and not locally_trusted:
+                # Record the host's one-time trust decision so later restarts can verify the
+                # exact files without requiring a permanent dangerous-deserialization flag.
+                self._write_faiss_integrity_manifest(store_path)
             logger.info("Loaded existing vectorstore from %s", self.vectorstore_path)
         else:
             self.vectorstore = FAISS.from_texts(
                 texts=["Initialization text"],
                 embedding=self.embedding_service
             )
-            self.vectorstore.save_local(self.vectorstore_path)
+            self._save_faiss_vectorstore()
             logger.info("Created new vectorstore at %s", self.vectorstore_path)
+
+    @staticmethod
+    def _faiss_store_digest(store_path: Path) -> str:
+        digest = hashlib.sha256()
+        for name in ("index.faiss", "index.pkl"):
+            file_path = store_path / name
+            if not file_path.is_file():
+                raise RuntimeError(f"incomplete FAISS store at {store_path}")
+            digest.update(name.encode("utf-8") + b"\0")
+            with file_path.open("rb") as handle:
+                chunk = handle.read(1024 * 1024)
+                while chunk:
+                    digest.update(chunk)
+                    chunk = handle.read(1024 * 1024)
+        return digest.hexdigest()
+
+    def _write_faiss_integrity_manifest(self, store_path: Path) -> None:
+        manifest = store_path / ".hana_ai_faiss.sha256"
+        temporary = store_path / f".hana_ai_faiss.sha256.{os.getpid()}.tmp"
+        temporary.write_text(self._faiss_store_digest(store_path) + "\n", encoding="ascii")
+        try:
+            temporary.chmod(0o600)
+        except OSError:
+            pass
+        os.replace(temporary, manifest)
+
+    def _is_locally_trusted_faiss_store(self, store_path: Path) -> bool:
+        manifest = store_path / ".hana_ai_faiss.sha256"
+        try:
+            expected = manifest.read_text(encoding="ascii").strip()
+            actual = self._faiss_store_digest(store_path)
+        except (OSError, UnicodeError, RuntimeError):
+            return False
+        return len(expected) == 64 and hmac.compare_digest(expected, actual)
+
+    def _save_faiss_vectorstore(self) -> None:
+        store_path = Path(self.vectorstore_path)
+        self.vectorstore.save_local(self.vectorstore_path)
+        self._write_faiss_integrity_manifest(store_path)
 
     def _initialize_hanadb_vectorstore(self):
         """Initialize or load HANA DB vectorstore for long-term memory"""
@@ -415,7 +465,7 @@ class HANAMLRAGAgent:
         # Update vector store
         self.vectorstore.add_documents(documents)
         if self.vectorstore_type.lower() == "faiss":
-            self.vectorstore.save_local(self.vectorstore_path)
+            self._save_faiss_vectorstore()
 
         # Clean up oldest memories if needed
         self._forget_old_memories()
@@ -486,7 +536,7 @@ class HANAMLRAGAgent:
                         documents,
                         self.embedding_service
                     )
-                    self.vectorstore.save_local(self.vectorstore_path)
+                    self._save_faiss_vectorstore()
                     logger.info("Rebuilt vectorstore with %s documents", len(documents))
                 except Exception as e:
                     logger.error("Error rebuilding vectorstore: %s", str(e))
@@ -609,7 +659,7 @@ class HANAMLRAGAgent:
         # FAISS paths are isolated per tenant/session; HANA uses a scoped delete.
         if self.vectorstore_type.lower() == "faiss":
             self.vectorstore = FAISS.from_texts([""], embedding=self.embedding_service)  # 空文本占位
-            self.vectorstore.save_local(self.vectorstore_path)
+            self._save_faiss_vectorstore()
         else:
             self.vectorstore.delete(filter=self._memory_filter)
         logger.info("Long-term memory cleared and vectorstore reset.")

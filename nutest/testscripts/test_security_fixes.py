@@ -72,6 +72,13 @@ class TestV165StdioCommandValidation:
         with pytest.raises(ValueError):
             self._validator()("python", ["-c", "import os; os.system('x')"])
 
+    @pytest.mark.parametrize(
+        "inline_arg", ["-cprint(1)", "-econsole.log(1)", "--eval=code", "/cwhoami"]
+    )
+    def test_inline_code_flag_prefix_rejected(self, inline_arg):
+        with pytest.raises(ValueError, match="inline code"):
+            self._validator()("python", [inline_arg])
+
     def test_non_allowlisted_command_rejected(self, monkeypatch):
         monkeypatch.delenv("HANA_MCP_STDIO_ALLOWED_PROFILES", raising=False)
         with pytest.raises(ValueError):
@@ -196,6 +203,7 @@ class TestV159ReadOnlySQLExtraction:
             "SELECT * FROM T",
             "SELECT ';' AS VALUE FROM DUMMY;",
             "WITH X AS (SELECT 1 AS A FROM DUMMY) SELECT * FROM X",
+            "SELECT REPLACE('abc', 'a', 'z') FROM DUMMY",
         ],
     )
     def test_single_readonly_statement_allowed(self, sql):
@@ -209,6 +217,7 @@ class TestV159ReadOnlySQLExtraction:
             "SELECT * FROM T -- ignore guard",
             "SELECT * FROM T /* comment */",
             "WITH X AS (DELETE FROM T) SELECT * FROM X",
+            "WITH X AS (SELECT 1) REPLACE T (ID) VALUES (1)",
             "SELECT * FROM T FOR UPDATE",
             "SELECT * INTO X FROM T",
         ],
@@ -322,6 +331,45 @@ class TestV161FAISSDeserialization:
             agent._initialize_faiss_vectorstore()
         assert (tmp_path / "index.pkl").read_bytes() == b"pickle"
 
+    def test_locally_created_store_reloads_after_integrity_check(
+        self, tmp_path, monkeypatch
+    ):
+        mod = importlib.import_module("hana_ai.agents.hanaml_rag_agent")
+
+        class _CreatedStore:
+            @staticmethod
+            def save_local(path):
+                target = os.fspath(path)
+                with open(os.path.join(target, "index.faiss"), "wb") as handle:
+                    handle.write(b"faiss-index")
+                with open(os.path.join(target, "index.pkl"), "wb") as handle:
+                    handle.write(b"trusted-pickle")
+
+        agent = self._agent_shell(tmp_path)
+        agent.vectorstore = _CreatedStore()
+        agent._save_faiss_vectorstore()
+        assert (tmp_path / ".hana_ai_faiss.sha256").is_file()
+
+        loaded = object()
+
+        class _FAISS:
+            @staticmethod
+            def load_local(path, embedding, allow_dangerous_deserialization):
+                assert path == str(tmp_path)
+                assert embedding is not None
+                assert allow_dangerous_deserialization is True
+                return loaded
+
+        monkeypatch.setattr(mod, "FAISS", _FAISS)
+        monkeypatch.delenv("HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION", raising=False)
+        restarted = self._agent_shell(tmp_path)
+        restarted._initialize_faiss_vectorstore()
+        assert restarted.vectorstore is loaded
+
+        (tmp_path / "index.pkl").write_bytes(b"tampered")
+        with pytest.raises(RuntimeError, match="manifest is missing or invalid"):
+            self._agent_shell(tmp_path)._initialize_faiss_vectorstore()
+
 
 # ============================ V-168: dataframe rows never enter the prompt ============================
 class TestV168DataframeAgent:
@@ -431,6 +479,32 @@ class TestV171ReadOnlySQLDatabase:
         db = self._db()
         with pytest.raises(ValueError, match="forbidden keyword"):
             db.run("WITH changed AS (DELETE FROM foo) SELECT 1")
+        with pytest.raises(ValueError, match="only SELECT/WITH"):
+            db.run("WITH changed AS (SELECT 1) REPLACE foo (id) VALUES (1)")
+
+    def test_quoted_identifier_cannot_mask_cross_schema_table(self):
+        sqlalchemy = pytest.importorskip("sqlalchemy")
+        mod = importlib.import_module("hana_ai.agents.hana_sql_agent")
+        db = mod._ReadOnlySQLDatabase(
+            sqlalchemy.create_engine("sqlite://"),
+            allowed_schema="PUBLIC",
+            allowed_tables=["T"],
+        )
+        with pytest.raises(ValueError, match="allowed schema"):
+            db.run("SELECT \"a'b\" FROM SECRET.T WHERE y = 'z' AND \"c'd\"")
+
+    def test_unqualified_table_allowlist_rejects_other_schema(self):
+        sqlalchemy = pytest.importorskip("sqlalchemy")
+        mod = importlib.import_module("hana_ai.agents.hana_sql_agent")
+        db = mod._ReadOnlySQLDatabase(
+            sqlalchemy.create_engine("sqlite://"), allowed_tables=["T"]
+        )
+        with pytest.raises(ValueError, match="schema-qualified tables"):
+            db.run("SELECT * FROM OTHER.T")
+
+    def test_replace_scalar_function_remains_allowed(self):
+        db = self._db()
+        assert db.run("SELECT REPLACE('abc', 'a', 'z')") is not None
 
 
 # ============================ V-174: stable identity, not repr parsing ============================
@@ -447,6 +521,26 @@ class TestV174Identity:
         conn = types.SimpleNamespace(user="BOB")
         cc = types.SimpleNamespace(userkey=None, connection=conn)
         assert self._get_user_info()(cc) == "BOB"
+
+    def test_standard_connection_falls_back_to_current_user_query(self):
+        class _Cursor:
+            closed = False
+
+            def execute(self, statement):
+                assert statement == "SELECT CURRENT_USER FROM DUMMY"
+
+            @staticmethod
+            def fetchone():
+                return ("PAL_TEST",)
+
+            def close(self):
+                self.closed = True
+
+        cursor = _Cursor()
+        connection = types.SimpleNamespace(cursor=lambda: cursor)
+        cc = types.SimpleNamespace(userkey=None, connection=connection)
+        assert self._get_user_info()(cc) == "PAL_TEST"
+        assert cursor.closed is True
 
     def test_repr_parsing_is_rejected(self):
         class _Conn:
@@ -530,6 +624,14 @@ def test_v155_runtime_admin_rejected_for_sse(monkeypatch):
         toolkit.launch_mcp_server(transport="sse", max_retries=1)
 
 
+def test_v155_auth_token_rejected_for_unsupported_sse(monkeypatch):
+    mod = importlib.import_module("hana_ai.tools.toolkit")
+    toolkit = object.__new__(mod.HANAMLToolkit)
+    monkeypatch.delenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", raising=False)
+    with pytest.raises(ValueError, match="auth_token is not supported on SSE"):
+        toolkit.launch_mcp_server(transport="sse", auth_token="secret", max_retries=1)
+
+
 def test_v167_tls_certificate_validation_defaults_on(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     monkeypatch.setenv("HANA_ADDRESS", "hana.example.test")
@@ -549,6 +651,64 @@ def test_v167_empty_tls_setting_uses_secure_default(monkeypatch):
     monkeypatch.setenv("HANA_SSL_VALIDATE", "maybe")
     with pytest.raises(ValueError, match="must be a boolean"):
         mod._build_cc_params_from_env()
+
+
+def test_v170_memory_admin_commands_default_to_disabled(monkeypatch):
+    mod = importlib.import_module("hana_ai.agents.mem0_hana_agent")
+    agent = object.__new__(mod.Mem0HANARAGAgent)
+    monkeypatch.delenv("HANA_MEM0_ALLOW_ADMIN_COMMANDS", raising=False)
+    assert "disabled" in agent.chat("!clear_long_term_memory").lower()
+
+
+def test_v172_sanitized_session_names_do_not_collide():
+    mod = importlib.import_module("hana_ai.iagents.context_agent")
+    assert mod._session_storage_name("a/b") != mod._session_storage_name("a_b")
+    assert "/" not in mod._session_storage_name("../../outside")
+    assert ".." not in mod._session_storage_name("../../outside")
+
+
+def test_v173_raw_report_rendering_requires_opt_in(monkeypatch, tmp_path):
+    mod = importlib.import_module(
+        "hana_ai.tools.hana_ml_tools.ts_visualizer_tools"
+    )
+
+    class _Frame:
+        columns = ["TS", "VALUE"]
+
+        def select(self, *_args):
+            return self
+
+    frame = _Frame()
+    connection = types.SimpleNamespace(
+        has_table=lambda *_args, **_kwargs: True,
+        table=lambda *_args, **_kwargs: frame,
+    )
+    display_calls = []
+
+    class _Report:
+        def build(self, **_kwargs):
+            return self
+
+        def display(self, **kwargs):
+            display_calls.append(kwargs)
+
+    monkeypatch.setattr(mod, "UnifiedReport", lambda _frame: _Report())
+    tool = mod.TimeSeriesDatasetReport.model_construct(
+        connection_context=connection, return_direct=False, bas=False
+    )
+    monkeypatch.delenv("HANA_ALLOW_RAW_HTML_RENDER", raising=False)
+    tool._run(
+        table_name="T", key="TS", endog="VALUE", output_dir=str(tmp_path)
+    )
+    assert display_calls == [{"save_html": os.path.join(str(tmp_path), "T_ts_report")}]
+
+    monkeypatch.setenv("HANA_ALLOW_RAW_HTML_RENDER", "true")
+    tool._run(
+        table_name="T", key="TS", endog="VALUE", output_dir=str(tmp_path)
+    )
+    assert display_calls[-2:] == [
+        {"save_html": os.path.join(str(tmp_path), "T_ts_report")}, {}
+    ]
 
 
 # ============================ V-169: tenant/session memory isolation ============================
