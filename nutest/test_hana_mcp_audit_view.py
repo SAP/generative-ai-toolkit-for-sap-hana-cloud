@@ -5,12 +5,14 @@ The function issues one SELECT and parses each row's APPLICATION_SOURCE with
 resulting DataFrame shape without needing a HANA connection.
 """
 
+import json
 import unittest
 
 from hana_ai.tools.hana_ml_tools.utility import (
     HANA_MCP_AUDIT_VIEW_COLUMNS,
     MCP_BEACON_SQL_MARKER,
     build_appsource_pack,
+    fetch_mcp_audit_rows,
     fetch_hana_mcp_audit_view,
 )
 
@@ -188,6 +190,33 @@ class TestFetchHanaMcpAuditView(unittest.TestCase):
         conn = _FakeConnection([tuple(row)])
         df = fetch_hana_mcp_audit_view(conn)
         self.assertEqual(df.iloc[0]["TOOL_NAME"], "fetch")
+
+    def test_jsonl_audit_rows_build_appsource_pack(self):
+        event = {
+            "event_type": "mcp.tool.completed",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "session": {
+                "mcp_session_id": "session-1",
+                "client_declared_name": "test-client",
+            },
+            "correlation": {"invocation_id": "invocation-1"},
+            "payload": {
+                "tool_name": "fetch_data",
+                "tool_args_json": '{"table":"T"}',
+                "status": "success",
+            },
+        }
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as temp_dir:
+            audit_path = Path(temp_dir) / "audit.jsonl"
+            audit_path.write_text(json.dumps(event) + "\n", encoding="utf-8")
+            frame = fetch_mcp_audit_rows(str(audit_path), "session-1")
+
+        self.assertEqual(len(frame), 1)
+        self.assertEqual(frame.iloc[0]["TOOL_ARGS_JSON"], '{"table":"T"}')
+        self.assertIn("tool=fetch_data", frame.iloc[0]["APPLICATIONSOURCE_PACK"])
 
 
 if __name__ == "__main__":

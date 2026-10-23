@@ -1839,14 +1839,19 @@ class HANAMLToolkit(BaseToolkit):
             runtime_update_enabled = os.environ.get(
                 "HANA_ALLOW_RUNTIME_CONN_UPDATE", ""
             ).lower() in ("1", "true", "yes")
-            if transport == "http":
+            if transport in ("http", "sse"):
                 try:
                     is_loopback = ipaddress.ip_address(host).is_loopback
                 except ValueError:
                     is_loopback = str(host).strip().lower() == "localhost"
-                if not is_loopback and not auth_token:
+                if transport == "http" and not is_loopback and not auth_token:
                     raise ValueError(
                         "HTTP MCP servers bound outside loopback require auth_token"
+                    )
+                if transport == "sse" and not is_loopback:
+                    raise ValueError(
+                        "SSE MCP servers are restricted to loopback; use authenticated "
+                        "HTTP transport for remote access"
                     )
             if runtime_update_enabled and transport == "http" and not auth_token:
                 raise ValueError(
