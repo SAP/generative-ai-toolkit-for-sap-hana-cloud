@@ -226,6 +226,60 @@ class TestV159ReadOnlySQLExtraction:
         with pytest.raises(ValueError):
             self._extract(sql)
 
+    def test_shared_guard_rejects_before_connection_context_sql(self):
+        guard = importlib.import_module("hana_ai.sql_guard")
+        observed = []
+        connection = types.SimpleNamespace(
+            sql=lambda statement: observed.append(statement)
+        )
+        with pytest.raises(ValueError):
+            guard.readonly_dataframe(
+                connection, "DELETE FROM SENSITIVE_TABLE; SELECT 1 FROM DUMMY"
+            )
+        assert observed == []
+
+        frame = object()
+        connection.sql = lambda statement: observed.append(statement) or frame
+        assert guard.readonly_dataframe(
+            connection, "SELECT ';' AS VALUE FROM DUMMY;"
+        ) is frame
+        assert observed == ["SELECT ';' AS VALUE FROM DUMMY"]
+
+    def test_fetch_data_tool_rejects_stacked_sql_before_execution(self):
+        mod = importlib.import_module("hana_ai.tools.df_tools.fetch_tools")
+        observed = []
+        connection = types.SimpleNamespace(
+            sql=lambda statement: observed.append(statement)
+        )
+        tool = mod.FetchDataTool.model_construct(
+            connection_context=connection,
+            return_direct=False,
+            is_transform=False,
+        )
+        with pytest.raises(ValueError, match="SELECT or WITH|stacked"):
+            tool._run(
+                select_statement="DELETE FROM SENSITIVE_TABLE; SELECT 1 FROM DUMMY"
+            )
+        assert observed == []
+
+    def test_select_statement_to_table_rejects_stacked_sql_before_execution(self):
+        mod = importlib.import_module(
+            "hana_ai.tools.hana_ml_tools.select_statement_to_table_tools"
+        )
+        observed = []
+        connection = types.SimpleNamespace(
+            sql=lambda statement: observed.append(statement)
+        )
+        result = mod.SelectStatement_to_table(
+            "DELETE FROM SENSITIVE_TABLE; SELECT 1 FROM DUMMY",
+            connection,
+            "TARGET_TABLE",
+            None,
+            False,
+        )
+        assert "Operation failed" in result
+        assert observed == []
+
 
 # ============================ V-157/V-158: SQL value + identifier encoding ============================
 class TestV157V158SQLGuards:

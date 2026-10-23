@@ -12,6 +12,7 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.outlier_detection import OutlierDetectionTS
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, _create_temp_table
+from hana_ai.sql_guard import readonly_dataframe
 
 logger = logging.getLogger(__name__)
 
@@ -198,7 +199,7 @@ class TSOutlierDetection(BaseTool):
         voting_outlier_method_criterion = kwargs.get("voting_outlier_method_criterion", None)
 
         # Check if key and endog columns exist in the result of select_statement
-        df_check = self.connection_context.sql(select_statement)
+        df_check = readonly_dataframe(self.connection_context, select_statement)
         columns = df_check.columns
         if key not in columns:
             return json.dumps({
@@ -235,7 +236,7 @@ class TSOutlierDetection(BaseTool):
                 voting_config=voting_config,
                 voting_outlier_method_criterion=voting_outlier_method_criterion,
                 thread_ratio=thread_ratio)
-        df = self.connection_context.sql(select_statement).select(key, endog) #pylint: disable=invalid-name
+        df = readonly_dataframe(self.connection_context, select_statement).select(key, endog) #pylint: disable=invalid-name
         result = odt.fit_predict(df,
                                  key=key,
                                  endog=endog)

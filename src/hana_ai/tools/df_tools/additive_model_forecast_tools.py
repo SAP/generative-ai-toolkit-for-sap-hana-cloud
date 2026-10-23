@@ -19,6 +19,7 @@ from hana_ml.model_storage import ModelStorage
 from hana_ml.algorithms.pal.tsa.additive_model_forecast import AdditiveModelForecast
 
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, generate_model_storage_version, _create_temp_table
+from hana_ai.sql_guard import readonly_dataframe
 
 logger = logging.getLogger(__name__)
 
@@ -200,7 +201,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
         endog = kwargs.get("endog", None)
         exog = kwargs.get("exog", None)
         categorical_variable = kwargs.get("categorical_variable", None)
-        if key not in self.connection_context.sql(fit_select_statement).columns:
+        if key not in readonly_dataframe(self.connection_context, fit_select_statement).columns:
             return f"Key {key} does not exist in the training dataset."
         ms = ModelStorage(connection_context=self.connection_context)
         seasonality = None
@@ -229,7 +230,7 @@ class AdditiveModelForecastFitAndSave(BaseTool):
                 seasonality_prior_scale=seasonality_prior_scale,
                 holiday_prior_scale=holiday_prior_scale,
                 changepoint_prior_scale=changepoint_prior_scale)
-            amf.fit(data=self.connection_context.sql(fit_select_statement),
+            amf.fit(data=readonly_dataframe(self.connection_context, fit_select_statement),
                   key=key,
                   endog=endog,
                   exog=exog,
@@ -352,7 +353,7 @@ class AdditiveModelForecastLoadModelAndPredict(BaseTool):
         decompose_holiday = kwargs.get("decompose_holiday", None)
         add_placeholder = kwargs.get("add_placeholder", True)
 
-        predict_df = self.connection_context.sql(predict_select_statement)
+        predict_df = readonly_dataframe(self.connection_context, predict_select_statement)
         if key not in predict_df.columns:
             return f"Key {key} does not exist in the prediction dataset."
         ms = ModelStorage(connection_context=self.connection_context)

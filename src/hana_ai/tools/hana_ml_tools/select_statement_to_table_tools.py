@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
+from hana_ai.sql_guard import readonly_dataframe
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +129,9 @@ def SelectStatement_to_table(select_statement: str,
     try:
         # 将SelectStatement数据转换为Pandas DataFrame
 
-        connection_context.sql(select_statement).smart_save(table_name, schema=schema_name, force=force)
+        readonly_dataframe(connection_context, select_statement).smart_save(
+            table_name, schema=schema_name, force=force
+        )
 
         return f"Successfully save the data to '{table_name}'"
 
