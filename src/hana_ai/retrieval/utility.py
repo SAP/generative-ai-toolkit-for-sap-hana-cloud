@@ -4,12 +4,42 @@ This module contains utility functions used for HANA AI Core retrieval procedure
 import json
 import logging
 import os
+import re
 
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_REQUEST_TIMEOUT = 30
 REQUEST_TIMEOUT_ENV_VAR = "HANA_AI_HTTP_TIMEOUT"
+
+_UNQUOTED_HANA_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_$#]*")
+_QUOTED_HANA_IDENTIFIER = re.compile(r'"(?:[^"]|"")*"')
+
+
+def _quote_hana_object_identifier(name: str) -> str:
+    """Quote one HANA object name while preserving unquoted-name semantics."""
+    if not isinstance(name, str):
+        raise ValueError(f"invalid HANA object identifier: {name!r}")
+    raw_name = name.strip()
+    if _UNQUOTED_HANA_IDENTIFIER.fullmatch(raw_name):
+        # HANA resolves an unquoted name as uppercase. Preserve that behavior even
+        # though the generated SQL now quotes the identifier for injection safety.
+        normalized = raw_name.upper()
+    elif _QUOTED_HANA_IDENTIFIER.fullmatch(raw_name):
+        normalized = raw_name[1:-1].replace('""', '"')
+    else:
+        raise ValueError(f"invalid HANA object identifier: {name!r}")
+    if not normalized or "\x00" in normalized:
+        raise ValueError(f"invalid HANA object identifier: {name!r}")
+    return '"' + normalized.replace('"', '""') + '"'
+
+
+def _sql_string_literal(value: object) -> str:
+    """Encode a value as one HANA SQL string literal."""
+    text = str(value)
+    if "\x00" in text:
+        raise ValueError("SQL string values must not contain NUL bytes")
+    return "'" + text.replace("'", "''") + "'"
 
 def _get_request_timeout():
     value = os.environ.get(REQUEST_TIMEOUT_ENV_VAR)
@@ -168,7 +198,12 @@ def _create_pse_sql_string(credentials: dict, pse_name: str) -> str:
         The PSE SQL string.
     """
     certificate_string = _concatenate_ai_core_certificate_string(credentials)
-    pse_sql = f"CREATE PSE {pse_name};\nALTER PSE {pse_name} SET OWN CERTIFICATE '\n{certificate_string}';"
+    quoted_pse = _quote_hana_object_identifier(pse_name)
+    certificate_literal = _sql_string_literal(f"\n{certificate_string}")
+    pse_sql = (
+        f"CREATE PSE {quoted_pse};\n"
+        f"ALTER PSE {quoted_pse} SET OWN CERTIFICATE {certificate_literal};"
+    )
     return pse_sql
 
 def _create_ai_core_remote_source_sql_string(credentials: dict, remote_source_name: str, pse_name: str) -> str:
@@ -202,10 +237,10 @@ def _create_ai_core_remote_source_sql_string(credentials: dict, remote_source_na
         f"     clientId={client_id}",
     ])
 
-    remote_source_sql = "CREATE REMOTE SOURCE {remote_source_name} ADAPTER \"sapgenaihub\" CONFIGURATION\n    '{configuration}'\nWITH CREDENTIAL TYPE 'X509' PSE {pse_name};".format(
-        remote_source_name=remote_source_name,
-        configuration=configuration,
-        pse_name=pse_name
+    remote_source_sql = "CREATE REMOTE SOURCE {remote_source_name} ADAPTER \"sapgenaihub\" CONFIGURATION\n    {configuration}\nWITH CREDENTIAL TYPE 'X509' PSE {pse_name};".format(
+        remote_source_name=_quote_hana_object_identifier(remote_source_name),
+        configuration=_sql_string_literal(configuration),
+        pse_name=_quote_hana_object_identifier(pse_name),
     )
     return remote_source_sql
 
@@ -253,8 +288,15 @@ def _add_x1root_certificate_to_pse(connection_context, pse_name):
         _create_certificate_and_add_to_pse(connection_context, "X1ROOT", certificate, pse_name)
 
 def _create_certificate_and_add_to_pse(connection_context, certificate_name, certificate_content, pse_name):
-    connection_context.execute_sql("CREATE CERTIFICATE %s FROM '%s'" % (certificate_name, certificate_content))
-    connection_context.execute_sql("ALTER PSE %s ADD CERTIFICATE %s" % (pse_name, certificate_name))
+    quoted_certificate = _quote_hana_object_identifier(certificate_name)
+    quoted_pse = _quote_hana_object_identifier(pse_name)
+    connection_context.execute_sql(
+        f"CREATE CERTIFICATE {quoted_certificate} FROM "
+        f"{_sql_string_literal(certificate_content)}"
+    )
+    connection_context.execute_sql(
+        f"ALTER PSE {quoted_pse} ADD CERTIFICATE {quoted_certificate}"
+    )
 
 def _create_ai_core_remote_source(connection_context, credentials: dict, pse_name: str, remote_source_name: str, create_pse: bool = True):
     """
@@ -306,7 +348,10 @@ def _delete_ai_core_pse(connection_context, pse_name: str, cascade: bool = True)
     cascade : bool, optional
         Whether to drop dependent objects as well. Defaults to True.
     """
-    drop_pse_sql_string = f"DROP PSE {pse_name}{' CASCADE' if cascade else ''};"
+    drop_pse_sql_string = (
+        f"DROP PSE {_quote_hana_object_identifier(pse_name)}"
+        f"{' CASCADE' if cascade else ''};"
+    )
     try:
         _execute_sql_string(connection_context, drop_pse_sql_string)
     except Exception as exc:
@@ -326,7 +371,8 @@ def _drop_ai_core_remote_source(connection_context, remote_source_name: str, cas
         Whether to drop dependent objects as well. Defaults to True.
     """
     drop_remote_source_sql_string = (
-        f"DROP REMOTE SOURCE {remote_source_name}{' CASCADE' if cascade else ''};"
+        f"DROP REMOTE SOURCE {_quote_hana_object_identifier(remote_source_name)}"
+        f"{' CASCADE' if cascade else ''};"
     )
     try:
         _execute_sql_string(connection_context, drop_remote_source_sql_string)
@@ -344,7 +390,9 @@ def _drop_certificate(connection_context, certificate_name: str):
     certificate_name : str
         The name of the certificate.
     """
-    drop_certificate_sql_string = f"DROP CERTIFICATE {certificate_name};"
+    drop_certificate_sql_string = (
+        f"DROP CERTIFICATE {_quote_hana_object_identifier(certificate_name)};"
+    )
     try:
         _execute_sql_string(connection_context, drop_certificate_sql_string)
     except Exception as exc:

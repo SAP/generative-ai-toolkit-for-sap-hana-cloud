@@ -259,6 +259,62 @@ class TestV157V158SQLGuards:
         with pytest.raises(ValueError):
             mod._call_procedure_sql("hello", {}, 'S"; DROP TABLE T;--', "P")
 
+    def test_retrieval_infrastructure_sql_encodes_names_and_values(self, monkeypatch):
+        mod = importlib.import_module("hana_ai.retrieval.utility")
+        assert mod._quote_hana_object_identifier("mixed_name") == '"MIXED_NAME"'
+        assert mod._quote_hana_object_identifier('"MixedName"') == '"MixedName"'
+        with pytest.raises(ValueError, match="invalid HANA object identifier"):
+            mod._quote_hana_object_identifier(None)
+        with pytest.raises(ValueError, match="invalid HANA object identifier"):
+            mod._quote_hana_object_identifier('PSE"; DROP PSE SAFE;--')
+
+        pse_sql = mod._create_pse_sql_string(
+            {"key": "private'key", "certificate": "certificate"}, "safe_pse"
+        )
+        assert 'CREATE PSE "SAFE_PSE"' in pse_sql
+        assert "private''key" in pse_sql
+
+        monkeypatch.setattr(mod, "_get_deployment_id", lambda _credentials: "deploy'id")
+        remote_sql = mod._create_ai_core_remote_source_sql_string(
+            {
+                "serviceurls": {"AI_API_URL": "https://api.example.test/a'b"},
+                "certurl": "https://auth.example.test",
+                "clientid": "client'id",
+            },
+            "safe_source",
+            "safe_pse",
+        )
+        assert 'CREATE REMOTE SOURCE "SAFE_SOURCE"' in remote_sql
+        assert 'PSE "SAFE_PSE"' in remote_sql
+        assert "a''b" in remote_sql
+        assert "deploy''id" in remote_sql
+        assert "client''id" in remote_sql
+
+    def test_retrieval_infrastructure_create_and_drop_identifiers(self, monkeypatch):
+        mod = importlib.import_module("hana_ai.retrieval.utility")
+        executed = []
+        connection = types.SimpleNamespace(execute_sql=executed.append)
+
+        mod._create_certificate_and_add_to_pse(
+            connection, "root_cert", "certificate'body", "safe_pse"
+        )
+        assert executed == [
+            'CREATE CERTIFICATE "ROOT_CERT" FROM \'certificate\'\'body\'',
+            'ALTER PSE "SAFE_PSE" ADD CERTIFICATE "ROOT_CERT"',
+        ]
+
+        monkeypatch.setattr(
+            mod, "_execute_sql_string", lambda _connection, sql: executed.append(sql)
+        )
+        mod._delete_ai_core_pse(object(), "safe_pse")
+        mod._drop_ai_core_remote_source(object(), "safe_source", cascade=False)
+        mod._drop_certificate(object(), "root_cert")
+        assert executed[-3:] == [
+            'DROP PSE "SAFE_PSE" CASCADE;',
+            'DROP REMOTE SOURCE "SAFE_SOURCE";',
+            'DROP CERTIFICATE "ROOT_CERT";',
+        ]
+
     def test_mem0_export_table_name_is_identifier_quoted(self):
         mod = importlib.import_module("hana_ai.mem0.memory_manager")
         assert mod._quote_hana_identifier("MEMORIES") == '"MEMORIES"'

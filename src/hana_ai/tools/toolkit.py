@@ -1819,7 +1819,9 @@ class HANAMLToolkit(BaseToolkit):
             Network port to use for server transports that require a port (SSE/HTTP). Default is 8001. Ignored for stdio.
         auth_token : str, optional
             Bearer token for HTTP transport. SSE does not provide a verified authentication
-            boundary in this launcher; stdio relies on the host process boundary.
+            boundary in this launcher; stdio relies on the host process boundary. This
+            launcher does not terminate TLS: protect any traffic outside a trusted local
+            network boundary with an HTTPS reverse proxy and prevent direct plaintext access.
         max_retries : int
             Maximum number of retries to find an available port. Default is 5.
         stateless_http : bool

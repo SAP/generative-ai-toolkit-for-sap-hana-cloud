@@ -93,7 +93,15 @@ def main():
     parser.add_argument("--host", dest="host", default="127.0.0.1", help="Server host for HTTP MCP")
     parser.add_argument("--port-http", dest="port_http", type=int, default=8001, help="Server port for HTTP MCP")
     parser.add_argument("--server-name", dest="server_name", default="HANAGraphTools", help="MCP server name")
-    parser.add_argument("--auth-token", dest="auth_token", default=None, help="Bearer token (required for non-loopback binding)")
+    parser.add_argument(
+        "--auth-token",
+        dest="auth_token",
+        default=None,
+        help=(
+            "Bearer token (required for non-loopback binding); this server does not "
+            "terminate TLS, so expose it only behind HTTPS termination"
+        ),
+    )
     parser.add_argument("--max-retries", dest="max_retries", type=int, default=5, help="Port retry count if occupied")
 
     args = parser.parse_args()
