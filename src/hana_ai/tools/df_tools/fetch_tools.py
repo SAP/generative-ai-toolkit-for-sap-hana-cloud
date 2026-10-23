@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool
 
 from hana_ml import ConnectionContext
+from hana_ai.sql_guard import readonly_dataframe
 
 
 logger = logging.getLogger(__name__)
@@ -108,11 +109,11 @@ class FetchDataTool(BaseTool):
         if select_statement is None:
             return "select_statement is required"
         if top_n:
-            results = self.connection_context.sql(select_statement).head(top_n)
+            results = readonly_dataframe(self.connection_context, select_statement).head(top_n)
         elif last_n:
-            results = self.connection_context.sql(select_statement).tail(last_n)
+            results = readonly_dataframe(self.connection_context, select_statement).tail(last_n)
         else:
-            results = self.connection_context.sql(select_statement)
+            results = readonly_dataframe(self.connection_context, select_statement)
         if self.is_transform is True:
             return results.select_statement
         else:

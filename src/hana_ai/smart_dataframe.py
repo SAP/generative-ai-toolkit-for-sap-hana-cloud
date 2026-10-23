@@ -5,7 +5,6 @@ The following class is available:
 
     * :class `SmartDataFrame`
 """
-import re
 from typing import List
 
 from hana_ml.dataframe import DataFrame
@@ -20,6 +19,7 @@ from hana_ai.langchain_compat import (
     SystemMessage,
     build_agent_executor,
 )
+from hana_ai.sql_guard import ensure_readonly_select as _extract_readonly_select
 from hana_ai.tools.df_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
 from hana_ai.tools.df_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeSeriesLoadModelAndPredict, AutomaticTimeSeriesLoadModelAndScore
 from hana_ai.tools.df_tools.fetch_tools import FetchDataTool
@@ -27,108 +27,6 @@ from hana_ai.tools.df_tools.intermittent_forecast_tools import IntermittentForec
 from hana_ai.tools.df_tools.ts_outlier_detection_tools import TSOutlierDetection
 from hana_ai.tools.df_tools.ts_visualizer_tools import TimeSeriesDatasetReport
 
-
-_SQL_WRITE_KEYWORDS = {
-    "ALTER", "CALL", "CREATE", "DELETE", "DO", "DROP", "EXEC", "EXECUTE",
-    "GRANT", "INSERT", "INTO", "MERGE", "REVOKE", "TRUNCATE",
-    "UPDATE", "UPSERT",
-}
-
-
-def _readonly_sql_tokens(sql: str) -> List[str]:
-    """Return tokens outside literals/quoted identifiers and reject SQL comments."""
-    visible = []
-    i = 0
-    state = "normal"
-    while i < len(sql):
-        char = sql[i]
-        nxt = sql[i + 1] if i + 1 < len(sql) else ""
-        if state == "normal":
-            if char == "'":
-                state = "string"
-                visible.append(" ")
-            elif char == '"':
-                state = "identifier"
-                visible.append(" ")
-            elif (char == "-" and nxt == "-") or (char == "/" and nxt == "*"):
-                raise ValueError("SQL comments are not allowed in generated SQL")
-            else:
-                visible.append(char)
-        elif state == "string":
-            if char == "'" and nxt == "'":
-                visible.extend((" ", " "))
-                i += 1
-            elif char == "'":
-                state = "normal"
-                visible.append(" ")
-            else:
-                visible.append(" ")
-        else:
-            if char == '"' and nxt == '"':
-                visible.extend((" ", " "))
-                i += 1
-            elif char == '"':
-                state = "normal"
-                visible.append(" ")
-            else:
-                visible.append(" ")
-        i += 1
-    if state != "normal":
-        raise ValueError("unterminated SQL string or quoted identifier")
-    return re.findall(r"[A-Za-z_][A-Za-z0-9_]*|[(),;]", "".join(visible).upper())
-
-
-def _top_level_statement_verb(tokens: List[str]) -> str:
-    """Return SELECT, or the verb following a top-level WITH CTE list."""
-    if not tokens:
-        return ""
-    if tokens[0] != "WITH":
-        return tokens[0]
-    depth = 0
-    saw_as = False
-    completed_cte = False
-    for token in tokens[1:]:
-        if depth:
-            if token == "(":
-                depth += 1
-            elif token == ")":
-                depth -= 1
-                if depth == 0:
-                    completed_cte = True
-            continue
-        if completed_cte:
-            if token == ",":
-                completed_cte = False
-                saw_as = False
-                continue
-            if token not in {"(", ")"}:
-                return token
-        elif token == "AS":
-            saw_as = True
-        elif token == "(" and saw_as:
-            depth = 1
-            saw_as = False
-    return ""
-
-
-def _extract_readonly_select(llm_output: str) -> str:
-    """Accept exactly one comment-free SELECT/WITH statement from an LLM response."""
-    if not isinstance(llm_output, str) or not llm_output.strip():
-        raise ValueError("LLM did not return a SQL statement")
-    text = llm_output.strip()
-    if text.endswith(";"):
-        text = text[:-1].rstrip()
-    tokens = _readonly_sql_tokens(text)
-    if not tokens or _top_level_statement_verb(tokens) != "SELECT":
-        raise ValueError("generated SQL must contain only a SELECT or WITH statement")
-    if ";" in tokens:
-        raise ValueError("multiple or stacked SQL statements are not allowed")
-    forbidden = sorted(_SQL_WRITE_KEYWORDS.intersection(tokens))
-    if forbidden:
-        raise ValueError(f"generated SQL contains forbidden operation(s): {', '.join(forbidden)}")
-    if re.search(r"\bFOR\s+UPDATE\b", " ".join(tokens)):
-        raise ValueError("SELECT FOR UPDATE is not read-only")
-    return text
 
 class SmartDataFrame(DataFrame):
     """
