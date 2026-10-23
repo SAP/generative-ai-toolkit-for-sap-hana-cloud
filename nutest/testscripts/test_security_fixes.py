@@ -201,7 +201,7 @@ class TestV159ReadOnlySQLExtraction:
         "sql",
         [
             "SELECT * FROM T",
-            "SELECT ';' AS VALUE FROM DUMMY;",
+            "SELECT 'safe' AS VALUE FROM DUMMY;",
             "WITH X AS (SELECT 1 AS A FROM DUMMY) SELECT * FROM X",
             "SELECT REPLACE('abc', 'a', 'z') FROM DUMMY",
         ],
@@ -220,6 +220,9 @@ class TestV159ReadOnlySQLExtraction:
             "WITH X AS (SELECT 1) REPLACE T (ID) VALUES (1)",
             "SELECT * FROM T FOR UPDATE",
             "SELECT * INTO X FROM T",
+            "SELECT ';' AS VALUE FROM DUMMY",
+            "SELECT '; DELETE FROM SENSITIVE_TABLE --' FROM DUMMY",
+            'SELECT "; DELETE FROM SENSITIVE_TABLE --" FROM DUMMY',
         ],
     )
     def test_explanations_comments_stacking_and_writes_rejected(self, sql):
@@ -232,18 +235,22 @@ class TestV159ReadOnlySQLExtraction:
         connection = types.SimpleNamespace(
             sql=lambda statement: observed.append(statement)
         )
-        with pytest.raises(ValueError):
-            guard.readonly_dataframe(
-                connection, "DELETE FROM SENSITIVE_TABLE; SELECT 1 FROM DUMMY"
-            )
+        malicious_statements = [
+            "DELETE FROM SENSITIVE_TABLE; SELECT 1 FROM DUMMY",
+            "SELECT '; DELETE FROM SENSITIVE_TABLE --' FROM DUMMY",
+            'SELECT "; DELETE FROM SENSITIVE_TABLE --" FROM DUMMY',
+        ]
+        for statement in malicious_statements:
+            with pytest.raises(ValueError):
+                guard.readonly_dataframe(connection, statement)
         assert observed == []
 
         frame = object()
         connection.sql = lambda statement: observed.append(statement) or frame
         assert guard.readonly_dataframe(
-            connection, "SELECT ';' AS VALUE FROM DUMMY;"
+            connection, "SELECT 'safe' AS VALUE FROM DUMMY;"
         ) is frame
-        assert observed == ["SELECT ';' AS VALUE FROM DUMMY"]
+        assert observed == ["SELECT 'safe' AS VALUE FROM DUMMY"]
 
     def test_fetch_data_tool_rejects_stacked_sql_before_execution(self):
         mod = importlib.import_module("hana_ai.tools.df_tools.fetch_tools")
@@ -256,7 +263,7 @@ class TestV159ReadOnlySQLExtraction:
             return_direct=False,
             is_transform=False,
         )
-        with pytest.raises(ValueError, match="SELECT or WITH|stacked"):
+        with pytest.raises(ValueError, match="semicolon|SELECT or WITH|stacked"):
             tool._run(
                 select_statement="DELETE FROM SENSITIVE_TABLE; SELECT 1 FROM DUMMY"
             )
