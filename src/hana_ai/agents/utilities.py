@@ -65,6 +65,11 @@ def _get_user_info(connection_context):
     if userkey:
         return userkey
     direct_user = getattr(connection_context, "user", None)
+    if callable(direct_user):
+        try:
+            direct_user = direct_user()
+        except Exception:
+            direct_user = None
     if direct_user:
         return str(direct_user)
     conn = getattr(connection_context, "connection", None)

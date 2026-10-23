@@ -68,24 +68,42 @@ class _ReadOnlySQLDatabase(SQLDatabase):
         allowed_tables: Optional[Sequence[str]] = None,
         **kwargs,
     ):
-        self._allowed_schema = (
+        normalized_schema = (
             self._normalize_identifier(allowed_schema) if allowed_schema else None
         )
+        if normalized_schema and len(normalized_schema) != 1:
+            raise ValueError("allowed_schema must contain exactly one SQL identifier")
+        self._allowed_schema = normalized_schema[0] if normalized_schema else None
         self._allowed_tables = {
             self._normalize_identifier(table) for table in (allowed_tables or [])
         }
         super().__init__(*args, **kwargs)
 
-    @staticmethod
-    def _normalize_identifier(value: str) -> str:
+    @classmethod
+    def _normalize_identifier(cls, value: str) -> tuple[str, ...]:
+        """Return HANA-resolved components without quoted-identifier case collisions."""
+        identifier_match = re.fullmatch(
+            rf"\s*(?P<first>{cls._IDENTIFIER})"
+            rf"(?:\s*\.\s*(?P<second>{cls._IDENTIFIER}))?\s*",
+            str(value),
+        )
+        if not identifier_match:
+            raise ValueError(f"invalid SQL allowlist identifier: {value!r}")
+
         parts = []
-        for raw_part in re.split(r"\s*\.\s*", str(value).strip()):
-            if raw_part.startswith('\"') and raw_part.endswith('\"'):
-                raw_part = raw_part[1:-1].replace('\"\"', '\"')
-            if not raw_part or '\"' in raw_part or "\x00" in raw_part:
+        for raw_part in identifier_match.group("first", "second"):
+            if raw_part is None:
+                continue
+            # HANA folds unquoted identifiers to uppercase; quoted identifiers keep
+            # exact case. This keeps SENSITIVE distinct from quoted lowercase names.
+            if raw_part.startswith('"'):
+                normalized = raw_part[1:-1].replace('""', '"')
+            else:
+                normalized = raw_part.upper()
+            if not normalized or "\x00" in normalized:
                 raise ValueError(f"invalid SQL allowlist identifier: {value!r}")
-            parts.append(raw_part.casefold())
-        return ".".join(parts)
+            parts.append(normalized)
+        return tuple(parts)
 
     @staticmethod
     def _mask_literals_and_reject_comments(statement: str) -> str:
@@ -184,9 +202,8 @@ class _ReadOnlySQLDatabase(SQLDatabase):
         for table_ref in table_refs:
             if table_ref in cte_names:
                 continue
-            parts = table_ref.split(".")
-            schema = parts[-2] if len(parts) == 2 else None
-            table = parts[-1]
+            schema = table_ref[-2] if len(table_ref) == 2 else None
+            table = (table_ref[-1],)
             if self._allowed_schema:
                 if schema != self._allowed_schema:
                     raise ValueError(
@@ -199,7 +216,10 @@ class _ReadOnlySQLDatabase(SQLDatabase):
             if self._allowed_tables and (
                 table not in self._allowed_tables and table_ref not in self._allowed_tables
             ):
-                raise ValueError(f"read-only SQL agent: table {table_ref!r} is not allowlisted")
+                display_name = ".".join(table_ref)
+                raise ValueError(
+                    f"read-only SQL agent: table {display_name!r} is not allowlisted"
+                )
             if not self._allowed_schema and not self._allowed_tables:
                 raise ValueError("read-only SQL agent: no table allowlist is configured")
 

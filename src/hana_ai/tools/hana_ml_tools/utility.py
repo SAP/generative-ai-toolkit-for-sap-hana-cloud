@@ -461,7 +461,6 @@ def fetch_mcp_audit_rows(audit_log_path: str, session_id: str):
                 tool_name=payload.get("tool_name"),
                 invocation_id=correlation.get("invocation_id"),
                 hana_correlation_id=correlation.get("hana_correlation_id"),
-                tool_args_json=payload.get("tool_args_json"),
             )
             rows.append(
                 {

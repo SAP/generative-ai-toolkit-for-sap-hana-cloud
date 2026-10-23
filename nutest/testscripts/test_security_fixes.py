@@ -506,6 +506,18 @@ class TestV171ReadOnlySQLDatabase:
         db = self._db()
         assert db.run("SELECT REPLACE('abc', 'a', 'z')") is not None
 
+    def test_quoted_identifier_case_does_not_bypass_allowlist(self):
+        sqlalchemy = pytest.importorskip("sqlalchemy")
+        mod = importlib.import_module("hana_ai.agents.hana_sql_agent")
+        db = mod._ReadOnlySQLDatabase(
+            sqlalchemy.create_engine("sqlite://"),
+            allowed_schema="PUBLIC",
+            allowed_tables=["SENSITIVE"],
+        )
+        db._enforce_object_allowlist('SELECT * FROM PUBLIC."SENSITIVE"')
+        with pytest.raises(ValueError, match="not allowlisted"):
+            db.run('SELECT * FROM PUBLIC."sensitive"')
+
 
 # ============================ V-174: stable identity, not repr parsing ============================
 class TestV174Identity:
@@ -520,6 +532,12 @@ class TestV174Identity:
     def test_structured_user_attribute(self):
         conn = types.SimpleNamespace(user="BOB")
         cc = types.SimpleNamespace(userkey=None, connection=conn)
+        assert self._get_user_info()(cc) == "BOB"
+
+    def test_callable_context_user_attribute(self):
+        cc = types.SimpleNamespace(
+            userkey=None, user=lambda: "BOB", connection=object()
+        )
         assert self._get_user_info()(cc) == "BOB"
 
     def test_standard_connection_falls_back_to_current_user_query(self):
@@ -630,6 +648,16 @@ def test_v155_auth_token_rejected_for_unsupported_sse(monkeypatch):
     monkeypatch.delenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", raising=False)
     with pytest.raises(ValueError, match="auth_token is not supported on SSE"):
         toolkit.launch_mcp_server(transport="sse", auth_token="secret", max_retries=1)
+
+
+def test_v155_sse_non_loopback_binding_rejected(monkeypatch):
+    mod = importlib.import_module("hana_ai.tools.toolkit")
+    toolkit = object.__new__(mod.HANAMLToolkit)
+    monkeypatch.delenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", raising=False)
+    with pytest.raises(ValueError, match="restricted to loopback"):
+        toolkit.launch_mcp_server(
+            transport="sse", host="0.0.0.0", auth_token=None, max_retries=1
+        )
 
 
 def test_v167_tls_certificate_validation_defaults_on(monkeypatch):

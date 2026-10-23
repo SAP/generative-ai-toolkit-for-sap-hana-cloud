@@ -15,7 +15,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Any, List, Optional, Union
 
-import aiohttp
 import httpx
 
 
@@ -92,19 +91,11 @@ class HTTPMCPClient(MCPClient):
         self.base_url = normalized.rstrip('/')
         self.timeout = timeout
         self._extra_headers = {str(key): str(value) for key, value in (extra_headers or {}).items()}
-        self._client: Optional[aiohttp.ClientSession] = None
         self._http_client: Optional[httpx.AsyncClient] = None
         self._session_id: Optional[str] = None
 
     async def initialize(self) -> None:
         """初始化HTTP客户端"""
-        # aiohttp is only for interface compatibility, httpx is the main client
-        if self._client is None:
-            self._client = aiohttp.ClientSession(
-                base_url=f"{self.base_url.rstrip('/')}/",
-                timeout=aiohttp.ClientTimeout(total=self.timeout),
-            )
-
         if self._http_client is None:
             default_headers = {
                 "accept": "application/json",
@@ -320,10 +311,6 @@ class HTTPMCPClient(MCPClient):
 
     async def close(self) -> None:
         """Close client connection"""
-        if self._client:
-            await self._client.close()
-            self._client = None
-
         if self._http_client:
             await self._http_client.aclose()
             self._http_client = None
