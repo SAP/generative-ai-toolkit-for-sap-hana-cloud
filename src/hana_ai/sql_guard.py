@@ -96,11 +96,17 @@ def ensure_readonly_select(sql_text: str) -> str:
     text = sql_text.strip()
     if text.endswith(";"):
         text = text[:-1].rstrip()
+    # hana-ml ConnectionContext.sql() uses a raw str.split(";") before it creates
+    # the DataFrame. It does not honor SQL string/identifier quoting and executes
+    # every preceding fragment immediately. Therefore no semicolon may reach it,
+    # including one that would be a legitimate character inside a SQL literal.
+    if ";" in text:
+        raise ValueError(
+            "semicolons are not allowed inside SQL passed to ConnectionContext.sql"
+        )
     tokens = _readonly_sql_tokens(text)
     if not tokens or _top_level_statement_verb(tokens) != "SELECT":
         raise ValueError("SQL must contain only a SELECT or WITH statement")
-    if ";" in tokens:
-        raise ValueError("multiple or stacked SQL statements are not allowed")
     forbidden = sorted(_SQL_WRITE_KEYWORDS.intersection(tokens))
     if forbidden:
         raise ValueError(
