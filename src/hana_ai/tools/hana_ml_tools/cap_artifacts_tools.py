@@ -10,7 +10,6 @@ The following class is available:
 import json
 import logging
 import os
-import tempfile
 from pathlib import Path
 from typing import Optional, Type
 from pydantic import BaseModel, Field
@@ -20,6 +19,7 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.model_storage import ModelStorage
 from hana_ml.artifacts.generators.hana import HANAGeneratorForCAP
+from hana_ai.utility import secure_report_dir
 
 logger = logging.getLogger(__name__)
 
@@ -272,9 +272,9 @@ class CAPArtifactsForBASTool(BaseTool):
         model = ms.load_model(name, version)
         # if archive is None:
         #     archive = True
-        temp_root = Path(tempfile.gettempdir())
-        output_dir = os.path.join(temp_root, "hana-ai")
-        os.makedirs(output_dir, exist_ok=True)
+        # V-162: use a private, randomized 0700 dir instead of predictable <tmp>/hana-ai
+        # (which os.makedirs(exist_ok=True) would accept as a pre-planted symlink).
+        output_dir = secure_report_dir("hana-ai")
         generator = HANAGeneratorForCAP(
             project_name="capproject",
             output_dir=output_dir

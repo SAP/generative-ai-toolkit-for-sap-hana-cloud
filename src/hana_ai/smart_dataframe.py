@@ -19,12 +19,14 @@ from hana_ai.langchain_compat import (
     SystemMessage,
     build_agent_executor,
 )
+from hana_ai.sql_guard import ensure_readonly_select as _extract_readonly_select
 from hana_ai.tools.df_tools.additive_model_forecast_tools import AdditiveModelForecastFitAndSave, AdditiveModelForecastLoadModelAndPredict
 from hana_ai.tools.df_tools.automatic_timeseries_tools import AutomaticTimeSeriesFitAndSave, AutomaticTimeSeriesLoadModelAndPredict, AutomaticTimeSeriesLoadModelAndScore
 from hana_ai.tools.df_tools.fetch_tools import FetchDataTool
 from hana_ai.tools.df_tools.intermittent_forecast_tools import IntermittentForecast
 from hana_ai.tools.df_tools.ts_outlier_detection_tools import TSOutlierDetection
 from hana_ai.tools.df_tools.ts_visualizer_tools import TimeSeriesDatasetReport
+
 
 class SmartDataFrame(DataFrame):
     """
@@ -175,22 +177,7 @@ class SmartDataFrame(DataFrame):
         result = self.transform_executor.invoke(agent_input)
         select_statement = result['output']
 
-        # Extract SQL from response if needed
-        if not select_statement.strip().upper().startswith(('SELECT')):
-            import re
-            # Regex to find SQL starting with SELECT/WITH
-            sql_match = re.search(
-                r'\b(SELECT)\b.*',
-                select_statement,
-                re.DOTALL | re.IGNORECASE
-            )
-            if sql_match:
-                select_statement = sql_match.group(0).strip()
-            else:
-                raise ValueError(
-                    "Failed to extract valid SQL from agent response: "
-                    f"{select_statement[:100]}..."
-                )
+        select_statement = _extract_readonly_select(select_statement)
 
         # Create new SmartDataFrame with generated SQL
         sdf = self._construct(

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=62.4", "wheel"]
+requires = ["setuptools==84.2.1", "wheel==0.48.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,14 +10,20 @@ authors = [
 ]
 description = "Generative AI Toolkit for SAP HANA Cloud"
 readme = "README.md"
-requires-python = ">=3.0"
+requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
 keywords = ["Generative AI Toolkit SAP HANA Cloud"]
 
 dynamic = ["dependencies"]
 
 [project.optional-dependencies]
-all = ["sap-ai-sdk-gen[all]"]
+nlp = ["nltk>=3.9,<4"]
+graph = ["langgraph>=0.2,<1"]
+all = [
+    "sap-ai-sdk-gen[all]>=5.11.0,<6",
+    "nltk>=3.9,<4",
+    "langgraph>=0.2,<1",
+]
 
 [project.urls]
 Homepage = "https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud"
@@ -31,7 +37,7 @@ packages = {find = {where = ["src"]}}
 include-package-data = true
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+dependencies = {file = ["requirements-runtime.txt"]}
 
 [tool.setuptools.package-data]
 hana_ai = [

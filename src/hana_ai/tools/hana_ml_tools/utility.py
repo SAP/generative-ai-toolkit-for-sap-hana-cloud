@@ -461,7 +461,6 @@ def fetch_mcp_audit_rows(audit_log_path: str, session_id: str):
                 tool_name=payload.get("tool_name"),
                 invocation_id=correlation.get("invocation_id"),
                 hana_correlation_id=correlation.get("hana_correlation_id"),
-                tool_args_json=payload.get("tool_args_json"),
             )
             rows.append(
                 {
@@ -831,10 +830,19 @@ def fetch_hana_mcp_audit_view(
 class SyncHTTPMCPClient:
     """Synchronous JSON-RPC MCP client for notebook/demo flows."""
 
-    def __init__(self, base_url: str, timeout: int = 60):
+    def __init__(
+        self,
+        base_url: str,
+        timeout: int = 60,
+        *,
+        allow_insecure_http: bool = False,
+    ):
         import httpx
+        from hana_ai.client.mcp_client import _validate_http_base_url
 
-        normalized = base_url.rstrip("/")
+        normalized = _validate_http_base_url(
+            base_url, allow_insecure_http=allow_insecure_http
+        ).rstrip("/")
         if not normalized.endswith("/mcp"):
             normalized = normalized + "/mcp"
         self.base_url = normalized.rstrip("/")
@@ -843,9 +851,9 @@ class SyncHTTPMCPClient:
         self.tools: dict[str, dict[str, Any]] = {}
         self._httpx = httpx
         self.client = httpx.Client(
-            base_url=self.base_url,
             timeout=timeout,
-            follow_redirects=True,
+            # Never forward mcp-session-id across an attacker-controlled redirect.
+            follow_redirects=False,
             trust_env=False,
             headers={
                 "accept": "application/json",
@@ -895,7 +903,7 @@ class SyncHTTPMCPClient:
                 "metadata": identity_metadata,
             },
         }
-        response = self.client.post("", json=payload)
+        response = self.client.post(self.base_url, json=payload)
         response.raise_for_status()
         self.session_id = response.headers.get("mcp-session-id")
         if self.session_id:
@@ -913,7 +921,7 @@ class SyncHTTPMCPClient:
             "method": "tools/list",
             "params": ({"session": {"id": self.session_id}} if self.session_id else {}),
         }
-        response = self.client.post("", json=payload)
+        response = self.client.post(self.base_url, json=payload)
         response.raise_for_status()
         result = response.json().get("result", {})
         tool_list = result.get("tools", []) or []
@@ -932,7 +940,7 @@ class SyncHTTPMCPClient:
                 **({"session": {"id": self.session_id}} if self.session_id else {}),
             },
         }
-        response = self.client.post("", json=payload)
+        response = self.client.post(self.base_url, json=payload)
         response.raise_for_status()
         rpc_response = response.json()
         if "error" in rpc_response:

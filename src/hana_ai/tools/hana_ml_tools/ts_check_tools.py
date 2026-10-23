@@ -12,6 +12,7 @@ The following classes are available:
 
 import json
 import logging
+import re
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
@@ -59,7 +60,7 @@ def ts_char(df, key, endog):
         df_ = df.add_id(key_, ref_col=key)
 
     # Intermitent Test
-    zero_values = df_.filter(f'"{endog}" = 0').count()
+    zero_values = df_.filter(f'{_sql_ident(endog)} = 0').count()
     total_values = df_.count()
     if total_values == 0:
         zero_proportion = 1
@@ -151,9 +152,9 @@ def ts_char_massive(df, group_key, key, endog):
     # 遍历每个分组
     for i, group_val in enumerate(groups):
         if isinstance(group_val, str):
-            df_group = df.filter(f'"{group_key}" = \'{group_val}\'')
+            df_group = df.filter(f'{_sql_ident(group_key)} = {_sql_str_lit(group_val)}')
         else:
-            df_group = df.filter(f'"{group_key}" = {group_val}')
+            df_group = df.filter(f'{_sql_ident(group_key)} = {_sql_number(group_val)}')
 
         analysis_result += f"Group {i+1}/{len(groups)}: {group_key} = {group_val}\n"
         analysis_result += "-" * 60 + "\n"
@@ -176,7 +177,7 @@ def ts_char_massive(df, group_key, key, endog):
             df_ = df_group.add_id(key_, ref_col=key)
 
         # Intermitent Test
-        zero_values = df_.filter(f'"{endog}" = 0').count()
+        zero_values = df_.filter(f'{_sql_ident(endog)} = 0').count()
         total_values = df_.count()
         if total_values == 0:
             zero_proportion = 1
@@ -968,3 +969,27 @@ class WhiteNoiseTest(BaseTool):
     ) -> str:
         """Use the tool asynchronously."""
         return self._run(**kwargs)
+
+
+def _sql_str_lit(value):
+    """Return a safely single-quoted HANA string literal for `value` (V-166)."""
+    value = str(value)
+    if "\x00" in value:
+        raise ValueError("NUL bytes are not allowed in SQL string values")
+    return "'" + value.replace("'", "''") + "'"
+
+
+def _sql_ident(value):
+    """Quote one HANA identifier component."""
+    value = str(value)
+    if not value or '"' in value or "\x00" in value:
+        raise ValueError(f"invalid HANA identifier: {value!r}")
+    return '"' + value + '"'
+
+
+def _sql_number(value):
+    """Accept only a numeric token before placing it in generated SQL."""
+    text = str(value)
+    if not re.fullmatch(r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", text):
+        raise ValueError(f"invalid numeric SQL value: {value!r}")
+    return text

@@ -17,6 +17,23 @@ from hana_ai.vectorstore.code_templates import get_code_templates
 
 logger = logging.getLogger(__name__) #pylint: disable=invalid-name
 
+
+def _quote_identifier(name):
+    """Quote one HANA identifier component and reject ambiguous embedded quotes."""
+    value = str(name)
+    if not value or '"' in value or "\x00" in value:
+        raise ValueError(f"invalid HANA identifier: {value!r}")
+    return '"' + value + '"'
+
+
+def _sql_string_literal(value):
+    """Encode a value as one HANA string literal when this API cannot bind parameters."""
+    value = str(value)
+    if "\x00" in value:
+        raise ValueError("NUL bytes are not allowed in HANA string values")
+    return "'" + value.replace("'", "''") + "'"
+
+
 class HANAMLinVectorEngine(object):
     """
     HANA vector engine.
@@ -52,7 +69,7 @@ class HANAMLinVectorEngine(object):
                                                  table_structure={"id": "VARCHAR(5000) PRIMARY KEY",
                                                                   "description": "VARCHAR(5000)",
                                                                   "example": "NCLOB",
-                                                                  "embeddings": f"REAL_VECTOR GENERATED ALWAYS AS VECTOR_EMBEDDING(\"description\", 'DOCUMENT', '{self.model_version}')"})
+                                                                  "embeddings": f"REAL_VECTOR GENERATED ALWAYS AS VECTOR_EMBEDDING(\"description\", 'DOCUMENT', {_sql_string_literal(self.model_version)})"})
 
     def get_knowledge(self):
         """
@@ -89,7 +106,7 @@ class HANAMLinVectorEngine(object):
                                                table_structure={"id": "VARCHAR(5000) PRIMARY KEY",
                                                                 "description": "VARCHAR(5000)",
                                                                 "example": "NCLOB",
-                                                                "embeddings": f"REAL_VECTOR GENERATED ALWAYS AS VECTOR_EMBEDDING(\"description\", 'DOCUMENT', {self.model_version}"})
+                                                                "embeddings": f"REAL_VECTOR GENERATED ALWAYS AS VECTOR_EMBEDDING(\"description\", 'DOCUMENT', {_sql_string_literal(self.model_version)})"})
 
     def query(self, input, top_n=1, distance='cosine_similarity'):
         """
@@ -110,7 +127,33 @@ class HANAMLinVectorEngine(object):
         if self.schema is None:
             schema = self.connection_context.get_current_schema()
 
-        sql = """SELECT TOP {} "{}", {}("{}", TO_REAL_VECTOR(VECTOR_EMBEDDING('{}', 'QUERY', '{}'))) AS "DISTANCE", "{}" "MODEL_TYPE" FROM "{}"."{}" ORDER BY "DISTANCE" DESC""".format(top_n, self.columns[2], distance.upper(), self.columns[3], input, self.model_version, self.columns[0], schema, self.table_name)
+        # --- V-157 hardening: no raw interpolation of untrusted values/identifiers ---
+        try:
+            top_n = int(top_n)
+        except (TypeError, ValueError):
+            raise ValueError(f"top_n must be an integer, got {top_n!r}")
+        if top_n < 1:
+            raise ValueError("top_n must be >= 1")
+        if top_n > 1000:
+            raise ValueError("top_n must be <= 1000")
+        _ALLOWED_DISTANCE = {
+            "COSINE_SIMILARITY", "L2DISTANCE", "EUCLIDEAN_DISTANCE",
+            "DOT_PRODUCT", "MANHATTAN_DISTANCE", "INNER_PRODUCT",
+        }
+        distance_fn = str(distance).upper()
+        if distance_fn not in _ALLOWED_DISTANCE:
+            raise ValueError(f"distance must be one of {sorted(_ALLOWED_DISTANCE)}")
+
+        sql = (
+            "SELECT TOP {top_n} {col2}, {dist}({col3}, "
+            "TO_REAL_VECTOR(VECTOR_EMBEDDING({inp}, 'QUERY', {mv}))) AS \"DISTANCE\", "
+            "{col0} \"MODEL_TYPE\" FROM {schema}.{table} ORDER BY \"DISTANCE\" DESC"
+        ).format(
+            top_n=top_n, col2=_quote_identifier(self.columns[2]), dist=distance_fn,
+            col3=_quote_identifier(self.columns[3]), inp=_sql_string_literal(input),
+            mv=_sql_string_literal(self.model_version), col0=_quote_identifier(self.columns[0]),
+            schema=_quote_identifier(schema), table=_quote_identifier(self.table_name),
+        )
         result = self.connection_context.sql(sql).collect()
         self.current_query_rows = result.shape[0]
         if self.current_query_rows < top_n:

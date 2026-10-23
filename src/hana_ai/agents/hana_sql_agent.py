@@ -8,6 +8,7 @@ The following function is available:
 # pylint: disable=no-name-in-module
 # pylint: disable=invalid-name
 # pylint: disable=missing-function-docstring
+import re
 from typing import (
     Any,
     Dict,
@@ -28,6 +29,220 @@ from langchain_core.tools import BaseTool
 from hana_ml.dataframe import ConnectionContext
 
 from hana_ai.langchain_compat import AgentType
+
+
+class _ReadOnlySQLDatabase(SQLDatabase):
+    """V-171: enforce read-only access for the LLM SQL agent at the code level.
+
+    The LangChain ``SQLDatabaseToolkit`` otherwise exposes full DML/DDL. Any generated
+    statement that is not a single ``SELECT``/``WITH`` query is rejected here, so the agent
+    cannot mutate or drop data even when the underlying HANA connection is privileged.
+    This is defense-in-depth; production should also run under a least-privilege,
+    schema-scoped read-only DB role.
+    """
+
+    _FORBIDDEN_KEYWORDS = {
+        "alter", "call", "create", "delete", "do", "drop",
+        "grant", "insert", "into", "lock", "merge", "revoke",
+        "truncate", "update", "upsert",
+    }
+    _IDENTIFIER = r'(?:"(?:[^"]|"")*"|[A-Za-z_][A-Za-z0-9_$#]*)'
+    _QUALIFIED_IDENTIFIER = rf'{_IDENTIFIER}(?:\s*\.\s*{_IDENTIFIER})?'
+    _TABLE_REF = re.compile(
+        rf"\b(?:from|join)\s+(?P<name>{_QUALIFIED_IDENTIFIER})",
+        re.IGNORECASE,
+    )
+    _CTE_NAME = re.compile(
+        rf"(?:\bwith|,)\s*(?P<name>{_IDENTIFIER})\s+as\s*\(",
+        re.IGNORECASE,
+    )
+    _COMMA_JOIN = re.compile(
+        rf"\bfrom\s+{_QUALIFIED_IDENTIFIER}(?:\s+(?:as\s+)?{_IDENTIFIER})?\s*,",
+        re.IGNORECASE,
+    )
+
+    def __init__(
+        self,
+        *args,
+        allowed_schema: Optional[str] = None,
+        allowed_tables: Optional[Sequence[str]] = None,
+        **kwargs,
+    ):
+        normalized_schema = (
+            self._normalize_identifier(allowed_schema) if allowed_schema else None
+        )
+        if normalized_schema and len(normalized_schema) != 1:
+            raise ValueError("allowed_schema must contain exactly one SQL identifier")
+        self._allowed_schema = normalized_schema[0] if normalized_schema else None
+        self._allowed_tables = {
+            self._normalize_identifier(table) for table in (allowed_tables or [])
+        }
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def _normalize_identifier(cls, value: str) -> tuple[str, ...]:
+        """Return HANA-resolved components without quoted-identifier case collisions."""
+        identifier_match = re.fullmatch(
+            rf"\s*(?P<first>{cls._IDENTIFIER})"
+            rf"(?:\s*\.\s*(?P<second>{cls._IDENTIFIER}))?\s*",
+            str(value),
+        )
+        if not identifier_match:
+            raise ValueError(f"invalid SQL allowlist identifier: {value!r}")
+
+        parts = []
+        for raw_part in identifier_match.group("first", "second"):
+            if raw_part is None:
+                continue
+            # HANA folds unquoted identifiers to uppercase; quoted identifiers keep
+            # exact case. This keeps SENSITIVE distinct from quoted lowercase names.
+            if raw_part.startswith('"'):
+                normalized = raw_part[1:-1].replace('""', '"')
+            else:
+                normalized = raw_part.upper()
+            if not normalized or "\x00" in normalized:
+                raise ValueError(f"invalid SQL allowlist identifier: {value!r}")
+            parts.append(normalized)
+        return tuple(parts)
+
+    @staticmethod
+    def _mask_literals_and_reject_comments(statement: str) -> str:
+        masked = []
+        index = 0
+        state = "normal"
+        while index < len(statement):
+            char = statement[index]
+            if state == "string":
+                masked.append(" ")
+                if char == "'":
+                    if index + 1 < len(statement) and statement[index + 1] == "'":
+                        masked.append(" ")
+                        index += 1
+                    else:
+                        state = "normal"
+            elif state == "identifier":
+                # Preserve quoted identifiers for the object allowlist while ensuring that
+                # apostrophes and comment markers inside them cannot alter scanner state.
+                masked.append(char)
+                if char == '"':
+                    if index + 1 < len(statement) and statement[index + 1] == '"':
+                        masked.append('"')
+                        index += 1
+                    else:
+                        state = "normal"
+            else:
+                if char == "'":
+                    state = "string"
+                    masked.append(" ")
+                elif char == '"':
+                    state = "identifier"
+                    masked.append(char)
+                elif statement.startswith("--", index) or statement.startswith("/*", index):
+                    raise ValueError("read-only SQL agent: SQL comments are not allowed")
+                else:
+                    masked.append(char)
+            index += 1
+        if state != "normal":
+            raise ValueError(
+                "read-only SQL agent: unterminated string literal or quoted identifier"
+            )
+        return "".join(masked)
+
+    @classmethod
+    def _top_level_statement_verb(cls, masked_statement: str) -> Optional[str]:
+        """Return SELECT, or the verb following a top-level WITH CTE list."""
+        keyword_text = re.sub(r'"(?:[^"]|"")*"', " ", masked_statement)
+        tokens = re.findall(
+            r"[A-Za-z_][A-Za-z0-9_$#]*|[(),]", keyword_text.lower()
+        )
+        if not tokens:
+            return None
+        if tokens[0] != "with":
+            return tokens[0]
+
+        depth = 0
+        saw_as = False
+        completed_cte = False
+        for token in tokens[1:]:
+            if depth:
+                if token == "(":
+                    depth += 1
+                elif token == ")":
+                    depth -= 1
+                    if depth == 0:
+                        completed_cte = True
+                continue
+            if completed_cte:
+                if token == ",":
+                    completed_cte = False
+                    saw_as = False
+                    continue
+                if token not in {"(", ")"}:
+                    return token
+            elif token == "as":
+                saw_as = True
+            elif token == "(" and saw_as:
+                depth = 1
+                saw_as = False
+        return None
+
+    def _enforce_object_allowlist(self, masked_statement: str) -> None:
+        if self._COMMA_JOIN.search(masked_statement):
+            raise ValueError(
+                "read-only SQL agent: comma-separated table references are not allowed"
+            )
+        cte_names = {
+            self._normalize_identifier(match.group("name"))
+            for match in self._CTE_NAME.finditer(masked_statement)
+        }
+        table_refs = [
+            self._normalize_identifier(match.group("name"))
+            for match in self._TABLE_REF.finditer(masked_statement)
+        ]
+        for table_ref in table_refs:
+            if table_ref in cte_names:
+                continue
+            schema = table_ref[-2] if len(table_ref) == 2 else None
+            table = (table_ref[-1],)
+            if self._allowed_schema:
+                if schema != self._allowed_schema:
+                    raise ValueError(
+                        "read-only SQL agent: every table must be qualified with the allowed schema"
+                    )
+            elif schema and table_ref not in self._allowed_tables:
+                raise ValueError(
+                    "read-only SQL agent: schema-qualified tables must be explicitly allowlisted"
+                )
+            if self._allowed_tables and (
+                table not in self._allowed_tables and table_ref not in self._allowed_tables
+            ):
+                display_name = ".".join(table_ref)
+                raise ValueError(
+                    f"read-only SQL agent: table {display_name!r} is not allowlisted"
+                )
+            if not self._allowed_schema and not self._allowed_tables:
+                raise ValueError("read-only SQL agent: no table allowlist is configured")
+
+    def run(self, command, *args, **kwargs):  # type: ignore[override]
+        if not isinstance(command, str):
+            raise ValueError("read-only SQL agent: command must be SQL text")
+        stmt = (command or "").strip()
+        masked_stmt = self._mask_literals_and_reject_comments(stmt)
+        # Reject stacked/multiple statements (allow a single optional trailing semicolon).
+        if ";" in masked_stmt.rstrip().rstrip(";"):
+            raise ValueError("read-only SQL agent: multiple/stacked statements are not allowed")
+        if self._top_level_statement_verb(masked_stmt) != "select":
+            raise ValueError("read-only SQL agent: only SELECT/WITH queries are permitted")
+        keyword_text = re.sub(r'"(?:[^"]|"")*"', " ", masked_stmt)
+        words = set(re.findall(r"[A-Za-z_][A-Za-z0-9_$#]*", keyword_text.lower()))
+        forbidden = sorted(words & self._FORBIDDEN_KEYWORDS)
+        if forbidden:
+            raise ValueError(
+                f"read-only SQL agent: forbidden keyword {forbidden[0]!r}"
+            )
+        self._enforce_object_allowlist(masked_stmt)
+        return super().run(command, *args, **kwargs)
+
 
 class _sql_toolkit(object):
     def __init__(self, llm, db, tools=None):
@@ -75,6 +290,8 @@ def create_hana_sql_agent(
     extra_tools: Sequence[BaseTool] = (),
     *,
     prompt: Optional[BasePromptTemplate] = None,
+    schema: Optional[str] = None,
+    include_tables: Optional[Sequence[str]] = None,
     **kwargs: Any,
 ):
     """Create a HANA SQL agent.
@@ -117,6 +334,10 @@ def create_hana_sql_agent(
         The connection context to use.
     prompt: BasePromptTemplate, optional
         The prompt to use.
+    schema: str, optional
+        The only schema the agent may query. Queries must qualify table names with it.
+    include_tables: Sequence[str], optional
+        Explicit table allowlist. At least one of schema or include_tables is required.
     kwargs: Any
         The kwargs to use.
 
@@ -132,11 +353,14 @@ def create_hana_sql_agent(
     >>> hana_vec.create_knowledge(option='sql')
     >>> code_tool = GetCodeTemplateFromVectorDB()
     >>> code_tool.set_vectordb(vectordb=hana_vec)
-    >>> agent_executor = create_hana_sql_agent(llm=llm, connection_context=cc, tools=[code_tool], verbose=True)
+    >>> agent_executor = create_hana_sql_agent(llm=llm, connection_context=cc, tools=[code_tool], include_tables=["IRIS_DATA_FULL_TBL"], verbose=True)
     >>> agent_executor.invoke("show me the min and max value of sepalwidthcm in the table iris_data_full_tbl?")
     """
     if agent_type is None and AgentType is not None:
         agent_type = AgentType.ZERO_SHOT_REACT_DESCRIPTION
+    if not schema and not include_tables:
+        raise ValueError("schema or include_tables is required for SQL agent access")
+    include_table_list = list(include_tables or [])
     engine = connection_context.to_sqlalchemy()
     metadata = MetaData()
 
@@ -144,9 +368,18 @@ def create_hana_sql_agent(
     metadata.reflect(
         bind=engine,
         views=True,
-        case_sensitive=True
+        case_sensitive=True,
+        schema=schema,
+        only=include_table_list or None,
     )
-    db = SQLDatabase(engine, metadata=metadata)
+    db = _ReadOnlySQLDatabase(
+        engine,
+        metadata=metadata,
+        schema=schema,
+        include_tables=include_table_list or None,
+        allowed_schema=schema,
+        allowed_tables=include_table_list,
+    )
     toolkit = _sql_toolkit(llm=llm, db=db, tools=tools)
     return create_sql_agent(llm=llm,
                             toolkit=toolkit,
@@ -169,7 +402,10 @@ def create_hana_sql_agent(
 
 def create_hana_sql_toolkit(
     llm: any,
-    connection_context: ConnectionContext
+    connection_context: ConnectionContext,
+    *,
+    schema: Optional[str] = None,
+    include_tables: Optional[Sequence[str]] = None,
 ):
     """
     Create a HANA SQL toolkit.
@@ -180,7 +416,14 @@ def create_hana_sql_toolkit(
         The language model to use.
     connection_context: ConnectionContext
         The connection context to use.
+    schema: str, optional
+        The only schema the toolkit may query.
+    include_tables: Sequence[str], optional
+        Explicit table allowlist. At least one of schema or include_tables is required.
     """
+    if not schema and not include_tables:
+        raise ValueError("schema or include_tables is required for SQL toolkit access")
+    include_table_list = list(include_tables or [])
     engine = connection_context.to_sqlalchemy()
     metadata = MetaData()
 
@@ -188,7 +431,16 @@ def create_hana_sql_toolkit(
     metadata.reflect(
         bind=engine,
         views=True,
-        case_sensitive=True
+        case_sensitive=True,
+        schema=schema,
+        only=include_table_list or None,
     )
-    db = SQLDatabase(engine, metadata=metadata)
+    db = _ReadOnlySQLDatabase(
+        engine,
+        metadata=metadata,
+        schema=schema,
+        include_tables=include_table_list or None,
+        allowed_schema=schema,
+        allowed_tables=include_table_list,
+    )
     return _sql_toolkit(llm=llm, db=db)

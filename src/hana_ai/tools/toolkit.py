@@ -32,10 +32,12 @@ except Exception:
     TxtDoc = None
 try:
     from mcp.server.fastmcp import FastMCP, Context as LegacyMCPContext
-except ImportError:
-    import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "mcp"])
-    from mcp.server.fastmcp import FastMCP, Context as LegacyMCPContext
+except ImportError as e:  # pragma: no cover
+    # V-160: no runtime pip-install; require the dependency to be declared/installed.
+    raise ImportError(
+        "the `mcp` package is required for the MCP server; install it explicitly "
+        "(`pip install mcp mcp[cli]`) instead of letting the library install it at runtime."
+    ) from e
 
 # For HTTP transport support via fastmcp (separate package)
 try:
@@ -43,18 +45,11 @@ try:
     from fastmcp.server.dependencies import get_http_request, get_context as get_fastmcp_context
     from fastmcp.server.middleware.middleware import Middleware
 except ImportError:
-    try:
-        import subprocess
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "fastmcp"])
-        from fastmcp import FastMCP as FastMCPHTTP, Context as FastMCPContext
-        from fastmcp.server.dependencies import get_http_request, get_context as get_fastmcp_context
-        from fastmcp.server.middleware.middleware import Middleware
-    except Exception:
-        FastMCPHTTP = None
-        FastMCPContext = None
-        get_http_request = None
-        get_fastmcp_context = None
-        Middleware = None
+    FastMCPHTTP = None
+    FastMCPContext = None
+    get_http_request = None
+    get_fastmcp_context = None
+    Middleware = None
 
 from hana_ml import ConnectionContext
 
@@ -109,9 +104,14 @@ def _redact_dict(d: dict) -> dict:
 
 def _env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     val = os.environ.get(name)
-    if val is None:
+    if val is None or not val.strip():
         return default
-    return val.strip().lower() in {"1", "true", "yes", "on"}
+    normalized = val.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"{name} must be a boolean value")
 
 
 def _build_cc_params_from_env() -> dict[str, Any]:
@@ -120,9 +120,10 @@ def _build_cc_params_from_env() -> dict[str, Any]:
     user = os.environ.get("HANA_USER")
     password = os.environ.get("HANA_PASSWORD")
     encrypt = _env_bool("HANA_ENCRYPT", default=None)
-    # Default to False to match existing test infra (`RaysKey` uses sslValidateCertificate=False)
-    # and to avoid failing in environments without a complete trust store.
-    ssl_validate = _env_bool("HANA_SSL_VALIDATE", default=False)
+    # V-167: default TLS certificate validation ON. Operators that genuinely lack a
+    # trust store must opt OUT explicitly (HANA_SSL_VALIDATE=false), rather than every
+    # deployment being MitM-able by default.
+    ssl_validate = _env_bool("HANA_SSL_VALIDATE", default=True)
 
     missing = [k for k, v in {"HANA_ADDRESS": address, "HANA_USER": user, "HANA_PASSWORD": password}.items() if not v]
     if missing:
@@ -1817,7 +1818,10 @@ class HANAMLToolkit(BaseToolkit):
         port : int
             Network port to use for server transports that require a port (SSE/HTTP). Default is 8001. Ignored for stdio.
         auth_token : str, optional
-            Authentication token for the server. If provided, the server will require this token for access.
+            Bearer token for HTTP transport. SSE does not provide a verified authentication
+            boundary in this launcher; stdio relies on the host process boundary. This
+            launcher does not terminate TLS: protect any traffic outside a trusted local
+            network boundary with an HTTPS reverse proxy and prevent direct plaintext access.
         max_retries : int
             Maximum number of retries to find an available port. Default is 5.
         stateless_http : bool
@@ -1834,6 +1838,41 @@ class HANAMLToolkit(BaseToolkit):
         original_port = port
 
         while attempts < max_retries:
+            runtime_update_enabled = os.environ.get(
+                "HANA_ALLOW_RUNTIME_CONN_UPDATE", ""
+            ).lower() in ("1", "true", "yes")
+            if transport in ("http", "sse"):
+                try:
+                    is_loopback = ipaddress.ip_address(host).is_loopback
+                except ValueError:
+                    is_loopback = str(host).strip().lower() == "localhost"
+                if transport == "http" and not is_loopback and not auth_token:
+                    raise ValueError(
+                        "HTTP MCP servers bound outside loopback require auth_token"
+                    )
+                if transport == "sse" and not is_loopback:
+                    raise ValueError(
+                        "SSE MCP servers are restricted to loopback; use authenticated "
+                        "HTTP transport for remote access"
+                    )
+            if runtime_update_enabled and transport == "http" and not auth_token:
+                raise ValueError(
+                    "runtime connection updates over HTTP require auth_token; refusing to "
+                    "start an unauthenticated MCP admin surface"
+                )
+            if runtime_update_enabled and transport == "sse":
+                raise ValueError(
+                    "runtime connection updates are not supported on SSE because this launcher "
+                    "does not provide a verified authorization boundary for that transport"
+                )
+            if auth_token and transport == "sse":
+                raise ValueError(
+                    "auth_token is not supported on SSE; use authenticated HTTP transport"
+                )
+            if auth_token and transport == "stdio":
+                logging.info(
+                    "Ignoring auth_token for stdio; access is controlled by the host process"
+                )
             # 初始化MCP配置
             server_settings = {
                 "name": server_name,
@@ -1866,6 +1905,13 @@ class HANAMLToolkit(BaseToolkit):
                 # ``stateless_http`` is forwarded to fastmcp so the Streamable HTTP layer
                 # stops issuing / enforcing per-client ``mcp-session-id`` values. This is
                 # opt-in (default False) — legacy stateful behavior is unchanged.
+                # V-155: wire the auth_token into the FastMCP auth provider. fastmcp 2.x enforces
+                # auth at construction time (not on .run()), so an HTTP endpoint launched with a
+                # token must build a verifier here or it runs UNAUTHENTICATED.
+                http_auth = None
+                if auth_token:
+                    from fastmcp.server.auth.providers.jwt import StaticTokenVerifier
+                    http_auth = StaticTokenVerifier({auth_token: {"client_id": "hana-ai-admin", "scopes": []}})
                 mcp = FastMCPHTTP(
                     server_settings.get("name", "HANATools"),
                     host=server_settings.get("host", "127.0.0.1"),
@@ -1873,6 +1919,7 @@ class HANAMLToolkit(BaseToolkit):
                     streamable_http_path="/mcp",
                     json_response=True,
                     stateless_http=stateless_http,
+                    auth=http_auth,
                 )
                 # 检查端口可用性
                 if not self.is_port_available(port):
@@ -2078,7 +2125,6 @@ class HANAMLToolkit(BaseToolkit):
             # --- Admin tool: update connection context at runtime ---
             # This is intentionally registered before business tools, and is transport-agnostic.
             # NOTE: For stdio transport, any stray stdout breaks the protocol; we only use logging.
-            @mcp.tool()
             def admin_update_connection_context(
                 address: Annotated[str, TxtDoc("HANA host/address") if TxtDoc is not None else str],
                 port: Annotated[int, TxtDoc("HANA port") if TxtDoc is not None else int] = 443,
@@ -2087,8 +2133,15 @@ class HANAMLToolkit(BaseToolkit):
                 encrypt: Annotated[Optional[bool], TxtDoc("Use TLS") if TxtDoc is not None else Optional[bool]] = None,
                 ssl_validate_certificate: Annotated[Optional[bool], TxtDoc("Validate TLS certificate") if TxtDoc is not None else Optional[bool]] = None,
                 test_connection: Annotated[bool, TxtDoc("If true, open a test connection before switching") if TxtDoc is not None else bool] = False,
+                allow_tls_downgrade: Annotated[bool, TxtDoc("DANGEROUS: acknowledge turning TLS certificate validation OFF") if TxtDoc is not None else bool] = False,
             ):
                 """Update the toolkit's HANA ConnectionContext without restarting the MCP server."""
+                # V-155: runtime connection swap is a privileged admin operation. Require an explicit
+                # host-side opt-in; never allow it by default on an exposed MCP surface.
+                if not runtime_update_enabled:
+                    return {"ok": False, "error": "runtime connection update disabled (set HANA_ALLOW_RUNTIME_CONN_UPDATE=true; ensure the MCP admin surface is authenticated)"}
+                if (encrypt is False or ssl_validate_certificate is False) and not allow_tls_downgrade:
+                    return {"ok": False, "error": "refusing to disable TLS or certificate validation without allow_tls_downgrade=True"}
                 new_params: dict[str, Any] = {
                     "address": address,
                     "port": port,
@@ -2132,11 +2185,12 @@ class HANAMLToolkit(BaseToolkit):
                     **refresh_stats,
                 }
 
-            @mcp.tool()
             def admin_reload_connection_context_from_env(
                 test_connection: Annotated[bool, TxtDoc("If true, open a test connection before switching") if TxtDoc is not None else bool] = False,
             ):
                 """Reload HANA ConnectionContext from server environment variables (HANA_*) without restarting the MCP server."""
+                if not runtime_update_enabled:
+                    return {"ok": False, "error": "runtime connection update disabled"}
                 try:
                     params = _build_cc_params_from_env()
                 except Exception as e:
@@ -2170,6 +2224,13 @@ class HANAMLToolkit(BaseToolkit):
                     "connection": _redact_dict(params),
                     **refresh_stats,
                 }
+
+            # Do not even advertise privileged connection-management tools unless the host
+            # opted in. HTTP additionally requires the FastMCP bearer-token boundary above;
+            # stdio is a host-launched local process. SSE is rejected for this feature.
+            if runtime_update_enabled:
+                mcp.tool()(admin_update_connection_context)
+                mcp.tool()(admin_reload_connection_context_from_env)
 
             # 获取并注册所有工具
             tools = self.get_tools()
@@ -2454,10 +2515,6 @@ class HANAMLToolkit(BaseToolkit):
                 port = original_port  # 重置端口重试
                 attempts = 0         # 重置尝试次数
                 continue
-
-            if auth_token:
-                server_args["auth_token"] = auth_token
-                logging.info("🔐 Authentication enabled")
 
             # 启动服务器线程
             def run_server(mcp_instance, server_args):
