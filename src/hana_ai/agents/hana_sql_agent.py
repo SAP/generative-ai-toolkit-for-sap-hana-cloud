@@ -50,16 +50,16 @@ class _SQLObjectParser:
     _CLAUSE_END = {
         "WHERE", "GROUP", "HAVING", "ORDER", "LIMIT", "OFFSET",
         "FETCH", "UNION", "INTERSECT", "EXCEPT", "MINUS",
-        "QUALIFY", "CONNECT", "START", "WINDOW",
+        "QUALIFY", "CONNECT", "START", "WINDOW", "WITH",
     }
     _JOIN_MODIFIERS = {"CROSS", "FULL", "INNER", "LEFT", "NATURAL", "OUTER", "RIGHT"}
     _ALIAS_RESERVED = _CLAUSE_END | _JOIN_MODIFIERS | {
-        "AS", "JOIN", "ON", "USING",
+        "AS", "JOIN", "ON", "USING", "PARTITION", "TABLESAMPLE",
     }
     _NON_FUNCTION_PAREN_KEYWORDS = {
-        "ALL", "AND", "AS", "BY", "DISTINCT", "ELSE", "EXISTS",
+        "ALL", "AND", "ANY", "AS", "BY", "DISTINCT", "ELSE", "EXISTS",
         "HAVING", "IN", "NOT", "ON", "OR", "OVER", "SELECT",
-        "THEN", "USING", "WHEN", "WHERE", "WITH",
+        "SOME", "THEN", "USING", "WHEN", "WHERE", "WITH",
     }
     # Consume only numeric syntax. In particular, `1+SCHEMA.F()` must leave
     # SCHEMA.F visible to the function/sequence authorization checks.
@@ -79,9 +79,16 @@ class _SQLObjectParser:
         "RTRIM", "SECONDS_BETWEEN", "SIGN", "SQRT", "STDDEV",
         "STDDEV_POP", "STDDEV_SAMP", "SUBSTR", "SUBSTRING", "SUM",
         "TO_BIGINT", "TO_DATE", "TO_DECIMAL", "TO_DOUBLE", "TO_INT",
-        "TO_INTEGER", "TO_NVARCHAR", "TO_REAL", "TO_TIMESTAMP",
+        "TO_INTEGER", "TO_NVARCHAR", "TO_REAL", "TO_TIMESTAMP", "TO_VARCHAR",
         "TRIM", "UPPER", "VAR", "VAR_POP", "VAR_SAMP", "WEEK",
         "YEAR",
+    }
+    _CAST_TYPES = {
+        "ALPHANUM", "BIGINT", "BINARY", "BLOB", "BOOLEAN", "CHAR",
+        "CLOB", "DATE", "DECIMAL", "DOUBLE", "FLOAT", "INT", "INTEGER",
+        "NCHAR", "NCLOB", "NUMERIC", "NVARCHAR", "REAL", "SECONDDATE",
+        "SHORTTEXT", "SMALLDECIMAL", "SMALLINT", "TIME", "TIMESTAMP",
+        "TINYINT", "VARBINARY", "VARCHAR",
     }
 
     def __init__(self, database, statement: str):
@@ -219,6 +226,9 @@ class _SQLObjectParser:
             if self._is_keyword(token, "FROM"):
                 position = self._scan_from_clause(position + 1, end, visible_ctes)
                 continue
+            if self._is_keyword(token, "WITH"):
+                position = self._parse_hints(position, end)
+                continue
             if token.text == "(":
                 closing = self._matching_paren(position, end)
                 if position + 1 < closing and (
@@ -230,9 +240,9 @@ class _SQLObjectParser:
                     self._scan_select(position + 1, closing, visible_ctes)
                 position = closing + 1
                 continue
-            position = self._check_object_expression(position, end)
+            position = self._check_object_expression(position, end, visible_ctes)
 
-    def _check_object_expression(self, position: int, end: int) -> int:
+    def _check_object_expression(self, position: int, end: int, visible_ctes: frozenset) -> int:
         token = self.tokens[position]
         if not self._is_identifier(token):
             return position + 1
@@ -245,6 +255,8 @@ class _SQLObjectParser:
             function_name = parts[0]
             if token.kind == "identifier":
                 raise ValueError("read-only SQL agent: quoted function calls are not permitted")
+            if function_name == "CAST":
+                return self._parse_cast(following, end, visible_ctes)
             if (
                 function_name not in self._NON_FUNCTION_PAREN_KEYWORDS
                 and function_name not in self._SAFE_FUNCTIONS
@@ -254,9 +266,104 @@ class _SQLObjectParser:
                 )
         return following
 
-    def _scan_from_clause(self, start: int, end: int, visible_ctes: frozenset) -> int:
-        position = self._parse_table_factor(start, end, visible_ctes)
+    def _parse_cast(self, opening: int, end: int, visible_ctes: frozenset) -> int:
+        """Authorize the CAST operand, then parse only a built-in target type."""
+        closing = self._matching_paren(opening, end)
+        position = opening + 1
+        while position < closing and not self._is_keyword(self.tokens[position], "AS"):
+            if self.tokens[position].text == "(":
+                position = self._matching_paren(position, closing)
+            position += 1
+        if position == opening + 1 or position + 1 >= closing:
+            raise ValueError("read-only SQL agent: CAST requires an expression and a type")
+        self._scan_select(opening + 1, position, visible_ctes)
+        position += 1
+        type_token = self.tokens[position]
+        if type_token.kind != "word" or type_token.normalized not in self._CAST_TYPES:
+            raise ValueError("read-only SQL agent: unsupported CAST type")
+        position += 1
+        if (type_token.normalized == "DOUBLE" and position < closing
+                and self._is_keyword(self.tokens[position], "PRECISION")):
+            position += 1
+        if position < closing and self.tokens[position].text == "(":
+            position = self._parse_number_list(position, closing, integers=True)
+        if position != closing:
+            raise ValueError("read-only SQL agent: invalid CAST type parameters")
+        return closing + 1
+
+    def _parse_number_list(self, opening: int, end: int, *, integers: bool) -> int:
+        """Parse literal-only type/partition/sample arguments, never expressions."""
+        if opening >= end or self.tokens[opening].text != "(":
+            raise ValueError("read-only SQL agent: expected parenthesized numeric arguments")
+        closing = self._matching_paren(opening, end)
+        position = opening + 1
+        while position < closing:
+            token = self.tokens[position]
+            if token.kind != "number" or (integers and not token.text.isdecimal()):
+                raise ValueError("read-only SQL agent: only numeric literals are permitted here")
+            position += 1
+            if position == closing:
+                return closing + 1
+            if self.tokens[position].text != ",":
+                break
+            position += 1
+        raise ValueError("read-only SQL agent: invalid numeric argument list")
+
+    def _parse_hints(self, position: int, end: int) -> int:
+        """Parse optimizer hint names and scalar arguments without skipping SQL."""
+        if position + 2 >= end or not self._is_keyword(self.tokens[position + 1], "HINT"):
+            raise ValueError("read-only SQL agent: expected WITH HINT")
+        opening = position + 2
+        if self.tokens[opening].text != "(":
+            raise ValueError("read-only SQL agent: expected parenthesized hints")
+        closing = self._matching_paren(opening, end)
+        position = opening + 1
+        while position < closing:
+            if self.tokens[position].kind != "word":
+                break
+            position += 1
+            if position < closing and self.tokens[position].text == "(":
+                position = self._parse_hint_arguments(position, closing)
+            if position == closing:
+                return closing + 1
+            if self.tokens[position].text != ",":
+                break
+            position += 1
+        raise ValueError("read-only SQL agent: invalid optimizer hint list")
+
+    def _parse_hint_arguments(self, opening: int, end: int) -> int:
+        closing = self._matching_paren(opening, end)
+        position = opening + 1
+        while position < closing:
+            token = self.tokens[position]
+            # String literals are masked to ? before this parser runs. Nested
+            # queries, calls, qualified names and arithmetic are never hint atoms.
+            if token.kind not in {"number", "word", "identifier"} and token.text != "?":
+                break
+            position += 1
+            if position == closing:
+                return closing + 1
+            if self.tokens[position].text != ",":
+                break
+            position += 1
+        raise ValueError("read-only SQL agent: invalid optimizer hint arguments")
+
+    def _parse_table_source(self, position: int, end: int, visible_ctes: frozenset) -> int:
+        position = self._parse_table_factor(position, end, visible_ctes)
         position = self._skip_alias(position, end)
+        if position < end and self._is_keyword(self.tokens[position], "TABLESAMPLE"):
+            position += 1
+            if (position >= end or self.tokens[position].kind != "word"
+                    or self.tokens[position].normalized not in {"SYSTEM", "BERNOULLI"}):
+                raise ValueError("read-only SQL agent: unsupported TABLESAMPLE method")
+            opening = position + 1
+            position = self._parse_number_list(opening, end, integers=False)
+            if position != opening + 3 or not 0 <= float(self.tokens[opening + 1].text) <= 100:
+                raise ValueError("read-only SQL agent: TABLESAMPLE requires one percentage")
+        return position
+
+    def _scan_from_clause(self, start: int, end: int, visible_ctes: frozenset) -> int:
+        position = self._parse_table_source(start, end, visible_ctes)
         while position < end:
             token = self.tokens[position]
             if token.text == ",":
@@ -266,8 +373,7 @@ class _SQLObjectParser:
             if token.kind == "word" and token.normalized in self._CLAUSE_END:
                 return position
             if self._is_keyword(token, "JOIN"):
-                position = self._parse_table_factor(position + 1, end, visible_ctes)
-                position = self._skip_alias(position, end)
+                position = self._parse_table_source(position + 1, end, visible_ctes)
                 continue
             if token.kind == "word" and token.normalized in self._JOIN_MODIFIERS:
                 while (
@@ -278,8 +384,7 @@ class _SQLObjectParser:
                     position += 1
                 if position >= end or not self._is_keyword(self.tokens[position], "JOIN"):
                     raise ValueError("read-only SQL agent: unsupported table expression")
-                position = self._parse_table_factor(position + 1, end, visible_ctes)
-                position = self._skip_alias(position, end)
+                position = self._parse_table_source(position + 1, end, visible_ctes)
                 continue
             if self._is_keyword(token, "ON"):
                 position = self._scan_join_condition(position + 1, end, visible_ctes)
@@ -298,9 +403,17 @@ class _SQLObjectParser:
         position = start
         while position < end:
             token = self.tokens[position]
+            # A top-level comma starts another table factor, not an ON operand.
+            # Return it to the FROM parser so it cannot hide an unchecked table.
+            if token.text == ",":
+                return position
+            is_join_modifier = (
+                token.kind == "word" and token.normalized in self._JOIN_MODIFIERS
+                and (position + 1 >= end or self.tokens[position + 1].text != "(")
+            )
             if token.kind == "word" and (
                 token.normalized in self._CLAUSE_END
-                or token.normalized in self._JOIN_MODIFIERS
+                or is_join_modifier
                 or token.normalized == "JOIN"
             ):
                 return position
@@ -315,12 +428,18 @@ class _SQLObjectParser:
                     self._scan_select(position + 1, closing, visible_ctes)
                 position = closing + 1
                 continue
-            position = self._check_object_expression(position, end)
+            position = self._check_object_expression(position, end, visible_ctes)
         return position
 
     def _parse_table_factor(self, position: int, end: int, visible_ctes: frozenset) -> int:
         if position >= end:
             raise ValueError("read-only SQL agent: missing table reference")
+        if self._is_keyword(self.tokens[position], "LATERAL"):
+            position += 1
+            if (position + 1 >= end or self.tokens[position].text != "("
+                    or not any(self._is_keyword(self.tokens[position + 1], keyword)
+                               for keyword in ("SELECT", "WITH"))):
+                raise ValueError("read-only SQL agent: LATERAL requires a SELECT/WITH subquery")
         if self.tokens[position].text == "(":
             closing = self._matching_paren(position, end)
             if position + 1 >= closing:
@@ -342,6 +461,8 @@ class _SQLObjectParser:
             raise ValueError("read-only SQL agent: table functions are not permitted")
         if parts not in visible_ctes:
             self.database._authorize_table_reference(parts)
+        if following < end and self._is_keyword(self.tokens[following], "PARTITION"):
+            following = self._parse_number_list(following + 1, end, integers=True)
         return following
 
     def _skip_alias(self, position: int, end: int) -> int:
@@ -457,7 +578,9 @@ class _ReadOnlySQLDatabase(SQLDatabase):
             else:
                 if char == "'":
                     state = "string"
-                    masked.append(" ")
+                    # Keep an opaque operand so CAST/hint grammar can distinguish
+                    # a string value from a missing expression. Preserve length.
+                    masked.append("?")
                 elif char == '"':
                     state = "identifier"
                     masked.append(char)
