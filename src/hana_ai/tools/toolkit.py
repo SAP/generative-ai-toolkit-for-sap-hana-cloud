@@ -115,6 +115,7 @@ def _env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
 
 
 def _build_cc_params_from_env() -> dict[str, Any]:
+    userkey = os.environ.get("HANA_USERKEY")
     address = os.environ.get("HANA_ADDRESS")
     port_raw = os.environ.get("HANA_PORT", "443")
     user = os.environ.get("HANA_USER")
@@ -124,6 +125,14 @@ def _build_cc_params_from_env() -> dict[str, Any]:
     # trust store must opt OUT explicitly (HANA_SSL_VALIDATE=false), rather than every
     # deployment being MitM-able by default.
     ssl_validate = _env_bool("HANA_SSL_VALIDATE", default=True)
+
+    if userkey:
+        params: dict[str, Any] = {"userkey": userkey}
+        if encrypt is not None:
+            params["encrypt"] = bool(encrypt)
+        if ssl_validate is not None:
+            params["sslValidateCertificate"] = bool(ssl_validate)
+        return params
 
     missing = [k for k, v in {"HANA_ADDRESS": address, "HANA_USER": user, "HANA_PASSWORD": password}.items() if not v]
     if missing:

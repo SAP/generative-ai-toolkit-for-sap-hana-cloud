@@ -292,7 +292,9 @@ class TestV159ReadOnlySQLExtraction:
 class TestV157V158SQLGuards:
     def test_vector_string_literal_doubles_quotes(self):
         mod = importlib.import_module("hana_ai.vectorstore.hana_vector_engine")
-        assert mod._sql_string_literal("x'; DROP TABLE T;--") == "'x''; DROP TABLE T;--'"
+        assert mod._sql_string_literal("O'Reilly") == "'O''Reilly'"
+        with pytest.raises(ValueError, match="semicolons"):
+            mod._sql_string_literal("x'; DROP TABLE T;--")
 
     def test_vector_identifier_quotes_one_component(self):
         mod = importlib.import_module("hana_ai.vectorstore.hana_vector_engine")
@@ -313,12 +315,98 @@ class TestV157V158SQLGuards:
         with pytest.raises(ValueError, match="distance must be one of"):
             engine.query("query", distance="COSINE_SIMILARITY); DROP TABLE T;--")
 
+    @pytest.mark.parametrize(
+        "field,payload",
+        [
+            ("input", "; DELETE FROM SENSITIVE_TABLE; --"),
+            ("model_version", "MODEL; DELETE FROM SENSITIVE_TABLE; --"),
+            ("schema", "SCHEMA; DELETE FROM SENSITIVE_TABLE; --"),
+            ("table_name", "VECTORS; DELETE FROM SENSITIVE_TABLE; --"),
+        ],
+    )
+    def test_vector_semicolon_payload_executes_zero_sql(self, field, payload):
+        mod = importlib.import_module("hana_ai.vectorstore.hana_vector_engine")
+        executed = []
+        engine = object.__new__(mod.HANAMLinVectorEngine)
+        engine.schema = "SCHEMA"
+        engine.table_name = "VECTORS"
+        engine.columns = ["MODEL", "DESCRIPTION", "EXAMPLE", "EMBEDDINGS"]
+        engine.model_version = "SAP_NEB.20240715"
+        engine.connection_context = types.SimpleNamespace(sql=executed.append)
+        query = "safe query"
+        if field == "input":
+            query = payload
+        else:
+            setattr(engine, field, payload)
+        with pytest.raises(ValueError, match="semicolon|identifier"):
+            engine.query(query)
+        assert executed == []
+
     def test_retrieval_procedure_identifiers_are_quoted(self):
         mod = importlib.import_module("hana_ai.retrieval.utility")
         sql = mod._call_procedure_sql("hello", {}, "SAFE_SCHEMA", "SAFE_PROC")
         assert 'CALL "SAFE_SCHEMA"."SAFE_PROC"' in sql
         with pytest.raises(ValueError):
             mod._call_procedure_sql("hello", {}, 'S"; DROP TABLE T;--', "P")
+
+    @pytest.mark.parametrize(
+        "overrides",
+        [
+            {"order_by": "ID; DELETE FROM SENSITIVE_TABLE; --"},
+            {"schema_name": "SAFE; DELETE FROM SENSITIVE_TABLE; --"},
+            {"source_table": "SOURCE; DELETE FROM SENSITIVE_TABLE; --"},
+            {"train_table": "TRAIN; DELETE FROM SENSITIVE_TABLE; --"},
+            {"test_table": "TEST; DELETE FROM SENSITIVE_TABLE; --"},
+            {"validation_table": "VALIDATION; DELETE FROM SENSITIVE_TABLE; --"},
+        ],
+    )
+    def test_dataset_split_semicolon_payload_executes_zero_sql(self, overrides):
+        mod = importlib.import_module(
+            "hana_ai.tools.hana_ml_tools.dataset_prep_tools"
+        )
+        executed = []
+        source_df = types.SimpleNamespace(columns=["ID", "VALUE"])
+        connection = types.SimpleNamespace(
+            table=lambda *_args, **_kwargs: executed.append("table metadata") or source_df,
+            sql=lambda statement: executed.append(statement),
+        )
+        tool = mod.SplitTableForForecastingTool.model_construct(
+            connection_context=connection, return_direct=False
+        )
+        request = {
+            "source_table": "SOURCE",
+            "schema_name": "SAFE",
+            "split_mode": "time_ordered",
+            "train_ratio": 0.7,
+            "test_ratio": 0.2,
+            "validation_ratio": 0.1,
+            "order_by": "ID",
+            "force": False,
+        }
+        request.update(overrides)
+        result = tool._run(**request)
+        assert result.startswith("Operation failed while splitting")
+        assert executed == []
+
+    def test_dataset_split_order_column_must_exist_before_sql_execution(self):
+        mod = importlib.import_module(
+            "hana_ai.tools.hana_ml_tools.dataset_prep_tools"
+        )
+        executed = []
+        connection = types.SimpleNamespace(
+            table=lambda *_args, **_kwargs: types.SimpleNamespace(columns=["ID"]),
+            sql=executed.append,
+        )
+        tool = mod.SplitTableForForecastingTool.model_construct(
+            connection_context=connection, return_direct=False
+        )
+        result = tool._run(
+            source_table="SOURCE", schema_name="SAFE",
+            split_mode="time_ordered", train_ratio=0.7, test_ratio=0.2,
+            validation_ratio=0.1, order_by="MISSING", force=False,
+        )
+        assert "was not found in the source table" in result
+        assert executed == []
 
     def test_retrieval_infrastructure_sql_encodes_names_and_values(self, monkeypatch):
         mod = importlib.import_module("hana_ai.retrieval.utility")
@@ -354,7 +442,10 @@ class TestV157V158SQLGuards:
     def test_retrieval_infrastructure_create_and_drop_identifiers(self, monkeypatch):
         mod = importlib.import_module("hana_ai.retrieval.utility")
         executed = []
-        connection = types.SimpleNamespace(execute_sql=executed.append)
+        connection = object()
+        monkeypatch.setattr(
+            mod, "_execute_sql_string", lambda _connection, sql: executed.append(sql)
+        )
 
         mod._create_certificate_and_add_to_pse(
             connection, "root_cert", "certificate'body", "safe_pse"
@@ -364,9 +455,6 @@ class TestV157V158SQLGuards:
             'ALTER PSE "SAFE_PSE" ADD CERTIFICATE "ROOT_CERT"',
         ]
 
-        monkeypatch.setattr(
-            mod, "_execute_sql_string", lambda _connection, sql: executed.append(sql)
-        )
         mod._delete_ai_core_pse(object(), "safe_pse")
         mod._drop_ai_core_remote_source(object(), "safe_source", cascade=False)
         mod._drop_certificate(object(), "root_cert")
@@ -410,6 +498,45 @@ def test_v166_increment_type_is_allowlisted_and_none_keeps_legacy_default():
     assert mod._normalize_increment_type("day") == "days"
     with pytest.raises(ValueError, match="increment_type"):
         mod._normalize_increment_type("SECONDS); DROP TABLE T;--")
+
+
+def test_v166_stored_group_semicolon_executes_zero_sql():
+    mod = importlib.import_module(
+        "hana_ai.tools.hana_ml_tools.ts_make_predict_table"
+    )
+    executed = []
+
+    class _GroupSelection:
+        def distinct(self):
+            return self
+
+        @staticmethod
+        def collect():
+            return {"GROUP_ID": ["A; DELETE FROM SENSITIVE_TABLE; --"]}
+
+    class _Data:
+        columns = ["GROUP_ID", "TIME_ID"]
+        index = None
+        connection_context = types.SimpleNamespace(sql=executed.append)
+
+        @staticmethod
+        def get_table_structure():
+            return {"GROUP_ID": "NVARCHAR(100)", "TIME_ID": "INTEGER"}
+
+        @staticmethod
+        def select(column):
+            assert column == "GROUP_ID"
+            return _GroupSelection()
+
+        @staticmethod
+        def filter(_condition):
+            raise AssertionError("the stored payload must be rejected before filtering")
+
+    with pytest.raises(ValueError, match="semicolons"):
+        mod.make_future_dataframe_for_massive_forecast(
+            data=_Data(), key="TIME_ID", group_key="GROUP_ID"
+        )
+    assert executed == []
 
 
 # ============================ V-156: dangerous Python tool defaults off ============================
@@ -635,6 +762,112 @@ class TestV171ReadOnlySQLDatabase:
         with pytest.raises(ValueError, match="not allowlisted"):
             db.run('SELECT * FROM PUBLIC."sensitive"')
 
+    @pytest.mark.parametrize(
+        "stmt,error",
+        [
+            (
+                "SELECT SECRET_TABLE.ID FROM (SECRET_TABLE CROSS JOIN ALLOWED_TABLE)",
+                "not allowlisted",
+            ),
+            ("SELECT SECRET_TABLE.ID FROM (SECRET_TABLE)", "not allowlisted"),
+            (
+                "SELECT SECRET_TABLE.ID FROM "
+                "(SECRET_TABLE AS SECRET_TABLE CROSS JOIN ALLOWED_TABLE AS ALLOWED_TABLE)",
+                "not allowlisted",
+            ),
+            (
+                "WITH A AS (WITH SECRET_TABLE AS (SELECT 1 AS ID) "
+                "SELECT * FROM SECRET_TABLE) SELECT * FROM SECRET_TABLE",
+                "not allowlisted",
+            ),
+            (
+                "SELECT SECRET_SCHEMA.GET_SECRET() FROM ALLOWED_TABLE",
+                "qualified function",
+            ),
+            (
+                "SELECT SECRET_SCHEMA.SECRET_SEQ.NEXTVAL FROM ALLOWED_TABLE",
+                "sequence access",
+            ),
+            ("SELECT * FROM DATABASE.PUBLIC.ALLOWED_TABLE", "three-part"),
+            ("SELECT * FROM SECRET_TABLE_FUNCTION()", "table functions"),
+            ("SELECT GET_SECRET() FROM ALLOWED_TABLE", "function 'GET_SECRET'"),
+            ("SELECT 1+GET_SECRET() FROM ALLOWED_TABLE", "function 'GET_SECRET'"),
+            ("SELECT 1-SECRET_SCHEMA.GET_SECRET() FROM ALLOWED_TABLE", "qualified function"),
+            ("SELECT 1e-2+SECRET_SCHEMA.GET_SECRET() FROM ALLOWED_TABLE", "qualified function"),
+            ("SELECT 1+SECRET_SCHEMA.SECRET_SEQ.NEXTVAL FROM ALLOWED_TABLE", "sequence access"),
+            ("SELECT 1-SECRET_SEQ.CURRVAL FROM ALLOWED_TABLE", "sequence access"),
+        ],
+    )
+    def test_object_parser_blocks_review8_bypasses_before_execute(self, stmt, error):
+        sqlalchemy = pytest.importorskip("sqlalchemy")
+        mod = importlib.import_module("hana_ai.agents.hana_sql_agent")
+        engine = sqlalchemy.create_engine("sqlite://")
+        with engine.begin() as connection:
+            connection.exec_driver_sql("CREATE TABLE allowed_table (id INTEGER)")
+            connection.exec_driver_sql("CREATE TABLE secret_table (id INTEGER)")
+            connection.exec_driver_sql("INSERT INTO secret_table VALUES (42)")
+        db = mod._ReadOnlySQLDatabase(
+            engine, include_tables=["allowed_table"],
+            allowed_tables=["allowed_table"],
+        )
+        executed = []
+        sqlalchemy.event.listen(
+            engine,
+            "before_cursor_execute",
+            lambda *_args: executed.append(_args[2]),
+        )
+        with pytest.raises(ValueError, match=error):
+            db.run(stmt)
+        assert executed == []
+
+    @pytest.mark.parametrize(
+        "statement",
+        [
+            "SELECT (1+2)",
+            "SELECT 1 WHERE (1=1) AND (2=2) OR (3=3)",
+            "SELECT 1 WHERE NOT (1=2)",
+            "SELECT 1 WHERE 1 IN (SELECT (1))",
+            "WITH X AS (SELECT 1 AS ID) SELECT * FROM X WHERE (ID=1)",
+            "WITH X AS (SELECT 1 AS ID) SELECT A.ID FROM X AS A "
+            "LEFT OUTER JOIN X AS B ON A.ID=B.ID",
+        ],
+    )
+    def test_object_parser_accepts_parenthesized_sql_expressions(self, statement):
+        assert self._db().run(statement)
+
+    def test_object_parser_preserves_cte_scope_and_parenthesized_allowed_joins(self):
+        sqlalchemy = pytest.importorskip("sqlalchemy")
+        mod = importlib.import_module("hana_ai.agents.hana_sql_agent")
+        db = mod._ReadOnlySQLDatabase(
+            sqlalchemy.create_engine("sqlite://"),
+            allowed_tables=["ALLOWED_TABLE"],
+        )
+        db._enforce_object_allowlist(
+            "WITH X AS (SELECT * FROM ALLOWED_TABLE) SELECT * FROM X"
+        )
+        db._enforce_object_allowlist(
+            "SELECT * FROM (ALLOWED_TABLE AS A CROSS JOIN ALLOWED_TABLE AS B)"
+        )
+
+    @pytest.mark.parametrize("table_name", ["MixedCase", "with space", "literal.dot"])
+    @pytest.mark.parametrize("factory_name", ["create_hana_sql_toolkit", "create_hana_sql_agent"])
+    def test_factories_preserve_quoted_reflection_names(self, monkeypatch, table_name, factory_name):
+        sqlalchemy = pytest.importorskip("sqlalchemy")
+        mod = importlib.import_module("hana_ai.agents.hana_sql_agent")
+        engine = sqlalchemy.create_engine("sqlite://")
+        identifier = '"' + table_name + '"'
+        with engine.begin() as connection:
+            connection.exec_driver_sql(f"CREATE TABLE {identifier} (id INTEGER)")
+            connection.exec_driver_sql(f"INSERT INTO {identifier} VALUES (7)")
+        monkeypatch.setattr(mod, "_sql_toolkit", lambda llm, db, **_kwargs: db)
+        monkeypatch.setattr(mod, "create_sql_agent", lambda **kwargs: kwargs["toolkit"])
+        db = getattr(mod, factory_name)(
+            llm=object(),
+            connection_context=types.SimpleNamespace(to_sqlalchemy=lambda: engine),
+            include_tables=[identifier],
+        )
+        assert db.run(f"SELECT * FROM {identifier}") == "[(7,)]"
+
 
 # ============================ V-174: stable identity, not repr parsing ============================
 class TestV174Identity:
@@ -779,6 +1012,7 @@ def test_v155_sse_non_loopback_binding_rejected(monkeypatch):
 
 def test_v167_tls_certificate_validation_defaults_on(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
+    monkeypatch.delenv("HANA_USERKEY", raising=False)
     monkeypatch.setenv("HANA_ADDRESS", "hana.example.test")
     monkeypatch.setenv("HANA_USER", "USER")
     monkeypatch.setenv("HANA_PASSWORD", "secret")
@@ -788,6 +1022,7 @@ def test_v167_tls_certificate_validation_defaults_on(monkeypatch):
 
 def test_v167_empty_tls_setting_uses_secure_default(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
+    monkeypatch.delenv("HANA_USERKEY", raising=False)
     monkeypatch.setenv("HANA_ADDRESS", "hana.example.test")
     monkeypatch.setenv("HANA_USER", "USER")
     monkeypatch.setenv("HANA_PASSWORD", "secret")
@@ -796,6 +1031,16 @@ def test_v167_empty_tls_setting_uses_secure_default(monkeypatch):
     monkeypatch.setenv("HANA_SSL_VALIDATE", "maybe")
     with pytest.raises(ValueError, match="must be a boolean"):
         mod._build_cc_params_from_env()
+
+
+def test_v167_userkey_env_uses_secure_tls_default(monkeypatch):
+    mod = importlib.import_module("hana_ai.tools.toolkit")
+    monkeypatch.setenv("HANA_USERKEY", "XinKey2")
+    monkeypatch.delenv("HANA_SSL_VALIDATE", raising=False)
+    assert mod._build_cc_params_from_env() == {
+        "userkey": "XinKey2",
+        "sslValidateCertificate": True,
+    }
 
 
 def test_v170_memory_admin_commands_default_to_disabled(monkeypatch):

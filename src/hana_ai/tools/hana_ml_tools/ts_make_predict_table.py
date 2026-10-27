@@ -16,6 +16,8 @@ from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 
+from hana_ai.sql_guard import ensure_hana_ml_single_statement
+
 logger = logging.getLogger(__name__)
 
 
@@ -91,7 +93,9 @@ def make_future_dataframe(data, key=None, periods=1, increment_type='seconds'):
                 f"{_sql_number(timedelta)} * {period}) AS {_sql_ident(key)} FROM DUMMY"
             )
     sql = ' UNION ALL '.join(timeframe)
-    return data.connection_context.sql(sql).sort_values(key)
+    return data.connection_context.sql(
+        ensure_hana_ml_single_statement(sql)
+    ).sort_values(key)
 
 def make_future_dataframe_for_massive_forecast(data=None, key=None, group_key=None, periods=1, increment_type='seconds'):
     """
@@ -183,7 +187,9 @@ def make_future_dataframe_for_massive_forecast(data=None, key=None, group_key=No
                     timeframe.append(f"SELECT {_sql_str_lit(group)} AS {_sql_ident(group_key)}, ADD_{increment_sql_type}({_sql_str_lit(forecast_start)}, {_sql_number(timedelta)} * {period}) AS {_sql_ident(key)} FROM DUMMY")
     sql = ' UNION ALL '.join(timeframe)
 
-    return data.connection_context.sql(sql).sort_values([group_key, key])
+    return data.connection_context.sql(
+        ensure_hana_ml_single_statement(sql)
+    ).sort_values([group_key, key])
 
 class MakeFutureTableToolInput(BaseModel):
     """
@@ -347,15 +353,15 @@ class TSMakeFutureTableForMassiveForecastTool(BaseTool):
 def _sql_str_lit(value):
     """Return a safely single-quoted HANA string literal for `value` (V-166)."""
     value = str(value)
-    if "\x00" in value:
-        raise ValueError("NUL bytes are not allowed in SQL string values")
+    if "\x00" in value or ";" in value:
+        raise ValueError("NUL bytes and semicolons are not allowed in SQL string values")
     return "'" + value.replace("'", "''") + "'"
 
 
 def _sql_ident(value):
     """Quote one HANA identifier component."""
     value = str(value)
-    if not value or '"' in value or "\x00" in value:
+    if not value or '"' in value or "\x00" in value or ";" in value:
         raise ValueError(f"invalid HANA identifier: {value!r}")
     return '"' + value + '"'
 

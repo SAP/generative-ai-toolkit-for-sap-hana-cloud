@@ -14,6 +14,7 @@ from typing import (
     Dict,
     List,
     Literal,
+    NamedTuple,
     Optional,
     Sequence,
     Union,
@@ -29,6 +30,330 @@ from langchain_core.tools import BaseTool
 from hana_ml.dataframe import ConnectionContext
 
 from hana_ai.langchain_compat import AgentType
+
+
+class _SQLToken(NamedTuple):
+    """A small lexical token used by the fail-closed SELECT object parser."""
+
+    kind: str
+    text: str
+    normalized: str
+
+
+class _SQLObjectParser:
+    """Parse SELECT table factors and CTE scopes for object authorization.
+
+    This intentionally supports a conservative subset of HANA SELECT grammar.
+    Unknown table-factor syntax is rejected before SQLAlchemy can execute it.
+    """
+
+    _CLAUSE_END = {
+        "WHERE", "GROUP", "HAVING", "ORDER", "LIMIT", "OFFSET",
+        "FETCH", "UNION", "INTERSECT", "EXCEPT", "MINUS",
+        "QUALIFY", "CONNECT", "START", "WINDOW",
+    }
+    _JOIN_MODIFIERS = {"CROSS", "FULL", "INNER", "LEFT", "NATURAL", "OUTER", "RIGHT"}
+    _ALIAS_RESERVED = _CLAUSE_END | _JOIN_MODIFIERS | {
+        "AS", "JOIN", "ON", "USING",
+    }
+    _NON_FUNCTION_PAREN_KEYWORDS = {
+        "ALL", "AND", "AS", "BY", "DISTINCT", "ELSE", "EXISTS",
+        "HAVING", "IN", "NOT", "ON", "OR", "OVER", "SELECT",
+        "THEN", "USING", "WHEN", "WHERE", "WITH",
+    }
+    # Consume only numeric syntax. In particular, `1+SCHEMA.F()` must leave
+    # SCHEMA.F visible to the function/sequence authorization checks.
+    _NUMBER = re.compile(r"(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?")
+    # Unknown calls fail closed.  These are built-in scalar/aggregate/window
+    # functions commonly emitted by the SQL agent; table functions are never allowed.
+    _SAFE_FUNCTIONS = {
+        "ABS", "ADD_DAYS", "ADD_MONTHS", "ADD_NANO100", "ADD_SECONDS",
+        "ADD_YEARS", "AVG", "CEIL", "CEILING", "COALESCE", "CONCAT",
+        "COSINE_SIMILARITY", "COUNT", "CURRENT_DATE", "CURRENT_TIME",
+        "CURRENT_TIMESTAMP", "DAYOFMONTH", "DAYOFWEEK", "DAYOFYEAR",
+        "DAYS_BETWEEN", "DENSE_RANK", "EXP", "FLOOR", "GREATEST",
+        "IFNULL", "L2DISTANCE", "LAG", "LAST_DAY", "LEAD", "LEAST",
+        "LEFT", "LENGTH", "LN", "LOCATE", "LOWER", "LPAD", "MAX",
+        "MIN", "MOD", "MONTH", "MONTHS_BETWEEN", "NULLIF", "POWER",
+        "RANK", "REPLACE", "RIGHT", "ROUND", "ROW_NUMBER", "RPAD",
+        "RTRIM", "SECONDS_BETWEEN", "SIGN", "SQRT", "STDDEV",
+        "STDDEV_POP", "STDDEV_SAMP", "SUBSTR", "SUBSTRING", "SUM",
+        "TO_BIGINT", "TO_DATE", "TO_DECIMAL", "TO_DOUBLE", "TO_INT",
+        "TO_INTEGER", "TO_NVARCHAR", "TO_REAL", "TO_TIMESTAMP",
+        "TRIM", "UPPER", "VAR", "VAR_POP", "VAR_SAMP", "WEEK",
+        "YEAR",
+    }
+
+    def __init__(self, database, statement: str):
+        self.database = database
+        self.tokens = self._tokenize(statement)
+
+    @staticmethod
+    def _tokenize(statement: str) -> list[_SQLToken]:
+        tokens = []
+        index = 0
+        while index < len(statement):
+            char = statement[index]
+            if char.isspace():
+                index += 1
+                continue
+            if char == '"':
+                start = index
+                index += 1
+                value = []
+                while index < len(statement):
+                    if statement[index] == '"':
+                        if index + 1 < len(statement) and statement[index + 1] == '"':
+                            value.append('"')
+                            index += 2
+                            continue
+                        index += 1
+                        break
+                    value.append(statement[index])
+                    index += 1
+                tokens.append(_SQLToken("identifier", statement[start:index], "".join(value)))
+                continue
+            if char.isalpha() or char == "_":
+                start = index
+                index += 1
+                while index < len(statement) and (
+                    statement[index].isalnum() or statement[index] in "_$#"
+                ):
+                    index += 1
+                text = statement[start:index]
+                tokens.append(_SQLToken("word", text, text.upper()))
+                continue
+            number = _SQLObjectParser._NUMBER.match(statement, index)
+            if number is not None:
+                text = number.group()
+                index = number.end()
+                tokens.append(_SQLToken("number", text, text))
+                continue
+            tokens.append(_SQLToken("symbol", char, char))
+            index += 1
+        return tokens
+
+    @staticmethod
+    def _is_identifier(token: _SQLToken) -> bool:
+        return token.kind in {"identifier", "word"}
+
+    @staticmethod
+    def _is_keyword(token: _SQLToken, keyword: str) -> bool:
+        return token.kind == "word" and token.normalized == keyword
+
+    def _matching_paren(self, opening: int, end: int) -> int:
+        depth = 0
+        for position in range(opening, end):
+            if self.tokens[position].text == "(":
+                depth += 1
+            elif self.tokens[position].text == ")":
+                depth -= 1
+                if depth == 0:
+                    return position
+        raise ValueError("read-only SQL agent: unbalanced SQL parentheses")
+
+    def _identifier_chain(self, position: int, end: int):
+        if position >= end or not self._is_identifier(self.tokens[position]):
+            raise ValueError("read-only SQL agent: expected an SQL identifier")
+        parts = [self.tokens[position].normalized]
+        position += 1
+        while (
+            position + 1 < end
+            and self.tokens[position].text == "."
+            and self._is_identifier(self.tokens[position + 1])
+        ):
+            parts.append(self.tokens[position + 1].normalized)
+            position += 2
+        return tuple(parts), position
+
+    def parse(self) -> None:
+        if not self.tokens:
+            raise ValueError("read-only SQL agent: empty SQL statement")
+        self._analyze_query(0, len(self.tokens), frozenset())
+
+    def _analyze_query(self, start: int, end: int, inherited_ctes: frozenset) -> None:
+        if start >= end:
+            raise ValueError("read-only SQL agent: empty nested query")
+        position = start
+        local_ctes = []
+        if self._is_keyword(self.tokens[position], "WITH"):
+            position += 1
+            if position < end and self._is_keyword(self.tokens[position], "RECURSIVE"):
+                raise ValueError("read-only SQL agent: recursive CTEs are not supported")
+            while True:
+                if position >= end or not self._is_identifier(self.tokens[position]):
+                    raise ValueError("read-only SQL agent: invalid CTE declaration")
+                cte_name = (self.tokens[position].normalized,)
+                position += 1
+                if position < end and self.tokens[position].text == "(":
+                    position = self._matching_paren(position, end) + 1
+                if position >= end or not self._is_keyword(self.tokens[position], "AS"):
+                    raise ValueError("read-only SQL agent: invalid CTE declaration")
+                position += 1
+                if position >= end or self.tokens[position].text != "(":
+                    raise ValueError("read-only SQL agent: CTE body must be parenthesized")
+                closing = self._matching_paren(position, end)
+                self._analyze_query(
+                    position + 1,
+                    closing,
+                    inherited_ctes | frozenset(local_ctes),
+                )
+                if cte_name in local_ctes:
+                    raise ValueError("read-only SQL agent: duplicate CTE name")
+                local_ctes.append(cte_name)
+                position = closing + 1
+                if position < end and self.tokens[position].text == ",":
+                    position += 1
+                    continue
+                break
+        if position >= end or not self._is_keyword(self.tokens[position], "SELECT"):
+            raise ValueError("read-only SQL agent: nested statements must be SELECT/WITH queries")
+        self._scan_select(
+            position + 1, end, inherited_ctes | frozenset(local_ctes)
+        )
+
+    def _scan_select(self, start: int, end: int, visible_ctes: frozenset) -> None:
+        position = start
+        while position < end:
+            token = self.tokens[position]
+            if self._is_keyword(token, "FROM"):
+                position = self._scan_from_clause(position + 1, end, visible_ctes)
+                continue
+            if token.text == "(":
+                closing = self._matching_paren(position, end)
+                if position + 1 < closing and (
+                    self._is_keyword(self.tokens[position + 1], "SELECT")
+                    or self._is_keyword(self.tokens[position + 1], "WITH")
+                ):
+                    self._analyze_query(position + 1, closing, visible_ctes)
+                else:
+                    self._scan_select(position + 1, closing, visible_ctes)
+                position = closing + 1
+                continue
+            position = self._check_object_expression(position, end)
+
+    def _check_object_expression(self, position: int, end: int) -> int:
+        token = self.tokens[position]
+        if not self._is_identifier(token):
+            return position + 1
+        parts, following = self._identifier_chain(position, end)
+        if len(parts) > 1 and parts[-1] in {"NEXTVAL", "CURRVAL"}:
+            raise ValueError("read-only SQL agent: sequence access is not permitted")
+        if following < end and self.tokens[following].text == "(":
+            if len(parts) > 1:
+                raise ValueError("read-only SQL agent: qualified function calls are not permitted")
+            function_name = parts[0]
+            if token.kind == "identifier":
+                raise ValueError("read-only SQL agent: quoted function calls are not permitted")
+            if (
+                function_name not in self._NON_FUNCTION_PAREN_KEYWORDS
+                and function_name not in self._SAFE_FUNCTIONS
+            ):
+                raise ValueError(
+                    f"read-only SQL agent: function {function_name!r} is not allowlisted"
+                )
+        return following
+
+    def _scan_from_clause(self, start: int, end: int, visible_ctes: frozenset) -> int:
+        position = self._parse_table_factor(start, end, visible_ctes)
+        position = self._skip_alias(position, end)
+        while position < end:
+            token = self.tokens[position]
+            if token.text == ",":
+                raise ValueError(
+                    "read-only SQL agent: comma-separated table references are not allowed"
+                )
+            if token.kind == "word" and token.normalized in self._CLAUSE_END:
+                return position
+            if self._is_keyword(token, "JOIN"):
+                position = self._parse_table_factor(position + 1, end, visible_ctes)
+                position = self._skip_alias(position, end)
+                continue
+            if token.kind == "word" and token.normalized in self._JOIN_MODIFIERS:
+                while (
+                    position < end
+                    and self.tokens[position].kind == "word"
+                    and self.tokens[position].normalized in self._JOIN_MODIFIERS
+                ):
+                    position += 1
+                if position >= end or not self._is_keyword(self.tokens[position], "JOIN"):
+                    raise ValueError("read-only SQL agent: unsupported table expression")
+                position = self._parse_table_factor(position + 1, end, visible_ctes)
+                position = self._skip_alias(position, end)
+                continue
+            if self._is_keyword(token, "ON"):
+                position = self._scan_join_condition(position + 1, end, visible_ctes)
+                continue
+            if self._is_keyword(token, "USING"):
+                if position + 1 >= end or self.tokens[position + 1].text != "(":
+                    raise ValueError("read-only SQL agent: invalid JOIN USING clause")
+                position = self._matching_paren(position + 1, end) + 1
+                continue
+            if token.text == ")":
+                return position
+            raise ValueError("read-only SQL agent: unsupported table expression")
+        return position
+
+    def _scan_join_condition(self, start: int, end: int, visible_ctes: frozenset) -> int:
+        position = start
+        while position < end:
+            token = self.tokens[position]
+            if token.kind == "word" and (
+                token.normalized in self._CLAUSE_END
+                or token.normalized in self._JOIN_MODIFIERS
+                or token.normalized == "JOIN"
+            ):
+                return position
+            if token.text == "(":
+                closing = self._matching_paren(position, end)
+                if position + 1 < closing and (
+                    self._is_keyword(self.tokens[position + 1], "SELECT")
+                    or self._is_keyword(self.tokens[position + 1], "WITH")
+                ):
+                    self._analyze_query(position + 1, closing, visible_ctes)
+                else:
+                    self._scan_select(position + 1, closing, visible_ctes)
+                position = closing + 1
+                continue
+            position = self._check_object_expression(position, end)
+        return position
+
+    def _parse_table_factor(self, position: int, end: int, visible_ctes: frozenset) -> int:
+        if position >= end:
+            raise ValueError("read-only SQL agent: missing table reference")
+        if self.tokens[position].text == "(":
+            closing = self._matching_paren(position, end)
+            if position + 1 >= closing:
+                raise ValueError("read-only SQL agent: empty parenthesized table expression")
+            if (
+                self._is_keyword(self.tokens[position + 1], "SELECT")
+                or self._is_keyword(self.tokens[position + 1], "WITH")
+            ):
+                self._analyze_query(position + 1, closing, visible_ctes)
+            else:
+                consumed = self._scan_from_clause(position + 1, closing, visible_ctes)
+                if consumed != closing:
+                    raise ValueError("read-only SQL agent: unsupported parenthesized table expression")
+            return closing + 1
+        parts, following = self._identifier_chain(position, end)
+        if len(parts) > 2:
+            raise ValueError("read-only SQL agent: three-part object names are not permitted")
+        if following < end and self.tokens[following].text == "(":
+            raise ValueError("read-only SQL agent: table functions are not permitted")
+        if parts not in visible_ctes:
+            self.database._authorize_table_reference(parts)
+        return following
+
+    def _skip_alias(self, position: int, end: int) -> int:
+        if position < end and self._is_keyword(self.tokens[position], "AS"):
+            if position + 1 >= end or not self._is_identifier(self.tokens[position + 1]):
+                raise ValueError("read-only SQL agent: invalid table alias")
+            return position + 2
+        if position < end and self._is_identifier(self.tokens[position]):
+            token = self.tokens[position]
+            if token.kind == "identifier" or token.normalized not in self._ALIAS_RESERVED:
+                return position + 1
+        return position
 
 
 class _ReadOnlySQLDatabase(SQLDatabase):
@@ -47,19 +372,6 @@ class _ReadOnlySQLDatabase(SQLDatabase):
         "truncate", "update", "upsert",
     }
     _IDENTIFIER = r'(?:"(?:[^"]|"")*"|[A-Za-z_][A-Za-z0-9_$#]*)'
-    _QUALIFIED_IDENTIFIER = rf'{_IDENTIFIER}(?:\s*\.\s*{_IDENTIFIER})?'
-    _TABLE_REF = re.compile(
-        rf"\b(?:from|join)\s+(?P<name>{_QUALIFIED_IDENTIFIER})",
-        re.IGNORECASE,
-    )
-    _CTE_NAME = re.compile(
-        rf"(?:\bwith|,)\s*(?P<name>{_IDENTIFIER})\s+as\s*\(",
-        re.IGNORECASE,
-    )
-    _COMMA_JOIN = re.compile(
-        rf"\bfrom\s+{_QUALIFIED_IDENTIFIER}(?:\s+(?:as\s+)?{_IDENTIFIER})?\s*,",
-        re.IGNORECASE,
-    )
 
     def __init__(
         self,
@@ -77,7 +389,19 @@ class _ReadOnlySQLDatabase(SQLDatabase):
         self._allowed_tables = {
             self._normalize_identifier(table) for table in (allowed_tables or [])
         }
+        engine = args[0] if args else kwargs.get("engine")
+        if engine is not None and kwargs.get("include_tables"):
+            kwargs["include_tables"] = [
+                self._reflection_table_name(engine, table)
+                for table in kwargs["include_tables"]
+            ]
         super().__init__(*args, **kwargs)
+
+    @classmethod
+    def _reflection_table_name(cls, engine, value: str) -> str:
+        """Map a HANA identifier to SQLAlchemy's reflected-name convention."""
+        table_name = cls._normalize_identifier(value)[-1]
+        return engine.dialect.normalize_name(table_name) or table_name
 
     @classmethod
     def _normalize_identifier(cls, value: str) -> tuple[str, ...]:
@@ -186,42 +510,31 @@ class _ReadOnlySQLDatabase(SQLDatabase):
                 saw_as = False
         return None
 
-    def _enforce_object_allowlist(self, masked_statement: str) -> None:
-        if self._COMMA_JOIN.search(masked_statement):
+    def _authorize_table_reference(self, table_ref: tuple[str, ...]) -> None:
+        schema = table_ref[-2] if len(table_ref) == 2 else None
+        table = (table_ref[-1],)
+        if self._allowed_schema:
+            if schema != self._allowed_schema:
+                raise ValueError(
+                    "read-only SQL agent: every table must be qualified with the allowed schema"
+                )
+        elif schema and table_ref not in self._allowed_tables:
             raise ValueError(
-                "read-only SQL agent: comma-separated table references are not allowed"
+                "read-only SQL agent: schema-qualified tables must be explicitly allowlisted"
             )
-        cte_names = {
-            self._normalize_identifier(match.group("name"))
-            for match in self._CTE_NAME.finditer(masked_statement)
-        }
-        table_refs = [
-            self._normalize_identifier(match.group("name"))
-            for match in self._TABLE_REF.finditer(masked_statement)
-        ]
-        for table_ref in table_refs:
-            if table_ref in cte_names:
-                continue
-            schema = table_ref[-2] if len(table_ref) == 2 else None
-            table = (table_ref[-1],)
-            if self._allowed_schema:
-                if schema != self._allowed_schema:
-                    raise ValueError(
-                        "read-only SQL agent: every table must be qualified with the allowed schema"
-                    )
-            elif schema and table_ref not in self._allowed_tables:
-                raise ValueError(
-                    "read-only SQL agent: schema-qualified tables must be explicitly allowlisted"
-                )
-            if self._allowed_tables and (
-                table not in self._allowed_tables and table_ref not in self._allowed_tables
-            ):
-                display_name = ".".join(table_ref)
-                raise ValueError(
-                    f"read-only SQL agent: table {display_name!r} is not allowlisted"
-                )
-            if not self._allowed_schema and not self._allowed_tables:
-                raise ValueError("read-only SQL agent: no table allowlist is configured")
+        if self._allowed_tables and (
+            table not in self._allowed_tables and table_ref not in self._allowed_tables
+        ):
+            display_name = ".".join(table_ref)
+            raise ValueError(
+                f"read-only SQL agent: table {display_name!r} is not allowlisted"
+            )
+        if not self._allowed_schema and not self._allowed_tables:
+            raise ValueError("read-only SQL agent: no table allowlist is configured")
+
+    def _enforce_object_allowlist(self, masked_statement: str) -> None:
+        statement = masked_statement.rstrip().rstrip(";").rstrip()
+        _SQLObjectParser(self, statement).parse()
 
     def run(self, command, *args, **kwargs):  # type: ignore[override]
         if not isinstance(command, str):
@@ -362,6 +675,10 @@ def create_hana_sql_agent(
         raise ValueError("schema or include_tables is required for SQL agent access")
     include_table_list = list(include_tables or [])
     engine = connection_context.to_sqlalchemy()
+    reflection_table_list = [
+        _ReadOnlySQLDatabase._reflection_table_name(engine, table)
+        for table in include_table_list
+    ]
     metadata = MetaData()
 
     # Reflect tables WITH engine and case sensitivity
@@ -370,7 +687,7 @@ def create_hana_sql_agent(
         views=True,
         case_sensitive=True,
         schema=schema,
-        only=include_table_list or None,
+        only=reflection_table_list or None,
     )
     db = _ReadOnlySQLDatabase(
         engine,
@@ -425,6 +742,10 @@ def create_hana_sql_toolkit(
         raise ValueError("schema or include_tables is required for SQL toolkit access")
     include_table_list = list(include_tables or [])
     engine = connection_context.to_sqlalchemy()
+    reflection_table_list = [
+        _ReadOnlySQLDatabase._reflection_table_name(engine, table)
+        for table in include_table_list
+    ]
     metadata = MetaData()
 
     # Reflect tables WITH engine and case sensitivity
@@ -433,7 +754,7 @@ def create_hana_sql_toolkit(
         views=True,
         case_sensitive=True,
         schema=schema,
-        only=include_table_list or None,
+        only=reflection_table_list or None,
     )
     db = _ReadOnlySQLDatabase(
         engine,

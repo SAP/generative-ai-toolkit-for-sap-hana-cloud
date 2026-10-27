@@ -301,7 +301,10 @@ class HTTPMCPClient(MCPClient):
             return MCPCallResult(success=True, data=data, metadata={"status_code": response.status_code})
 
         except Exception as e:
-            return MCPCallResult(success=False, data=None, error=f"Tool call failed: {str(e)}")
+            return MCPCallResult(
+                success=False, data=None,
+                error=f"Tool call failed ({type(e).__name__}): {e}",
+            )
 
     async def list_tools(self) -> List[MCPTool]:
         """List all available tools"""
@@ -422,11 +425,13 @@ class StdioMCPClient(MCPClient):
         self,
         command: str = "python",
         args: List[str] = None,
-        server_name: str = "hana-ml-tools"
+        server_name: str = "hana-ml-tools",
+        timeout: float = 30,
     ):
         super().__init__(server_name)
         self.command = command
         self.args = args or []
+        self.timeout = timeout
         self._process = None
         self._next_id = 1
         self._reader_task: Optional[asyncio.Task] = None
@@ -448,6 +453,9 @@ class StdioMCPClient(MCPClient):
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            # An all-tools MCP schema response can exceed asyncio's 64 KiB
+            # default line limit because stdio JSON-RPC uses one line/message.
+            limit=10 * 1024 * 1024,
         )
 
         async def _read_stdout():
@@ -509,11 +517,24 @@ class StdioMCPClient(MCPClient):
         await self._process.stdin.drain()
 
         try:
-            resp = await asyncio.wait_for(fut, timeout=30)
+            resp = await asyncio.wait_for(fut, timeout=self.timeout)
             return resp
         except asyncio.TimeoutError as e:
             tail = "\n".join(self._stderr_tail[-50:])
             raise asyncio.TimeoutError(f"STDIO RPC timeout for method={method}. Server stderr tail:\n{tail}") from e
+
+    async def _notify(
+        self, method: str, params: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """Send an MCP notification, which intentionally has no response id."""
+        await self._ensure_process()
+        assert self._process is not None
+        assert self._process.stdin is not None
+        payload: Dict[str, Any] = {"jsonrpc": "2.0", "method": method}
+        if params is not None:
+            payload["params"] = params
+        self._process.stdin.write((json.dumps(payload) + "\n").encode("utf-8"))
+        await self._process.stdin.drain()
 
     async def initialize(self) -> None:
         """Initialize Stdio client"""
@@ -535,6 +556,7 @@ class StdioMCPClient(MCPClient):
         except Exception:
             sid = None
         self._session_id = sid
+        await self._notify("notifications/initialized", {})
         await self._refresh_tools()
 
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> MCPCallResult:
@@ -564,7 +586,10 @@ class StdioMCPClient(MCPClient):
                 data = result_data
             return MCPCallResult(success=True, data=data)
         except Exception as e:
-            return MCPCallResult(success=False, data=None, error=f"Tool call failed: {str(e)}")
+            return MCPCallResult(
+                success=False, data=None,
+                error=f"Tool call failed ({type(e).__name__}): {e}",
+            )
 
     async def list_tools(self) -> List[MCPTool]:
         """List all available tools"""

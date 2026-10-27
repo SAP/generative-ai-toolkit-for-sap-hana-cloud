@@ -96,8 +96,8 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 warnings.filterwarnings("ignore", category=UserWarning, module="langchain_core")
 logging.getLogger("hana_ml.visualizers.shared").setLevel(logging.CRITICAL)
 
-from hana_ml import ConnectionContext
-from hana_ai.tools.toolkit import HANAMLToolkit
+from hana_ml import ConnectionContext  # pylint: disable=wrong-import-position
+from hana_ai.tools.toolkit import HANAMLToolkit  # pylint: disable=wrong-import-position
 
 
 _DOTENV_PATH_VARS = ("HANA_ENV_FILE", "ENV_FILE")
@@ -217,6 +217,7 @@ def build_connection_context(
     encrypt: Optional[bool] = None,
     ssl_validate_certificate: Optional[bool] = None,
 ) -> ConnectionContext:
+    """Build a connection context from explicit HANA credentials."""
     params = {
         "address": address,
         "port": port,
@@ -236,6 +237,7 @@ def build_connection_context_from_userkey(
     encrypt: Optional[bool] = None,
     ssl_validate_certificate: Optional[bool] = None,
 ) -> ConnectionContext:
+    """Build a connection context from a local HANA user-store key."""
     params: dict = {
         "userkey": userkey,
     }
@@ -244,17 +246,11 @@ def build_connection_context_from_userkey(
     if ssl_validate_certificate is not None:
         params["sslValidateCertificate"] = bool(ssl_validate_certificate)
 
-    # Best-effort: use certifi trust store if available.
-    try:
-        import certifi
-        params["sslKeyStore"] = certifi.where()
-    except Exception:
-        pass
-
     return ConnectionContext(**params)
 
 
 def env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
+    """Read an optional boolean value from the environment."""
     val = os.environ.get(name)
     if val is None or not val.strip():
         return default
@@ -262,6 +258,7 @@ def env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
 
 
 def parse_bool(val: str) -> bool:
+    """Parse a command-line boolean value."""
     normalized = val.strip().lower()
     if normalized in {"1", "true", "yes", "on"}:
         return True
@@ -271,6 +268,7 @@ def parse_bool(val: str) -> bool:
 
 
 def main():
+    """Start the stdio MCP server."""
     # Stdio transport: log to stderr so stdout stays clean for MCP protocol
     logging.basicConfig(
         level=logging.WARNING,

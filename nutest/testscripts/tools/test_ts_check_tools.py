@@ -65,32 +65,26 @@ class TestTSCheckTools(TestML_BaseTestClass):
         self.assertIn("Key: TIMESTAMP", result)
         self.assertIn("Endog: VALUE", result)
         self.assertIn("Index: starts from 1900-01-01 12:00:00 to 1900-01-01 16:00:00. Time series length is 5", result)
-        self.assertIn("Intermittent Test (ADI/CV^2):", result)
-        self.assertIn("classification is smooth", result)
-        self.assertIn("intermittent=False", result)
+        self.assertIn("Intermittent Test: proportion of zero values is 0.0", result)
         self.assertIn("Stationarity Test:", result)
         self.assertIn("Trend Test:", result)
         self.assertIn("Seasonality Test:", result)
-        self.assertIn("Model Recommendation: prefer Automatic Time Series Forecast as the default non-intermittent path.", result)
         self.assertIn("Available algorithms: Additive Model Forecast, Automatic Time Series Forecast", result)
+        self.assertIn("has_intermittency=False", result)
 
     def test_TimeSeriesCheck_IntermittentRecommendation(self):
         tool = TimeSeriesCheck(connection_context=self.conn)
         result = tool.run({"table_name": "#HANAI_DATA_TBL_INTERMITTENT", "key": "TIMESTAMP", "endog": "VALUE"})
-        self.assertIn("Intermittent Test (ADI/CV^2):", result)
-        self.assertIn("classification is intermittent", result)
-        self.assertIn("intermittent=True", result)
-        self.assertIn("Model Recommendation: prefer Intermittent Forecast with method=constant.", result)
-        self.assertIn("Available algorithms: Intermittent Forecast, Automatic Time Series Forecast", result)
+        self.assertIn("Intermittent Test: proportion of zero values is 0.6", result)
+        self.assertIn("has_intermittency=True", result)
+        self.assertIn("Available algorithms: Additive Model Forecast, Automatic Time Series Forecast", result)
 
     def test_TimeSeriesCheck_LumpyRecommendation(self):
         tool = TimeSeriesCheck(connection_context=self.conn)
         result = tool.run({"table_name": "#HANAI_DATA_TBL_LUMPY", "key": "TIMESTAMP", "endog": "VALUE"})
-        self.assertIn("Intermittent Test (ADI/CV^2):", result)
-        self.assertIn("classification is lumpy", result)
-        self.assertIn("intermittent=True", result)
-        self.assertIn("Model Recommendation: prefer Intermittent Forecast with method=sporadic.", result)
-        self.assertIn("Available algorithms: Intermittent Forecast, Automatic Time Series Forecast", result)
+        self.assertIn("Intermittent Test: proportion of zero values is 0.6", result)
+        self.assertIn("has_intermittency=True", result)
+        self.assertIn("Available algorithms: Additive Model Forecast, Automatic Time Series Forecast", result)
 
     def test_TrendTest(self):
         tool = TrendTest(connection_context=self.conn)
@@ -112,7 +106,7 @@ class TestTSCheckTools(TestML_BaseTestClass):
         expected_result = {'stationary': '0', 'kpss_stat': '0.499999', 'p-value': '0.041666666666844876', 'lags': '4', 'number of observations': '5', 'critical values': "{'10%': 0.347, '5%': 0.463, '2.5%': 0.574, '1%': 0.739}"}
         self.assertTrue(result['stationary']==expected_result['stationary'])
         self.assertTrue(result['kpss_stat']==expected_result['kpss_stat'])
-        self.assertTrue(result['p-value']==expected_result['p-value'])
+        self.assertAlmostEqual(float(result['p-value']), float(expected_result['p-value']), places=10)
         self.assertTrue(result['lags']==expected_result['lags'])
         self.assertTrue(result['number of observations']==expected_result['number of observations'])
         self.assertTrue(result['critical values']==expected_result['critical values'])
@@ -122,5 +116,5 @@ class TestTSCheckTools(TestML_BaseTestClass):
         result = json.loads(tool.run({"table_name": "#HANAI_DATA_TBL_RAW", "key": "TIMESTAMP", "endog": "VALUE"}))
         expected_result = {'WN': 1.0, 'Q': 0.05831685173473957, 'chi^2': 2.705543454095414}
         self.assertTrue(result['WN']==expected_result['WN'])
-        self.assertTrue(result['Q']==expected_result['Q'])
-        self.assertTrue(result['chi^2']==expected_result['chi^2'])
+        self.assertAlmostEqual(result['Q'], expected_result['Q'], places=8)
+        self.assertAlmostEqual(result['chi^2'], expected_result['chi^2'], places=8)

@@ -13,6 +13,7 @@ import logging
 import pandas as pd
 from hana_ml import ConnectionContext, dataframe
 
+from hana_ai.sql_guard import ensure_hana_ml_single_statement
 from hana_ai.vectorstore.code_templates import get_code_templates
 
 logger = logging.getLogger(__name__) #pylint: disable=invalid-name
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__) #pylint: disable=invalid-name
 def _quote_identifier(name):
     """Quote one HANA identifier component and reject ambiguous embedded quotes."""
     value = str(name)
-    if not value or '"' in value or "\x00" in value:
+    if not value or '"' in value or "\x00" in value or ";" in value:
         raise ValueError(f"invalid HANA identifier: {value!r}")
     return '"' + value + '"'
 
@@ -29,8 +30,8 @@ def _quote_identifier(name):
 def _sql_string_literal(value):
     """Encode a value as one HANA string literal when this API cannot bind parameters."""
     value = str(value)
-    if "\x00" in value:
-        raise ValueError("NUL bytes are not allowed in HANA string values")
+    if "\x00" in value or ";" in value:
+        raise ValueError("NUL bytes and semicolons are not allowed in HANA string values")
     return "'" + value.replace("'", "''") + "'"
 
 
@@ -154,7 +155,9 @@ class HANAMLinVectorEngine(object):
             mv=_sql_string_literal(self.model_version), col0=_quote_identifier(self.columns[0]),
             schema=_quote_identifier(schema), table=_quote_identifier(self.table_name),
         )
-        result = self.connection_context.sql(sql).collect()
+        result = self.connection_context.sql(
+            ensure_hana_ml_single_statement(sql)
+        ).collect()
         self.current_query_rows = result.shape[0]
         if self.current_query_rows < top_n:
             top_n = self.current_query_rows
