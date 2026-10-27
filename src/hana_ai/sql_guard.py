@@ -11,6 +11,22 @@ _SQL_WRITE_KEYWORDS = {
 }
 
 
+def ensure_hana_ml_single_statement(sql_text: str) -> str:
+    """Reject text that ``hana-ml`` would split before the database parses it.
+
+    ``ConnectionContext.sql()`` and ``execute_sql()`` use ``str.split(";")``.
+    SQL quoting therefore cannot make a semicolon safe at either sink.  Builders
+    that cannot use DBAPI parameters must call this on the final SQL string.
+    """
+    if not isinstance(sql_text, str) or not sql_text.strip():
+        raise ValueError("SQL input did not contain a statement")
+    if ";" in sql_text:
+        raise ValueError(
+            "semicolons are not allowed in SQL passed to hana-ml execution APIs"
+        )
+    return sql_text
+
+
 def _readonly_sql_tokens(sql: str) -> List[str]:
     """Return tokens outside literals/quoted identifiers and reject SQL comments."""
     visible = []
@@ -100,10 +116,7 @@ def ensure_readonly_select(sql_text: str) -> str:
     # the DataFrame. It does not honor SQL string/identifier quoting and executes
     # every preceding fragment immediately. Therefore no semicolon may reach it,
     # including one that would be a legitimate character inside a SQL literal.
-    if ";" in text:
-        raise ValueError(
-            "semicolons are not allowed inside SQL passed to ConnectionContext.sql"
-        )
+    ensure_hana_ml_single_statement(text)
     tokens = _readonly_sql_tokens(text)
     if not tokens or _top_level_statement_verb(tokens) != "SELECT":
         raise ValueError("SQL must contain only a SELECT or WITH statement")

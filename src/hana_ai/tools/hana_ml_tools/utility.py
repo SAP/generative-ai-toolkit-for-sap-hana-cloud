@@ -14,6 +14,9 @@ import pandas as pd
 from pandas import Timestamp
 from numpy import int64
 from hana_ml.model_storage import ModelStorage
+
+from hana_ai.sql_guard import ensure_hana_ml_single_statement
+
 #pylint: disable=too-many-nested-blocks, unexpected-keyword-arg, invalid-name
 
 logger = logging.getLogger(__name__)
@@ -325,7 +328,7 @@ def _create_temp_table(conn, select_statement: str, tool_name: str, additional_i
         additional_info = "_"
     table_name = f"#{tool_name}{additional_info}{timestamp}".upper()
     create_temp_table_sql = f"CREATE LOCAL TEMPORARY TABLE {table_name} AS ({select_statement})"
-    conn.execute_sql(create_temp_table_sql)
+    conn.execute_sql(ensure_hana_ml_single_statement(create_temp_table_sql))
     return f"SELECT * FROM {table_name}"
 
 

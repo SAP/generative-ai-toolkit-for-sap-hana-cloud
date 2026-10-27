@@ -197,14 +197,22 @@ def _create_pse_sql_string(credentials: dict, pse_name: str) -> str:
     str
         The PSE SQL string.
     """
+    return ";\n".join(_create_pse_sql_statements(credentials, pse_name)) + ";"
+
+
+def _create_pse_sql_statements(credentials: dict, pse_name: str) -> list[str]:
+    """Build individual statements for direct DBAPI execution.
+
+    They must never be handed to ``ConnectionContext.execute_sql()``, whose raw
+    semicolon split is not aware of SQL string literals.
+    """
     certificate_string = _concatenate_ai_core_certificate_string(credentials)
     quoted_pse = _quote_hana_object_identifier(pse_name)
     certificate_literal = _sql_string_literal(f"\n{certificate_string}")
-    pse_sql = (
-        f"CREATE PSE {quoted_pse};\n"
-        f"ALTER PSE {quoted_pse} SET OWN CERTIFICATE {certificate_literal};"
-    )
-    return pse_sql
+    return [
+        f"CREATE PSE {quoted_pse}",
+        f"ALTER PSE {quoted_pse} SET OWN CERTIFICATE {certificate_literal}",
+    ]
 
 def _create_ai_core_remote_source_sql_string(credentials: dict, remote_source_name: str, pse_name: str) -> str:
     """
@@ -290,11 +298,13 @@ def _add_x1root_certificate_to_pse(connection_context, pse_name):
 def _create_certificate_and_add_to_pse(connection_context, certificate_name, certificate_content, pse_name):
     quoted_certificate = _quote_hana_object_identifier(certificate_name)
     quoted_pse = _quote_hana_object_identifier(pse_name)
-    connection_context.execute_sql(
+    _execute_sql_string(
+        connection_context,
         f"CREATE CERTIFICATE {quoted_certificate} FROM "
         f"{_sql_string_literal(certificate_content)}"
     )
-    connection_context.execute_sql(
+    _execute_sql_string(
+        connection_context,
         f"ALTER PSE {quoted_pse} ADD CERTIFICATE {quoted_certificate}"
     )
 
@@ -314,10 +324,10 @@ def _create_ai_core_remote_source(connection_context, credentials: dict, pse_nam
         The name of the remote source.
     """
     if create_pse:
-        create_pse_sql_string = _create_pse_sql_string(credentials, pse_name)
         try:
             logger.info("Creating PSE: %s", pse_name)
-            connection_context.execute_sql(create_pse_sql_string)
+            for statement in _create_pse_sql_statements(credentials, pse_name):
+                _execute_sql_string(connection_context, statement)
             _add_digicertg5_root_certificate_to_pse(connection_context, pse_name)
             _add_x1root_certificate_to_pse(connection_context, pse_name)
             logger.info("PSE created successfully.")

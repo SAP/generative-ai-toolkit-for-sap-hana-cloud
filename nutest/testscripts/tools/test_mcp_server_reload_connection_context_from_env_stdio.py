@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""E2E: Reload HANA ConnectionContext from a file without restart (stdio transport).
+"""E2E: Reload HANA ConnectionContext from environment over stdio.
 
 This test starts the stdio MCP server as a subprocess and uses StdioMCPClient
 to call `admin_reload_connection_context_from_file`.
@@ -9,55 +9,41 @@ from __future__ import annotations
 
 import os
 import json
-import tempfile
+import sys
 import unittest
 
 
 class TestMCPReloadConnectionContextFromFileSTDIO(unittest.TestCase):
     def test_reload_connection_context_from_file_stdio(self):
-        # Ensure required env vars are present for the server process.
-        # We reuse these values to build a temporary VCAP_SERVICES file.
-        for k in ("HANA_ADDRESS", "HANA_PORT", "HANA_USER", "HANA_PASSWORD"):
-            if not os.environ.get(k):
-                raise AssertionError(f"Missing required env var {k}. Ensure you exported HANA_* before running tests.")
-
-        vcap_payload = {
-            "hana": [
-                {
-                    "credentials": {
-                        "host": os.environ.get("HANA_ADDRESS"),
-                        "port": str(os.environ.get("HANA_PORT")),
-                        "user": os.environ.get("HANA_USER"),
-                        "password": os.environ.get("HANA_PASSWORD"),
-                        "url": f"jdbc:sap://{os.environ.get('HANA_ADDRESS')}:{os.environ.get('HANA_PORT')}?encrypt=true&validateCertificate=true",
-                    }
-                }
-            ]
-        }
-
-        with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as tf:
-            tf.write("VCAP_SERVICES='" + json.dumps(vcap_payload) + "'\n")
-            vcap_file = tf.name
+        if not os.environ.get("HANA_USERKEY"):
+            self.skipTest("HANA_USERKEY is required for this live reload test")
+        old_runtime_update = os.environ.get("HANA_ALLOW_RUNTIME_CONN_UPDATE")
+        old_profiles = os.environ.get("HANA_MCP_STDIO_ALLOWED_PROFILES")
+        os.environ["HANA_ALLOW_RUNTIME_CONN_UPDATE"] = "true"
+        os.environ["HANA_MCP_STDIO_ALLOWED_PROFILES"] = json.dumps([
+            {"command": sys.executable, "args_prefix": ["examples/mcp_stdio_server.py"]}
+        ])
 
         import asyncio
         from hana_ai.client.mcp_client import StdioMCPClient
 
         async def _main():
             client = StdioMCPClient(
-                command="python",
+                command=sys.executable,
                 args=["examples/mcp_stdio_server.py"],
                 server_name="HANATools",
+                timeout=120,
             )
             try:
                 await client.initialize()
                 tools = await client.list_tools()
                 names = {t.name for t in tools}
-                if "admin_reload_connection_context_from_file" not in names:
-                    raise AssertionError("admin_reload_connection_context_from_file not found in stdio tools/list")
+                if "admin_reload_connection_context_from_env" not in names:
+                    raise AssertionError("admin_reload_connection_context_from_env not found in stdio tools/list")
 
                 res = await client.call_tool(
-                    "admin_reload_connection_context_from_file",
-                    {"file_path": vcap_file, "test_connection": False},
+                    "admin_reload_connection_context_from_env",
+                    {"test_connection": True},
                 )
                 if not res.success:
                     raise AssertionError(f"Tool call failed: {res.error}")
@@ -73,12 +59,17 @@ class TestMCPReloadConnectionContextFromFileSTDIO(unittest.TestCase):
             finally:
                 await client.close()
 
-        asyncio.run(_main())
-
         try:
-            os.unlink(vcap_file)
-        except Exception:
-            pass
+            asyncio.run(_main())
+        finally:
+            if old_runtime_update is None:
+                os.environ.pop("HANA_ALLOW_RUNTIME_CONN_UPDATE", None)
+            else:
+                os.environ["HANA_ALLOW_RUNTIME_CONN_UPDATE"] = old_runtime_update
+            if old_profiles is None:
+                os.environ.pop("HANA_MCP_STDIO_ALLOWED_PROFILES", None)
+            else:
+                os.environ["HANA_MCP_STDIO_ALLOWED_PROFILES"] = old_profiles
 
 
 if __name__ == "__main__":
