@@ -183,6 +183,12 @@ def _get_deployment_id(credentials: dict) -> str:
 
 def _create_pse_sql_string(credentials: dict, pse_name: str) -> str:
     """
+    Deprecated compatibility renderer for PSE SQL text.
+
+    Do not execute this joined string through hana-ml's ``execute_sql()``: it
+    splits semicolons inside quoted values. Production code must instead use
+    ``_create_pse_sql_statements()`` and execute each statement through DBAPI.
+
     Create PSE SQL string for AI Core credentials.
 
     Parameters
