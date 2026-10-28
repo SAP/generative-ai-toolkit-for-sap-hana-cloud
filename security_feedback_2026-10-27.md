@@ -4,12 +4,17 @@ Originally prepared: 2026-10-27; updated: 2026-10-28. Reviewed source: `5c146c3f
 
 Latest full-suite baseline: **PyPI `hana-ml==2.30.26091800`: 361 passed, 1 failed, 11 setup errors, 2 skipped; pytest exit code 1.** All 138 security regression and 62 SQL compatibility/security tests passed. The additional stdio initialization timeout did not reproduce in an isolated retry; it remains a failure in the full-run totals. Section 6 records that unchanged-code baseline. **Sections 7–9 document subsequent production fixes, compatibility regressions, and test-fixture updates on top of `5c146c3`; they are not a new release or a replacement for the baseline full-suite results.** This PR delivery includes this report and `change_log.md`. Statements about local-only/uncommitted work in dated sections describe their historical state; raw scans, review files, probes, notebooks, and generated artifacts remain outside the commit.
 
-Latest follow-up verification: **442 selected security/compatibility tests passed,
+Earlier follow-up verification: **442 selected security/compatibility tests passed,
 0 failed/errors/skipped** with the PyPI package and `XinKey2` (section 8). After
 the key/TLS fixture correction, the 13 live ContextAgent cases produced **2 passed,
 9 failed, 0 setup errors, 2 skipped** (section 9). These are targeted runs, not a
 full-suite rerun or an all-green result. Section 7 preserves the earlier 266-case
 run and supplemental Python-boundary checks.
+
+Latest Review10 follow-up: **487 selected tests passed, 0 failed/errors/skipped**,
+including **50 live HANA checks** using PyPI hana-ml and XinKey2. Section 11 records
+the statement-final WITH HINT fix on top of `d8d4714`; these changes do not
+supersede the outstanding ContextAgent failures.
 
 ## 1. Feedback on the proposed technical description
 
@@ -661,3 +666,81 @@ and staged whitespace checks passed. Evidence:
 
 This pre-push run does not rerun or supersede the live result in section 9:
 **2 passed, 9 failed, 2 skipped**. The PR must not be described as fully green.
+
+## 11. Review10: statement-final WITH HINT boundary (2026-10-28)
+
+This follow-up builds on `d8d4714`. It addresses the V-171 object-authorization
+parser gap reported in
+`review10.md`. No unrelated local reviews, email drafts, notebooks, or artifacts
+were modified.
+
+### Finding and final behavior
+
+Before the fix, `WITH` ended FROM parsing. After parsing `WITH HINT (...)`, the
+scanner treated subsequent comma/JOIN table names as ordinary expressions and did
+not authorize them. Six synthetic bypass variants reached a mocked executor,
+including nested-query and CTE variants. Read-only checks using `XinKey2` and
+PyPI `hana-ml==2.30.26091800` confirmed that HANA rejected these six forms with
+syntax error **257**; normal terminal hints and joins preceding hints executed.
+This was a confirmed guard gap, not proof of an executable data-disclosure exploit
+for those statements on the tested HANA system.
+
+`_SQLObjectParser._parse_hints()` now requires both the outermost scan boundary
+and a closing parenthesis at the end of the statement. It rejects hints inside
+subqueries/CTE bodies/expressions, repeated hint clauses, and trailing joins,
+commas, filters, ordering, limits or set operations **before execution**. A single
+trailing statement terminator remains supported. Hint argument validation and all
+existing table/function/sequence checks remain in place.
+
+Legitimate final hints remain supported after ordinary SELECTs, joins, predicates,
+ordering, the final SELECT of a CTE, and UNION queries. Multiple hints, scalar hint
+arguments, mixed keyword case and strings containing hint-like text are covered.
+This moves rejection of malformed SQL from HANA into the application guard; it
+neither grants additional access nor changes valid query results in the tested
+matrix. The existing live SQL fixture now explicitly enables encryption as well
+as certificate verification.
+
+Traceability: [parser](src/hana_ai/agents/hana_sql_agent.py),
+[regression and live tests](nutest/testscripts/test_sql_agent_compatibility.py),
+and [public grammar documentation](doc/agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.rst).
+
+### Verification
+
+- Before the code fix: all **20** new offline rejection tests failed because no
+  ValueError was raised (102 other cases deselected). The permissive mocked
+  downstream executor ensures these tests cannot pass merely because a database
+  rejects malformed SQL.
+- After the fix: **487 passed, 0 failed/errors/skipped, 39 warnings in 103.18 seconds (exit 0)**. Breakdown: 138 security, 41 assessment follow-up,
+  170 memory/stdio compatibility, 7 audit, 6 memory adapter, 3 Mem0 agent and
+  **122 SQL cases** (72 offline + 50 live HANA).
+- The SQL matrix adds 20 invalid placements, each checked offline and against the
+  live executor boundary, and 10 valid queries, each checked offline and against
+  direct HANA results: **60 new test instances**. All live valid-query results are
+  compared row-for-row, and invalid placements must produce zero SQLAlchemy
+  execution events.
+- Changed production module Pylint: **10.00/10**; compilation and `git diff --check`
+  passed. The fixture dropped its synthetic R9_COMPAT table; a follow-up
+  read-only check found zero matching tables in the current schema. No unrelated
+  business objects were changed.
+
+JUnit evidence: `.pytest_cache/review10/hint-before.xml` and
+`.pytest_cache/review10/hint-verified.xml` (local, git-ignored).
+
+Reproduce after the PyPI PowerShell environment setup in section 6:
+
+```powershell
+$env:HANA_USERKEY = 'XinKey2'
+& $pypiTestPython -u -m pytest --import-mode=importlib -q --tb=short -p no:cacheprovider `
+  nutest/testscripts/test_security_fixes.py `
+  nutest/testscripts/test_sql_agent_compatibility.py `
+  nutest/testscripts/test_assessment13_followup.py `
+  nutest/testscripts/test_pr_compatibility_regressions.py `
+  nutest/test_hana_mcp_audit_view.py `
+  nutest/testscripts/test_hana_mem0_adapter.py `
+  nutest/testscripts/test_mem0_hana_agent.py `
+  --junitxml=.pytest_cache/review10/hint-verified.xml
+```
+
+This is targeted security/compatibility validation, not a full-repository or live
+LLM rerun. The previously recorded ContextAgent result of **2 passed / 9 failed /
+2 skipped**, deployment requirements and release limitations remain unchanged.

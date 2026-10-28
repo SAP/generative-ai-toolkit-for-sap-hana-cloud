@@ -15,6 +15,8 @@
 > 最近全量基线：2026-10-28 使用 PyPI `hana-ml==2.30.26091800` 全量重跑为 **361 passed、1 failed、11 setup errors、2 skipped**（退出码 1）。新增 stdio 初始化超时在单独复跑时通过，但保留原始失败结果，详见第十一节。
 > 本次交付：扫描补丁复核、memory/stdio 兼容性修复及 XinKey2/TLS test fixture 更新，见第十二至十五节。安全/兼容性扩大定向验证 **442 passed、0 failed/errors/skipped**；随后 13 项 live ContextAgent 重跑为 **2 passed、9 failed、0 setup errors、2 skipped**。不得描述为全套测试全通过；定向结果不替代旧全量基线。
 
+> review10 后续修复：WITH HINT 仅允许位于外层 SELECT 末尾，详见第十七节；定向验证 **487 passed、0 failed/errors/skipped**（含 **50 live HANA**）。本轮修复基于 `d8d4714`，不替代此前 ContextAgent 的失败记录。
+
 ## 一、审阅结论
 
 本次工作区已经覆盖评估包中 **13/13 个 patch 的安全意图**（包含适配和更严格的后续实现，不是原样重复应用旧 diff），并对 V-155～V-168 的全部 Critical/High 项增加或完善了代码处理。现成 patch 不足以覆盖的 V-162、V-163、V-164、V-165、V-168 采用了手工实现；V-155、V-157、V-159、V-160、V-161、V-166 又在 patch 基础上继续加固。此结论不等于原扫描每条验收勾选项均已字面满足，也不代表所有危险 opt-in 配置都安全。
@@ -495,3 +497,48 @@ probe、未跟踪 notebooks 和生成工件不纳入提交。报告移除工作�
 57.43 秒，退出码 0**。compileall 与 staged `git diff --cached --check` 通过。
 JUnit：`.pytest_cache/assessment13-followup/pre-push-offline.xml`。
 此次不重跑 live 场景，不能覆盖第十五节的 **2 passed / 9 failed / 2 skipped**。
+
+## 十七、review10：WITH HINT 末尾边界修复（2026-10-28）
+
+本节记录基于 `d8d4714` 的后续修复。对应 V-171 的对象授权解析器
+缺口；未修改无关的本地 review、邮件草稿、notebooks 或生成工件。
+
+**问题与验证：** `WITH` 会结束 FROM 解析，hint 解析后继续出现的逗号/JOIN 表名
+被当成普通表达式扫描，未进入对象授权。修复前，6 个合成变体（含子查询和 CTE）
+到达了 mock executor。使用 PyPI `hana-ml==2.30.26091800`、`XinKey2`、开启加密
+和证书校验执行只读 DUMMY 探针时，这 6 种写法均被 HANA 以语法错误 **257** 拒绝；
+合法末尾 hint 和 hint 前的 JOIN 正常执行。因此这是已确认的 guard 缺口，不代表
+已证明这些语句在所测 HANA 上能够窃取数据。
+
+**最终修改：** `_SQLObjectParser._parse_hints()` 同时检查当前扫描范围是外层语句，
+且 hint 的右括号位于语句末尾；拒绝子查询/CTE body/表达式内的 hint、重复 hint，
+以及 hint 后的 JOIN、逗号、WHERE、ORDER、LIMIT、UNION 等。拒绝发生在数据库执行前。
+原有 hint 参数检查及表、函数、sequence 授权保持不变，单个末尾分号继续支持。
+
+**功能影响：** 正常 SELECT、JOIN、过滤/排序、CTE 最终 SELECT、UNION 查询的末尾
+hint 继续可用；多 hint、简单参数、大小写以及包含 hint 字样的字符串均有测试。
+这是将畸形 SQL 的拒绝提前到应用层，所测合法查询结果不变；不新增数据库权限。
+公开 SQL API 文档同步明确允许的位置；live fixture 显式设置 `encrypt=True` 和
+`sslValidateCertificate=True`，没有通过关闭安全控制获得测试通过。
+
+**回归与验证：**
+
+- 新增 20 个非法位置模板，每个都运行离线拒绝检查及真实 HANA 零执行检查；另新增
+  10 个合法查询，每个都运行离线兼容性检查及真实 HANA 逐行结果比较，共 **60 个新测试实例**。
+- 修复生产代码前，20 个新离线拒绝测试全部失败，原因是没有抛出 ValueError；其余
+  102 项未选中。mock 下游执行器故意放行，不能依赖数据库语法报错假装 guard 生效。
+- 修复后扩大定向运行：**487 passed、0 failed/errors/skipped、39 warnings，
+  103.18 秒，退出码 0**。JUnit 独立核对一致；实际加载上述公开 PyPI 版本。
+- 分组：原安全 138、assessment follow-up 41、memory/stdio 兼容 170、audit 7、
+  memory adapter 6、Mem0 agent 3、SQL 122（72 离线 + 50 live HANA）。
+- 修改的生产模块 Pylint **10.00/10**；编译、`git diff --check` 通过。
+  fixture 已删除本轮生成的合成 R9_COMPAT 表；后续只读查询确认当前 schema 的该前缀
+  表数量为 0。这些测试数据可以重跑生成，未修改无关业务对象。
+
+证据：`.pytest_cache/review10/hint-before.xml`、`hint-verified.xml`（本地、git-ignored）。
+具体改动见 `src/hana_ai/agents/hana_sql_agent.py`、
+`nutest/testscripts/test_sql_agent_compatibility.py` 及公开 SQL-agent RST 文档；
+复现命令见英文安全报告第十一节。
+
+这不是全仓库或 live LLM 重跑。此前 ContextAgent 的 **2 passed / 9 failed / 2 skipped**、
+部署要求和发布边界保持不变，不能将本轮结果描述为全套测试全通过。

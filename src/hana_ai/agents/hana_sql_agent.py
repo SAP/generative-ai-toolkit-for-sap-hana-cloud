@@ -310,13 +310,21 @@ class _SQLObjectParser:
         raise ValueError("read-only SQL agent: invalid numeric argument list")
 
     def _parse_hints(self, position: int, end: int) -> int:
-        """Parse optimizer hint names and scalar arguments without skipping SQL."""
+        """Parse a statement-final optimizer hint, never a table-factor suffix."""
         if position + 2 >= end or not self._is_keyword(self.tokens[position + 1], "HINT"):
             raise ValueError("read-only SQL agent: expected WITH HINT")
         opening = position + 2
         if self.tokens[opening].text != "(":
             raise ValueError("read-only SQL agent: expected parenthesized hints")
         closing = self._matching_paren(opening, end)
+        # WITH ends FROM scanning. If its hint could have a suffix, a following
+        # JOIN/comma table would be scanned as an expression without authorization.
+        # HANA optimizer hints belong at the end of the outer SELECT, not inside
+        # subqueries, CTE bodies, or expression scans with a shorter local end.
+        if end != len(self.tokens) or closing + 1 != end:
+            raise ValueError(
+                "read-only SQL agent: WITH HINT must end the outer SELECT statement"
+            )
         position = opening + 1
         while position < closing:
             if self.tokens[position].kind != "word":
