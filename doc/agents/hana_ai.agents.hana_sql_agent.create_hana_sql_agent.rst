@@ -16,7 +16,9 @@ constructs:
 * ``CAST(expression AS type)`` with built-in HANA types, including numeric precision
   and string length parameters, and ``TO_VARCHAR(expression)``.
 * ``ANY``, ``SOME`` and ``ALL`` subquery comparisons.
-* ``WITH HINT (NO_INLINE, CS_JOIN)`` and hint names with flat literal/name arguments.
+* ``WITH HINT (NO_INLINE, CS_JOIN)`` and hint names with flat literal/name arguments,
+  at the end of the outer SELECT statement (including the final SELECT of a CTE
+  or UNION query).
 * ``table PARTITION (1, 2) AS alias``.
 * ``table AS alias TABLESAMPLE SYSTEM (50)`` or ``TABLESAMPLE BERNOULLI (50)``.
 * ``CROSS JOIN LATERAL (SELECT ...) AS alias``, including correlated subqueries
@@ -25,6 +27,9 @@ constructs:
 CAST operands and all nested queries retain the same object checks as the outer
 query. Type/partition/sample parameters accept numeric literals; they cannot hide
 function calls or SQL expressions. Hint arguments cannot contain nested SQL.
+Hints inside subqueries/CTE bodies, repeated hint clauses, and any SQL following a
+hint are rejected before execution. Put joins, filters, ordering and set operations
+before the final hint; one trailing statement terminator remains supported.
 
 Use explicit ``JOIN`` syntax. Comma joins, arbitrary scalar/table UDFs, sequence
 access and three-part table names remain unsupported and are rejected before query

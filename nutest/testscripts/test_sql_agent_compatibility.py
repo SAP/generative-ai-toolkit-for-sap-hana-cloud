@@ -1,6 +1,7 @@
-"""Review9: valid HANA SELECT grammar must preserve object authorization."""
+"""Review9/10: valid HANA SELECT grammar must preserve object authorization."""
 import os
 import uuid
+from unittest.mock import Mock
 
 import pytest
 from sqlalchemy import create_engine, event
@@ -31,6 +32,60 @@ VALID_SELECTS = [
     '(WITH X AS (SELECT ID FROM {table}) SELECT ID FROM X WHERE X.ID = A.ID) B',
     'SELECT A.ID FROM {table} A JOIN {table} B '
     'ON LEFT(TO_VARCHAR(A.ID),1)=LEFT(TO_VARCHAR(B.ID),1)',
+    'SELECT ID FROM {table} WITH HINT (NO_INLINE);',
+    'select ID from {table} with hint (no_inline)',
+    'SELECT A.ID FROM {table} A JOIN {table} B ON A.ID=B.ID WITH HINT (NO_INLINE)',
+    'SELECT A.ID FROM {table} A LEFT JOIN {table} B '
+    'ON (A.ID=B.ID) WITH HINT (NO_INLINE)',
+    'SELECT ID FROM {table} WHERE (ID > 0) ORDER BY ID WITH HINT (NO_INLINE)',
+    'WITH X AS (SELECT ID FROM {table}) SELECT ID FROM X WITH HINT (NO_INLINE)',
+    'SELECT ID FROM (SELECT ID FROM {table}) X WITH HINT (NO_INLINE)',
+    'SELECT ID FROM {table} UNION SELECT ID FROM {table} WITH HINT (NO_INLINE)',
+    'SELECT ID FROM {table} WITH HINT (MAX_CONCURRENCY(1), NO_INLINE)',
+    "SELECT CAST('WITH HINT (, JOIN SECRET_TABLE)' AS NVARCHAR(40)) FROM {table} "
+    'WITH HINT (NO_INLINE)',
+]
+
+
+INVALID_HINT_SELECTS = [
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE), {secret}', id='comma'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) '
+                 'JOIN {secret} S ON 1=1', id='join'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) '
+                 'CROSS JOIN {secret} S', id='cross-join'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) '
+                 'LEFT JOIN {secret} S ON 1=1', id='left-join'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) '
+                 'INNER JOIN {secret} S ON 1=1', id='inner-join'),
+    pytest.param('SELECT * FROM (SELECT * FROM {table} WITH HINT (NO_INLINE) '
+                 'JOIN {secret} S ON 1=1) X', id='nested-join'),
+    pytest.param('WITH X AS (SELECT * FROM {table} WITH HINT (NO_INLINE) '
+                 'JOIN {secret} S ON 1=1) SELECT * FROM X', id='cte-join'),
+    pytest.param('SELECT * FROM (SELECT * FROM {table} WITH HINT (NO_INLINE)) X',
+                 id='nested-terminal-hint'),
+    pytest.param('WITH X AS (SELECT * FROM {table} WITH HINT (NO_INLINE)) '
+                 'SELECT * FROM X', id='cte-terminal-hint'),
+    pytest.param('SELECT (SELECT MAX(ID) FROM {table} WITH HINT (NO_INLINE)) '
+                 'FROM {table}', id='scalar-subquery'),
+    pytest.param('SELECT CAST((SELECT MAX(ID) FROM {table} WITH HINT (NO_INLINE)) '
+                 'AS INTEGER) FROM {table}', id='cast-subquery'),
+    pytest.param('SELECT * FROM {table} WHERE (ID > 0 WITH HINT (NO_INLINE))',
+                 id='predicate'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) WHERE ID > 0',
+                 id='before-where'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) ORDER BY ID',
+                 id='before-order'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) LIMIT 1',
+                 id='before-limit'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) '
+                 'UNION SELECT * FROM {table}', id='before-union'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) '
+                 'JOIN {table} A ON 1=1', id='before-allowed-join'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) WITH HINT (CS_JOIN)',
+                 id='repeated-hint'),
+    pytest.param('SELECT 1 WITH HINT (NO_INLINE) FROM {table}', id='before-from'),
+    pytest.param('SELECT * FROM {table} WITH HINT (NO_INLINE) '
+                 'JOIN {secret} S ON 1=1 WITH HINT (CS_JOIN)', id='join-between-hints'),
 ]
 
 
@@ -99,13 +154,27 @@ def test_comma_after_join_condition_cannot_hide_table(scoped_database):
     assert not executed
 
 
+@pytest.mark.parametrize('template', INVALID_HINT_SELECTS)
+def test_invalid_hint_placement_never_reaches_executor(scoped_database, monkeypatch, template):
+    database, executed = scoped_database
+    # Simulate a permissive downstream executor: rejection must come from our
+    # guard, not SQLite/HANA rejecting the malformed SQL as a syntax error.
+    executor = Mock(return_value='unexpected execution')
+    monkeypatch.setattr(SQLDatabase, 'run', executor)
+    statement = template.format(table='ALLOWED_TABLE', secret='SECRET_TABLE')
+    with pytest.raises(ValueError, match='WITH HINT must end the outer SELECT statement'):
+        database.run(statement)
+    executor.assert_not_called()
+    assert not executed
+
+
 @pytest.fixture(scope='module')
 def live_hana_database():
     userkey = os.environ.get('HANA_USERKEY')
     if not userkey:
         pytest.skip('HANA_USERKEY is required for live SQL compatibility tests')
     from hana_ml.dataframe import ConnectionContext
-    cc = ConnectionContext(userkey=userkey, sslValidateCertificate=True)
+    cc = ConnectionContext(userkey=userkey, encrypt=True, sslValidateCertificate=True)
     cursor = cc.connection.cursor()
     schema = cc.get_current_schema()
     name = 'R9_COMPAT_' + uuid.uuid4().hex[:12].upper()
@@ -157,6 +226,23 @@ def test_live_comma_after_join_is_rejected_before_execute(live_hana_database):
         with pytest.raises(ValueError, match='comma-separated'):
             database.run(f'SELECT S.DUMMY FROM {table} A JOIN {table} B '
                          'ON A.ID=B.ID, SYS.DUMMY S')
+        assert not executed
+    finally:
+        event.remove(database._engine, 'before_cursor_execute', record_execution)
+
+
+@pytest.mark.parametrize('template', INVALID_HINT_SELECTS)
+def test_live_invalid_hint_placement_is_rejected_before_execute(live_hana_database, template):
+    database, _, table = live_hana_database
+    executed = []
+
+    def record_execution(*args):
+        executed.append(args[2])
+
+    event.listen(database._engine, 'before_cursor_execute', record_execution)
+    try:
+        with pytest.raises(ValueError, match='WITH HINT must end the outer SELECT statement'):
+            database.run(template.format(table=table, secret='SYS.DUMMY'))
         assert not executed
     finally:
         event.remove(database._engine, 'before_cursor_execute', record_execution)
