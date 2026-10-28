@@ -90,6 +90,24 @@ the application explicitly needs it. Validate effective privileges against the
 target HANA deployment as part of release testing. Views and synonyms must be
 reviewed together with the privileges of their underlying objects.
 
+### MCP transport and vector-store security defaults
+
+Environment-built HANA connections and runtime connection updates explicitly enable
+TLS encryption and certificate validation by default, including omitted/null update
+options. Configure the required trust material. Runtime admin tools remain host-opt-in
+and require authentication over HTTP; remote MCP also requires HTTPS termination.
+The HTTP client's insecure-network override requires the actual Boolean
+`allow_insecure_http=True`, not a string such as `"false"`. Stdio profiles must point
+to trusted executables and arguments; shell interpreters and Windows batch/PowerShell
+scripts are rejected even when listed in a profile. Keep those executables, scripts,
+their directories, and the inherited environment under trusted host control.
+
+Vector-store configuration is validated before metadata lookup or table creation.
+Table/schema names containing single quotes are rejected because the supported
+hana-ml metadata API interpolates them into SQL literals. Existing double-quote,
+NUL, and semicolon restrictions still apply. Ordinary case-sensitive names and
+query text containing apostrophes remain supported through safe encoding.
+
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](https://github.com/SAP/generative-ai-toolkit-for-sap-hana-cloud/blob/main/CONTRIBUTING.md).

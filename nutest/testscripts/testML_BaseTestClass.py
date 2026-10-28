@@ -19,7 +19,7 @@ class TestML_BaseTestClass(unittest.TestCase):
 
     def setUp(self):
         self.config = configparser.ConfigParser()
-        userkey = os.environ.get("HANA_USERKEY", "RaysKey")
+        userkey = os.environ.get("HANA_USERKEY", "XinKey2")
         ssl_validate_raw = os.environ.get("HANA_SSL_VALIDATE", "true").strip().lower()
         ssl_validate = ssl_validate_raw not in {"0", "false", "no", "off"}
         self.conn = dataframe.ConnectionContext(

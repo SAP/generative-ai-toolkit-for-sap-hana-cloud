@@ -22,6 +22,7 @@ from dataclasses import dataclass
 import logging
 
 from hana_ai.mem0.hana_mem0_adapter import Mem0HanaAdapter, SearchResult
+from hana_ai.mem0.metadata_filters import metadata_matches_filters as _metadata_matches_filters
 from hana_ai.mem0.memory_classifier import Mem0IngestionClassifier
 from hana_ai.mem0.memory_entity_extractor import Mem0EntityExtractor
 
@@ -84,27 +85,6 @@ def default_hana_export_handler(connection_context: Any, table_name: str, filter
     except Exception as e:
         logger.error("Export handler failed for table %s: %s", table_name, e)
     return rows
-
-
-def _metadata_matches_filters(metadata: Dict[str, Any], filters: Optional[Dict[str, Any]]) -> bool:
-    """Match equality and the operators used by memory export filters."""
-    for key, expected in (filters or {}).items():
-        actual = metadata.get(key)
-        if isinstance(expected, dict):
-            if "$contains" in expected:
-                wanted = expected["$contains"]
-                wanted_values = wanted if isinstance(wanted, list) else [wanted]
-                actual_values = actual if isinstance(actual, list) else [actual]
-                if not all(value in actual_values for value in wanted_values):
-                    return False
-            elif "$lte" in expected:
-                if actual is None or actual > expected["$lte"]:
-                    return False
-            else:
-                return False
-        elif actual != expected:
-            return False
-    return True
 
 
 class Mem0MemoryManager:

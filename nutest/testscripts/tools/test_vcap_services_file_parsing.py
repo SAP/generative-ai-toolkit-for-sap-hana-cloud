@@ -18,6 +18,7 @@ class TestVCAPServicesFileParsing(unittest.TestCase):
             params = tk_mod._build_cc_params_from_env()
         self.assertEqual(params, {
             "userkey": "XinKey2",
+            "encrypt": True,
             "sslValidateCertificate": True,
         })
 

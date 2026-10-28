@@ -62,8 +62,10 @@ class HANAMLinVectorEngine(object):
         self.model_version = model_version
         self.current_query_distance = None
         self.current_query_rows = None
+        self._validate_configuration()
         if schema is None:
             self.schema = self.connection_context.get_current_schema()
+            self._validate_configuration()
         if not self.connection_context.has_table(table=self.table_name, schema=self.schema):
             self.connection_context.create_table(table=self.table_name,
                                                  schema=self.schema,
@@ -72,10 +74,24 @@ class HANAMLinVectorEngine(object):
                                                                   "example": "NCLOB",
                                                                   "embeddings": f"REAL_VECTOR GENERATED ALWAYS AS VECTOR_EMBEDDING(\"description\", 'DOCUMENT', {_sql_string_literal(self.model_version)})"})
 
+    def _validate_configuration(self):
+        """Validate before hana-ml metadata/DDL calls, not only the final SELECT."""
+        names = [self.table_name] if self.schema is None else [self.table_name, self.schema]
+        for name in names:
+            if not isinstance(name, str):
+                raise ValueError("vector table/schema identifiers must be strings")
+            _quote_identifier(name)
+            # hana-ml has_table() interpolates these names into SQL string literals.
+            # Identifier quoting alone cannot protect that separate metadata sink.
+            if "'" in str(name):
+                raise ValueError("single quotes are not allowed in vector table/schema identifiers")
+        _sql_string_literal(self.model_version)
+
     def get_knowledge(self):
         """
         Get knowledge dataframe.
         """
+        self._validate_configuration()
         return self.connection_context.table(table=self.table_name, schema=self.schema)
 
     def create_knowledge(self, option='python'):
@@ -99,6 +115,7 @@ class HANAMLinVectorEngine(object):
         knowledge: dict
             Knowledge data. {'id': '1', 'description': 'description', 'example': 'example'}
         """
+        self._validate_configuration()
         dataframe.create_dataframe_from_pandas(connection_context=self.connection_context,
                                                pandas_df=pd.DataFrame(knowledge, columns=['id', 'description', 'example']),
                                                table_name=self.table_name,
@@ -122,12 +139,6 @@ class HANAMLinVectorEngine(object):
         distance: str, optional
             Distance. Default to 'cosine_similarity'.
         """
-        schema = self.schema
-        if self.columns is None:
-            self.columns = self.connection_context.table(table=self.table_name, schema=self.schema).columns
-        if self.schema is None:
-            schema = self.connection_context.get_current_schema()
-
         # --- V-157 hardening: no raw interpolation of untrusted values/identifiers ---
         try:
             top_n = int(top_n)
@@ -145,15 +156,24 @@ class HANAMLinVectorEngine(object):
         if distance_fn not in _ALLOWED_DISTANCE:
             raise ValueError(f"distance must be one of {sorted(_ALLOWED_DISTANCE)}")
 
+        self._validate_configuration()
+        query_literal = _sql_string_literal(input)
+        schema = self.schema
+        if schema is None:
+            schema = self.connection_context.get_current_schema()
+        quoted_schema = _quote_identifier(schema)
+        if self.columns is None:
+            self.columns = self.connection_context.table(table=self.table_name, schema=schema).columns
+
         sql = (
             "SELECT TOP {top_n} {col2}, {dist}({col3}, "
             "TO_REAL_VECTOR(VECTOR_EMBEDDING({inp}, 'QUERY', {mv}))) AS \"DISTANCE\", "
             "{col0} \"MODEL_TYPE\" FROM {schema}.{table} ORDER BY \"DISTANCE\" DESC"
         ).format(
             top_n=top_n, col2=_quote_identifier(self.columns[2]), dist=distance_fn,
-            col3=_quote_identifier(self.columns[3]), inp=_sql_string_literal(input),
+            col3=_quote_identifier(self.columns[3]), inp=query_literal,
             mv=_sql_string_literal(self.model_version), col0=_quote_identifier(self.columns[0]),
-            schema=_quote_identifier(schema), table=_quote_identifier(self.table_name),
+            schema=quoted_schema, table=_quote_identifier(self.table_name),
         )
         result = self.connection_context.sql(
             ensure_hana_ml_single_statement(sql)
