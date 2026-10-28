@@ -120,7 +120,7 @@ def _build_cc_params_from_env() -> dict[str, Any]:
     port_raw = os.environ.get("HANA_PORT", "443")
     user = os.environ.get("HANA_USER")
     password = os.environ.get("HANA_PASSWORD")
-    encrypt = _env_bool("HANA_ENCRYPT", default=None)
+    encrypt = _env_bool("HANA_ENCRYPT", default=True)
     # V-167: default TLS certificate validation ON. Operators that genuinely lack a
     # trust store must opt OUT explicitly (HANA_SSL_VALIDATE=false), rather than every
     # deployment being MitM-able by default.
@@ -2149,18 +2149,18 @@ class HANAMLToolkit(BaseToolkit):
                 # host-side opt-in; never allow it by default on an exposed MCP surface.
                 if not runtime_update_enabled:
                     return {"ok": False, "error": "runtime connection update disabled (set HANA_ALLOW_RUNTIME_CONN_UPDATE=true; ensure the MCP admin surface is authenticated)"}
-                if (encrypt is False or ssl_validate_certificate is False) and not allow_tls_downgrade:
+                if (encrypt is False or ssl_validate_certificate is False) and allow_tls_downgrade is not True:
                     return {"ok": False, "error": "refusing to disable TLS or certificate validation without allow_tls_downgrade=True"}
                 new_params: dict[str, Any] = {
                     "address": address,
                     "port": port,
                     "user": user,
                     "password": password,
+                    # Omission/null must not restore insecure driver defaults when
+                    # replacing an already TLS-protected connection.
+                    "encrypt": True if encrypt is None else bool(encrypt),
+                    "sslValidateCertificate": True if ssl_validate_certificate is None else bool(ssl_validate_certificate),
                 }
-                if encrypt is not None:
-                    new_params["encrypt"] = bool(encrypt)
-                if ssl_validate_certificate is not None:
-                    new_params["sslValidateCertificate"] = bool(ssl_validate_certificate)
 
                 # Optionally validate credentials/route before mutating live tools.
                 if test_connection:

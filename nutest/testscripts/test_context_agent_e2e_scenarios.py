@@ -26,7 +26,7 @@ class TestContextAgentE2EScenarios(unittest.TestCase):
         - massive outlier detection on grouped time-series data
 
     This suite is intentionally opt-in because it requires a live HANA
-    connection via userkey `RaysKey` and a working LLM setup for
+    connection via `HANA_USERKEY` (default `XinKey2`) and a working LLM setup for
     `gen_ai_hub.proxy.langchain.init_llm`.
 
         Note:
@@ -98,12 +98,12 @@ class TestContextAgentE2EScenarios(unittest.TestCase):
         cls.created_models = []
         cls.created_tables = []
 
-        sslstore = certifi.where()
+        # Use the HANA client's native certificate trust configuration. A certifi
+        # CA bundle is not a Windows sslKeyStore (client identity store).
         cls.cc = dataframe.ConnectionContext(
-            userkey="RaysKey",
-            sslValidateCertificate=False,
+            userkey=os.environ.get("HANA_USERKEY", "XinKey2"),
+            sslValidateCertificate=True,
             encrypt=True,
-            sslKeyStore=sslstore,
         )
         cls.llm = init_llm("gpt-4.1", temperature=0.0, max_tokens=1800)
         cls._prepare_sales_refunds_fixture()

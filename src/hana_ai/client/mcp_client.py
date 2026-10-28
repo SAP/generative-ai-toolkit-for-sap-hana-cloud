@@ -333,7 +333,7 @@ def _validate_http_base_url(base_url: str, *, allow_insecure_http: bool = False)
         loopback = ipaddress.ip_address(host).is_loopback
     except ValueError:
         loopback = host == "localhost"
-    if parsed.scheme == "http" and not loopback and not allow_insecure_http:
+    if parsed.scheme == "http" and not loopback and allow_insecure_http is not True:
         raise ValueError(
             "plaintext MCP HTTP is allowed only on loopback; use https:// or set "
             "allow_insecure_http=True explicitly for a trusted isolated network"
@@ -342,8 +342,35 @@ def _validate_http_base_url(base_url: str, *, allow_insecure_http: bool = False)
 
 
 _STDIO_INLINE_CODE_FLAGS = {
-    "-c", "-e", "--eval", "--evaluate", "-command", "-encodedcommand", "/c",
+    "-c", "-e", "--eval", "--evaluate", "-command", "-encodedcommand",
 }
+_STDIO_SHELL_NAMES = {
+    "sh", "bash", "dash", "ash", "zsh", "ksh", "csh", "tcsh", "fish",
+    "cmd", "command", "powershell", "pwsh",
+}
+
+
+def _is_stdio_inline_code_arg(arg: str) -> bool:
+    """Distinguish /c shell switches from /code/server.py-style paths."""
+    lowered = arg.lower()
+    if any(lowered.startswith(flag) for flag in _STDIO_INLINE_CODE_FLAGS):
+        return True
+    if lowered.startswith("/c"):
+        # Keep /c, /cCOMMAND and /c COMMAND blocked. A multi-component POSIX
+        # path is not a cmd switch for a non-shell executable. Exact host
+        # profile matching still applies; shell executables are always denied.
+        return "/" not in arg[2:] or arg[2].isspace() or arg[2] == "\\"
+    return False
+
+
+def _reject_stdio_shell(command: str) -> None:
+    """Reject shell interpreters and implicitly shell-executed Windows scripts."""
+    name = command.replace("\\", "/").rsplit("/", 1)[-1].lower()
+    stem, extension = os.path.splitext(name)
+    if name in _STDIO_SHELL_NAMES or (
+        extension in {".exe", ".com"} and stem in _STDIO_SHELL_NAMES
+    ) or extension in {".bat", ".cmd", ".ps1"}:
+        raise ValueError("shell interpreters and batch scripts are not allowed for stdio")
 
 
 def _resolve_stdio_executable(command: str) -> str:
@@ -380,18 +407,15 @@ def _validate_stdio_command(command: str, args: List[str]) -> str:
     """
     if not command or not isinstance(command, str):
         raise ValueError("stdio command must be a non-empty string")
+    _reject_stdio_shell(command)
     args = list(args or [])
     if not all(isinstance(arg, str) and "\x00" not in arg for arg in args):
         raise ValueError("stdio args must be strings without NUL bytes")
-    if any(
-        lowered == flag or lowered.startswith(flag)
-        for arg in args
-        for lowered in (arg.lower(),)
-        for flag in _STDIO_INLINE_CODE_FLAGS
-    ):
+    if any(_is_stdio_inline_code_arg(arg) for arg in args):
         raise ValueError("inline code or shell execution flags are not allowed in stdio args")
 
     resolved = _resolve_stdio_executable(command)
+    _reject_stdio_shell(resolved)
     normalized = os.path.normcase(resolved)
     for profile in _load_stdio_profiles():
         if not isinstance(profile, dict):

@@ -2,7 +2,7 @@
 """E2E (opt-in): Use ContextAgent to reload MCP stdio server ConnectionContext from file.
 
 Flow required by this test:
-1) Start MCP server over stdio using HANA userkey 'RaysKey'
+1) Start MCP server over stdio using HANA_USERKEY (default 'XinKey2')
 2) Through a ContextAgent chat prompt, call admin_reload_connection_context_from_file
    with the committed fixture file nutest/testscripts/env.example
 3) Assert tool call succeeded and the server switched its ConnectionContext instance
@@ -11,7 +11,7 @@ Enable with:
   RUN_CONTEXT_AGENT_MCP_STDIO_E2E=1
 
 Notes:
-- Requires a live HANA connection for both RaysKey and the credentials inside env.example.
+- Requires a live HANA connection for both HANA_USERKEY (default XinKey2) and the credentials inside env.example.
 - Requires an LLM provider setup for gen_ai_hub.proxy.langchain.init_llm (tool calling).
 """
 
@@ -86,7 +86,7 @@ class TestContextAgentMCPReloadConnectionContextFromFileSTDIO(unittest.TestCase)
             raise unittest.SkipTest(f"gen_ai_hub init_llm unavailable: {e}")
         cls.llm = init_llm(os.environ.get("CONTEXT_AGENT_E2E_LLM_MODEL", "gpt-4.1"), temperature=0.0, max_tokens=800)
 
-        # Start stdio MCP server as subprocess via StdioMCPClient (RaysKey init)
+        # Start stdio MCP server using the configured HANA userstore key.
         from hana_ai.client.mcp_client import StdioMCPClient
 
         cls._loop_thread = _AsyncLoopThread()
@@ -99,7 +99,7 @@ class TestContextAgentMCPReloadConnectionContextFromFileSTDIO(unittest.TestCase)
                 "--server-name",
                 "HANATools",
                 "--userkey",
-                "RaysKey",
+                os.environ.get("HANA_USERKEY", "XinKey2"),
                 "--encrypt",
                 "true",
                 "--ssl-validate",

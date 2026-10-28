@@ -1036,9 +1036,11 @@ def test_v167_empty_tls_setting_uses_secure_default(monkeypatch):
 def test_v167_userkey_env_uses_secure_tls_default(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     monkeypatch.setenv("HANA_USERKEY", "XinKey2")
+    monkeypatch.delenv("HANA_ENCRYPT", raising=False)
     monkeypatch.delenv("HANA_SSL_VALIDATE", raising=False)
     assert mod._build_cc_params_from_env() == {
         "userkey": "XinKey2",
+        "encrypt": True,
         "sslValidateCertificate": True,
     }
 

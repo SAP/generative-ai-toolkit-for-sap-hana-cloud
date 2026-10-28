@@ -114,11 +114,12 @@ def _get_access_token(credentials: dict) -> str:
     key_file_path = None
     try:
         with tempfile.NamedTemporaryFile(delete=False) as cert_file:
-            cert_file.write(certificate.encode())
+            # Record ownership before encoding/writing: either can fail after creation.
             cert_file_path = cert_file.name
+            cert_file.write(certificate.encode())
         with tempfile.NamedTemporaryFile(delete=False) as key_file:
-            key_file.write(key_certificate.encode())
             key_file_path = key_file.name
+            key_file.write(key_certificate.encode())
         token_url = urllib.parse.urljoin(certurl, "/oauth/token")
         data = {
             "grant_type": "client_credentials",
@@ -132,15 +133,17 @@ def _get_access_token(credentials: dict) -> str:
             return access_token
         raise Exception(f"Failed to get access token: {response.status_code} {response.text}")
     finally:
-        # V-163: always remove the private key + cert temp files, even if requests.post()/.json()
-        # raises between write and cleanup, so the client credential is never left on disk.
+        # V-163: attempt cleanup after encoding, writing, network and response
+        # failures. OS removal failures are reported below, not silently ignored.
         for _tmp_path in (cert_file_path, key_file_path):
-            if _tmp_path and os.path.exists(_tmp_path):
+            if _tmp_path:
                 try:
                     os.remove(_tmp_path)
+                except FileNotFoundError:
+                    pass
                 except OSError:
                     logger.warning("Failed to remove temporary certificate file: %s", _tmp_path)
-        logger.info("Temporary certificate files removed.")
+        logger.info("Temporary certificate cleanup completed.")
 
 def _get_deployment_id(credentials: dict) -> str:
     """
