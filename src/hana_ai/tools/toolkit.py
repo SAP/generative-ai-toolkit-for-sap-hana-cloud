@@ -33,7 +33,7 @@ except Exception:
 try:
     from mcp.server.fastmcp import FastMCP, Context as LegacyMCPContext
 except ImportError as e:  # pragma: no cover
-    # V-160: no runtime pip-install; require the dependency to be declared/installed.
+    # No runtime pip-install; require the dependency to be declared/installed.
     raise ImportError(
         "the `mcp` package is required for the MCP server; install it explicitly "
         "(`pip install mcp mcp[cli]`) instead of letting the library install it at runtime."
@@ -121,7 +121,7 @@ def _build_cc_params_from_env() -> dict[str, Any]:
     user = os.environ.get("HANA_USER")
     password = os.environ.get("HANA_PASSWORD")
     encrypt = _env_bool("HANA_ENCRYPT", default=True)
-    # V-167: default TLS certificate validation ON. Operators that genuinely lack a
+    # Default TLS certificate validation ON. Operators that genuinely lack a
     # trust store must opt OUT explicitly (HANA_SSL_VALIDATE=false), rather than every
     # deployment being MitM-able by default.
     ssl_validate = _env_bool("HANA_SSL_VALIDATE", default=True)
@@ -1914,7 +1914,7 @@ class HANAMLToolkit(BaseToolkit):
                 # ``stateless_http`` is forwarded to fastmcp so the Streamable HTTP layer
                 # stops issuing / enforcing per-client ``mcp-session-id`` values. This is
                 # opt-in (default False) — legacy stateful behavior is unchanged.
-                # V-155: wire the auth_token into the FastMCP auth provider. fastmcp 2.x enforces
+                # Wire the auth_token into the FastMCP auth provider. fastmcp 2.x enforces
                 # auth at construction time (not on .run()), so an HTTP endpoint launched with a
                 # token must build a verifier here or it runs UNAUTHENTICATED.
                 http_auth = None
@@ -2145,7 +2145,7 @@ class HANAMLToolkit(BaseToolkit):
                 allow_tls_downgrade: Annotated[bool, TxtDoc("DANGEROUS: acknowledge turning TLS certificate validation OFF") if TxtDoc is not None else bool] = False,
             ):
                 """Update the toolkit's HANA ConnectionContext without restarting the MCP server."""
-                # V-155: runtime connection swap is a privileged admin operation. Require an explicit
+                # Runtime connection swap is a privileged admin operation. Require an explicit
                 # host-side opt-in; never allow it by default on an exposed MCP surface.
                 if not runtime_update_enabled:
                     return {"ok": False, "error": "runtime connection update disabled (set HANA_ALLOW_RUNTIME_CONN_UPDATE=true; ensure the MCP admin surface is authenticated)"}

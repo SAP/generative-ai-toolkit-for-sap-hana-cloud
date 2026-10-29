@@ -486,7 +486,7 @@ class _SQLObjectParser:
 
 
 class _ReadOnlySQLDatabase(SQLDatabase):
-    """V-171: enforce read-only access for the LLM SQL agent at the code level.
+    """Enforce read-only access for the LLM SQL agent at the code level.
 
     The LangChain ``SQLDatabaseToolkit`` otherwise exposes full DML/DDL. Any generated
     statement that is not a single ``SELECT``/``WITH`` query is rejected here, so the agent

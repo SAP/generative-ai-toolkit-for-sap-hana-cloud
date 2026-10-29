@@ -1,4 +1,4 @@
-"""Assessment-13 follow-up checks: synthetic credentials, no external processes/DB."""
+"""Security boundary checks: synthetic credentials, no external processes or DB."""
 
 import asyncio
 import importlib

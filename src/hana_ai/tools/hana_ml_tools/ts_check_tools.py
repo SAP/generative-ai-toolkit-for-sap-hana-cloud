@@ -972,7 +972,7 @@ class WhiteNoiseTest(BaseTool):
 
 
 def _sql_str_lit(value):
-    """Return a safely single-quoted HANA string literal for `value` (V-166)."""
+    """Return a safely single-quoted HANA string literal for `value`."""
     value = str(value)
     if "\x00" in value:
         raise ValueError("NUL bytes are not allowed in SQL string values")

@@ -158,7 +158,7 @@ class TimeSeriesDatasetReport(BaseTool):
         df = self.connection_context.table(table_name, schema=schema_name).select(key, endog)
         ur = UnifiedReport(df).build(key=key, endog=endog)
         if output_dir is None:
-            # V-162: private randomized 0700 dir instead of predictable <tmp>/hanaml_report.
+            # Use a private randomized 0700 dir instead of predictable <tmp>/hanaml_report.
             destination_dir = secure_report_dir("hanaml_report")
         else:
             destination_dir = output_dir
@@ -373,7 +373,7 @@ class ForecastLinePlot(BaseTool):
                 payload["actual_columns"] = list(getattr(actual_df, "columns", []))
             return self._json_error("Unable to generate forecast line plot. Check that the required key/value columns are present.", **payload)
         if output_dir is None:
-            # V-162: private randomized 0700 dir instead of predictable <tmp>/hanaml_chart.
+            # Use a private randomized 0700 dir instead of predictable <tmp>/hanaml_chart.
             destination_dir = secure_report_dir("hanaml_chart")
         else:
             destination_dir = output_dir

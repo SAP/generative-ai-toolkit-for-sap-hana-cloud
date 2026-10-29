@@ -272,7 +272,7 @@ class CAPArtifactsForBASTool(BaseTool):
         model = ms.load_model(name, version)
         # if archive is None:
         #     archive = True
-        # V-162: use a private, randomized 0700 dir instead of predictable <tmp>/hana-ai
+        # Use a private, randomized 0700 dir instead of predictable <tmp>/hana-ai
         # (which os.makedirs(exist_ok=True) would accept as a pre-planted symlink).
         output_dir = secure_report_dir("hana-ai")
         generator = HANAGeneratorForCAP(

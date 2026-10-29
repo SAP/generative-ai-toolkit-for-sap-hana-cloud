@@ -13,7 +13,7 @@ The following class is available:
 
 import logging
 from typing import Dict, TypedDict
-# V-160: do NOT pip-install at import time. Fail closed with instructions.
+# Do NOT pip-install at import time. Fail closed with instructions.
 try:
     from langgraph.graph import END, StateGraph
 except ImportError as e:  # pragma: no cover

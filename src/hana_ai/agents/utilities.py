@@ -58,7 +58,7 @@ def _inspect_python_code(intermediate_steps, tools):
     return collect_tool_call
 
 def _get_user_info(connection_context):
-    # V-174: derive identity from a stable, structured identifier rather than string-parsing
+    # Derive identity from a stable, structured identifier rather than string-parsing
     # the DBAPI connection repr (which is not a security-grade identifier and can collide or
     # be attacker-shaped, mis-mapping the memory table across tenants).
     userkey = getattr(connection_context, "userkey", None)
