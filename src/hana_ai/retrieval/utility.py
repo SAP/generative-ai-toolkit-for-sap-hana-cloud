@@ -440,8 +440,10 @@ def _call_procedure_sql(
         third argument with ``too many arguments``.
     schema_name : str
         The schema name where the procedure resides (e.g., "SYS", "DD_AGENT_ADMIN").
+        Unquoted names resolve as uppercase; explicitly quoted names retain case.
     procedure_name : str
         The procedure name to invoke (e.g., "DISCOVERY_AGENT", "DATA_AGENT_CUSTOM").
+        Uses the same unquoted/quoted naming rules as ``schema_name``.
     metadata_schema_name : str, optional
         Value for the procedure's ``AI_METADATA_SCHEMA_NAME`` IN parameter. Only
         used when at least one of ``metadata_schema_name`` /
@@ -457,6 +459,10 @@ def _call_procedure_sql(
     str
         The SQL string to call the specified procedure.
     """
+    qualified_procedure = (
+        f"{_quote_hana_object_identifier(schema_name)}."
+        f"{_quote_hana_object_identifier(procedure_name)}"
+    )
     query = json.dumps(query).replace("'", "''")
     has_config = bool(config) and any(v is not None for v in config.values())
     has_metadata = bool(metadata_schema_name) or bool(metadata_object_prefix)
@@ -490,23 +496,17 @@ def _call_procedure_sql(
         call_args = ",\n     ".join(named_args)
         return (
             "DO\nBEGIN\nDECLARE output NCLOB;\n"
-            f"CALL {_qident(schema_name)}.{_qident(procedure_name)}(\n     {call_args}\n);\n"
+            f"CALL {qualified_procedure}(\n     {call_args}\n);\n"
             "select :output FROM DUMMY;\nEND"
         )
 
     if has_config:
         config_json = json.dumps(config).replace("'", "''")
         return (
-            "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', '%s', output);\nselect :output FROM DUMMY;\nEND"
-            % (_qident(schema_name), _qident(procedure_name), query, config_json)
+            "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s('%s', '%s', output);\nselect :output FROM DUMMY;\nEND"
+            % (qualified_procedure, query, config_json)
         )
     return (
-        "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', output);\nselect :output FROM DUMMY;\nEND"
-        % (_qident(schema_name), _qident(procedure_name), query)
+        "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s('%s', output);\nselect :output FROM DUMMY;\nEND"
+        % (qualified_procedure, query)
     )
-def _qident(name):
-    """Quote a SQL identifier; reject embedded double-quote characters."""
-    name = str(name)
-    if not name or '"' in name or "\x00" in name:
-        raise ValueError(f"invalid SQL identifier: {name!r}")
-    return '"' + name + '"'
