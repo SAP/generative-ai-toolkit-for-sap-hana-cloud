@@ -1,11 +1,33 @@
 Changelog
 =========
 
-**Unreleased**
+**Version 1.1.26103000**
 
 ``Security / API Changes``
-    - Disabled ``PythonHanaMLExecTool`` execution by default and removed it from both default toolkit construction and connection-context refreshes. Calling the tool, selecting it by name, or using ``used_tools='all'`` cannot enable Python execution.
-    - Trusted host applications must explicitly construct the tool with ``allow_dangerous_code=True`` and register it as a custom tool. This is a breaking security change: the executor is not a sandbox, and its AST checks cannot contain pandas file I/O, raw database access, or implicit attribute traversal. Never expose an enabled instance to untrusted code or callers.
+    - Python execution remains disabled by default, including toolkit refreshes and ``used_tools='all'``. Enabling ``PythonHanaMLExecTool`` requires host-side ``allow_dangerous_code=True`` and custom-tool registration. Dataframe agents also require explicit tools by default and no longer insert table rows into the initial prompt. Enabled Python/REPL tools are not sandboxes; use only trusted code and callers.
+    - SmartDataFrame and dataframe/query-to-table tools validate a single read-only SELECT before execution. Protected hana-ml SQL paths reject embedded semicolons, including quoted values, because the dependency splits raw SQL text; SELECT inputs may retain one trailing terminator, which is removed before execution. Query-to-table tools still write their destination tables.
+    - SQL agents require ``schema`` or ``include_tables`` and enforce read-only object access across nested queries, CTEs and joins. Unsupported functions, sequences and comma joins are rejected; optimizer hints must end the outer SELECT. These checks apply to SQL-agent queries, not dedicated model-training, storage or deletion tools, which still require appropriate write/execute permissions. See :doc:`agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent` for supported syntax.
+    - Hardened SQL values and identifiers in vector search, retrieval, infrastructure provisioning, memory export, dataset splitting and forecasting. Retrieval schema/procedure names preserve HANA naming rules: unquoted names resolve as uppercase, while explicitly quoted names retain case. Invalid identifiers, unsupported distance/increment options and unsafe values now fail before execution; vector result limits are bounded.
+    - MCP connection administration requires ``HANA_ALLOW_RUNTIME_CONN_UPDATE=true``; HTTP administration also requires authentication. Non-loopback HTTP servers require a token; SSE is loopback-only without administration. Reload uses the trusted server environment; client-selected file reload is removed. TLS downgrades require explicit acknowledgement.
+    - Environment-built HANA connections default to encryption and certificate validation. MCP HTTP clients disable redirects and reject remote plaintext HTTP unless explicitly overridden. Remote deployments must provide authenticated HTTPS and trusted certificates.
+    - Stdio MCP startup requires trusted executable/argument profiles in ``HANA_MCP_STDIO_ALLOWED_PROFILES``. Shells, inline code and Windows batch/PowerShell scripts are rejected; approved absolute paths remain supported.
+    - RAG storage defaults to ``HANA_AI_DATA_DIR`` or ``~/.hana_ai``. FAISS reload verifies a local integrity manifest; legacy indexes need migration or explicit trust, and incomplete stores are not overwritten. Keep both indexes and manifests in host-protected storage; integrity checks do not make untrusted pickle safe.
+    - Memory operations, including cleanup and deletion, require tenant/session scope supplied by the application. Mem0 chat administration defaults off (``HANA_MEM0_ALLOW_ADMIN_COMMANDS``). Identity lookup uses structured connection information or the database user, not connection string representations; applications remain responsible for authentication.
+    - ContextAgent session directories use bounded, hashed names to prevent traversal and collisions; existing sessions may need migration. Generated artifacts use unique temporary directories and sanitized names: use returned paths and copy files needed after process exit. Certificate/private-key temporary files are cleaned up on error paths.
+    - Automatic raw HTML rendering is disabled in notebooks and reports. ``HANA_ALLOW_RAW_HTML_RENDER=true`` is only for trusted content; artifact generation remains available, and no HTML sandbox is provided.
+
+``Bug Fixes``
+    - Grouped outlier detection now maps date/timestamp keys through integer indexes and database joins, preserving original dates and group values without unsafe value interpolation. This toolkit workaround does not modify the hana-ml dependency.
+    - Grouped AutoML reports failure without saving when no model is produced. Partial success preserves usable models and returns group errors instead of silently reporting complete success.
+
+``Installation / Maintenance``
+    - Removed import-time package installation; install required dependencies explicitly, including ``hana_ai[nlp]`` or ``hana_ai[graph]`` for optional features. Python 3.10+ is required. Runtime dependencies use compatible ranges; development/build versions and CI action revisions are pinned, with hash-checked Python 3.11/Linux CI locks.
+    - Expanded security, SQL, memory, MCP/audit and ContextAgent regression coverage, including environment-based connection reload and artifact/database-backed business assertions. Public comments and test names now use functional descriptions.
+
+This version includes intentional compatibility restrictions. Upgrade to
+``hana_ai==1.1.26103000`` and redeploy to apply these fixes; configure least-privilege
+HANA roles appropriate to each tool and review the applicable migration notes above.
+Application checks do not replace database authorization or host isolation.
 
 **Version 1.1.26081400**
 
