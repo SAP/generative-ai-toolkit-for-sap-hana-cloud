@@ -133,7 +133,7 @@ def _get_access_token(credentials: dict) -> str:
             return access_token
         raise Exception(f"Failed to get access token: {response.status_code} {response.text}")
     finally:
-        # V-163: attempt cleanup after encoding, writing, network and response
+        # Attempt cleanup after encoding, writing, network and response
         # failures. OS removal failures are reported below, not silently ignored.
         for _tmp_path in (cert_file_path, key_file_path):
             if _tmp_path:

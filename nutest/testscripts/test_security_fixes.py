@@ -1,5 +1,5 @@
 """
-Offline regression tests for the Assessment-13 (13-hana-ml) security fixes.
+Offline regression tests for security boundaries and safe defaults.
 
 Run:
     pytest nutest/testscripts/test_security_fixes.py -v
@@ -18,12 +18,12 @@ import pytest
 
 
 def _import_hana_ai_utility():
-    """Import the real module; V-160 moved nltk to count_tokens() only."""
+    """Import the real module; nltk is loaded only when count_tokens() is called."""
     return importlib.import_module("hana_ai.utility")
 
 
-# ============================ V-162: secure temp dir + name sanitize ============================
-class TestV162SecureArtifacts:
+# ============================ Secure temp dir + name sanitization ============================
+class TestSecureArtifacts:
     def test_secure_report_dir_is_unique_private_and_exists(self):
         util = _import_hana_ai_utility()
         d1 = util.secure_report_dir("hanaml_report")
@@ -57,8 +57,8 @@ class TestV162SecureArtifacts:
         assert out == expected
 
 
-# ============================ V-165: stdio command validation ============================
-class TestV165StdioCommandValidation:
+# ============================ Stdio command validation ============================
+class TestStdioCommandValidation:
     def _validator(self):
         mod = importlib.import_module("hana_ai.client.mcp_client")
         return mod._validate_stdio_command
@@ -126,8 +126,8 @@ class TestV165StdioCommandValidation:
             self._validator()("python", ["trusted_server.py"])
 
 
-# ============================ V-164: HTTP transport boundary ============================
-class TestV164HTTPTransport:
+# ============================ HTTP transport boundary ============================
+class TestHTTPTransport:
     def _validator(self):
         return importlib.import_module("hana_ai.client.mcp_client")._validate_http_base_url
 
@@ -191,8 +191,8 @@ class TestV164HTTPTransport:
             mod.SyncHTTPMCPClient("http://mcp.example.test/mcp")
 
 
-# ============================ V-159: LLM SQL output is read-only ============================
-class TestV159ReadOnlySQLExtraction:
+# ============================ LLM SQL output is read-only ============================
+class TestReadOnlySQLExtraction:
     def _extract(self, text):
         mod = importlib.import_module("hana_ai.smart_dataframe")
         return mod._extract_readonly_select(text)
@@ -288,8 +288,8 @@ class TestV159ReadOnlySQLExtraction:
         assert observed == []
 
 
-# ============================ V-157/V-158: SQL value + identifier encoding ============================
-class TestV157V158SQLGuards:
+# ============================ SQL value + identifier encoding ============================
+class TestSQLGuards:
     def test_vector_string_literal_doubles_quotes(self):
         mod = importlib.import_module("hana_ai.vectorstore.hana_vector_engine")
         assert mod._sql_string_literal("O'Reilly") == "'O''Reilly'"
@@ -471,7 +471,7 @@ class TestV157V158SQLGuards:
             mod._quote_hana_identifier('T"; DROP TABLE X;--')
 
 
-# ============================ V-166: second-order group-key SQL ============================
+# ============================ Second-order group-key SQL ============================
 @pytest.mark.parametrize(
     "module_name",
     [
@@ -479,7 +479,7 @@ class TestV157V158SQLGuards:
         "hana_ai.tools.hana_ml_tools.ts_check_tools",
     ],
 )
-def test_v166_group_values_and_identifiers_are_encoded(module_name):
+def test_group_values_and_identifiers_are_encoded(module_name):
     mod = importlib.import_module(module_name)
     assert mod._sql_str_lit("O'Reilly") == "'O''Reilly'"
     assert mod._sql_ident("GROUP_ID") == '"GROUP_ID"'
@@ -490,7 +490,7 @@ def test_v166_group_values_and_identifiers_are_encoded(module_name):
         mod._sql_number("0; DROP TABLE T")
 
 
-def test_v166_increment_type_is_allowlisted_and_none_keeps_legacy_default():
+def test_increment_type_is_allowlisted_and_none_keeps_legacy_default():
     mod = importlib.import_module(
         "hana_ai.tools.hana_ml_tools.ts_make_predict_table"
     )
@@ -500,7 +500,7 @@ def test_v166_increment_type_is_allowlisted_and_none_keeps_legacy_default():
         mod._normalize_increment_type("SECONDS); DROP TABLE T;--")
 
 
-def test_v166_stored_group_semicolon_executes_zero_sql():
+def test_stored_group_semicolon_executes_zero_sql():
     mod = importlib.import_module(
         "hana_ai.tools.hana_ml_tools.ts_make_predict_table"
     )
@@ -539,8 +539,8 @@ def test_v166_stored_group_semicolon_executes_zero_sql():
     assert executed == []
 
 
-# ============================ V-156: dangerous Python tool defaults off ============================
-def test_v156_python_hanaml_exec_requires_host_opt_in():
+# ============================ Dangerous Python tool defaults off ============================
+def test_python_hanaml_exec_requires_host_opt_in():
     mod = importlib.import_module("hana_ai.tools.hana_ml_tools.python_exec_tools")
     connection_context = object.__new__(mod.ConnectionContext)
     tool = mod.PythonHanaMLExecTool(connection_context=connection_context)
@@ -549,8 +549,8 @@ def test_v156_python_hanaml_exec_requires_host_opt_in():
     assert "not a sandbox" in result
 
 
-# ============================ V-161: FAISS pickle is never implicit ============================
-class TestV161FAISSDeserialization:
+# ============================ FAISS pickle is never implicit ============================
+class TestFAISSDeserialization:
     def _agent_shell(self, path):
         mod = importlib.import_module("hana_ai.agents.hanaml_rag_agent")
         agent = object.__new__(mod.HANAMLRAGAgent)
@@ -615,8 +615,8 @@ class TestV161FAISSDeserialization:
             self._agent_shell(tmp_path)._initialize_faiss_vectorstore()
 
 
-# ============================ V-168: dataframe rows never enter the prompt ============================
-class TestV168DataframeAgent:
+# ============================ Dataframe rows never enter the prompt ============================
+class TestDataframeAgent:
     class _DataFrame:
         columns = ["ID", "VALUE"]
 
@@ -667,8 +667,8 @@ class TestV168DataframeAgent:
         assert captured["df"] == "HANA dataframe columns: ['ID', 'VALUE']"
 
 
-# ============================ V-171: read-only SQL agent ============================
-class TestV171ReadOnlySQLDatabase:
+# ============================ Read-only SQL agent ============================
+class TestReadOnlySQLDatabase:
     def _db(self):
         sqlalchemy = pytest.importorskip("sqlalchemy")
         pytest.importorskip("langchain_community")
@@ -798,7 +798,7 @@ class TestV171ReadOnlySQLDatabase:
             ("SELECT 1-SECRET_SEQ.CURRVAL FROM ALLOWED_TABLE", "sequence access"),
         ],
     )
-    def test_object_parser_blocks_review8_bypasses_before_execute(self, stmt, error):
+    def test_object_parser_blocks_unauthorized_objects_before_execute(self, stmt, error):
         sqlalchemy = pytest.importorskip("sqlalchemy")
         mod = importlib.import_module("hana_ai.agents.hana_sql_agent")
         engine = sqlalchemy.create_engine("sqlite://")
@@ -869,8 +869,8 @@ class TestV171ReadOnlySQLDatabase:
         assert db.run(f"SELECT * FROM {identifier}") == "[(7,)]"
 
 
-# ============================ V-174: stable identity, not repr parsing ============================
-class TestV174Identity:
+# ============================ Stable identity, not repr parsing ============================
+class TestIdentity:
     def _get_user_info(self):
         mod = importlib.import_module("hana_ai.agents.utilities")
         return mod._get_user_info
@@ -919,8 +919,8 @@ class TestV174Identity:
             self._get_user_info()(cc)
 
 
-# ============================ V-163: credential temp files always cleaned ============================
-def test_v163_certificate_temp_files_removed_on_request_failure(monkeypatch):
+# ============================ Credential temp files always cleaned ============================
+def test_certificate_temp_files_removed_on_request_failure(monkeypatch):
     requests = pytest.importorskip("requests")
     mod = importlib.import_module("hana_ai.retrieval.utility")
     observed_paths = []
@@ -946,8 +946,8 @@ def test_v163_certificate_temp_files_removed_on_request_failure(monkeypatch):
     assert all(not os.path.exists(path) for path in observed_paths)
 
 
-# ============================ V-155/V-167: MCP admin auth + TLS default ============================
-def test_v155_static_token_verifier_enforces_http_requests():
+# ============================ MCP admin auth + TLS default ============================
+def test_static_token_verifier_enforces_http_requests():
     """Exercise FastMCP's actual ASGI authorization boundary, without a live port."""
     pytest.importorskip("fastmcp")
     from fastmcp import FastMCP
@@ -966,7 +966,7 @@ def test_v155_static_token_verifier_enforces_http_requests():
         assert client.get("/mcp", headers={"Authorization": f"Bearer {token}"}).status_code == 406
 
 
-def test_v155_runtime_http_admin_requires_token(monkeypatch):
+def test_runtime_http_admin_requires_token(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     toolkit = object.__new__(mod.HANAMLToolkit)
     monkeypatch.setenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", "true")
@@ -984,7 +984,7 @@ def test_http_mcp_non_loopback_binding_requires_token(monkeypatch):
         )
 
 
-def test_v155_runtime_admin_rejected_for_sse(monkeypatch):
+def test_runtime_admin_rejected_for_sse(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     toolkit = object.__new__(mod.HANAMLToolkit)
     monkeypatch.setenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", "true")
@@ -992,7 +992,7 @@ def test_v155_runtime_admin_rejected_for_sse(monkeypatch):
         toolkit.launch_mcp_server(transport="sse", max_retries=1)
 
 
-def test_v155_auth_token_rejected_for_unsupported_sse(monkeypatch):
+def test_auth_token_rejected_for_unsupported_sse(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     toolkit = object.__new__(mod.HANAMLToolkit)
     monkeypatch.delenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", raising=False)
@@ -1000,7 +1000,7 @@ def test_v155_auth_token_rejected_for_unsupported_sse(monkeypatch):
         toolkit.launch_mcp_server(transport="sse", auth_token="secret", max_retries=1)
 
 
-def test_v155_sse_non_loopback_binding_rejected(monkeypatch):
+def test_sse_non_loopback_binding_rejected(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     toolkit = object.__new__(mod.HANAMLToolkit)
     monkeypatch.delenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", raising=False)
@@ -1010,7 +1010,7 @@ def test_v155_sse_non_loopback_binding_rejected(monkeypatch):
         )
 
 
-def test_v167_tls_certificate_validation_defaults_on(monkeypatch):
+def test_tls_certificate_validation_defaults_on(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     monkeypatch.delenv("HANA_USERKEY", raising=False)
     monkeypatch.setenv("HANA_ADDRESS", "hana.example.test")
@@ -1020,7 +1020,7 @@ def test_v167_tls_certificate_validation_defaults_on(monkeypatch):
     assert mod._build_cc_params_from_env()["sslValidateCertificate"] is True
 
 
-def test_v167_empty_tls_setting_uses_secure_default(monkeypatch):
+def test_empty_tls_setting_uses_secure_default(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     monkeypatch.delenv("HANA_USERKEY", raising=False)
     monkeypatch.setenv("HANA_ADDRESS", "hana.example.test")
@@ -1033,7 +1033,7 @@ def test_v167_empty_tls_setting_uses_secure_default(monkeypatch):
         mod._build_cc_params_from_env()
 
 
-def test_v167_userkey_env_uses_secure_tls_default(monkeypatch):
+def test_userkey_env_uses_secure_tls_default(monkeypatch):
     mod = importlib.import_module("hana_ai.tools.toolkit")
     monkeypatch.setenv("HANA_USERKEY", "XinKey2")
     monkeypatch.delenv("HANA_ENCRYPT", raising=False)
@@ -1045,21 +1045,21 @@ def test_v167_userkey_env_uses_secure_tls_default(monkeypatch):
     }
 
 
-def test_v170_memory_admin_commands_default_to_disabled(monkeypatch):
+def test_memory_admin_commands_default_to_disabled(monkeypatch):
     mod = importlib.import_module("hana_ai.agents.mem0_hana_agent")
     agent = object.__new__(mod.Mem0HANARAGAgent)
     monkeypatch.delenv("HANA_MEM0_ALLOW_ADMIN_COMMANDS", raising=False)
     assert "disabled" in agent.chat("!clear_long_term_memory").lower()
 
 
-def test_v172_sanitized_session_names_do_not_collide():
+def test_sanitized_session_names_do_not_collide():
     mod = importlib.import_module("hana_ai.iagents.context_agent")
     assert mod._session_storage_name("a/b") != mod._session_storage_name("a_b")
     assert "/" not in mod._session_storage_name("../../outside")
     assert ".." not in mod._session_storage_name("../../outside")
 
 
-def test_v173_raw_report_rendering_requires_opt_in(monkeypatch, tmp_path):
+def test_raw_report_rendering_requires_opt_in(monkeypatch, tmp_path):
     mod = importlib.import_module(
         "hana_ai.tools.hana_ml_tools.ts_visualizer_tools"
     )
@@ -1103,8 +1103,8 @@ def test_v173_raw_report_rendering_requires_opt_in(monkeypatch, tmp_path):
     ]
 
 
-# ============================ V-169: tenant/session memory isolation ============================
-class TestV169MemoryIsolation:
+# ============================ Tenant/session memory isolation ============================
+class TestMemoryIsolation:
     class _Store:
         def __init__(self):
             self.docs = []

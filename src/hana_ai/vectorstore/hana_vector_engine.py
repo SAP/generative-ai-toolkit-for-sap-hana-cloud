@@ -139,7 +139,7 @@ class HANAMLinVectorEngine(object):
         distance: str, optional
             Distance. Default to 'cosine_similarity'.
         """
-        # --- V-157 hardening: no raw interpolation of untrusted values/identifiers ---
+        # Never interpolate untrusted values or identifiers without encoding.
         try:
             top_n = int(top_n)
         except (TypeError, ValueError):

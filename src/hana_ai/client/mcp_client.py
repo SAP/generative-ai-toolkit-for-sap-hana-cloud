@@ -107,7 +107,7 @@ class HTTPMCPClient(MCPClient):
             self._http_client = httpx.AsyncClient(
                 timeout=self.timeout,
                 trust_env=False,
-                # V-164: do not auto-follow redirects — a malicious/MitM'd server could 307 the
+                # Do not auto-follow redirects — a malicious/MitM'd server could 307 the
                 # client to an attacker origin and leak the mcp-session-id (and same-origin, the
                 # Authorization header). Handle redirects explicitly if ever needed.
                 follow_redirects=False,
@@ -467,7 +467,7 @@ class StdioMCPClient(MCPClient):
     async def _ensure_process(self) -> None:
         if self._process is not None:
             return
-        # V-165: the stdio command/args come from untrusted config; validate and
+        # The stdio command/args come from untrusted config; validate and
         # resolve to an absolute path before spawning (no shells, no inline code,
         # allowlisted binaries only).
         resolved_command = _validate_stdio_command(self.command, self.args)

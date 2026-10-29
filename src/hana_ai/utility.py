@@ -9,7 +9,7 @@ import atexit
 
 
 def secure_report_dir(prefix: str) -> str:
-    """V-162: create a private, randomized temp directory (0700) for generated artifacts.
+    """Create a private, randomized temp directory (0700) for generated artifacts.
 
     Replaces predictable, world-shared ``<tmp>/<fixed-name>`` paths created with
     ``os.makedirs(..., exist_ok=True)``, which silently accept a co-resident attacker's
@@ -28,7 +28,7 @@ def secure_report_dir(prefix: str) -> str:
 
 
 def sanitize_artifact_name(name, fallback: str = "artifact") -> str:
-    """V-162: strip path separators / traversal from a caller-controlled filename component."""
+    """Strip path separators / traversal from a caller-controlled filename component."""
     # Treat both slash styles as separators on every platform so a Windows-style
     # attacker path is also contained when the service runs on Linux (and vice versa).
     base = str(name if name is not None else "").replace("\\", "/").rsplit("/", 1)[-1]
@@ -50,7 +50,7 @@ def count_tokens(query):
     int
         The number of tokens in the query.
     """
-    # V-160: optional dependencies must never be installed as an import side effect.
+    # Optional dependencies must never be installed as an import side effect.
     # Import nltk only for the feature that needs it, and fail with an actionable error.
     try:
         import nltk

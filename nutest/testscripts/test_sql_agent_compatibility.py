@@ -1,4 +1,4 @@
-"""Review9/10: valid HANA SELECT grammar must preserve object authorization."""
+"""Valid HANA SELECT grammar must preserve object authorization."""
 import os
 import uuid
 from unittest.mock import Mock

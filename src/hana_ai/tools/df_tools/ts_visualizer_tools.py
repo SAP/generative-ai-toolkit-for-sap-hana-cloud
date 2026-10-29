@@ -111,7 +111,7 @@ class TimeSeriesDatasetReport(BaseTool):
         df = readonly_dataframe(self.connection_context, select_statement).select(key, endog)
         ur = UnifiedReport(df).build(key=key, endog=endog)
         if output_dir is None:
-            # V-162: private randomized 0700 dir instead of predictable <tmp>/hanaml_report.
+            # Use a private randomized 0700 dir instead of predictable <tmp>/hanaml_report.
             destination_dir = secure_report_dir("hanaml_report")
         else:
             destination_dir = output_dir

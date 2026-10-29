@@ -1,4 +1,4 @@
-# V-175: direct runtime dependencies are pinned here. GitHub Actions installs the
+# Direct runtime dependencies are pinned here. GitHub Actions installs the
 # target-specific, hash-checked locks under .github/requirements/.
 langchain-community==0.3.18
 langchain-text-splitters==0.3.11

@@ -109,7 +109,7 @@ class HDIArtifactsTool(BaseTool):
         project_name = kwargs.get("project_name", None)
         if project_name is None:
             return "Project name is required"
-        # V-162: sanitize caller-controlled project_name before it is joined into filesystem paths.
+        # Sanitize caller-controlled project_name before it is joined into filesystem paths.
         project_name = sanitize_artifact_name(project_name, fallback="hdiproject")
         output_dir = kwargs.get("output_dir", None)
         if output_dir is None:
@@ -118,7 +118,7 @@ class HDIArtifactsTool(BaseTool):
         archive = kwargs.get("archive", True)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
-        # V-162: use a private, randomized 0700 dir instead of predictable <tmp>/hana-ai-cap2hdi.
+        # Use a private, randomized 0700 dir instead of predictable <tmp>/hana-ai-cap2hdi.
         cap_dir = secure_report_dir("hana-ai-cap2hdi")
         generator = HANAGeneratorForCAP(
             project_name=project_name,

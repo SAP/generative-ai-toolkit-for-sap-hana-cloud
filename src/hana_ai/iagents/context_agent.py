@@ -563,7 +563,7 @@ class ContextAgent:
 		self.config = config or AgentConfig()
 
 		self.storage_dir = Path(storage_dir).expanduser().resolve()
-		# V-172: confine the session directory to <storage>/sessions. A crafted session_id
+		# Confine the session directory to <storage>/sessions. A crafted session_id
 		# (e.g. containing '../') must not escape into arbitrary filesystem paths, whose
 		# contents are later read back into the model context (arbitrary file read).
 		_sessions_root = (self.storage_dir / "sessions").resolve()
@@ -1267,7 +1267,7 @@ class ContextAgent:
 			html_text = path.read_text(encoding="utf-8")
 		except Exception:
 			return False
-		# V-173: tool/agent-supplied HTML can carry stored JavaScript that executes in the
+		# Tool/agent-supplied HTML can carry stored JavaScript that executes in the
 		# notebook user's browser. Do not auto-render raw HTML unless the host explicitly opts
 		# in; by default surface a safe reference to the artifact file instead.
 		if os.environ.get("HANA_ALLOW_RAW_HTML_RENDER", "").lower() not in ("1", "true", "yes"):
