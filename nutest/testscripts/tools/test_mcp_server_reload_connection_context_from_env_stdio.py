@@ -2,7 +2,7 @@
 """E2E: Reload HANA ConnectionContext from environment over stdio.
 
 This test starts the stdio MCP server as a subprocess and uses StdioMCPClient
-to call `admin_reload_connection_context_from_file`.
+to call `admin_reload_connection_context_from_env`.
 """
 
 from __future__ import annotations
@@ -13,8 +13,8 @@ import sys
 import unittest
 
 
-class TestMCPReloadConnectionContextFromFileSTDIO(unittest.TestCase):
-    def test_reload_connection_context_from_file_stdio(self):
+class TestMCPReloadConnectionContextFromEnvSTDIO(unittest.TestCase):
+    def test_reload_connection_context_from_env_stdio(self):
         if not os.environ.get("HANA_USERKEY"):
             self.skipTest("HANA_USERKEY is required for this live reload test")
         old_runtime_update = os.environ.get("HANA_ALLOW_RUNTIME_CONN_UPDATE")

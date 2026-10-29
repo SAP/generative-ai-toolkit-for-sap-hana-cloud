@@ -300,6 +300,16 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
             background_sampling_seed=background_sampling_seed,
             use_explain=use_explain,
         )
+        # PAL may report per-group failures without raising a Python exception.
+        # Never persist an empty model (or replace a previously usable version)
+        # and then tell the caller that training succeeded.
+        group_errors = auto_ts.error_.collect().to_dict(orient="records") if auto_ts.error_ is not None else []
+        if auto_ts.model_[0] is None or auto_ts.model_[0].count() == 0:
+            return json.dumps({
+                "error": "massive_automl_fit_failed",
+                "message": "PAL produced no trained model. Check the per-group errors and training data. No model was saved.",
+                "group_errors": group_errors,
+            }, cls=_CustomEncoder)
         auto_ts.name = name
         ms = ModelStorage(connection_context=self.connection_context)
         auto_ts.version = generate_model_storage_version(ms, version, name)
@@ -311,6 +321,9 @@ class MassiveAutomaticTimeSeriesFitAndSave(BaseTool):
         }
         if auto_key_added is not None:
             outputs["auto_key_added"] = auto_key_added
+        if group_errors:
+            # Preserve successful groups while making partial failures visible.
+            outputs["group_errors"] = group_errors
         return json.dumps(outputs, cls=_CustomEncoder)
 
     async def _arun(self, **kwargs) -> str:

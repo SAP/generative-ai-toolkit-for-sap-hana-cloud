@@ -43,18 +43,26 @@ Notes:
   export NO_PROXY=127.0.0.1,localhost,<your-hana-host>
 
 Runtime update (no restart):
-- This server exposes two MCP admin tools:
+- Only when the trusted host sets HANA_ALLOW_RUNTIME_CONN_UPDATE=true, this
+  server exposes two MCP admin tools (disabled by default):
     - `admin_update_connection_context`: pass new connection params explicitly.
-    - `admin_reload_connection_context_from_file`: read a VCAP_SERVICES file and reload.
-- An MCP client can call either one to switch the live `ConnectionContext` after env/credentials change,
+    - `admin_reload_connection_context_from_env`: reload trusted server HANA_* environment.
+- An authorized MCP client can call either one to switch the live `ConnectionContext` after env/credentials change,
     without restarting the MCP server process.
+  File loading is host-controlled at startup; there is no client-selected
+  file-reload tool. For HTTP, the host must also configure `auth_token` and
+  clients must supply its matching Bearer token. Remote HTTP deployments need HTTPS.
 
   Example (Python HTTP transport client):
     from hana_ai.client.mcp_client import HTTPMCPClient
     import asyncio
+    import os
 
     async def main():
-        c = HTTPMCPClient(base_url="http://127.0.0.1:8001/mcp")
+        c = HTTPMCPClient(
+            base_url="http://127.0.0.1:8001/mcp",
+            extra_headers={"Authorization": f"Bearer {os.environ['HANA_MCP_AUTH_TOKEN']}"},
+        )
         await c.initialize()
         r = await c.call_tool(
             "admin_update_connection_context",
@@ -70,10 +78,10 @@ Runtime update (no restart):
         )
         print(r)
 
-        # Or: reload from a VCAP_SERVICES file
+        # Or: reload the server's trusted environment (no client-selected file).
         r2 = await c.call_tool(
-            "admin_reload_connection_context_from_file",
-            {"file_path": "path/to/env.file", "test_connection": True},
+            "admin_reload_connection_context_from_env",
+            {"test_connection": True},
         )
         print(r2)
         await c.close()
