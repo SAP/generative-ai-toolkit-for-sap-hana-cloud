@@ -1,86 +1,40 @@
-#!/usr/bin/env python3
-"""
-Unittest: Stdio/SSE mode validation using TestML_BaseTestClass (using SSE to avoid stdio issues).
-"""
-from __future__ import annotations
+"""Real stdio schema + HANA fetch using an explicitly approved server process."""
 
-import unittest
-import time
-import socket
-
-try:
-    from testML_BaseTestClass import TestML_BaseTestClass
-except ImportError:
-    import os, sys
-    here = os.path.dirname(__file__)
-    sys.path.append(here)
-    sys.path.append(os.path.join(here, ".."))
-    sys.path.append(os.path.join(here, "..", ".."))
-    from testML_BaseTestClass import TestML_BaseTestClass
+import asyncio
+import json
+import os
+from pathlib import Path
+import sys
 
 
-def _find_free_port(start: int = 9101, end: int = 9200) -> int:
-    for p in range(start, end):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.bind(("127.0.0.1", p))
-                return p
-            except OSError:
-                continue
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(("127.0.0.1", 0))
-        return s.getsockname()[1]
+def test_stdio_schema_and_fetch(monkeypatch):
+    from hana_ai.client.mcp_client import StdioMCPClient
 
+    script = str(Path(__file__).resolve().parents[3] / "examples/mcp_stdio_server.py")
+    monkeypatch.setenv("HANA_USERKEY", os.environ.get("HANA_USERKEY", "XinKey2"))
+    monkeypatch.setenv("HANA_ENCRYPT", "true")
+    monkeypatch.setenv("HANA_SSL_VALIDATE", "true")
+    monkeypatch.delenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", raising=False)
+    monkeypatch.setenv("HANA_MCP_STDIO_ALLOWED_PROFILES", json.dumps([
+        {"command": sys.executable, "args_prefix": [script]},
+    ]))
 
-class TestMCPServerToolSchemaStdioSSE(TestML_BaseTestClass):
-    def setUp(self):
-        super().setUp()
-        from hana_ai.tools.toolkit import HANAMLToolkit
-
-        self.tk = HANAMLToolkit(connection_context=self.conn, used_tools=["fetch_data"])  # only register fetch_data
-        self.port = _find_free_port()
-        # Use SSE transport to avoid stdio thread issues in test runners
-        self.tk.launch_mcp_server(transport="sse", host="127.0.0.1", port=self.port, max_retries=30)
-        time.sleep(0.5)
-
-    def tearDown(self):
+    async def scenario():
+        client = StdioMCPClient(command=sys.executable, args=[script], timeout=120)
         try:
-            self.tk.stop_mcp_server(host="127.0.0.1", port=self.port, transport="sse", force=True, timeout=3.0)
+            await client.initialize()
+            tools = {tool.name: tool for tool in await client.list_tools()}
+            assert not any(name.startswith("admin_") for name in tools)
+            schema = tools["fetch_data"].inputSchema
+            assert "table_name" in schema["required"]
+            for name in ("table_name", "schema_name", "top_n", "last_n"):
+                assert schema["properties"][name]["description"]
+            result = await client.call_tool(
+                "fetch_data", {"table_name": "DUMMY", "schema_name": "SYS", "top_n": 1},
+            )
+            assert result.success, result.error
+            assert "DUMMY" in str(result.data) and "X" in str(result.data)
         finally:
-            super().tearDown()
+            await client.close()
 
-    def test_schema_descriptions_and_direct_call(self):
-        from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool, FetchDataInput
-
-        tool = FetchDataTool(connection_context=self.conn)
-        self.assertTrue(isinstance(tool.description, str) and len(tool.description.strip()) > 0,
-                        "Tool description missing or empty for fetch_data")
-
-        try:
-            schema = FetchDataInput.model_json_schema(by_alias=True)
-        except Exception:
-            schema = FetchDataInput.schema(by_alias=True)
-
-        props = schema.get("properties", {})
-        checks = {
-            "table_name": "the name of the table",
-            "schema_name": "the schema name of the table",
-            "top_n": "the number of rows to fetch",
-            "last_n": "the number of rows to fetch from the end",
-        }
-        for k, phrase in checks.items():
-            desc = props.get(k, {}).get("description")
-            self.assertTrue(isinstance(desc, str) and phrase in desc,
-                            f"Missing or incorrect description for parameter: {k}")
-
-        # Direct call path
-        try:
-            res = tool._run(kwargs={"table_name": "DUMMY", "schema_name": None, "top_n": 1})
-            self.assertTrue(isinstance(res, str) and len(res) > 0, "Tool call did not return a string response")
-        except Exception as e:
-            msg = str(e)
-            self.assertTrue(isinstance(msg, str) and len(msg) > 0, "Tool call raised an exception without message")
-
-
-if __name__ == "__main__":
-    unittest.main()
+    asyncio.run(scenario())

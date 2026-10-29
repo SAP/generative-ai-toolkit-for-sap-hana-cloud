@@ -76,12 +76,31 @@ class TestMCPServerToolSchemaSSE(TestML_BaseTestClass):
         from hana_ai.tools.hana_ml_tools.fetch_tools import FetchDataTool
 
         tool = FetchDataTool(connection_context=self.conn)
-        try:
-            res = tool._run(kwargs={"table_name": "DUMMY", "schema_name": None, "top_n": 1})
-            self.assertTrue(isinstance(res, str) and len(res) > 0, "Tool call did not return a string response")
-        except Exception as e:
-            msg = str(e)
-            self.assertTrue(isinstance(msg, str) and len(msg) > 0, "Tool call raised an exception without message")
+        res = tool._run(kwargs={"table_name": "DUMMY", "schema_name": "SYS", "top_n": 1})
+        self.assertIn("DUMMY", res)
+        self.assertIn("X", res)
+
+    def test_sse_protocol_schema_and_fetch(self):
+        import asyncio
+        from mcp import ClientSession
+        from mcp.client.sse import sse_client
+
+        async def scenario():
+            async with sse_client(f"http://127.0.0.1:{self.port}/sse") as streams:
+                async with ClientSession(*streams) as session:
+                    await session.initialize()
+                    tools = {tool.name: tool for tool in (await session.list_tools()).tools}
+                    self.assertFalse(any(name.startswith("admin_") for name in tools))
+                    self.assertIn("table_name", tools["fetch_data"].inputSchema["required"])
+                    result = await session.call_tool(
+                        "fetch_data", {"table_name": "DUMMY", "schema_name": "SYS", "top_n": 1},
+                    )
+                    self.assertFalse(result.isError)
+                    content = "\n".join(item.text for item in result.content if item.type == "text")
+                    self.assertIn("DUMMY", content)
+                    self.assertIn("X", content)
+
+        asyncio.run(scenario())
 
 
 if __name__ == "__main__":

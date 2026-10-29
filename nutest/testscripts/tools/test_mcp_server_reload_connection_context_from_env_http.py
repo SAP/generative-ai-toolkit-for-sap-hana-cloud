@@ -45,7 +45,7 @@ def _find_free_port(start: int = 8000, end: int = 8100) -> int:
         return s.getsockname()[1]
 
 
-class TestMCPReloadConnectionContextFromFileHTTP(TestML_BaseTestClass):
+class TestMCPReloadConnectionContextFromEnvHTTP(TestML_BaseTestClass):
     def setUp(self):
         if not os.environ.get("HANA_USERKEY"):
             self.skipTest("HANA_USERKEY is required for this live reload test")
@@ -103,7 +103,7 @@ class TestMCPReloadConnectionContextFromFileHTTP(TestML_BaseTestClass):
         tools = asyncio.run(_main())
         return {t.name: t for t in (tools or [])}
 
-    def test_reload_connection_context_from_file(self):
+    def test_reload_connection_context_from_env(self):
         from hana_ai.client.mcp_client import HTTPMCPClient
         import asyncio
 
