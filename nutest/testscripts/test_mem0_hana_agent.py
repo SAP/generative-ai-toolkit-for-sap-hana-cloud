@@ -28,6 +28,12 @@ class FakeVectorStore:
             return len(q & t) / max(1, len(q))
         cands = []
         for d in self.items:
+            if filter and any(
+                d.metadata.get(key) != value
+                for key, value in filter.items()
+                if not isinstance(value, dict)
+            ):
+                continue
             s = score(d.page_content)
             if s >= score_threshold:
                 cands.append((d, s))
@@ -35,17 +41,21 @@ class FakeVectorStore:
         return cands[:k]
 
     def delete(self, filter):
-        # delete all when timestamp lte now
         count = 0
-        if 'timestamp' in filter and '$lte' in filter['timestamp']:
-            cutoff = filter['timestamp']['$lte']
-            keep = []
-            for d in self.items:
-                if d.metadata.get('timestamp', '9999') <= cutoff:
-                    count += 1
+        keep = []
+        for d in self.items:
+            matches = True
+            for key, value in filter.items():
+                actual = d.metadata.get(key)
+                if isinstance(value, dict) and '$lte' in value:
+                    matches = matches and actual is not None and actual <= value['$lte']
                 else:
-                    keep.append(d)
-            self.items = keep
+                    matches = matches and actual == value
+            if matches:
+                count += 1
+            else:
+                keep.append(d)
+        self.items = keep
         return count
 
 
@@ -74,15 +84,22 @@ class TestMem0HanaAgent(unittest.TestCase):
             rerank_candidates=5,
             rerank_k=2,
             score_threshold=0.0,
+            tenant_id="tenant-a",
+            session_id="session-a",
             _adapter=adapter,
             _auto_init_agent=False,
         )
         # preload some memories via adapter
         now = datetime.now().isoformat()
+        metadata = {
+            "timestamp": now,
+            "entity_id": "tenant-a",
+            "entity_type": "tenant",
+        }
         self.agent.mem0_adapter.add([
-            {"text": "User mentioned apples and bananas", "metadata": {"timestamp": now}},
-            {"text": "Assistant suggested fruits and snacks", "metadata": {"timestamp": now}},
-            {"text": "User bought oranges", "metadata": {"timestamp": now}},
+            {"text": "User mentioned apples and bananas", "metadata": metadata},
+            {"text": "Assistant suggested fruits and snacks", "metadata": metadata},
+            {"text": "User bought oranges", "metadata": metadata},
         ])
 
     def test_retrieve_relevant_memories(self):

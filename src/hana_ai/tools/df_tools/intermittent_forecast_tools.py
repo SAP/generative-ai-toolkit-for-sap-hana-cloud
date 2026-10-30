@@ -17,6 +17,7 @@ from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.exponential_smoothing import CrostonTSB
 
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, _create_temp_table
+from hana_ai.sql_guard import readonly_dataframe
 
 logger = logging.getLogger(__name__)
 
@@ -128,15 +129,15 @@ class IntermittentForecast(BaseTool):
         remove_leading_zeros = kwargs.get("remove_leading_zeros", False)
 
         # Check if key, endog exists in the dataset
-        if key not in self.connection_context.sql(select_statement).columns:
+        if key not in readonly_dataframe(self.connection_context, select_statement).columns:
             return json.dumps({
                 "error": f"The key column '{key}' does not exist in the input dataset."
             }, cls=_CustomEncoder)
-        if endog not in self.connection_context.sql(select_statement).columns:
+        if endog not in readonly_dataframe(self.connection_context, select_statement).columns:
             return json.dumps({
                 "error": f"The endog column '{endog}' does not exist in the input dataset."
             }, cls=_CustomEncoder)
-        df = self.connection_context.sql(select_statement).select(key, endog)
+        df = readonly_dataframe(self.connection_context, select_statement).select(key, endog)
         croston_tsb = CrostonTSB(
             alpha=alpha,
             beta=beta,

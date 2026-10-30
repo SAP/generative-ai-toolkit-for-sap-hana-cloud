@@ -26,8 +26,11 @@ class TestIntermittentForecastTools(TestML_BaseTestClass):
     def test_IntermittentForecast(self):
         tool = IntermittentForecast(connection_context=self.conn)
         result = json.loads(tool.run({"table_name": "#HANAI_DATA_TBL_RAW", "key": "ID", "endog": "VALUE", "accuracy_measure": "rmse"}))
-        expected_result = {'predicted_result_table': 'HANAI_DATA_TBL_RAW_INTERMITTENT_FORECAST_RESULT', 'DEMAND_FORECAST': 997.9076977658694, 'RMSE': 0.2684688160121085, 'PROBABILITY_FORECAST': 0.5418550000000001}
-        self.assertTrue(result['predicted_result_table']==expected_result['predicted_result_table'])
+        expected_result = {'DEMAND_FORECAST': 997.9076977658694, 'RMSE': 0.2684688160121085, 'PROBABILITY_FORECAST': 0.5418550000000001}
+        self.assertRegex(
+            result["result_select_statement"],
+            r"^SELECT \* FROM #INTERMITTENT_FORECAST_[0-9]+$",
+        )
         self.assertAlmostEqual(result['DEMAND_FORECAST'], expected_result['DEMAND_FORECAST'], places=5)
         self.assertAlmostEqual(result['RMSE'], expected_result['RMSE'], places=5)
         self.assertAlmostEqual(result['PROBABILITY_FORECAST'], expected_result['PROBABILITY_FORECAST'], places=5)

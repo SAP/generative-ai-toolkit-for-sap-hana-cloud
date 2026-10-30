@@ -18,7 +18,7 @@ Verifies:
    - The stable id has shape ``stateless-http-<pid>-<hex>``.
 
 The HANA connection is opened via ``userkey`` (``HANA_USERKEY`` env, default
-``RaysKey2``) so this can run against any team member's hdbuserstore entry.
+``XinKey2``) with encryption and certificate validation enabled.
 """
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ from typing import Any, Optional
 import requests
 
 
-HANA_USERKEY = os.environ.get("HANA_USERKEY", "RaysKey3")
+HANA_USERKEY = os.environ.get("HANA_USERKEY", "XinKey2")
 
 
 def _find_free_port(start: int = 8100, end: int = 8300) -> int:
@@ -81,12 +81,10 @@ class TestMCPServerStatelessHTTP(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        import certifi
         from hana_ml import dataframe
         cls.conn = dataframe.ConnectionContext(
             userkey=HANA_USERKEY,
-            sslTrustStore=certifi.where(),
-            sslValidateCertificate=False,
+            sslValidateCertificate=True,
             encrypt=True,
         )
 
@@ -99,7 +97,7 @@ class TestMCPServerStatelessHTTP(unittest.TestCase):
 
     # --- helpers ---------------------------------------------------------
 
-    def _launch(self, *, stateless_http: bool) -> tuple[Any, int, str, list]:
+    def _launch(self, *, stateless_http: Optional[bool] = None) -> tuple[Any, int, str, list]:
         """Boot a fresh HTTP MCP server on a free port and return the toolkit,
         port, base_url, and the audit-events sink we install for verification.
         """
@@ -120,12 +118,13 @@ class TestMCPServerStatelessHTTP(unittest.TestCase):
         port = _find_free_port()
         base_url = f"http://127.0.0.1:{port}/mcp"
 
+        options = {} if stateless_http is None else {"stateless_http": stateless_http}
         tk.launch_mcp_server(
             transport="http",
             host="127.0.0.1",
             port=port,
             max_retries=3,
-            stateless_http=stateless_http,
+            **options,
         )
         _wait_ready(base_url)
         return tk, port, base_url, audit_events
@@ -161,7 +160,7 @@ class TestMCPServerStatelessHTTP(unittest.TestCase):
         never-issued ``mcp-session-id``. This is the pre-patch behavior that
         broke Joule Desktop on server restart; we assert we did NOT change it.
         """
-        tk, port, base_url, _ = self._launch(stateless_http=False)
+        tk, port, base_url, _ = self._launch()
         try:
             # Fabricate a stale session id — as if a client cached one from a
             # prior server run. Stateful server should reject.

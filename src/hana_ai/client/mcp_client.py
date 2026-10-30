@@ -6,12 +6,15 @@ MCP client for connecting to HANA ML MCP server
 
 import asyncio
 import json
+import ipaddress
+import os
+import shutil
+from urllib.parse import urlsplit
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Any, List, Optional, Union
 
-import aiohttp
 import httpx
 
 
@@ -67,7 +70,15 @@ class MCPClient:
 
 
 class HTTPMCPClient(MCPClient):
-    """MCP client using HTTP transport"""
+    """MCP client using HTTP transport.
+
+    Use HTTPS for non-loopback servers and pass authentication through
+    extra_headers (for example, an Authorization bearer header), not URL
+    credentials. Redirects and environment-derived proxy settings are disabled.
+    Plain HTTP is allowed on loopback; the explicit Boolean
+    allow_insecure_http=True permits it elsewhere only for trusted isolated
+    networks. Strings such as "false" do not enable that override.
+    """
 
     def __init__(
         self,
@@ -75,28 +86,24 @@ class HTTPMCPClient(MCPClient):
         server_name: str = "hana-ml-tools",
         timeout: int = 30,
         extra_headers: Optional[Dict[str, str]] = None,
+        allow_insecure_http: bool = False,
     ):
         super().__init__(server_name)
         # Normalize base_url to ensure it ends with /mcp and has no trailing slash
-        normalized = base_url.rstrip('/')
+        normalized = _validate_http_base_url(
+            base_url,
+            allow_insecure_http=allow_insecure_http,
+        ).rstrip('/')
         if not normalized.endswith('/mcp'):
             normalized = normalized + '/mcp'
         self.base_url = normalized.rstrip('/')
         self.timeout = timeout
         self._extra_headers = {str(key): str(value) for key, value in (extra_headers or {}).items()}
-        self._client: Optional[aiohttp.ClientSession] = None
         self._http_client: Optional[httpx.AsyncClient] = None
         self._session_id: Optional[str] = None
 
     async def initialize(self) -> None:
         """初始化HTTP客户端"""
-        # aiohttp is only for interface compatibility, httpx is the main client
-        if self._client is None:
-            self._client = aiohttp.ClientSession(
-                base_url=f"{self.base_url.rstrip('/')}/",
-                timeout=aiohttp.ClientTimeout(total=self.timeout),
-            )
-
         if self._http_client is None:
             default_headers = {
                 "accept": "application/json",
@@ -106,10 +113,12 @@ class HTTPMCPClient(MCPClient):
             }
             default_headers.update(self._extra_headers)
             self._http_client = httpx.AsyncClient(
-                base_url=self.base_url,
                 timeout=self.timeout,
                 trust_env=False,
-                follow_redirects=True,
+                # Do not auto-follow redirects — a malicious/MitM'd server could 307 the
+                # client to an attacker origin and leak the mcp-session-id (and same-origin, the
+                # Authorization header). Handle redirects explicitly if ever needed.
+                follow_redirects=False,
                 headers=default_headers,
             )
 
@@ -125,7 +134,7 @@ class HTTPMCPClient(MCPClient):
                     "clientInfo": {"name": "hana-ai-client", "version": "0.1"},
                 },
             }
-            init_resp = await self._http_client.post("", json=init_payload)
+            init_resp = await self._http_client.post(self.base_url, json=init_payload)
             sid = init_resp.headers.get("mcp-session-id")
             if sid:
                 self._session_id = sid
@@ -158,8 +167,8 @@ class HTTPMCPClient(MCPClient):
             headers.update(self._extra_headers)
             if hasattr(self, "_session_id") and self._session_id:
                 headers["mcp-session-id"] = self._session_id
-            # Note: POST to /mcp (no trailing slash) to match server route
-            response = await self._http_client.post("", json=payload, headers=headers)
+            # Use the exact configured URL so redirect handling remains disabled.
+            response = await self._http_client.post(self.base_url, json=payload, headers=headers)
             if response.status_code == 200:
                 resp = response.json()
                 result = resp.get("result") or {}
@@ -271,7 +280,9 @@ class HTTPMCPClient(MCPClient):
                 "content-type": "application/json",
                 "mcp-protocol-version": "2024-11-05",
             }
-            response = await self._http_client.post("", json=rpc_payload, headers=headers)
+            response = await self._http_client.post(
+                self.base_url, json=rpc_payload, headers=headers
+            )
 
             if response.status_code != 200:
                 return MCPCallResult(
@@ -298,7 +309,10 @@ class HTTPMCPClient(MCPClient):
             return MCPCallResult(success=True, data=data, metadata={"status_code": response.status_code})
 
         except Exception as e:
-            return MCPCallResult(success=False, data=None, error=f"Tool call failed: {str(e)}")
+            return MCPCallResult(
+                success=False, data=None,
+                error=f"Tool call failed ({type(e).__name__}): {e}",
+            )
 
     async def list_tools(self) -> List[MCPTool]:
         """List all available tools"""
@@ -308,27 +322,163 @@ class HTTPMCPClient(MCPClient):
 
     async def close(self) -> None:
         """Close client connection"""
-        if self._client:
-            await self._client.close()
-            self._client = None
-
         if self._http_client:
             await self._http_client.aclose()
             self._http_client = None
 
 
+def _validate_http_base_url(base_url: str, *, allow_insecure_http: bool = False) -> str:
+    """Require TLS outside loopback while preserving the bundled local HTTP flow."""
+    if not isinstance(base_url, str) or not base_url.strip():
+        raise ValueError("MCP base_url must be a non-empty absolute URL")
+    parsed = urlsplit(base_url)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise ValueError("MCP base_url must use http:// or https:// with an explicit host")
+    if parsed.username or parsed.password:
+        raise ValueError("MCP credentials must be supplied as headers, not embedded in base_url")
+    host = parsed.hostname.lower().rstrip(".")
+    try:
+        loopback = ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        loopback = host == "localhost"
+    if parsed.scheme == "http" and not loopback and allow_insecure_http is not True:
+        raise ValueError(
+            "plaintext MCP HTTP is allowed only on loopback; use https:// or set "
+            "allow_insecure_http=True explicitly for a trusted isolated network"
+        )
+    return base_url
+
+
+_STDIO_INLINE_CODE_FLAGS = {
+    "-c", "-e", "--eval", "--evaluate", "-command", "-encodedcommand",
+}
+_STDIO_SHELL_NAMES = {
+    "sh", "bash", "dash", "ash", "zsh", "ksh", "csh", "tcsh", "fish",
+    "cmd", "command", "powershell", "pwsh",
+}
+
+
+def _is_stdio_inline_code_arg(arg: str) -> bool:
+    """Distinguish /c shell switches from /code/server.py-style paths."""
+    lowered = arg.lower()
+    if any(lowered.startswith(flag) for flag in _STDIO_INLINE_CODE_FLAGS):
+        return True
+    if lowered.startswith("/c"):
+        # Keep /c, /cCOMMAND and /c COMMAND blocked. A multi-component POSIX
+        # path is not a cmd switch for a non-shell executable. Exact host
+        # profile matching still applies; shell executables are always denied.
+        return "/" not in arg[2:] or arg[2].isspace() or arg[2] == "\\"
+    return False
+
+
+def _reject_stdio_shell(command: str) -> None:
+    """Reject shell interpreters and implicitly shell-executed Windows scripts."""
+    name = command.replace("\\", "/").rsplit("/", 1)[-1].lower()
+    stem, extension = os.path.splitext(name)
+    if name in _STDIO_SHELL_NAMES or (
+        extension in {".exe", ".com"} and stem in _STDIO_SHELL_NAMES
+    ) or extension in {".bat", ".cmd", ".ps1"}:
+        raise ValueError("shell interpreters and batch scripts are not allowed for stdio")
+
+
+def _resolve_stdio_executable(command: str) -> str:
+    resolved = command if os.path.isabs(command) else shutil.which(command)
+    if not resolved or not os.path.isfile(resolved):
+        raise ValueError(f"stdio command not found: {command!r}")
+    return os.path.realpath(resolved)
+
+
+def _load_stdio_profiles() -> List[Dict[str, Any]]:
+    """Load host-controlled executable and argument prefixes for stdio servers."""
+    raw = os.environ.get("HANA_MCP_STDIO_ALLOWED_PROFILES", "")
+    if not raw:
+        raise ValueError(
+            "stdio process spawning is disabled; set HANA_MCP_STDIO_ALLOWED_PROFILES "
+            "to a JSON list of trusted command/args_prefix profiles"
+        )
+    try:
+        profiles = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError("HANA_MCP_STDIO_ALLOWED_PROFILES must be valid JSON") from exc
+    if not isinstance(profiles, list) or not profiles:
+        raise ValueError("HANA_MCP_STDIO_ALLOWED_PROFILES must be a non-empty JSON list")
+    return profiles
+
+
+def _validate_stdio_command(command: str, args: List[str]) -> str:
+    """Match an untrusted stdio command against a host-controlled server profile.
+
+    An executable-name allowlist is insufficient because a Python or package runner can
+    still execute attacker-selected code. A profile therefore fixes the resolved executable
+    and a non-empty argument list. Additional operational arguments are rejected unless the
+    host profile explicitly sets ``allow_additional_args: true``.
+    """
+    if not command or not isinstance(command, str):
+        raise ValueError("stdio command must be a non-empty string")
+    _reject_stdio_shell(command)
+    args = list(args or [])
+    if not all(isinstance(arg, str) and "\x00" not in arg for arg in args):
+        raise ValueError("stdio args must be strings without NUL bytes")
+    if any(_is_stdio_inline_code_arg(arg) for arg in args):
+        raise ValueError("inline code or shell execution flags are not allowed in stdio args")
+
+    resolved = _resolve_stdio_executable(command)
+    _reject_stdio_shell(resolved)
+    normalized = os.path.normcase(resolved)
+    for profile in _load_stdio_profiles():
+        if not isinstance(profile, dict):
+            continue
+        allowed_command = profile.get("command")
+        prefix = profile.get("args_prefix")
+        if not isinstance(allowed_command, str) or not isinstance(prefix, list) or not prefix:
+            continue
+        if not all(isinstance(arg, str) for arg in prefix):
+            continue
+        try:
+            allowed_resolved = os.path.normcase(_resolve_stdio_executable(allowed_command))
+        except ValueError:
+            continue
+        allow_additional_args = profile.get("allow_additional_args") is True
+        args_match = args == prefix or (
+            allow_additional_args and args[:len(prefix)] == prefix
+        )
+        if normalized == allowed_resolved and args_match:
+            return resolved
+    raise ValueError(
+        "stdio command and args do not match any trusted "
+        "HANA_MCP_STDIO_ALLOWED_PROFILES entry"
+    )
+
+
 class StdioMCPClient(MCPClient):
-    """MCP client using Stdio transport (for Claude Desktop, etc.)"""
+    """MCP client using stdio transport.
+
+    Process startup requires the host-controlled HANA_MCP_STDIO_ALLOWED_PROFILES
+    environment variable: a JSON list with a command and non-empty args_prefix
+    for each trusted server. The resolved executable and full argument list must
+    match; trailing arguments require the profile's explicit Boolean
+    allow_additional_args=true. For example (replace paths for your deployment)::
+
+        [{"command": "/opt/hana-ai/venv/bin/python",
+          "args_prefix": ["/opt/hana-ai/mcp_server.py"]}]
+
+    Shell interpreters, inline-code switches and Windows batch/PowerShell scripts
+    are rejected even if profiled. Keep executables, scripts, their directories
+    and the inherited environment under trusted host control. No process is
+    started merely by constructing this client.
+    """
 
     def __init__(
         self,
         command: str = "python",
         args: List[str] = None,
-        server_name: str = "hana-ml-tools"
+        server_name: str = "hana-ml-tools",
+        timeout: float = 30,
     ):
         super().__init__(server_name)
         self.command = command
         self.args = args or []
+        self.timeout = timeout
         self._process = None
         self._next_id = 1
         self._reader_task: Optional[asyncio.Task] = None
@@ -340,12 +490,19 @@ class StdioMCPClient(MCPClient):
     async def _ensure_process(self) -> None:
         if self._process is not None:
             return
+        # The stdio command/args come from untrusted config; validate and
+        # resolve to an absolute path before spawning (no shells, no inline code,
+        # allowlisted binaries only).
+        resolved_command = _validate_stdio_command(self.command, self.args)
         self._process = await asyncio.create_subprocess_exec(
-            self.command,
+            resolved_command,
             *self.args,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            # An all-tools MCP schema response can exceed asyncio's 64 KiB
+            # default line limit because stdio JSON-RPC uses one line/message.
+            limit=10 * 1024 * 1024,
         )
 
         async def _read_stdout():
@@ -407,11 +564,24 @@ class StdioMCPClient(MCPClient):
         await self._process.stdin.drain()
 
         try:
-            resp = await asyncio.wait_for(fut, timeout=30)
+            resp = await asyncio.wait_for(fut, timeout=self.timeout)
             return resp
         except asyncio.TimeoutError as e:
             tail = "\n".join(self._stderr_tail[-50:])
             raise asyncio.TimeoutError(f"STDIO RPC timeout for method={method}. Server stderr tail:\n{tail}") from e
+
+    async def _notify(
+        self, method: str, params: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """Send an MCP notification, which intentionally has no response id."""
+        await self._ensure_process()
+        assert self._process is not None
+        assert self._process.stdin is not None
+        payload: Dict[str, Any] = {"jsonrpc": "2.0", "method": method}
+        if params is not None:
+            payload["params"] = params
+        self._process.stdin.write((json.dumps(payload) + "\n").encode("utf-8"))
+        await self._process.stdin.drain()
 
     async def initialize(self) -> None:
         """Initialize Stdio client"""
@@ -433,6 +603,7 @@ class StdioMCPClient(MCPClient):
         except Exception:
             sid = None
         self._session_id = sid
+        await self._notify("notifications/initialized", {})
         await self._refresh_tools()
 
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> MCPCallResult:
@@ -462,7 +633,10 @@ class StdioMCPClient(MCPClient):
                 data = result_data
             return MCPCallResult(success=True, data=data)
         except Exception as e:
-            return MCPCallResult(success=False, data=None, error=f"Tool call failed: {str(e)}")
+            return MCPCallResult(
+                success=False, data=None,
+                error=f"Tool call failed ({type(e).__name__}): {e}",
+            )
 
     async def list_tools(self) -> List[MCPTool]:
         """List all available tools"""
@@ -598,7 +772,9 @@ class MCPClientFactory:
             return HTTPMCPClient(
                 base_url=base_url,
                 server_name=server_name,
-                timeout=timeout
+                timeout=timeout,
+                extra_headers=kwargs.get("extra_headers"),
+                allow_insecure_http=kwargs.get("allow_insecure_http", False),
             )
 
         elif transport == MCPTransport.STDIO:

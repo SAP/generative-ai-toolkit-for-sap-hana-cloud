@@ -9,13 +9,14 @@ import json
 import logging
 import os
 from pathlib import Path
-import tempfile
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.visualizers.unified_report import UnifiedReport
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
+from hana_ai.utility import secure_report_dir
+from hana_ai.sql_guard import readonly_dataframe
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +98,7 @@ class TimeSeriesDatasetReport(BaseTool):
             return "endog is required"
         output_dir = kwargs.get("output_dir", None)
 
-        df_check = self.connection_context.sql(select_statement)
+        df_check = readonly_dataframe(self.connection_context, select_statement)
         columns = df_check.columns
         if key not in columns:
             return json.dumps({
@@ -107,10 +108,11 @@ class TimeSeriesDatasetReport(BaseTool):
             return json.dumps({
           "error": f"endog '{endog}' does not exist in the dataframe!"
             }, cls=_CustomEncoder)
-        df = self.connection_context.sql(select_statement).select(key, endog)
+        df = readonly_dataframe(self.connection_context, select_statement).select(key, endog)
         ur = UnifiedReport(df).build(key=key, endog=endog)
         if output_dir is None:
-            destination_dir = os.path.join(tempfile.gettempdir(), "hanaml_report")
+            # Use a private randomized 0700 dir instead of predictable <tmp>/hanaml_report.
+            destination_dir = secure_report_dir("hanaml_report")
         else:
             destination_dir = output_dir
         if not os.path.exists(destination_dir):

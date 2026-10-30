@@ -22,10 +22,19 @@ from dataclasses import dataclass
 import logging
 
 from hana_ai.mem0.hana_mem0_adapter import Mem0HanaAdapter, SearchResult
+from hana_ai.mem0.metadata_filters import metadata_matches_filters as _metadata_matches_filters
 from hana_ai.mem0.memory_classifier import Mem0IngestionClassifier
 from hana_ai.mem0.memory_entity_extractor import Mem0EntityExtractor
 
 logger = logging.getLogger(__name__)
+
+
+def _quote_hana_identifier(name: str) -> str:
+    """Quote one HANA identifier component and reject breakout characters."""
+    value = str(name)
+    if not value or '"' in value or "\x00" in value:
+        raise ValueError(f"invalid HANA table identifier: {value!r}")
+    return '"' + value + '"'
 
 
 @dataclass
@@ -50,7 +59,7 @@ def default_hana_export_handler(connection_context: Any, table_name: str, filter
         conn = connection_context.connection  # DBAPI connection
         cur = conn.cursor()
         # Best-effort: select all then normalize
-        cur.execute(f'SELECT * FROM "{table_name}"')
+        cur.execute(f'SELECT * FROM {_quote_hana_identifier(table_name)}')
         colnames = [d[0] for d in cur.description]
         for rec in cur.fetchall():
             row = {colnames[i]: rec[i] for i in range(len(colnames))}
@@ -64,9 +73,12 @@ def default_hana_export_handler(connection_context: Any, table_name: str, filter
                     metadata = json.loads(metadata)
                 except Exception:
                     pass
+            normalized_metadata = metadata if isinstance(metadata, dict) else {}
+            if not _metadata_matches_filters(normalized_metadata, filters):
+                continue
             rows.append({
                 'content': content,
-                'metadata': metadata if isinstance(metadata, dict) else {},
+                'metadata': normalized_metadata,
                 '_raw': row,
             })
         cur.close()
@@ -78,6 +90,11 @@ def default_hana_export_handler(connection_context: Any, table_name: str, filter
 class Mem0MemoryManager:
     """
     High-level memory manager that encapsulates Mem0HanaAdapter usage and policies.
+
+    Supply non-empty tenant_id and session_id, directly or in partition_defaults,
+    from trusted application identity. All manager reads, exports and deletions
+    retain this scope; caller filters cannot replace it. This is not an
+    authentication layer and does not secure direct access to the underlying adapter.
     """
 
     def __init__(
@@ -90,6 +107,9 @@ class Mem0MemoryManager:
         default_ttl_seconds: Optional[int] = None,
         short_term_ttl_seconds: Optional[int] = None,
         partition_defaults: Optional[Dict[str, Any]] = None,
+        tenant_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        adapter: Optional[Mem0HanaAdapter] = None,
         ingestion_rules: Optional[IngestionRules] = None,
         auto_classification_enabled: bool = False,
         classifier: Optional[Mem0IngestionClassifier] = None,
@@ -101,6 +121,14 @@ class Mem0MemoryManager:
         self.architecture = architecture
         if self.architecture != "vector":
             raise NotImplementedError("Only 'vector' architecture is implemented currently")
+
+        partition_defaults = dict(partition_defaults or {})
+        self.tenant_id = str(tenant_id or partition_defaults.get("tenant_id") or "").strip()
+        self.session_id = str(session_id or partition_defaults.get("session_id") or "").strip()
+        if not self.tenant_id or not self.session_id:
+            raise ValueError("tenant_id and session_id are required for isolated memory access")
+        self._scope = {"tenant_id": self.tenant_id, "session_id": self.session_id}
+        partition_defaults.update(self._scope)
 
         self.entity_id: Optional[str] = None
         self.entity_type: Optional[str] = None
@@ -127,19 +155,40 @@ class Mem0MemoryManager:
             entity_assignment_mode = "merge"
         self.entity_assignment_mode = entity_assignment_mode
 
-        self.adapter = Mem0HanaAdapter(
-            connection_context=connection_context,
-            table_name=table_name,
-            embedder=embedder,
-            reranker=reranker,
-            score_threshold=0.0,
-            ingest_filter=self._ingest_predicate,
-            max_length=self.ingestion_rules.max_length,
-            default_ttl_seconds=default_ttl_seconds,
-            short_term_ttl_seconds=short_term_ttl_seconds,
-            partition_defaults=partition_defaults,
-            export_handler=default_hana_export_handler,
-        )
+        if adapter is None:
+            self.adapter = Mem0HanaAdapter(
+                connection_context=connection_context,
+                table_name=table_name,
+                embedder=embedder,
+                reranker=reranker,
+                score_threshold=0.0,
+                ingest_filter=self._ingest_predicate,
+                max_length=self.ingestion_rules.max_length,
+                default_ttl_seconds=default_ttl_seconds,
+                short_term_ttl_seconds=short_term_ttl_seconds,
+                partition_defaults=partition_defaults,
+                export_handler=default_hana_export_handler,
+            )
+        else:
+            self.adapter = adapter
+            self.adapter.partition_defaults = {
+                **self.adapter.partition_defaults,
+                **partition_defaults,
+            }
+            self.adapter.ingest_filter = self._ingest_predicate
+            self.adapter.max_length = self.ingestion_rules.max_length
+            self.adapter.default_ttl_seconds = default_ttl_seconds
+            self.adapter.short_term_ttl_seconds = short_term_ttl_seconds
+
+    def _scoped_filters(
+        self, filters: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        scoped = dict(filters or {})
+        for key, expected in self._scope.items():
+            if key in scoped and scoped[key] != expected:
+                raise ValueError(f"memory filter cannot override {key}")
+            scoped[key] = expected
+        return scoped
 
     # ----------------------- Entity partitioning -----------------------
     def set_entity(self, entity_id: Optional[str], entity_type: Optional[str] = None) -> None:
@@ -200,6 +249,7 @@ class Mem0MemoryManager:
         Add a single memory entry with tagging, tiering, TTL, and entity handling.
         """
         md: Dict[str, Any] = extra_metadata.copy() if extra_metadata else {}
+        md.update(self._scope)
         extracted: Optional[Dict[str, str]] = None
         if self.auto_entity_extraction_enabled and self.entity_extractor is not None:
             extracted = self.entity_extractor.extract(text)
@@ -294,15 +344,13 @@ class Mem0MemoryManager:
         """
         Retrieve memories with optional entity scoping and tag filtering.
         """
-        filters: Optional[Dict[str, Any]] = None
-        if self.entity_id or self.entity_type or tags:
-            filters = {}
-            if self.entity_id:
-                filters["entity_id"] = self.entity_id
-            if self.entity_type:
-                filters["entity_type"] = self.entity_type
-            if tags:
-                filters["tags"] = {"$contains": tags}
+        filters: Dict[str, Any] = self._scoped_filters()
+        if self.entity_id:
+            filters["entity_id"] = self.entity_id
+        if self.entity_type:
+            filters["entity_type"] = self.entity_type
+        if tags:
+            filters["tags"] = {"$contains": tags}
         return self.adapter.search(query=query, top_k=top_k, threshold=threshold, filters=filters, rerank=rerank)
 
     def retrieve_texts(
@@ -330,7 +378,7 @@ class Mem0MemoryManager:
         """
         Retrieve memories filtered by tier and optional entity scoping.
         """
-        filters: Dict[str, Any] = {"tier": tier}
+        filters: Dict[str, Any] = self._scoped_filters({"tier": tier})
         # Preserve entity scoping
         if self.entity_id:
             filters["entity_id"] = self.entity_id
@@ -343,19 +391,17 @@ class Mem0MemoryManager:
         """
         Delete expired memories based on `expires_at` metadata.
         """
-        return self.adapter.delete_expired()
+        return self.adapter.delete_expired(filters=self._scope)
 
-    def clear_all(self) -> None:
+    def clear_all(self) -> int:
         """
-        Clear all memories from the table.
+        Clear memories belonging to this tenant and session.
         """
         try:
-            # Best-effort clear: delete all by timestamp <= now
-            from datetime import datetime
-            now = datetime.now().isoformat()
-            self.adapter.delete({"timestamp": {"$lte": now}})
+            return self.adapter.delete(self._scoped_filters())
         except Exception as e:
             logger.error("Failed to clear memories: %s", e)
+            return 0
 
     # ----------------------- Tag-based helpers ------------------------
     def search_by_tags(
@@ -369,14 +415,23 @@ class Mem0MemoryManager:
         """
         Search memories filtered by tags.
         """
-        return self.adapter.search_by_tags(tags=tags, query=query, top_k=top_k, threshold=threshold, rerank=rerank)
+        filters = self._scoped_filters({"tags": {"$contains": tags}})
+        return self.adapter.search(
+            query=query, top_k=top_k, threshold=threshold,
+            filters=filters, rerank=rerank
+        )
 
     # ----------------------- Export -----------------------------------
     def export(self, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
         Export memories using the configured export handler.
         """
-        return self.adapter.export(filters=filters)
+        scoped_filters = self._scoped_filters(filters)
+        rows = self.adapter.export(filters=scoped_filters)
+        return [
+            row for row in rows
+            if _metadata_matches_filters(row.get("metadata", {}), scoped_filters)
+        ]
 
     # ----------------------- Controls ---------------------------------
     def set_auto_classification_enabled(self, enabled: bool) -> None:

@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from hana_ai.tools.df_tools.ts_visualizer_tools import TimeSeriesDatasetReport
 from testML_BaseTestClass import TestML_BaseTestClass
 import unittest
@@ -29,7 +30,9 @@ class TestTimeSeriesDatasetReport(TestML_BaseTestClass):
         result = json.loads(tool.run({"select_statement": "select * from #HANAI_DATA_TBL_RAW", "key": "TIMESTAMP", "endog": "VALUE"}))
         #print(result)
         self.assertTrue("html_file" in result)
-        self.assertTrue("hanaml_report/ts_report.html" in result['html_file'])
+        report_path = Path(result["html_file"])
+        self.assertEqual(report_path.name, "ts_report.html")
+        self.assertTrue(report_path.is_file())
 
 if __name__ == '__main__':
     unittest.main()

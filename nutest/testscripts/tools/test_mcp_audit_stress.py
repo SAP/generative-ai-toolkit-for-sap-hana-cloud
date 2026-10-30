@@ -25,9 +25,8 @@ added and where locking/dedup can regress):
   initialize requests (specifically stresses the ``started_lock`` in the
   middleware — separate test)
 
-Uses HANA userkey ``HANA_USERKEY`` (default ``RaysKey3``) with certifi
-trust store, encrypted, no cert validation — matching the notebook
-conventions in this repo.
+Uses HANA userkey ``HANA_USERKEY`` (default ``XinKey2``) with native
+certificate trust, encryption and certificate validation enabled.
 
 The audit path itself normally writes to HANA (SESSION_VARIABLES,
 setclientinfo, beacon SQL), but those share a single connection cursor
@@ -56,7 +55,7 @@ from typing import Any, Optional
 import requests
 
 
-HANA_USERKEY = os.environ.get("HANA_USERKEY", "RaysKey3")
+HANA_USERKEY = os.environ.get("HANA_USERKEY", "XinKey2")
 WORKERS = int(os.environ.get("STRESS_WORKERS", "32"))
 ROUNDS = int(os.environ.get("STRESS_ROUNDS", "8"))
 
@@ -171,14 +170,12 @@ def _boot_server(*, stateless: bool):
 
     Returns (toolkit, port, base_url, events, events_lock).
     """
-    import certifi
     from hana_ml import dataframe
     from hana_ai.tools.toolkit import HANAMLToolkit
 
     cc = dataframe.ConnectionContext(
         userkey=HANA_USERKEY,
-        sslTrustStore=certifi.where(),
-        sslValidateCertificate=False,
+        sslValidateCertificate=True,
         encrypt=True,
     )
     tk = HANAMLToolkit(connection_context=cc, used_tools=["fetch_data"])
@@ -283,7 +280,7 @@ class TestAuditStress(unittest.TestCase):
                      "top_n": 1},
                     _next_rid(),
                 )
-                if resp.get("result") is not None:
+                if resp.get("result") is not None and not resp["result"].get("isError", False):
                     successes += 1
             return successes, client.session_id
 
@@ -312,6 +309,7 @@ class TestAuditStress(unittest.TestCase):
             successes, seen_sessions = self._run_workers(
                 base_url, stateless=False,
             )
+            self.assertEqual(successes, WORKERS * ROUNDS, "Every tool call must succeed")
             with events_lock:
                 snapshot = list(events)
             b = _bucket_events(snapshot)
@@ -376,6 +374,7 @@ class TestAuditStress(unittest.TestCase):
         tk, port, base_url, events, events_lock = _boot_server(stateless=True)
         try:
             successes, _ = self._run_workers(base_url, stateless=True)
+            self.assertEqual(successes, WORKERS * ROUNDS, "Every tool call must succeed")
             with events_lock:
                 snapshot = list(events)
             b = _bucket_events(snapshot)

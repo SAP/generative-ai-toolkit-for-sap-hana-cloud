@@ -10,7 +10,7 @@ Usage highlights:
 - Enable reranking via `Mem0HanaAdapter` (using `PALCrossEncoder` when available).
 - Store conversational summaries into HANA vector store with timestamp metadata.
 - Retrieve relevant memories via adapter search with `top_k`, `threshold`, and `filters`.
-- Optionally skip LLM agent initialization for unit tests (`auto_init_agent=False`).
+- Optionally skip LLM agent initialization for unit tests (`_auto_init_agent=False`).
 
 Note: This class is designed to be drop-in alongside `HANAMLRAGAgent` while using
 Mem0's style of memory flow adapted to HANA.
@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import Any, List, Optional
 import logging
 import json
+import os
 import re
 import warnings
 
@@ -139,6 +140,15 @@ def _extract_last_predicted_table_from_texts(texts: List[str]) -> dict:
 class Mem0HANARAGAgent:
     """
     A chatbot that uses Mem0-style long-term memory on HANA with reranking.
+
+    Deprecated; prefer ContextAgent for new workflows. Non-empty tenant_id and
+    session_id are required and must come from trusted application identity.
+    Memory reads, exports, cleanup and deletion are limited to that scope.
+    Existing unscoped memory needs deliberate migration.
+
+    Chat commands beginning with '!' are disabled by default. Set
+    HANA_MEM0_ALLOW_ADMIN_COMMANDS=true only behind application-enforced admin
+    authentication. Direct memory methods also require application authorization.
     """
     def __init__(
         self,
@@ -151,7 +161,9 @@ class Mem0HANARAGAgent:
         hana_vector_table: Optional[str] = None,
         drop_existing_hana_vector_table: bool = False,
         verbose: bool = False,
-        session_id: str = "global_session",
+        session_id: Optional[str] = None,
+        tenant_id: Optional[str] = None,
+        _adapter: Optional[Any] = None,
         _auto_init_agent: bool = True,
     ) -> None:
         with warnings.catch_warnings():
@@ -164,7 +176,10 @@ class Mem0HANARAGAgent:
         self.rerank_k = rerank_k
         self.score_threshold = score_threshold
         self.verbose = verbose
-        self.session_id = session_id
+        self.session_id = str(session_id or "").strip()
+        self.tenant_id = str(tenant_id or "").strip()
+        if not self.session_id or not self.tenant_id:
+            raise ValueError("tenant_id and session_id are required for isolated memory access")
         self.drop_existing_hana_vector_table = drop_existing_hana_vector_table
 
         # Detect HANA connection_context from tools
@@ -182,14 +197,19 @@ class Mem0HANARAGAgent:
         if hana_vector_table is None and self.hana_connection_context:
             self.user = _get_user_info(self.hana_connection_context)
             self.hana_vector_table = f"HANA_AI_CHAT_HISTORY_{self.user}"
+        elif hana_vector_table is None and _adapter is not None:
+            self.hana_vector_table = _adapter.table_name
         else:
             self.hana_vector_table = hana_vector_table or "HANA_AI_CHAT_HISTORY_DEFAULT"
 
         # Initialize memory manager (internal injection via _adapter for tests kept for BC but discouraged)
-        if not self.hana_connection_context:
+        if not self.hana_connection_context and _adapter is None:
             raise ValueError("HANA connection context is required for Mem0HANARAGAgent")
         # Initialize embedding service and optional reranker
-        self.embedding_service = HANAVectorEmbeddings(self.hana_connection_context)
+        self.embedding_service = (
+            _adapter.embedder if _adapter is not None
+            else HANAVectorEmbeddings(self.hana_connection_context)
+        )
         reranker = None
         try:
             if self.hana_connection_context and check_pal_function_exist(self.hana_connection_context, '%PAL_CROSSENCODER%', like=True):
@@ -213,16 +233,20 @@ class Mem0HANARAGAgent:
             architecture="vector",
             default_ttl_seconds=None,
             short_term_ttl_seconds=None,
-            partition_defaults={"agent_id": "mem0_hana_agent", "session_id": self.session_id},
+            partition_defaults={"agent_id": "mem0_hana_agent"},
+            tenant_id=self.tenant_id,
+            session_id=self.session_id,
+            adapter=_adapter,
             ingestion_rules=ingestion_rules,
             auto_classification_enabled=True,
             auto_entity_extraction_enabled=True,
             entity_assignment_mode="merge",
         )
+        self.mem0_adapter = self.memory_manager.adapter
 
-        # Scope manager to current user entity
-        if getattr(self, "user", None):
-            self.memory_manager.set_entity(self.user, "user")
+        # Entity metadata remains useful for retrieval, but the mandatory tenant/session
+        # scope above is the authorization boundary.
+        self.memory_manager.set_entity(self.tenant_id, "tenant")
         try:
             classifier = Mem0IngestionClassifier(self.llm)
             self.memory_manager.set_classifier(classifier)
@@ -284,7 +308,7 @@ class Mem0HANARAGAgent:
 
 
     def clear_long_term_memory(self) -> None:
-        """Clear all long-term memories from HANA."""
+        """Clear this tenant/session's long-term memories, preserving other scopes."""
         try:
             self.memory_manager.clear_all()
             logger.info("Mem0 long-term memory cleared.")
@@ -297,6 +321,14 @@ class Mem0HANARAGAgent:
     # ------------------------------------------------------------------
     def chat(self, user_input: str) -> str:
         """Process user input and return agent response, managing long-term memory."""
+        # '!'-commands are privileged memory-admin operations (tenant/session cleanup via
+        # clear_long_term_memory, plus export/enumeration). They carry no authorization, so any
+        # user of a shared agent chat could trigger them. Require an explicit host opt-in that is
+        # expected to sit behind an authenticated admin surface.
+        if user_input.startswith("!"):
+            if os.environ.get("HANA_MEM0_ALLOW_ADMIN_COMMANDS", "").lower() not in ("1", "true", "yes"):
+                return ("Memory admin commands are disabled. Set HANA_MEM0_ALLOW_ADMIN_COMMANDS=true "
+                        "behind an authenticated admin surface to enable them.")
         if user_input.startswith("!clear_long_term_memory"):
             self.clear_long_term_memory()
             return "Long-term memory has been cleared."
