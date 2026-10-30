@@ -1055,8 +1055,10 @@ def build_context_agent_mcp_tools(
     skip_admin_tools : bool, default True
         When ``True``, tools whose name starts with ``admin_`` (e.g.
         ``admin_update_connection_context``) are excluded from the returned
-        list. Set to ``False`` if the agent needs to manage the server's
-        connection context at runtime.
+        list. ``False`` only retains admin tools already exposed by the server;
+        it neither enables administration nor grants permission. The HANA
+        toolkit server must opt in with HANA_ALLOW_RUNTIME_CONN_UPDATE=true
+        and authenticate HTTP administration requests.
 
     Returns
     -------
@@ -1066,10 +1068,19 @@ def build_context_agent_mcp_tools(
         session; when done, call ``client.close()`` to release the HTTP
         session and its MCP session id.
 
+    Notes
+    -----
+    This convenience helper does not accept authentication headers and initializes
+    the connection before returning. For authenticated servers, use a client with
+    explicit authentication-header support, such as
+    :class:`~hana_ai.client.mcp_client.HTTPMCPClient`. The client_name and
+    client_metadata values are audit labels, not authentication credentials.
+
     Examples
     --------
-    Launch the MCP server on one process, then wire it into a
-    ``ContextAgent`` from another:
+    For a loopback HTTP server with runtime administration disabled and no
+    authentication required, build tools to pass to ContextAgent. Admin tools
+    remain excluded by default:
 
     >>> from hana_ai.tools.hana_ml_tools.utility import build_context_agent_mcp_tools
     >>> tools, client = build_context_agent_mcp_tools(

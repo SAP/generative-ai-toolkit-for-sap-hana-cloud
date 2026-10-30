@@ -90,6 +90,11 @@ def default_hana_export_handler(connection_context: Any, table_name: str, filter
 class Mem0MemoryManager:
     """
     High-level memory manager that encapsulates Mem0HanaAdapter usage and policies.
+
+    Supply non-empty tenant_id and session_id, directly or in partition_defaults,
+    from trusted application identity. All manager reads, exports and deletions
+    retain this scope; caller filters cannot replace it. This is not an
+    authentication layer and does not secure direct access to the underlying adapter.
     """
 
     def __init__(

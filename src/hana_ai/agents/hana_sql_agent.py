@@ -740,12 +740,18 @@ def create_hana_sql_agent(
 ):
     """Create a HANA SQL agent.
 
+    SQL queries are limited to one read-only SELECT within the configured object
+    scope, including nested queries, CTEs and joins. Use a dedicated HANA account
+    with only the necessary SELECT privileges; parser checks do not replace
+    database authorization. These checks do not constrain separately supplied
+    custom tools or HANAMLToolkit model-training/storage tools.
+
     Parameters
     ----------
     llm: any
         The language model to use.
-    tools: BaseTool
-        The tools to use.
+    tools: List[BaseTool], optional
+        Additional tools to include in the SQL toolkit.
     agent_type: Union[AgentType, Literal["openai-tools", "tool-calling"]], optional
         The type of agent to create.
     callback_manager: BaseCallbackManager, optional
@@ -772,8 +778,6 @@ def create_hana_sql_agent(
         The agent executor kwargs to use.
     extra_tools: Sequence[BaseTool]
         The extra tools to use.
-    db: SQLDatabase, optional
-        The database to use.
     connection_context: ConnectionContext
         The connection context to use.
     prompt: BasePromptTemplate, optional
@@ -785,19 +789,13 @@ def create_hana_sql_agent(
     kwargs: Any
         The kwargs to use.
 
-    examples
+    Examples
     --------
-    Assume cc is a connection to a SAP HANA instance:
+    Assume cc is a read-only connection to a SAP HANA instance and llm is configured:
 
     >>> from hana_ai.agents.hana_sql_agent import create_hana_sql_agent
-    >>> from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
-    >>> from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
 
-    >>> hana_vec = HANAMLinVectorEngine(connection_context=cc, table_name="hana_vec_hana_ml_sql_knowledge")
-    >>> hana_vec.create_knowledge(option='sql')
-    >>> code_tool = GetCodeTemplateFromVectorDB()
-    >>> code_tool.set_vectordb(vectordb=hana_vec)
-    >>> agent_executor = create_hana_sql_agent(llm=llm, connection_context=cc, tools=[code_tool], include_tables=["IRIS_DATA_FULL_TBL"], verbose=True)
+    >>> agent_executor = create_hana_sql_agent(llm=llm, connection_context=cc, include_tables=["IRIS_DATA_FULL_TBL"], verbose=True)
     >>> agent_executor.invoke("show me the min and max value of sepalwidthcm in the table iris_data_full_tbl?")
     """
     if agent_type is None and AgentType is not None:
@@ -857,6 +855,10 @@ def create_hana_sql_toolkit(
 ):
     """
     Create a HANA SQL toolkit.
+
+    Uses the SQL agent's single-statement, read-only object checks. A restricted
+    HANA account is still required. This is separate from HANAMLToolkit and does
+    not restrict that toolkit's model-training, storage or deletion tools.
 
     Parameters
     ----------

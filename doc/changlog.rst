@@ -21,6 +21,7 @@ Changelog
     - Grouped AutoML reports failure without saving when no model is produced. Partial success preserves usable models and returns group errors instead of silently reporting complete success.
 
 ``Installation / Maintenance``
+    - Aligned API examples and docstrings with security defaults, memory scope and supported tool behavior. Documentation builds preserve SQL guidance and existing API URLs; added the SQL toolkit and MCP client reference entries.
     - Removed import-time package installation; install required dependencies explicitly, including ``hana_ai[nlp]`` or ``hana_ai[graph]`` for optional features. Python 3.10+ is required. Runtime dependencies use compatible ranges; development/build versions and CI action revisions are pinned, with hash-checked Python 3.11/Linux CI locks.
     - Expanded security, SQL, memory, MCP/audit and ContextAgent regression coverage, including environment-based connection reload and artifact/database-backed business assertions. Public comments and test names now use functional descriptions.
 

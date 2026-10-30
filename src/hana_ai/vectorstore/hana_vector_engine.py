@@ -44,11 +44,13 @@ class HANAMLinVectorEngine(object):
     connection_context: ConnectionContext
         Connection context.
     table_name: str
-        Table name.
+        Table name. Table/schema names cannot contain single or double quotes,
+        NUL bytes or semicolons; ordinary case-sensitive names are supported.
     schema: str, optional
         Schema name. Default to None.
     model_version: str, optional
-        Model version. Default to 'SAP_NEB.20240715'.
+        Model version. Default to 'SAP_NEB.20240715'. NUL bytes and semicolons
+        are rejected; apostrophes in values are safely encoded.
     """
     connection_context: ConnectionContext = None
     table_name: str = None
@@ -133,11 +135,21 @@ class HANAMLinVectorEngine(object):
         Parameters
         ----------
         input: str
-            Input text.
+            Query text. Apostrophes are supported; NUL bytes and semicolons are
+            rejected because hana-ml splits SQL text before parsing quotes.
         top_n: int, optional
-            Top n. Default to 1.
+            Query limit and 1-based result rank, from 1 to 1000. Default to 1.
         distance: str, optional
-            Distance. Default to 'cosine_similarity'.
+            Case-insensitive function name: COSINE_SIMILARITY, L2DISTANCE,
+            EUCLIDEAN_DISTANCE, DOT_PRODUCT, MANHATTAN_DISTANCE or INNER_PRODUCT.
+            Default to 'cosine_similarity'. The selected function must also be
+            supported by the target HANA database.
+
+        Returns
+        -------
+        str
+            Template text at the requested rank, or the last available rank
+            when fewer rows match. This method does not return a result list.
         """
         # Never interpolate untrusted values or identifiers without encoding.
         try:

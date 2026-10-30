@@ -242,7 +242,11 @@ class HANASessionContextError(RuntimeError):
 
 class HANAMLToolkit(BaseToolkit):
     """
-    Toolkit for interacting with HANA SQL.
+    Toolkit for HANA data analysis and model workflows.
+
+    The separate SQL agent/toolkit is not included automatically. Its read-only
+    checks do not apply to these tools: training, model storage and deletion may
+    require write/execute privileges. Select tools and database roles accordingly.
 
     Parameters
     ----------
@@ -259,10 +263,10 @@ class HANAMLToolkit(BaseToolkit):
     Assume cc is a connection to a SAP HANA instance:
 
     >>> from hana_ai.tools.toolkit import HANAMLToolkit
-    >>> from hana_ai.agents.hanaml_agent_with_memory import HANAMLAgentWithMemory
+    >>> from hana_ai.agents.context_agent import ContextAgent
 
     >>> tools = HANAMLToolkit(connection_context=cc, used_tools='all').get_tools()
-    >>> chatbot = HANAMLAgentWithMemory(llm=llm, toos=tools, session_id='hana_ai_test', n_messages=10)
+    >>> chatbot = ContextAgent(llm=llm, tools=tools, storage_dir='.context_agent', session_id='toolkit_example')
     """
     vectordb: Optional[HANAMLinVectorEngine] = None
     connection_context: ConnectionContext = None
@@ -1821,16 +1825,18 @@ class HANAMLToolkit(BaseToolkit):
         server_name : str
             Name of the server. Default is "HANATools".
         host : str
-            Host address for the server.
+            Host address; defaults to 127.0.0.1. Non-loopback HTTP requires
+            auth_token. SSE is restricted to loopback, even with a token.
         transport : {"stdio", "sse", "http"}
             Transport protocol to use. Default is "stdio". Can be "sse" for Server-Sent Events.
         port : int
             Network port to use for server transports that require a port (SSE/HTTP). Default is 8001. Ignored for stdio.
         auth_token : str, optional
-            Bearer token for HTTP transport. SSE does not provide a verified authentication
-            boundary in this launcher; stdio relies on the host process boundary. This
-            launcher does not terminate TLS: protect any traffic outside a trusted local
-            network boundary with an HTTPS reverse proxy and prevent direct plaintext access.
+            Bearer token for HTTP transport, required outside loopback and for
+            HTTP connection administration. SSE rejects tokens and administration;
+            stdio relies on the host process boundary. This
+            launcher does not terminate TLS: remote deployments need an HTTPS
+            reverse proxy and must prevent direct plaintext access.
         max_retries : int
             Maximum number of retries to find an available port. Default is 5.
         stateless_http : bool
@@ -1842,6 +1848,15 @@ class HANAMLToolkit(BaseToolkit):
             under a single process-lifetime session id so ``mcp.session.started`` is
             emitted exactly once per server start. Ignored for ``stdio`` / ``sse``.
             Default is False (stateful — unchanged legacy behavior).
+
+        Notes
+        -----
+        Connection administration is registered only when the server environment
+        sets HANA_ALLOW_RUNTIME_CONN_UPDATE=true. HTTP administration also requires
+        auth_token, including on loopback. Environment reload reads the trusted
+        server environment; client-selected file reload is not supported.
+        Connection updates default to TLS encryption and certificate validation;
+        disabling either requires the Boolean allow_tls_downgrade=True.
         """
         attempts = 0
         original_port = port

@@ -10,7 +10,7 @@ Usage highlights:
 - Enable reranking via `Mem0HanaAdapter` (using `PALCrossEncoder` when available).
 - Store conversational summaries into HANA vector store with timestamp metadata.
 - Retrieve relevant memories via adapter search with `top_k`, `threshold`, and `filters`.
-- Optionally skip LLM agent initialization for unit tests (`auto_init_agent=False`).
+- Optionally skip LLM agent initialization for unit tests (`_auto_init_agent=False`).
 
 Note: This class is designed to be drop-in alongside `HANAMLRAGAgent` while using
 Mem0's style of memory flow adapted to HANA.
@@ -140,6 +140,15 @@ def _extract_last_predicted_table_from_texts(texts: List[str]) -> dict:
 class Mem0HANARAGAgent:
     """
     A chatbot that uses Mem0-style long-term memory on HANA with reranking.
+
+    Deprecated; prefer ContextAgent for new workflows. Non-empty tenant_id and
+    session_id are required and must come from trusted application identity.
+    Memory reads, exports, cleanup and deletion are limited to that scope.
+    Existing unscoped memory needs deliberate migration.
+
+    Chat commands beginning with '!' are disabled by default. Set
+    HANA_MEM0_ALLOW_ADMIN_COMMANDS=true only behind application-enforced admin
+    authentication. Direct memory methods also require application authorization.
     """
     def __init__(
         self,
@@ -299,7 +308,7 @@ class Mem0HANARAGAgent:
 
 
     def clear_long_term_memory(self) -> None:
-        """Clear all long-term memories from HANA."""
+        """Clear this tenant/session's long-term memories, preserving other scopes."""
         try:
             self.memory_manager.clear_all()
             logger.info("Mem0 long-term memory cleared.")
@@ -312,7 +321,7 @@ class Mem0HANARAGAgent:
     # ------------------------------------------------------------------
     def chat(self, user_input: str) -> str:
         """Process user input and return agent response, managing long-term memory."""
-        # '!'-commands are privileged memory-admin operations (tenant-wide wipe via
+        # '!'-commands are privileged memory-admin operations (tenant/session cleanup via
         # clear_long_term_memory, plus export/enumeration). They carry no authorization, so any
         # user of a shared agent chat could trigger them. Require an explicit host opt-in that is
         # expected to sit behind an authenticated admin surface.

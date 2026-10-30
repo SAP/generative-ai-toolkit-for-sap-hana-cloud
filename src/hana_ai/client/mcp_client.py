@@ -70,7 +70,15 @@ class MCPClient:
 
 
 class HTTPMCPClient(MCPClient):
-    """MCP client using HTTP transport"""
+    """MCP client using HTTP transport.
+
+    Use HTTPS for non-loopback servers and pass authentication through
+    extra_headers (for example, an Authorization bearer header), not URL
+    credentials. Redirects and environment-derived proxy settings are disabled.
+    Plain HTTP is allowed on loopback; the explicit Boolean
+    allow_insecure_http=True permits it elsewhere only for trusted isolated
+    networks. Strings such as "false" do not enable that override.
+    """
 
     def __init__(
         self,
@@ -443,7 +451,22 @@ def _validate_stdio_command(command: str, args: List[str]) -> str:
 
 
 class StdioMCPClient(MCPClient):
-    """MCP client using Stdio transport (for Claude Desktop, etc.)"""
+    """MCP client using stdio transport.
+
+    Process startup requires the host-controlled HANA_MCP_STDIO_ALLOWED_PROFILES
+    environment variable: a JSON list with a command and non-empty args_prefix
+    for each trusted server. The resolved executable and full argument list must
+    match; trailing arguments require the profile's explicit Boolean
+    allow_additional_args=true. For example (replace paths for your deployment)::
+
+        [{"command": "/opt/hana-ai/venv/bin/python",
+          "args_prefix": ["/opt/hana-ai/mcp_server.py"]}]
+
+    Shell interpreters, inline-code switches and Windows batch/PowerShell scripts
+    are rejected even if profiled. Keep executables, scripts, their directories
+    and the inherited environment under trusted host control. No process is
+    started merely by constructing this client.
+    """
 
     def __init__(
         self,

@@ -47,14 +47,18 @@ def create_hana_dataframe_agent(
     """
     Construct a hana-ml agent from an LLM and dataframe.
 
+    Deprecated; prefer ContextAgent for new workflows. Only column metadata is
+    added to the initial prompt. Row access and actions depend on supplied tools.
+
     Parameters
     ----------
     llm : BaseLLM
         The LLM to use.
     df : DataFrame
-        The HANA dataframe to use. It could be None.
-    tools : BaseTool, optional
-        The tools to use. Default to None.
+        The HANA dataframe to use; None is not supported.
+    tools : List[BaseTool], optional
+        Explicit tools available to the agent. At least one is required with the
+        default settings. No Python execution tool is added automatically.
     callback_manager : BaseCallbackManager, optional
         The callback manager to use. Default to None.
     prefix : str, optional
@@ -82,7 +86,8 @@ def create_hana_dataframe_agent(
     Examples
     --------
 
-    Assume cc is a connection to a SAP HANA instance:
+    Assume cc is a connection to a SAP HANA instance and llm is configured. This
+    example retrieves code templates; it does not execute Python or create reports:
 
     >>> from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
     >>> from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
@@ -94,7 +99,7 @@ def create_hana_dataframe_agent(
     >>> code_tool = GetCodeTemplateFromVectorDB()
     >>> code_tool.set_vectordb(vectordb=hana_vec)
     >>> agent = create_hana_dataframe_agent(llm=llm, tools=[code_tool], df=hana_df, verbose=True, handle_parsing_errors=True)
-    >>> agent.invoke("Create a dataset report for this dataframe.")
+    >>> agent.invoke("Retrieve example code for a dataset report. Do not execute it.")
     """
     import warnings
     with warnings.catch_warnings():

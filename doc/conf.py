@@ -18,10 +18,12 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 
-import os
 import sys
+from pathlib import Path
 import toml
-sys.path.insert(0, os.path.abspath('..'))
+REPO_ROOT = Path(__file__).resolve().parent.parent
+# Autodoc must import this checkout, not another installed hana_ai version.
+sys.path.insert(0, str(REPO_ROOT / 'src'))
 
 # -- General configuration ------------------------------------------------
 
@@ -43,6 +45,15 @@ extensions = [
 ]
 
 autosummary_generate = True
+# Keep hand-written API guidance when regenerating the API index.
+autosummary_generate_overwrite = False
+# Preserve published URLs whose filenames use the older Timeseries spelling.
+autosummary_filename_map = {
+    'hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict':
+        'hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict',
+    'hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore':
+        'hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore',
+}
 numpydoc_class_members_toctree = False
 # Suppress numpydoc's auto-generated "Methods" and "Attributes" summary tables at
 # the top of each class page — they pull in every inherited Runnable/BaseModel
@@ -83,7 +94,7 @@ author = 'SAP'
 #
 # The short X.Y version.
 def get_version():
-    with open('../pyproject.toml') as pyproject_file:
+    with (REPO_ROOT / 'pyproject.toml').open(encoding='utf-8') as pyproject_file:
         pyproject_data = toml.load(pyproject_file)
     return pyproject_data['project']['version']
 
@@ -126,10 +137,7 @@ html_theme = "sphinx_rtd_theme"
 # documentation.
 #
 html_theme_options = {
-    'analytics_id': 'UA-XXXXXXX-1',
-    'analytics_anonymize_ip': False,
     'logo_only': False,
-    'display_version': True,
     'prev_next_buttons_location': 'top',
     'style_external_links': False,
     'vcs_pageview_mode': '',

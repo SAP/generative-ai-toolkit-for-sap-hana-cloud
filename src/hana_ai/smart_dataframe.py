@@ -69,8 +69,8 @@ class SmartDataFrame(DataFrame):
         ----------
         llm : BaseLLM
             LLM.
-        toolkit : List of BaseTool, optional
-            The dataframe toos to be used.
+        tools : List of BaseTool, optional
+            The dataframe tools to use.
 
             Defaults to df_tools.
         """
@@ -127,8 +127,6 @@ class SmartDataFrame(DataFrame):
         ----------
         question : str
             Question.
-        verbose : bool, optional
-            Verbose. Default to False.
         """
         if self._is_configured is False:
             raise Exception("The SmartDataFrame is not configured. Please call the configure method first.")
@@ -150,12 +148,17 @@ class SmartDataFrame(DataFrame):
         """
         Transform the dataframe.
 
+        The model output must be a single read-only SELECT/WITH statement.
+        Comments, unsafe statements and embedded semicolons are rejected; one
+        trailing terminator is removed before passing SQL to hana-ml. These
+        checks do not restrict the permissions of tools used by ask().
+
         Parameters
         ----------
         question : str
             Question.
-        verbose : bool, optional
-            Verbose. Default to False.
+        output_key : str, optional
+            Reserved for compatibility; the executor's 'output' key is used.
         """
         if self._is_configured is False:
             raise Exception("The SmartDataFrame is not configured. Please call the configure method first.")
