@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""E2E: Reload HANA ConnectionContext from a file without restart (HTTP transport).
+"""E2E: Reload HANA ConnectionContext from environment without restart.
 
-This test validates that the MCP server exposes `admin_reload_connection_context_from_file`
+This test validates that the MCP server exposes `admin_reload_connection_context_from_env`
 and that calling it succeeds while the server stays running.
 
 Notes
@@ -19,7 +19,6 @@ import time
 import socket
 import unittest
 import json
-import tempfile
 from typing import Dict, Any
 
 try:
@@ -46,8 +45,12 @@ def _find_free_port(start: int = 8000, end: int = 8100) -> int:
         return s.getsockname()[1]
 
 
-class TestMCPReloadConnectionContextFromFileHTTP(TestML_BaseTestClass):
+class TestMCPReloadConnectionContextFromEnvHTTP(TestML_BaseTestClass):
     def setUp(self):
+        if not os.environ.get("HANA_USERKEY"):
+            self.skipTest("HANA_USERKEY is required for this live reload test")
+        self._old_runtime_update = os.environ.get("HANA_ALLOW_RUNTIME_CONN_UPDATE")
+        os.environ["HANA_ALLOW_RUNTIME_CONN_UPDATE"] = "true"
         super().setUp()
         from hana_ai.tools.toolkit import HANAMLToolkit
 
@@ -55,64 +58,39 @@ class TestMCPReloadConnectionContextFromFileHTTP(TestML_BaseTestClass):
         self.tk = HANAMLToolkit(connection_context=self.conn, used_tools=["fetch_data"])
         self.port = _find_free_port()
         self.base_url = f"http://127.0.0.1:{self.port}/mcp"
+        self.auth_token = "xin-key2-reload-e2e-token"
 
-        # Prepare a temporary VCAP_SERVICES file for reload call.
-        # We reuse the current working connection so reload can succeed without needing a second HANA.
-        # Address/port/user can often be introspected; password cannot, so it must be provided via env.
-        try:
-            addr = getattr(self.conn, "address", None) or getattr(self.conn, "_address", None)
-            port = getattr(self.conn, "port", None) or getattr(self.conn, "_port", None)
-            user = getattr(self.conn, "user", None) or getattr(self.conn, "_user", None)
-        except Exception:
-            addr = port = user = None
-
-        if not os.environ.get("HANA_PASSWORD"):
-            raise AssertionError(
-                "Missing required env var HANA_PASSWORD for this e2e test. "
-                "Export it in the same shell before running pytest, e.g. 'export HANA_PASSWORD=...'."
-            )
-
-        if not (addr and port and user):
-            raise AssertionError("Failed to introspect address/port/user from connection context")
-
-        vcap_payload = {
-            "hana": [
-                {
-                    "credentials": {
-                        "host": str(addr),
-                        "port": str(port),
-                        "user": str(user),
-                        "password": str(os.environ.get("HANA_PASSWORD")),
-                        "url": f"jdbc:sap://{addr}:{port}?encrypt=true&validateCertificate=true",
-                    }
-                }
-            ]
-        }
-
-        with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as tf:
-            tf.write("VCAP_SERVICES='" + json.dumps(vcap_payload) + "'\n")
-            self._vcap_file = tf.name
-
-        self.tk.launch_mcp_server(transport="http", host="127.0.0.1", port=self.port, max_retries=5)
+        self.tk.launch_mcp_server(
+            transport="http", host="127.0.0.1", port=self.port,
+            auth_token=self.auth_token, max_retries=5,
+        )
         time.sleep(1.0)
 
     def tearDown(self):
         try:
             self.tk.stop_mcp_server(host="127.0.0.1", port=self.port, transport="http", force=True, timeout=3.0)
         finally:
-            try:
-                if getattr(self, "_vcap_file", None):
-                    os.unlink(self._vcap_file)
-            except Exception:
-                pass
+            new_context = getattr(self.tk, "connection_context", None)
+            if new_context is not None and new_context is not self.conn:
+                try:
+                    new_context.close()
+                except Exception:
+                    pass
             super().tearDown()
+            if self._old_runtime_update is None:
+                os.environ.pop("HANA_ALLOW_RUNTIME_CONN_UPDATE", None)
+            else:
+                os.environ["HANA_ALLOW_RUNTIME_CONN_UPDATE"] = self._old_runtime_update
 
     def _list_tools(self) -> Dict[str, Any]:
         from hana_ai.client.mcp_client import HTTPMCPClient
         import asyncio
 
         async def _main():
-            client = HTTPMCPClient(base_url=self.base_url, timeout=10)
+            client = HTTPMCPClient(
+                base_url=self.base_url, timeout=10,
+                extra_headers={"Authorization": f"Bearer {self.auth_token}"},
+            )
             try:
                 await client.initialize()
                 return await client.list_tools()
@@ -125,24 +103,27 @@ class TestMCPReloadConnectionContextFromFileHTTP(TestML_BaseTestClass):
         tools = asyncio.run(_main())
         return {t.name: t for t in (tools or [])}
 
-    def test_reload_connection_context_from_file(self):
+    def test_reload_connection_context_from_env(self):
         from hana_ai.client.mcp_client import HTTPMCPClient
         import asyncio
 
         tools_by_name = self._list_tools()
         self.assertIn(
-            "admin_reload_connection_context_from_file",
+            "admin_reload_connection_context_from_env",
             tools_by_name,
             "admin tool not found in tools list",
         )
 
         async def _main():
-            client = HTTPMCPClient(base_url=self.base_url, timeout=20)
+            client = HTTPMCPClient(
+                base_url=self.base_url, timeout=120,
+                extra_headers={"Authorization": f"Bearer {self.auth_token}"},
+            )
             try:
                 await client.initialize()
                 return await client.call_tool(
-                    "admin_reload_connection_context_from_file",
-                    {"file_path": self._vcap_file, "test_connection": False},
+                    "admin_reload_connection_context_from_env",
+                    {"test_connection": False},
                 )
             finally:
                 try:

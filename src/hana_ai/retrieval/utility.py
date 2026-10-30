@@ -4,12 +4,42 @@ This module contains utility functions used for HANA AI Core retrieval procedure
 import json
 import logging
 import os
+import re
 
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_REQUEST_TIMEOUT = 30
 REQUEST_TIMEOUT_ENV_VAR = "HANA_AI_HTTP_TIMEOUT"
+
+_UNQUOTED_HANA_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_$#]*")
+_QUOTED_HANA_IDENTIFIER = re.compile(r'"(?:[^"]|"")*"')
+
+
+def _quote_hana_object_identifier(name: str) -> str:
+    """Quote one HANA object name while preserving unquoted-name semantics."""
+    if not isinstance(name, str):
+        raise ValueError(f"invalid HANA object identifier: {name!r}")
+    raw_name = name.strip()
+    if _UNQUOTED_HANA_IDENTIFIER.fullmatch(raw_name):
+        # HANA resolves an unquoted name as uppercase. Preserve that behavior even
+        # though the generated SQL now quotes the identifier for injection safety.
+        normalized = raw_name.upper()
+    elif _QUOTED_HANA_IDENTIFIER.fullmatch(raw_name):
+        normalized = raw_name[1:-1].replace('""', '"')
+    else:
+        raise ValueError(f"invalid HANA object identifier: {name!r}")
+    if not normalized or "\x00" in normalized:
+        raise ValueError(f"invalid HANA object identifier: {name!r}")
+    return '"' + normalized.replace('"', '""') + '"'
+
+
+def _sql_string_literal(value: object) -> str:
+    """Encode a value as one HANA SQL string literal."""
+    text = str(value)
+    if "\x00" in text:
+        raise ValueError("SQL string values must not contain NUL bytes")
+    return "'" + text.replace("'", "''") + "'"
 
 def _get_request_timeout():
     value = os.environ.get(REQUEST_TIMEOUT_ENV_VAR)
@@ -80,37 +110,40 @@ def _get_access_token(credentials: dict) -> str:
     key_certificate = credentials.get("key", "")
     # Save certificate and private key to temporary files certificate.pem and private_key.pem
 
-    with tempfile.NamedTemporaryFile(delete=False) as cert_file:
-        cert_file.write(certificate.encode())
-        cert_file_path = cert_file.name
-    with tempfile.NamedTemporaryFile(delete=False) as key_file:
-        key_file.write(key_certificate.encode())
-        key_file_path = key_file.name
-    token_url = urllib.parse.urljoin(certurl, "/oauth/token")
-    data = {
-        "grant_type": "client_credentials",
-        "client_id": clientid
-    }
-    response = requests.post(token_url, data=data, cert=(cert_file_path, key_file_path), timeout=_get_request_timeout())
-    if response.status_code == 200:
-        token_data = response.json()
-        access_token = token_data.get("access_token", "")
-        logger.info("Successfully obtained access token.")
-        # If temporary files exist, delete them
-        if os.path.exists(cert_file_path):
-            os.remove(cert_file_path)
-        if os.path.exists(key_file_path):
-            os.remove(key_file_path)
-        logger.info("Temporary certificate files removed.")
-        return access_token
-    else:
-        # Delete temporary files
-        if os.path.exists(cert_file_path):
-            os.remove(cert_file_path)
-        if os.path.exists(key_file_path):
-            os.remove(key_file_path)
-        logger.info("Temporary certificate files removed.")
+    cert_file_path = None
+    key_file_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False) as cert_file:
+            # Record ownership before encoding/writing: either can fail after creation.
+            cert_file_path = cert_file.name
+            cert_file.write(certificate.encode())
+        with tempfile.NamedTemporaryFile(delete=False) as key_file:
+            key_file_path = key_file.name
+            key_file.write(key_certificate.encode())
+        token_url = urllib.parse.urljoin(certurl, "/oauth/token")
+        data = {
+            "grant_type": "client_credentials",
+            "client_id": clientid
+        }
+        response = requests.post(token_url, data=data, cert=(cert_file_path, key_file_path), timeout=_get_request_timeout())
+        if response.status_code == 200:
+            token_data = response.json()
+            access_token = token_data.get("access_token", "")
+            logger.info("Successfully obtained access token.")
+            return access_token
         raise Exception(f"Failed to get access token: {response.status_code} {response.text}")
+    finally:
+        # Attempt cleanup after encoding, writing, network and response
+        # failures. OS removal failures are reported below, not silently ignored.
+        for _tmp_path in (cert_file_path, key_file_path):
+            if _tmp_path:
+                try:
+                    os.remove(_tmp_path)
+                except FileNotFoundError:
+                    pass
+                except OSError:
+                    logger.warning("Failed to remove temporary certificate file: %s", _tmp_path)
+        logger.info("Temporary certificate cleanup completed.")
 
 def _get_deployment_id(credentials: dict) -> str:
     """
@@ -153,6 +186,12 @@ def _get_deployment_id(credentials: dict) -> str:
 
 def _create_pse_sql_string(credentials: dict, pse_name: str) -> str:
     """
+    Deprecated compatibility renderer for PSE SQL text.
+
+    Do not execute this joined string through hana-ml's ``execute_sql()``: it
+    splits semicolons inside quoted values. Production code must instead use
+    ``_create_pse_sql_statements()`` and execute each statement through DBAPI.
+
     Create PSE SQL string for AI Core credentials.
 
     Parameters
@@ -167,9 +206,22 @@ def _create_pse_sql_string(credentials: dict, pse_name: str) -> str:
     str
         The PSE SQL string.
     """
+    return ";\n".join(_create_pse_sql_statements(credentials, pse_name)) + ";"
+
+
+def _create_pse_sql_statements(credentials: dict, pse_name: str) -> list[str]:
+    """Build individual statements for direct DBAPI execution.
+
+    They must never be handed to ``ConnectionContext.execute_sql()``, whose raw
+    semicolon split is not aware of SQL string literals.
+    """
     certificate_string = _concatenate_ai_core_certificate_string(credentials)
-    pse_sql = f"CREATE PSE {pse_name};\nALTER PSE {pse_name} SET OWN CERTIFICATE '\n{certificate_string}';"
-    return pse_sql
+    quoted_pse = _quote_hana_object_identifier(pse_name)
+    certificate_literal = _sql_string_literal(f"\n{certificate_string}")
+    return [
+        f"CREATE PSE {quoted_pse}",
+        f"ALTER PSE {quoted_pse} SET OWN CERTIFICATE {certificate_literal}",
+    ]
 
 def _create_ai_core_remote_source_sql_string(credentials: dict, remote_source_name: str, pse_name: str) -> str:
     """
@@ -202,10 +254,10 @@ def _create_ai_core_remote_source_sql_string(credentials: dict, remote_source_na
         f"     clientId={client_id}",
     ])
 
-    remote_source_sql = "CREATE REMOTE SOURCE {remote_source_name} ADAPTER \"sapgenaihub\" CONFIGURATION\n    '{configuration}'\nWITH CREDENTIAL TYPE 'X509' PSE {pse_name};".format(
-        remote_source_name=remote_source_name,
-        configuration=configuration,
-        pse_name=pse_name
+    remote_source_sql = "CREATE REMOTE SOURCE {remote_source_name} ADAPTER \"sapgenaihub\" CONFIGURATION\n    {configuration}\nWITH CREDENTIAL TYPE 'X509' PSE {pse_name};".format(
+        remote_source_name=_quote_hana_object_identifier(remote_source_name),
+        configuration=_sql_string_literal(configuration),
+        pse_name=_quote_hana_object_identifier(pse_name),
     )
     return remote_source_sql
 
@@ -253,8 +305,17 @@ def _add_x1root_certificate_to_pse(connection_context, pse_name):
         _create_certificate_and_add_to_pse(connection_context, "X1ROOT", certificate, pse_name)
 
 def _create_certificate_and_add_to_pse(connection_context, certificate_name, certificate_content, pse_name):
-    connection_context.execute_sql("CREATE CERTIFICATE %s FROM '%s'" % (certificate_name, certificate_content))
-    connection_context.execute_sql("ALTER PSE %s ADD CERTIFICATE %s" % (pse_name, certificate_name))
+    quoted_certificate = _quote_hana_object_identifier(certificate_name)
+    quoted_pse = _quote_hana_object_identifier(pse_name)
+    _execute_sql_string(
+        connection_context,
+        f"CREATE CERTIFICATE {quoted_certificate} FROM "
+        f"{_sql_string_literal(certificate_content)}"
+    )
+    _execute_sql_string(
+        connection_context,
+        f"ALTER PSE {quoted_pse} ADD CERTIFICATE {quoted_certificate}"
+    )
 
 def _create_ai_core_remote_source(connection_context, credentials: dict, pse_name: str, remote_source_name: str, create_pse: bool = True):
     """
@@ -272,10 +333,10 @@ def _create_ai_core_remote_source(connection_context, credentials: dict, pse_nam
         The name of the remote source.
     """
     if create_pse:
-        create_pse_sql_string = _create_pse_sql_string(credentials, pse_name)
         try:
             logger.info("Creating PSE: %s", pse_name)
-            connection_context.execute_sql(create_pse_sql_string)
+            for statement in _create_pse_sql_statements(credentials, pse_name):
+                _execute_sql_string(connection_context, statement)
             _add_digicertg5_root_certificate_to_pse(connection_context, pse_name)
             _add_x1root_certificate_to_pse(connection_context, pse_name)
             logger.info("PSE created successfully.")
@@ -306,7 +367,10 @@ def _delete_ai_core_pse(connection_context, pse_name: str, cascade: bool = True)
     cascade : bool, optional
         Whether to drop dependent objects as well. Defaults to True.
     """
-    drop_pse_sql_string = f"DROP PSE {pse_name}{' CASCADE' if cascade else ''};"
+    drop_pse_sql_string = (
+        f"DROP PSE {_quote_hana_object_identifier(pse_name)}"
+        f"{' CASCADE' if cascade else ''};"
+    )
     try:
         _execute_sql_string(connection_context, drop_pse_sql_string)
     except Exception as exc:
@@ -326,7 +390,8 @@ def _drop_ai_core_remote_source(connection_context, remote_source_name: str, cas
         Whether to drop dependent objects as well. Defaults to True.
     """
     drop_remote_source_sql_string = (
-        f"DROP REMOTE SOURCE {remote_source_name}{' CASCADE' if cascade else ''};"
+        f"DROP REMOTE SOURCE {_quote_hana_object_identifier(remote_source_name)}"
+        f"{' CASCADE' if cascade else ''};"
     )
     try:
         _execute_sql_string(connection_context, drop_remote_source_sql_string)
@@ -344,7 +409,9 @@ def _drop_certificate(connection_context, certificate_name: str):
     certificate_name : str
         The name of the certificate.
     """
-    drop_certificate_sql_string = f"DROP CERTIFICATE {certificate_name};"
+    drop_certificate_sql_string = (
+        f"DROP CERTIFICATE {_quote_hana_object_identifier(certificate_name)};"
+    )
     try:
         _execute_sql_string(connection_context, drop_certificate_sql_string)
     except Exception as exc:
@@ -373,8 +440,10 @@ def _call_procedure_sql(
         third argument with ``too many arguments``.
     schema_name : str
         The schema name where the procedure resides (e.g., "SYS", "DD_AGENT_ADMIN").
+        Unquoted names resolve as uppercase; explicitly quoted names retain case.
     procedure_name : str
         The procedure name to invoke (e.g., "DISCOVERY_AGENT", "DATA_AGENT_CUSTOM").
+        Uses the same unquoted/quoted naming rules as ``schema_name``.
     metadata_schema_name : str, optional
         Value for the procedure's ``AI_METADATA_SCHEMA_NAME`` IN parameter. Only
         used when at least one of ``metadata_schema_name`` /
@@ -390,6 +459,10 @@ def _call_procedure_sql(
     str
         The SQL string to call the specified procedure.
     """
+    qualified_procedure = (
+        f"{_quote_hana_object_identifier(schema_name)}."
+        f"{_quote_hana_object_identifier(procedure_name)}"
+    )
     query = json.dumps(query).replace("'", "''")
     has_config = bool(config) and any(v is not None for v in config.values())
     has_metadata = bool(metadata_schema_name) or bool(metadata_object_prefix)
@@ -423,17 +496,17 @@ def _call_procedure_sql(
         call_args = ",\n     ".join(named_args)
         return (
             "DO\nBEGIN\nDECLARE output NCLOB;\n"
-            f"CALL {schema_name}.{procedure_name}(\n     {call_args}\n);\n"
+            f"CALL {qualified_procedure}(\n     {call_args}\n);\n"
             "select :output FROM DUMMY;\nEND"
         )
 
     if has_config:
         config_json = json.dumps(config).replace("'", "''")
         return (
-            "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', '%s', output);\nselect :output FROM DUMMY;\nEND"
-            % (schema_name, procedure_name, query, config_json)
+            "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s('%s', '%s', output);\nselect :output FROM DUMMY;\nEND"
+            % (qualified_procedure, query, config_json)
         )
     return (
-        "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s.%s('%s', output);\nselect :output FROM DUMMY;\nEND"
-        % (schema_name, procedure_name, query)
+        "DO\nBEGIN\nDECLARE output NCLOB;\nCALL %s('%s', output);\nselect :output FROM DUMMY;\nEND"
+        % (qualified_procedure, query)
     )

@@ -55,9 +55,8 @@ class TestMassiveTSCheckTools(TestML_BaseTestClass):
         self.assertIn("Key: TIMESTAMP", result)
         self.assertIn("Endog: VALUE", result)
         self.assertIn("Index: starts from 1900-01-01 12:00:00 to 1900-01-01 16:00:00", result)
-        self.assertIn("Intermittent Test (ADI/CV^2):", result)
-        self.assertIn("classification is smooth", result)
-        self.assertIn("Model Recommendation:", result)
+        self.assertIn("Intermittent Test: proportion of zero values is 0.0", result)
+        self.assertIn("Next step for massive AutoML forecasting:", result)
         
         # 验证分组B的内容
         self.assertIn("Trend Test:", result)

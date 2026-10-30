@@ -13,9 +13,48 @@ from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml.algorithms.pal.tsa.outlier_detection import OutlierDetectionTS
+from hana_ml.dataframe import quotename
 
+from hana_ai.sql_guard import ensure_hana_ml_single_statement
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, _create_temp_table
 logger = logging.getLogger(__name__)
+
+
+def _fit_predict_grouped(detector, data, *, key, group_key, endog):
+    """Keep timestamp/group remapping out of hana-ml's string-built filters.
+
+    PyPI hana-ml 2.30 interpolates group values in its non-integer index path
+    (and omits quotes when mapping results back). Use partitioned integer row
+    numbers, then join the original keys back as data, never as SQL literals.
+    The existing integer-index path and PAL detection options are unchanged.
+    """
+    if "INT" in data.get_table_structure()[key].upper():
+        return detector.fit_predict(data, key=key, group_key=group_key, endog=endog)
+
+    for column in (key, group_key, endog):
+        if "\x00" in column:
+            raise ValueError("NUL is not allowed in outlier column names")
+    group_sql, key_sql, value_sql = map(quotename, (group_key, key, endog))
+    connection = data.connection_context
+    numbered = connection.sql(ensure_hana_ml_single_statement(
+        f'SELECT {group_sql} AS "__GROUP", {key_sql} AS "__KEY", '
+        f'{value_sql} AS "__VALUE", '
+        f'CAST(ROW_NUMBER() OVER (PARTITION BY {group_sql} ORDER BY {key_sql}) AS INTEGER) AS "__ROW" '
+        f'FROM ({data.select_statement})'
+    ))
+    result = detector.fit_predict(
+        numbered.select("__GROUP", "__ROW", "__VALUE"),
+        group_key="__GROUP", key="__ROW", endog="__VALUE",
+    )
+    result_columns = result.columns
+    values_sql = ", ".join(f'R.{quotename(column)}' for column in result_columns[2:])
+    return connection.sql(ensure_hana_ml_single_statement(
+        f'SELECT M."__GROUP" AS {group_sql}, M."__KEY" AS {key_sql}, {values_sql} '
+        f'FROM ({numbered.select_statement}) M JOIN ({result.select_statement}) R '
+        f'ON TO_NVARCHAR(M."__GROUP") = R.{quotename(result_columns[0])} '
+        f'AND M."__ROW" = R.{quotename(result_columns[1])}'
+    ))
+
 
 class MassiveTSOutlierDetectionInput(BaseModel):
     """
@@ -249,10 +288,7 @@ class MassiveTSOutlierDetection(BaseTool):
                 thread_ratio=thread_ratio,
                 massive=True)
         df = self.connection_context.table(table_name, schema_name).select(group_key, key, endog) #pylint: disable=invalid-name
-        result = odt.fit_predict(df,
-                                 key=key,
-                                 group_key=group_key,
-                                 endog=endog)
+        result = _fit_predict_grouped(odt, df, key=key, group_key=group_key, endog=endog)
         # Collect outliers grouped by group_key
         outlier_rows = result.filter("IS_OUTLIER = 1").collect()
         group_col = group_key if group_key in outlier_rows.columns else result.columns[0]

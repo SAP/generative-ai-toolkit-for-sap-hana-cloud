@@ -7,7 +7,6 @@ try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
-import certifi
 from hana_ml import dataframe
 from hana_ml.dataframe import quotename
 from pandas.testing import assert_frame_equal
@@ -20,8 +19,13 @@ class TestML_BaseTestClass(unittest.TestCase):
 
     def setUp(self):
         self.config = configparser.ConfigParser()
-        trust_store = certifi.where()
-        self.conn = dataframe.ConnectionContext(userkey="RaysKey",sslValidateCertificate=False)
+        userkey = os.environ.get("HANA_USERKEY", "XinKey2")
+        ssl_validate_raw = os.environ.get("HANA_SSL_VALIDATE", "true").strip().lower()
+        ssl_validate = ssl_validate_raw not in {"0", "false", "no", "off"}
+        self.conn = dataframe.ConnectionContext(
+            userkey=userkey,
+            sslValidateCertificate=ssl_validate,
+        )
         self.conn.sql_tracer.enable_sql_trace(True)
 
     def tearDown(self):

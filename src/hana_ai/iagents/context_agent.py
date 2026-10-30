@@ -26,7 +26,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 import json
+import hashlib
 import math
+import os
 import re
 import sys
 import threading
@@ -65,6 +67,17 @@ def _tokenize(text: str) -> List[str]:
 
 def _ensure_dir(p: Path) -> None:
 	p.mkdir(parents=True, exist_ok=True)
+
+
+def _session_storage_name(session_id: str) -> str:
+	"""Map a session ID to one bounded path component without sanitization collisions."""
+	raw = str(session_id)
+	safe = re.sub(r'[^A-Za-z0-9._-]', '_', raw).strip('.') or "default_session"
+	while ".." in safe:
+		safe = safe.replace("..", "_")
+	bounded = safe[:120].rstrip('.') or "default_session"
+	digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:12]
+	return f"{bounded}-{digest}"
 
 
 def _atomic_append(path: Path, content: str) -> None:
@@ -504,12 +517,25 @@ class ContextAgent:
 	The agent persists long-lived and session-scoped state as Markdown files under
 	``storage_dir`` and supports command-style memory maintenance through ``chat()``.
 
+	Session directories use bounded, hashed names. Use ``session_dir`` rather than
+	constructing paths from session_id; old session directories need migration.
+	Global notes are shared within storage_dir, so use separate trusted storage
+	directories where user/tenant isolation is required.
+
+	Generated HTML is not rendered inline by default. Enable
+	HANA_ALLOW_RAW_HTML_RENDER=true only for trusted content; this is not an HTML
+	sandbox. Copy temporary tool artifacts needed after the process exits.
+
 	Memory cleanup commands:
+
 	- Aggregate commands:
+
 	  - ``!clear_notes`` clears ``NOTES.md``, ``TODO.md``, ``DECISIONS.md``, and ``CONTEXT.md``.
 	  - ``!clear_session`` clears the current session ``chat.md`` and ``session_summary.md``.
 	  - ``!reset_memory`` clears both the global note files and the current session files.
+
 	- File-level commands:
+
 	  - ``!clear_notes_file`` clears only ``NOTES.md``.
 	  - ``!clear_todo`` clears only ``TODO.md``.
 	  - ``!clear_decisions`` clears only ``DECISIONS.md``.
@@ -518,12 +544,16 @@ class ContextAgent:
 	  - ``!clear_summary`` clears only the current session ``session_summary.md``.
 
 	Skill control commands:
+
 	- Aggregate commands:
+
 	  - ``!list_skills`` lists all available skills and their short descriptions.
 	  - ``!active_skills`` reports the skills currently active for the request-routing state.
 	  - ``!skills_on`` re-enables skill injection for subsequent requests.
 	  - ``!skills_off`` disables skill injection for subsequent requests.
+
 	- Skill-level commands:
+
 	  - ``!enable_skill <skill_name>`` force-enables a named skill when it exists in the catalog.
 	  - ``!disable_skill <skill_name>`` suppresses a named skill from future activation.
 
@@ -550,7 +580,14 @@ class ContextAgent:
 		self.config = config or AgentConfig()
 
 		self.storage_dir = Path(storage_dir).expanduser().resolve()
-		self.session_dir = self.storage_dir / "sessions" / self.session_id
+		# Confine the session directory to <storage>/sessions. A crafted session_id
+		# (e.g. containing '../') must not escape into arbitrary filesystem paths, whose
+		# contents are later read back into the model context (arbitrary file read).
+		_sessions_root = (self.storage_dir / "sessions").resolve()
+		_safe_session = _session_storage_name(self.session_id)
+		self.session_dir = (_sessions_root / _safe_session).resolve()
+		if self.session_dir != _sessions_root and _sessions_root not in self.session_dir.parents:
+			raise ValueError(f"invalid session_id (path traversal rejected): {self.session_id!r}")
 
 		self.progress_bar = bool(progress_bar)
 		self.progress_callback = progress_callback
@@ -1246,6 +1283,15 @@ class ContextAgent:
 		try:
 			html_text = path.read_text(encoding="utf-8")
 		except Exception:
+			return False
+		# Tool/agent-supplied HTML can carry stored JavaScript that executes in the
+		# notebook user's browser. Do not auto-render raw HTML unless the host explicitly opts
+		# in; by default surface a safe reference to the artifact file instead.
+		if os.environ.get("HANA_ALLOW_RAW_HTML_RENDER", "").lower() not in ("1", "true", "yes"):
+			try:
+				print(f"HTML artifact generated (raw HTML render disabled): {path}")
+			except Exception:
+				pass
 			return False
 		try:
 			display(HTML(html_text))

@@ -56,15 +56,15 @@ class TestMCPServerToolSchemaHTTP(TestML_BaseTestClass):
         from hana_ai.client.mcp_client import HTTPMCPClient
         import asyncio
 
-        client = HTTPMCPClient(base_url=self.base_url, timeout=10)
-        try:
-            asyncio.run(client.initialize())
-            tools = asyncio.run(client.list_tools())
-        finally:
+        async def fetch_tools():
+            client = HTTPMCPClient(base_url=self.base_url, timeout=10)
             try:
-                asyncio.run(client.close())
-            except Exception:
-                pass
+                await client.initialize()
+                return await client.list_tools()
+            finally:
+                await client.close()
+
+        tools = asyncio.run(fetch_tools())
 
         return {t.name: t for t in tools}
 

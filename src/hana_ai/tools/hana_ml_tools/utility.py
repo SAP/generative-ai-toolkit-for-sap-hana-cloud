@@ -14,6 +14,9 @@ import pandas as pd
 from pandas import Timestamp
 from numpy import int64
 from hana_ml.model_storage import ModelStorage
+
+from hana_ai.sql_guard import ensure_hana_ml_single_statement
+
 #pylint: disable=too-many-nested-blocks, unexpected-keyword-arg, invalid-name
 
 logger = logging.getLogger(__name__)
@@ -325,7 +328,7 @@ def _create_temp_table(conn, select_statement: str, tool_name: str, additional_i
         additional_info = "_"
     table_name = f"#{tool_name}{additional_info}{timestamp}".upper()
     create_temp_table_sql = f"CREATE LOCAL TEMPORARY TABLE {table_name} AS ({select_statement})"
-    conn.execute_sql(create_temp_table_sql)
+    conn.execute_sql(ensure_hana_ml_single_statement(create_temp_table_sql))
     return f"SELECT * FROM {table_name}"
 
 
@@ -461,7 +464,6 @@ def fetch_mcp_audit_rows(audit_log_path: str, session_id: str):
                 tool_name=payload.get("tool_name"),
                 invocation_id=correlation.get("invocation_id"),
                 hana_correlation_id=correlation.get("hana_correlation_id"),
-                tool_args_json=payload.get("tool_args_json"),
             )
             rows.append(
                 {
@@ -831,10 +833,19 @@ def fetch_hana_mcp_audit_view(
 class SyncHTTPMCPClient:
     """Synchronous JSON-RPC MCP client for notebook/demo flows."""
 
-    def __init__(self, base_url: str, timeout: int = 60):
+    def __init__(
+        self,
+        base_url: str,
+        timeout: int = 60,
+        *,
+        allow_insecure_http: bool = False,
+    ):
         import httpx
+        from hana_ai.client.mcp_client import _validate_http_base_url
 
-        normalized = base_url.rstrip("/")
+        normalized = _validate_http_base_url(
+            base_url, allow_insecure_http=allow_insecure_http
+        ).rstrip("/")
         if not normalized.endswith("/mcp"):
             normalized = normalized + "/mcp"
         self.base_url = normalized.rstrip("/")
@@ -843,9 +854,9 @@ class SyncHTTPMCPClient:
         self.tools: dict[str, dict[str, Any]] = {}
         self._httpx = httpx
         self.client = httpx.Client(
-            base_url=self.base_url,
             timeout=timeout,
-            follow_redirects=True,
+            # Never forward mcp-session-id across an attacker-controlled redirect.
+            follow_redirects=False,
             trust_env=False,
             headers={
                 "accept": "application/json",
@@ -895,7 +906,7 @@ class SyncHTTPMCPClient:
                 "metadata": identity_metadata,
             },
         }
-        response = self.client.post("", json=payload)
+        response = self.client.post(self.base_url, json=payload)
         response.raise_for_status()
         self.session_id = response.headers.get("mcp-session-id")
         if self.session_id:
@@ -913,7 +924,7 @@ class SyncHTTPMCPClient:
             "method": "tools/list",
             "params": ({"session": {"id": self.session_id}} if self.session_id else {}),
         }
-        response = self.client.post("", json=payload)
+        response = self.client.post(self.base_url, json=payload)
         response.raise_for_status()
         result = response.json().get("result", {})
         tool_list = result.get("tools", []) or []
@@ -932,7 +943,7 @@ class SyncHTTPMCPClient:
                 **({"session": {"id": self.session_id}} if self.session_id else {}),
             },
         }
-        response = self.client.post("", json=payload)
+        response = self.client.post(self.base_url, json=payload)
         response.raise_for_status()
         rpc_response = response.json()
         if "error" in rpc_response:
@@ -1044,8 +1055,10 @@ def build_context_agent_mcp_tools(
     skip_admin_tools : bool, default True
         When ``True``, tools whose name starts with ``admin_`` (e.g.
         ``admin_update_connection_context``) are excluded from the returned
-        list. Set to ``False`` if the agent needs to manage the server's
-        connection context at runtime.
+        list. ``False`` only retains admin tools already exposed by the server;
+        it neither enables administration nor grants permission. The HANA
+        toolkit server must opt in with HANA_ALLOW_RUNTIME_CONN_UPDATE=true
+        and authenticate HTTP administration requests.
 
     Returns
     -------
@@ -1055,10 +1068,19 @@ def build_context_agent_mcp_tools(
         session; when done, call ``client.close()`` to release the HTTP
         session and its MCP session id.
 
+    Notes
+    -----
+    This convenience helper does not accept authentication headers and initializes
+    the connection before returning. For authenticated servers, use a client with
+    explicit authentication-header support, such as
+    :class:`~hana_ai.client.mcp_client.HTTPMCPClient`. The client_name and
+    client_metadata values are audit labels, not authentication credentials.
+
     Examples
     --------
-    Launch the MCP server on one process, then wire it into a
-    ``ContextAgent`` from another:
+    For a loopback HTTP server with runtime administration disabled and no
+    authentication required, build tools to pass to ContextAgent. Admin tools
+    remain excluded by default:
 
     >>> from hana_ai.tools.hana_ml_tools.utility import build_context_agent_mcp_tools
     >>> tools, client = build_context_agent_mcp_tools(

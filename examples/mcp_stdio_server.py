@@ -43,18 +43,26 @@ Notes:
   export NO_PROXY=127.0.0.1,localhost,<your-hana-host>
 
 Runtime update (no restart):
-- This server exposes two MCP admin tools:
+- Only when the trusted host sets HANA_ALLOW_RUNTIME_CONN_UPDATE=true, this
+  server exposes two MCP admin tools (disabled by default):
     - `admin_update_connection_context`: pass new connection params explicitly.
-    - `admin_reload_connection_context_from_file`: read a VCAP_SERVICES file and reload.
-- An MCP client can call either one to switch the live `ConnectionContext` after env/credentials change,
+    - `admin_reload_connection_context_from_env`: reload trusted server HANA_* environment.
+- An authorized MCP client can call either one to switch the live `ConnectionContext` after env/credentials change,
     without restarting the MCP server process.
+  File loading is host-controlled at startup; there is no client-selected
+  file-reload tool. For HTTP, the host must also configure `auth_token` and
+  clients must supply its matching Bearer token. Remote HTTP deployments need HTTPS.
 
   Example (Python HTTP transport client):
     from hana_ai.client.mcp_client import HTTPMCPClient
     import asyncio
+    import os
 
     async def main():
-        c = HTTPMCPClient(base_url="http://127.0.0.1:8001/mcp")
+        c = HTTPMCPClient(
+            base_url="http://127.0.0.1:8001/mcp",
+            extra_headers={"Authorization": f"Bearer {os.environ['HANA_MCP_AUTH_TOKEN']}"},
+        )
         await c.initialize()
         r = await c.call_tool(
             "admin_update_connection_context",
@@ -70,10 +78,10 @@ Runtime update (no restart):
         )
         print(r)
 
-        # Or: reload from a VCAP_SERVICES file
+        # Or: reload the server's trusted environment (no client-selected file).
         r2 = await c.call_tool(
-            "admin_reload_connection_context_from_file",
-            {"file_path": "path/to/env.file", "test_connection": True},
+            "admin_reload_connection_context_from_env",
+            {"test_connection": True},
         )
         print(r2)
         await c.close()
@@ -96,8 +104,8 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 warnings.filterwarnings("ignore", category=UserWarning, module="langchain_core")
 logging.getLogger("hana_ml.visualizers.shared").setLevel(logging.CRITICAL)
 
-from hana_ml import ConnectionContext
-from hana_ai.tools.toolkit import HANAMLToolkit
+from hana_ml import ConnectionContext  # pylint: disable=wrong-import-position
+from hana_ai.tools.toolkit import HANAMLToolkit  # pylint: disable=wrong-import-position
 
 
 _DOTENV_PATH_VARS = ("HANA_ENV_FILE", "ENV_FILE")
@@ -217,6 +225,7 @@ def build_connection_context(
     encrypt: Optional[bool] = None,
     ssl_validate_certificate: Optional[bool] = None,
 ) -> ConnectionContext:
+    """Build a connection context from explicit HANA credentials."""
     params = {
         "address": address,
         "port": port,
@@ -236,6 +245,7 @@ def build_connection_context_from_userkey(
     encrypt: Optional[bool] = None,
     ssl_validate_certificate: Optional[bool] = None,
 ) -> ConnectionContext:
+    """Build a connection context from a local HANA user-store key."""
     params: dict = {
         "userkey": userkey,
     }
@@ -244,28 +254,29 @@ def build_connection_context_from_userkey(
     if ssl_validate_certificate is not None:
         params["sslValidateCertificate"] = bool(ssl_validate_certificate)
 
-    # Best-effort: use certifi trust store if available.
-    try:
-        import certifi
-        params["sslKeyStore"] = certifi.where()
-    except Exception:
-        pass
-
     return ConnectionContext(**params)
 
 
 def env_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
+    """Read an optional boolean value from the environment."""
     val = os.environ.get(name)
-    if val is None:
+    if val is None or not val.strip():
         return default
-    return val.strip().lower() in {"1", "true", "yes", "on"}
+    return parse_bool(val)
 
 
 def parse_bool(val: str) -> bool:
-    return val.strip().lower() in {"1", "true", "yes", "on"}
+    """Parse a command-line boolean value."""
+    normalized = val.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise argparse.ArgumentTypeError("expected a boolean value")
 
 
 def main():
+    """Start the stdio MCP server."""
     # Stdio transport: log to stderr so stdout stays clean for MCP protocol
     logging.basicConfig(
         level=logging.WARNING,
@@ -305,7 +316,7 @@ def main():
     parser.add_argument("--encrypt", type=parse_bool, default=env_bool("HANA_ENCRYPT"),
                         help="Use TLS encrypt (true/false)")
     parser.add_argument("--ssl-validate", dest="ssl_validate",
-                        type=parse_bool, default=env_bool("HANA_SSL_VALIDATE", default=False),
+                        type=parse_bool, default=None,
                         help="Validate TLS certificate (true/false)")
 
     # MCP server args
@@ -354,7 +365,7 @@ def main():
     if args.encrypt is None:
         args.encrypt = env_bool("HANA_ENCRYPT")
     if args.ssl_validate is None:
-        args.ssl_validate = env_bool("HANA_SSL_VALIDATE", default=False)
+        args.ssl_validate = env_bool("HANA_SSL_VALIDATE", default=True)
 
     # Stdio transport: log to stderr so stdout stays clean for MCP protocol
     logging.basicConfig(

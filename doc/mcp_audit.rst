@@ -78,7 +78,7 @@ Pack contract:
   ``inv=`` per call does not fragment ``M_SQL_PLAN_CACHE``.
 
 Surfacing ``RESPONSE_SIZE`` on the HANA side
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``RESPONSE_SIZE`` is only known *after* the tool body runs, so it cannot
 travel in the started-path pack that HANA freezes onto the tool's own

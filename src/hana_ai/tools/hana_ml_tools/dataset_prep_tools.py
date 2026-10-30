@@ -13,13 +13,17 @@ from langchain_core.tools import BaseTool
 from hana_ml import ConnectionContext
 from hana_ml import dataframe as hana_dataframe
 
+from hana_ai.sql_guard import ensure_hana_ml_single_statement
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder
 
 logger = logging.getLogger(__name__)
 
 
 def _quote_identifier(name: str) -> str:
-    return '"' + str(name).replace('"', '""') + '"'
+    value = str(name)
+    if not value or "\x00" in value or ";" in value:
+        raise ValueError(f"invalid HANA identifier: {value!r}")
+    return '"' + value.replace('"', '""') + '"'
 
 
 def _qualified_table_name(table_name: str, schema_name: Optional[str] = None) -> str:
@@ -233,6 +237,16 @@ class SplitTableForForecastingTool(BaseTool):
         test_table = _default_output_table(source_table, "TEST", kwargs.get("test_table"))
         validation_table = _default_output_table(source_table, "VALIDATION", kwargs.get("validation_table"))
 
+        # Reject malformed names before even loading source metadata. A name
+        # containing a semicolon is unsafe for any later hana-ml SQL builder.
+        try:
+            for name in (source_table, order_by, train_table, test_table, validation_table):
+                _quote_identifier(name)
+            if schema_name is not None:
+                _quote_identifier(schema_name)
+        except ValueError as exc:
+            return f"Operation failed while splitting the source table: {exc}"
+
         try:
             source_df = self.connection_context.table(source_table, schema=schema_name)
         except Exception as exc:
@@ -273,6 +287,10 @@ class SplitTableForForecastingTool(BaseTool):
         force: bool,
     ) -> dict:
         columns = list(source_df.columns)
+        if order_by not in columns:
+            raise ValueError(
+                f"order_by column {order_by!r} was not found in the source table"
+            )
         selected_columns = ", ".join(_quote_identifier(column) for column in columns)
         projected_columns = ", ".join(f'base.{_quote_identifier(column)}' for column in columns)
         source_name = _qualified_table_name(source_table, schema_name)
@@ -319,9 +337,15 @@ FROM base
 WHERE "__ROW_NUM" > FLOOR("__TOTAL_ROWS" * {test_boundary})
 """.strip()
 
-        self.connection_context.sql(train_sql).smart_save(train_table, schema=schema_name, force=force)
-        self.connection_context.sql(test_sql).smart_save(test_table, schema=schema_name, force=force)
-        self.connection_context.sql(validation_sql).smart_save(validation_table, schema=schema_name, force=force)
+        self.connection_context.sql(
+            ensure_hana_ml_single_statement(train_sql)
+        ).smart_save(train_table, schema=schema_name, force=force)
+        self.connection_context.sql(
+            ensure_hana_ml_single_statement(test_sql)
+        ).smart_save(test_table, schema=schema_name, force=force)
+        self.connection_context.sql(
+            ensure_hana_ml_single_statement(validation_sql)
+        ).smart_save(validation_table, schema=schema_name, force=force)
 
         return {
             "source_table": source_table,

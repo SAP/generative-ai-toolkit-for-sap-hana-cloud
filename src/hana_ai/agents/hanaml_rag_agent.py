@@ -10,7 +10,11 @@ The following class is available:
 
 from typing import Any, List
 from datetime import datetime
+import hashlib
+import hmac
 import logging
+import os
+from pathlib import Path
 import warnings
 import pandas as pd
 from sqlalchemy import delete
@@ -21,7 +25,12 @@ except Exception:
     from langchain_core.load.dump import dumps
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_community.vectorstores import FAISS
-from langchain_community.vectorstores.hanavector import HanaDB  # pylint: disable=import-error,no-name-in-module
+try:
+    # langchain-community <=0.3 compatibility
+    from langchain_community.vectorstores.hanavector import HanaDB  # pylint: disable=import-error,no-name-in-module
+except ImportError:
+    # HanaDB moved to its maintained standalone integration package.
+    from langchain_hana import HanaDB  # pylint: disable=import-error,no-name-in-module
 from hana_ml.algorithms.pal.utility import check_pal_function_exist
 
 try:
@@ -85,10 +94,11 @@ class HANAMLRAGAgent:
                  score_threshold: float = 0.5,
                  vector_store_type = "hanadb", # 'faiss' or 'hanadb'
                  hana_vector_table: str = None,
-                 vectorstore_path: str = "chat_history_vectorstore", # FAISS vectorstore path
+                 vectorstore_path: str = None, # FAISS vectorstore path
                  drop_existing_hana_vector_table: bool = False,
                  verbose: bool = False,
-                 session_id: str = "global_session",
+                 session_id: str = None,
+                 tenant_id: str = None,
                  **kwargs):
         """
         Initialize the chatbot with integrated tools and memory systems.
@@ -161,9 +171,13 @@ class HANAMLRAGAgent:
 
             Defaults to "HANA_AI_CHAT_HISTORY_{user}".
         vectorstore_path : str
-            Path to store the vectorstore for long-term memory when vector_store_type is "hanadb".
+            Base directory for FAISS memory (vector_store_type="faiss"). A
+            tenant/session hash is appended. Defaults to
+            HANA_AI_DATA_DIR/chat_history_vectorstore, or
+            ~/.hana_ai/chat_history_vectorstore when HANA_AI_DATA_DIR is unset.
         drop_existing_hana_vector_table : bool
-            Whether to drop the existing HANA vector table before creating a new one.
+            Clear this tenant/session's memories from the HANA vector table on
+            initialization. The shared table and other scopes are not dropped.
 
             Defaults to False.
         verbose : bool
@@ -172,15 +186,49 @@ class HANAMLRAGAgent:
             Defaults to False.
         session_id : str
             Session ID for long-term memory storage.
+            Required; there is no shared global default.
+        tenant_id : str
+            Tenant identifier used with session_id to isolate all memory operations.
+            Required; supply both identifiers from trusted application identity.
 
-            Defaults to "global_session".
+        Notes
+        -----
+        Existing unscoped memory and old FAISS paths need deliberate migration.
+        FAISS reload requires a local integrity manifest; incomplete stores are
+        not overwritten. Keep both the index and manifest in host-protected
+        storage: hashes do not make untrusted pickle safe. Use
+        HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION=true only for an independently
+        verified trusted index during migration, then remove the override.
         """
         with warnings.catch_warnings():
             warnings.simplefilter("always")
             warnings.warn("This agent has been deprecated. Please use context_agent instead.", DeprecationWarning, stacklevel=2)
+        self.session_id = str(session_id or "").strip()
+        self.tenant_id = str(tenant_id or "").strip()
+        if not self.session_id or not self.tenant_id:
+            raise ValueError("tenant_id and session_id are required for isolated memory access")
+        scope_digest = hashlib.sha256(
+            f"{self.tenant_id}\0{self.session_id}".encode("utf-8")
+        ).hexdigest()
+        self.memory_partition_id = scope_digest
+        self._memory_filter = {
+            "tenant_id": self.tenant_id,
+            "session_id": self.session_id,
+        }
+
         self.llm = llm
         self.tools = tools
-        self.vectorstore_path = vectorstore_path
+        if vectorstore_path is None:
+            data_root = os.environ.get("HANA_AI_DATA_DIR")
+            root = Path(data_root).expanduser() if data_root else Path.home() / ".hana_ai"
+            vectorstore_path = str(root / "chat_history_vectorstore")
+        vector_path = Path(vectorstore_path).expanduser().resolve() / scope_digest[:24]
+        vector_path.mkdir(parents=True, exist_ok=True)
+        try:
+            vector_path.chmod(0o700)
+        except OSError:
+            pass
+        self.vectorstore_path = str(vector_path)
         self.long_term_db = long_term_db
         self.long_term_memory_limit = long_term_memory_limit
         self.memory_window = memory_window
@@ -220,7 +268,6 @@ class HANAMLRAGAgent:
                 self.long_term_db = self.hana_connection_context.to_sqlalchemy()
             else:
                 self.long_term_db = f"sqlite:///chat_history_{self.user}.db"
-        self.session_id = session_id
         # Initialize memory systems
         self._initialize_memory()
 
@@ -239,7 +286,7 @@ class HANAMLRAGAgent:
         if isinstance(self.long_term_db, str):
             self.long_term_store = SQLChatMessageHistory(  # pylint: disable=unexpected-keyword-arg
                 connection_string=self.long_term_db,
-                session_id=self.session_id
+                session_id=self.memory_partition_id
             )
         else:
             table_name = f"HANAAI_LONG_TERM_DB_{self.user}"
@@ -255,7 +302,7 @@ class HANAMLRAGAgent:
             self.long_term_store = SQLChatMessageHistory(
                 connection=self.long_term_db,
                 table_name=table_name,
-                session_id=self.session_id
+                session_id=self.memory_partition_id
             )
 
         # Initialize RAG vectorstore
@@ -287,37 +334,104 @@ class HANAMLRAGAgent:
     def _initialize_faiss_vectorstore(self):
         """Initialize or load FAISS vectorstore for long-term memory"""
 
-        # Try loading existing vectorstore
-        try:
+        store_path = Path(self.vectorstore_path)
+        faiss_file = store_path / "index.faiss"
+        pickle_file = store_path / "index.pkl"
+        if faiss_file.exists() != pickle_file.exists():
+            raise RuntimeError(
+                f"incomplete FAISS store at {store_path}; refusing to overwrite existing data"
+            )
+        if faiss_file.exists():
+            # LangChain's FAISS docstore format uses pickle. Never deserialize it implicitly;
+            # load only a locally-created, integrity-verified store or one explicitly trusted
+            # by the host for migration.
+            allow_dangerous = os.environ.get(
+                "HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION", ""
+            ).lower() in ("1", "true", "yes")
+            locally_trusted = self._is_locally_trusted_faiss_store(store_path)
+            if not allow_dangerous and not locally_trusted:
+                raise RuntimeError(
+                    "existing FAISS store requires pickle deserialization, which is disabled. "
+                    "The local integrity manifest is missing or invalid. Migrate to a "
+                    "non-pickle store or, only for an independently verified trusted index, "
+                    "set HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION=true once."
+                )
+            if allow_dangerous and not locally_trusted:
+                logger.warning("Loading an explicitly trusted FAISS pickle from %s", store_path)
+            else:
+                logger.info("Loading an integrity-verified local FAISS store from %s", store_path)
             self.vectorstore = FAISS.load_local(
                 self.vectorstore_path,
                 self.embedding_service,
-                allow_dangerous_deserialization=True
+                allow_dangerous_deserialization=True,
             )
+            if allow_dangerous and not locally_trusted:
+                # Record the host's one-time trust decision so later restarts can verify the
+                # exact files without requiring a permanent dangerous-deserialization flag.
+                self._write_faiss_integrity_manifest(store_path)
             logger.info("Loaded existing vectorstore from %s", self.vectorstore_path)
-        except:
-            # Initialize new vectorstore if loading fails
+        else:
             self.vectorstore = FAISS.from_texts(
                 texts=["Initialization text"],
                 embedding=self.embedding_service
             )
-            self.vectorstore.save_local(self.vectorstore_path)
+            self._save_faiss_vectorstore()
             logger.info("Created new vectorstore at %s", self.vectorstore_path)
+
+    @staticmethod
+    def _faiss_store_digest(store_path: Path) -> str:
+        digest = hashlib.sha256()
+        for name in ("index.faiss", "index.pkl"):
+            file_path = store_path / name
+            if not file_path.is_file():
+                raise RuntimeError(f"incomplete FAISS store at {store_path}")
+            digest.update(name.encode("utf-8") + b"\0")
+            with file_path.open("rb") as handle:
+                chunk = handle.read(1024 * 1024)
+                while chunk:
+                    digest.update(chunk)
+                    chunk = handle.read(1024 * 1024)
+        return digest.hexdigest()
+
+    def _write_faiss_integrity_manifest(self, store_path: Path) -> None:
+        manifest = store_path / ".hana_ai_faiss.sha256"
+        temporary = store_path / f".hana_ai_faiss.sha256.{os.getpid()}.tmp"
+        temporary.write_text(self._faiss_store_digest(store_path) + "\n", encoding="ascii")
+        try:
+            temporary.chmod(0o600)
+        except OSError:
+            pass
+        os.replace(temporary, manifest)
+
+    def _is_locally_trusted_faiss_store(self, store_path: Path) -> bool:
+        manifest = store_path / ".hana_ai_faiss.sha256"
+        try:
+            expected = manifest.read_text(encoding="ascii").strip()
+            actual = self._faiss_store_digest(store_path)
+        except (OSError, UnicodeError, RuntimeError):
+            return False
+        return len(expected) == 64 and hmac.compare_digest(expected, actual)
+
+    def _save_faiss_vectorstore(self) -> None:
+        store_path = Path(self.vectorstore_path)
+        self.vectorstore.save_local(self.vectorstore_path)
+        self._write_faiss_integrity_manifest(store_path)
 
     def _initialize_hanadb_vectorstore(self):
         """Initialize or load HANA DB vectorstore for long-term memory"""
         if not self.hana_connection_context:
             raise ValueError("HANA connection context is required for HANA DB vectorstore")
 
-        # Initialize or load HANA vectorstore
-        if self.drop_existing_hana_vector_table:
-            self.hana_connection_context.drop_table(self.hana_vector_table)
+        # Initialize or load the shared HANA vectorstore. A requested reset is
+        # applied only to this tenant/session after initialization.
         try:
             self.vectorstore = HanaDB(
                 embedding=self.embedding_service,
                 connection=self.hana_connection_context.connection,
                 table_name=self.hana_vector_table
             )
+            if self.drop_existing_hana_vector_table:
+                self.vectorstore.delete(filter=self._memory_filter)
             logger.info("Initialized HANA DB vectorstore with table %s", self.hana_vector_table)
         except Exception as e:
             logger.error("Failed to initialize HANA DB vectorstore: %s", str(e))
@@ -344,9 +458,10 @@ class HANAMLRAGAgent:
         current_time = datetime.now().isoformat()
 
         # Add messages with metadata
+        message_metadata = {"timestamp": current_time, **self._memory_filter}
         self.long_term_store.add_messages([
-            HumanMessage(content=[{"type": "text", "text": user_input}], metadata={"timestamp": current_time}),
-            AIMessage(content=[{"type": "text", "text": str(response)}], metadata={"timestamp": current_time})
+            HumanMessage(content=[{"type": "text", "text": user_input}], metadata=message_metadata),
+            AIMessage(content=[{"type": "text", "text": str(response)}], metadata=message_metadata)
         ])
 
         # Create documents for vector store
@@ -357,19 +472,22 @@ class HANAMLRAGAgent:
 
         documents = splitter.create_documents(
             texts=[f"User: {user_input}\nAssistant: {response_str}"],
-            metadatas=[{"timestamp": current_time}]
+            metadatas=[message_metadata]
         )
 
         # Update vector store
         self.vectorstore.add_documents(documents)
         if self.vectorstore_type.lower() == "faiss":
-            self.vectorstore.save_local(self.vectorstore_path)
+            self._save_faiss_vectorstore()
 
         # Clean up oldest memories if needed
         self._forget_old_memories()
 
     def _forget_past_messages_in_hana_db(self, timestamp: str):
-        self.vectorstore.delete(filter={"timestamp": {"$lte": timestamp}})
+        self.vectorstore.delete(filter={
+            **self._memory_filter,
+            "timestamp": {"$lte": timestamp},
+        })
 
     def _forget_old_memories(self):
         """Remove oldest memories when storage limit is exceeded"""
@@ -416,7 +534,10 @@ class HANAMLRAGAgent:
                         ai_msg = remaining_messages[i+1]
                         # Create combined document
                         text = f"User: {user_msg.content}\nAssistant: {ai_msg.content}"
-                        metadata = {"timestamp": user_msg.metadata.get('timestamp', '')}
+                        metadata = {
+                            "timestamp": user_msg.metadata.get('timestamp', ''),
+                            **self._memory_filter,
+                        }
                         # Split and add to documents
                         docs = splitter.create_documents(
                             texts=[text],
@@ -428,7 +549,7 @@ class HANAMLRAGAgent:
                         documents,
                         self.embedding_service
                     )
-                    self.vectorstore.save_local(self.vectorstore_path)
+                    self._save_faiss_vectorstore()
                     logger.info("Rebuilt vectorstore with %s documents", len(documents))
                 except Exception as e:
                     logger.error("Error rebuilding vectorstore: %s", str(e))
@@ -447,13 +568,15 @@ class HANAMLRAGAgent:
             candidate_docs = self.vectorstore.similarity_search_with_score(
                 query=query,
                 k=self.rerank_candidates,
-                score_threshold=self.score_threshold
+                score_threshold=self.score_threshold,
+                filter=self._memory_filter,
             )
         else:
             candidate_docs = self.vectorstore.similarity_search_with_relevance_scores(
                 query=query,
                 k=self.rerank_candidates,
-                score_threshold=self.score_threshold
+                score_threshold=self.score_threshold,
+                filter=self._memory_filter,
             )
 
         if not candidate_docs:
@@ -533,7 +656,8 @@ class HANAMLRAGAgent:
 
     def clear_long_term_memory(self):
         """
-        Safely clear long-term memory by clearing the vectorstore and database.
+        Clear only this tenant/session's long-term SQL and vector memories.
+        The shared HANA vector table and other scopes are preserved.
         Avoids index errors in SQLChatMessageHistory implementation.
         """
         try:
@@ -546,18 +670,12 @@ class HANAMLRAGAgent:
         except Exception as e:
             logger.error("Unexpected error clearing SQL store: %s", str(e))
 
-        # 重建空向量库（无需前置检查）
+        # FAISS paths are isolated per tenant/session; HANA uses a scoped delete.
         if self.vectorstore_type.lower() == "faiss":
             self.vectorstore = FAISS.from_texts([""], embedding=self.embedding_service)  # 空文本占位
-            self.vectorstore.save_local(self.vectorstore_path)
+            self._save_faiss_vectorstore()
         else:
-            self.hana_connection_context.drop_table(self.hana_vector_table)
-            self.vectorstore = HanaDB.from_texts(
-                texts=[""],
-                embedding=self.embedding_service,
-                connection=self.hana_connection_context.connection,
-                table_name=self.hana_vector_table
-            )
+            self.vectorstore.delete(filter=self._memory_filter)
         logger.info("Long-term memory cleared and vectorstore reset.")
 
     def clear_short_term_memory(self):

@@ -20,6 +20,7 @@ from hana_ml.model_storage import ModelStorage
 from hana_ml.algorithms.pal.auto_ml import AutomaticTimeSeries
 
 from hana_ai.tools.hana_ml_tools.utility import _CustomEncoder, generate_model_storage_version
+from hana_ai.sql_guard import readonly_dataframe
 
 logger = logging.getLogger(__name__)
 
@@ -264,10 +265,10 @@ class AutomaticTimeSeriesFitAndSave(BaseTool):
         use_explain = kwargs.get("use_explain", None)
         workload_class = kwargs.get("workload_class", None)
 
-        fit_df = self.connection_context.sql(fit_select_statement)
+        fit_df = readonly_dataframe(self.connection_context, fit_select_statement)
         #if not self.connection_context.has_table(fit_table, schema=fit_schema):
         #    return f"Table {fit_table} does not exist in the database."
-        if key not in self.connection_context.sql(fit_select_statement).columns:
+        if key not in readonly_dataframe(self.connection_context, fit_select_statement).columns:
             return f"Key {key} does not exist in the input dataset."
 
         auto_ts = AutomaticTimeSeries(
@@ -399,7 +400,7 @@ class AutomaticTimeSeriesLoadModelAndPredict(BaseTool):
         exog = kwargs.get("exog", None)
         show_explainer = kwargs.get("show_explainer", None)
         # check if key exists in the predict dataset
-        if key not in self.connection_context.sql(predict_select_statement).columns:
+        if key not in readonly_dataframe(self.connection_context, predict_select_statement).columns:
             return json.dumps({"error": f"Key {key} does not exist in the prediction dataset."}, cls=_CustomEncoder)
 
         ms = ModelStorage(connection_context=self.connection_context)
@@ -407,7 +408,7 @@ class AutomaticTimeSeriesLoadModelAndPredict(BaseTool):
         if hasattr(model, 'version'):
             if model.version is not None:
                 version = model.version
-        model.predict(data=self.connection_context.sql(predict_select_statement),
+        model.predict(data=readonly_dataframe(self.connection_context, predict_select_statement),
                       key=key,
                       exog=exog,
                       show_explainer=show_explainer)
@@ -504,14 +505,14 @@ class AutomaticTimeSeriesLoadModelAndScore(BaseTool):
         if endog is None:
             return "Endog is required"
         exog = kwargs.get("exog", None)
-        if key not in self.connection_context.sql(score_select_statement).columns:
+        if key not in readonly_dataframe(self.connection_context, score_select_statement).columns:
             return json.dumps({"error": f"Key {key} does not exist in score dataset."}, cls=_CustomEncoder)
         ms = ModelStorage(connection_context=self.connection_context)
         model = ms.load_model(name, version)
         if hasattr(model, 'version'):
             if model.version is not None:
                 version = model.version
-        model.score(data=self.connection_context.sql(score_select_statement),
+        model.score(data=readonly_dataframe(self.connection_context, score_select_statement),
                     key=key,
                     endog=endog,
                     exog=exog)

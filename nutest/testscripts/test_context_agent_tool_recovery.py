@@ -110,6 +110,7 @@ class TestContextAgentToolRecovery(unittest.TestCase):
         agent = self._make_agent()
         agent.tools = [SimpleNamespace(name="forecast_line_plot")]
         html_path = tempfile.NamedTemporaryFile(suffix=".html", delete=False)
+        html_path.close()
         self.addCleanup(lambda: os.unlink(html_path.name) if os.path.exists(html_path.name) else None)
         with open(html_path.name, "w", encoding="utf-8") as handle:
             handle.write("<html><body><h1>plot</h1></body></html>")
@@ -149,12 +150,23 @@ class TestContextAgentToolRecovery(unittest.TestCase):
         fake_display_module.display = fake_display
         fake_ipython.display = fake_display_module
 
-        with patch.dict(sys.modules, {"IPython": fake_ipython, "IPython.display": fake_display_module}):
+        with patch.dict(os.environ, {"HANA_ALLOW_RAW_HTML_RENDER": "true"}), \
+             patch.dict(sys.modules, {"IPython": fake_ipython, "IPython.display": fake_display_module}):
             did_render = agent._display_html_artifact(Path(html_file))
 
         self.assertTrue(did_render)
         self.assertEqual(len(rendered), 1)
         self.assertIn("render me", rendered[0].data)
+
+    def test_display_html_artifact_is_disabled_by_default(self):
+        agent = self._make_agent()
+        html_file = os.path.join(self.temp_dir.name, "untrusted.html")
+        with open(html_file, "w", encoding="utf-8") as handle:
+            handle.write("<script>window.pwned = true</script>")
+
+        with patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("HANA_ALLOW_RAW_HTML_RENDER", None)
+            self.assertFalse(agent._display_html_artifact(Path(html_file)))
 
 
 if __name__ == "__main__":

@@ -58,9 +58,49 @@ def _inspect_python_code(intermediate_steps, tools):
     return collect_tool_call
 
 def _get_user_info(connection_context):
-    if connection_context.userkey:
-        user = connection_context.userkey
-    else:
-        conn_config = str(connection_context.connection).replace('<dbapi.Connection Connection object : ', '').replace('>', '').split(',')
-        user = conn_config[2]
-    return user
+    # Derive identity from a stable, structured identifier rather than string-parsing
+    # the DBAPI connection repr (which is not a security-grade identifier and can collide or
+    # be attacker-shaped, mis-mapping the memory table across tenants).
+    userkey = getattr(connection_context, "userkey", None)
+    if userkey:
+        return userkey
+    direct_user = getattr(connection_context, "user", None)
+    if callable(direct_user):
+        try:
+            direct_user = direct_user()
+        except Exception:
+            direct_user = None
+    if direct_user:
+        return str(direct_user)
+    conn = getattr(connection_context, "connection", None)
+    for attr in ("user", "get_user"):
+        val = getattr(conn, attr, None)
+        if callable(val):
+            try:
+                val = val()
+            except Exception:
+                val = None
+        if val:
+            return str(val)
+    # A normal hana_ml.ConnectionContext created with user/password does not retain a public
+    # ``user`` field, and hdbcli does not expose one either. Query the authenticated HANA
+    # session using constant SQL rather than falling back to the connection object's repr.
+    cursor = None
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT CURRENT_USER FROM DUMMY")
+        row = cursor.fetchone()
+        if row and row[0]:
+            return str(row[0])
+    except Exception:
+        pass
+    finally:
+        if cursor is not None:
+            try:
+                cursor.close()
+            except Exception:
+                pass
+    raise ValueError(
+        "Unable to determine a stable HANA identity from userkey, a structured user "
+        "attribute, or SELECT CURRENT_USER"
+    )

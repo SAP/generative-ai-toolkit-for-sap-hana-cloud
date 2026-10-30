@@ -13,15 +13,14 @@ The following class is available:
 
 import logging
 from typing import Dict, TypedDict
-# try to import langgraph, if not installed, install it
+# Do NOT pip-install at import time. Fail closed with instructions.
 try:
     from langgraph.graph import END, StateGraph
-except ImportError:
-    import subprocess
-    import sys
-
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "langgraph"])
-    from langgraph.graph import END, StateGraph
+except ImportError as e:  # pragma: no cover
+    raise ImportError(
+        "langgraph is required; install it explicitly (`pip install langgraph`) "
+        "instead of letting the library install it at runtime."
+    ) from e
 from pydantic import BaseModel, Field
 from langchain_core.utils.function_calling import convert_to_openai_tool
 

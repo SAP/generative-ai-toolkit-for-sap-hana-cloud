@@ -3,6 +3,17 @@ hana_ai.tools
 
 hana.ai tools is a set of tools that can be used to perform various tasks like forecasting, time series analysis, etc.
 
+Dataframe and query-to-table tools validate a single read-only SELECT/WITH query
+before handing it to hana-ml. Embedded semicolons are rejected even inside quoted
+values; one trailing terminator is removed. This does not make every tool
+read-only: query-to-table, training, storage and deletion tools retain their
+documented write operations and need appropriate HANA privileges.
+
+Generated reports use unique temporary directories when no persistent output
+location is supplied. Use returned paths and copy artifacts needed after process
+exit. Raw HTML is not rendered automatically; ``HANA_ALLOW_RAW_HTML_RENDER=true``
+is only for trusted content and provides no HTML sandbox.
+
 .. automodule:: hana_ai.tools
    :no-members:
    :no-inherited-members:
@@ -137,3 +148,10 @@ story end-to-end.
    :caption: MCP auditing
 
    mcp_audit
+
+MCP clients
+-----------
+
+.. autoclass:: hana_ai.client.mcp_client.HTTPMCPClient
+
+.. autoclass:: hana_ai.client.mcp_client.StdioMCPClient
