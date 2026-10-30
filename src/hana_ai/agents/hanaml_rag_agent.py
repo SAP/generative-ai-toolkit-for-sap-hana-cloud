@@ -171,9 +171,13 @@ class HANAMLRAGAgent:
 
             Defaults to "HANA_AI_CHAT_HISTORY_{user}".
         vectorstore_path : str
-            Path to store the vectorstore for long-term memory when vector_store_type is "hanadb".
+            Base directory for FAISS memory (vector_store_type="faiss"). A
+            tenant/session hash is appended. Defaults to
+            HANA_AI_DATA_DIR/chat_history_vectorstore, or
+            ~/.hana_ai/chat_history_vectorstore when HANA_AI_DATA_DIR is unset.
         drop_existing_hana_vector_table : bool
-            Whether to drop the existing HANA vector table before creating a new one.
+            Clear this tenant/session's memories from the HANA vector table on
+            initialization. The shared table and other scopes are not dropped.
 
             Defaults to False.
         verbose : bool
@@ -185,7 +189,16 @@ class HANAMLRAGAgent:
             Required; there is no shared global default.
         tenant_id : str
             Tenant identifier used with session_id to isolate all memory operations.
-            Required.
+            Required; supply both identifiers from trusted application identity.
+
+        Notes
+        -----
+        Existing unscoped memory and old FAISS paths need deliberate migration.
+        FAISS reload requires a local integrity manifest; incomplete stores are
+        not overwritten. Keep both the index and manifest in host-protected
+        storage: hashes do not make untrusted pickle safe. Use
+        HANA_ALLOW_DANGEROUS_FAISS_DESERIALIZATION=true only for an independently
+        verified trusted index during migration, then remove the override.
         """
         with warnings.catch_warnings():
             warnings.simplefilter("always")
@@ -643,7 +656,8 @@ class HANAMLRAGAgent:
 
     def clear_long_term_memory(self):
         """
-        Safely clear long-term memory by clearing the vectorstore and database.
+        Clear only this tenant/session's long-term SQL and vector memories.
+        The shared HANA vector table and other scopes are preserved.
         Avoids index errors in SQLChatMessageHistory implementation.
         """
         try:

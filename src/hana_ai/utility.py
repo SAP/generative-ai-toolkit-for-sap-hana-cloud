@@ -15,6 +15,9 @@ def secure_report_dir(prefix: str) -> str:
     ``os.makedirs(..., exist_ok=True)``, which silently accept a co-resident attacker's
     pre-planted symlink (symlink redirect / TOCTOU). ``mkdtemp`` creates a fresh directory
     owned by the current user with 0700 perms and fails if it cannot create it uniquely.
+    Cleanup is registered for normal process exit. Use the returned path and
+    copy any artifacts that must persist. Windows access control remains the
+    host's responsibility; POSIX mode bits do not define Windows ACLs.
     """
     path = tempfile.mkdtemp(prefix=prefix if prefix.endswith(("-", "_")) else prefix + "-")
     try:

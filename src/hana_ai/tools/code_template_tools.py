@@ -20,20 +20,25 @@ class GetCodeTemplateFromVectorDB(BaseTool):
     """
     Get code template from vector database.
 
+    This tool retrieves examples only; it does not execute Python or create
+    report artifacts. Supply dedicated tools for those actions.
+
     Examples
     --------
-    Assume cc is a connection to a SAP HANA instance:
+    Assume cc is a configured SAP HANA connection, llm is configured, and
+    MY_DATA is an existing table accessible through cc:
 
     >>> from hana_ai.tools.code_template_tools import GetCodeTemplateFromVectorDB
     >>> from hana_ai.vectorstore.hana_vector_engine import HANAMLinVectorEngine
     >>> from hana_ai.agents.hana_dataframe_agent import create_hana_dataframe_agent
 
+    >>> hana_df = cc.table("MY_DATA")
     >>> hana_vec = HANAMLinVectorEngine(connection_context=cc, table_name="hana_vec_hana_ml_python_knowledge")
     >>> hana_vec.create_knowledge()
     >>> code_tool = GetCodeTemplateFromVectorDB()
     >>> code_tool.set_vectordb(vectordb=hana_vec)
     >>> agent = create_hana_dataframe_agent(llm=llm, tools=[code_tool], df=hana_df, verbose=True, handle_parsing_errors=True)
-    >>> agent.invoke("Create a dataset report for this dataframe.")
+    >>> agent.invoke("Retrieve example code for a dataset report. Do not execute it.")
     """
     name: str = "CodeTemplatesFromVectorDB"
     description: str = "useful for when you need to create hana-ml code templates."

@@ -517,12 +517,25 @@ class ContextAgent:
 	The agent persists long-lived and session-scoped state as Markdown files under
 	``storage_dir`` and supports command-style memory maintenance through ``chat()``.
 
+	Session directories use bounded, hashed names. Use ``session_dir`` rather than
+	constructing paths from session_id; old session directories need migration.
+	Global notes are shared within storage_dir, so use separate trusted storage
+	directories where user/tenant isolation is required.
+
+	Generated HTML is not rendered inline by default. Enable
+	HANA_ALLOW_RAW_HTML_RENDER=true only for trusted content; this is not an HTML
+	sandbox. Copy temporary tool artifacts needed after the process exits.
+
 	Memory cleanup commands:
+
 	- Aggregate commands:
+
 	  - ``!clear_notes`` clears ``NOTES.md``, ``TODO.md``, ``DECISIONS.md``, and ``CONTEXT.md``.
 	  - ``!clear_session`` clears the current session ``chat.md`` and ``session_summary.md``.
 	  - ``!reset_memory`` clears both the global note files and the current session files.
+
 	- File-level commands:
+
 	  - ``!clear_notes_file`` clears only ``NOTES.md``.
 	  - ``!clear_todo`` clears only ``TODO.md``.
 	  - ``!clear_decisions`` clears only ``DECISIONS.md``.
@@ -531,12 +544,16 @@ class ContextAgent:
 	  - ``!clear_summary`` clears only the current session ``session_summary.md``.
 
 	Skill control commands:
+
 	- Aggregate commands:
+
 	  - ``!list_skills`` lists all available skills and their short descriptions.
 	  - ``!active_skills`` reports the skills currently active for the request-routing state.
 	  - ``!skills_on`` re-enables skill injection for subsequent requests.
 	  - ``!skills_off`` disables skill injection for subsequent requests.
+
 	- Skill-level commands:
+
 	  - ``!enable_skill <skill_name>`` force-enables a named skill when it exists in the catalog.
 	  - ``!disable_skill <skill_name>`` suppresses a named skill from future activation.
 
