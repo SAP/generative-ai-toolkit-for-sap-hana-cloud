@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; hana.ai 1.1.26081400 documentation</title>
+  <title>Changelog &mdash; hana.ai 1.1.26103000 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=19210906"></script>
+      <script src="_static/documentation_options.js?v=398e29b9"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -51,7 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-hana-dataframe-agent-and-retrieve-templates">Create HANA Dataframe Agent and Retrieve Templates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
 </ul>
 </li>
@@ -67,6 +67,12 @@
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#hana-sql-agent">hana_sql_agent</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#supported-select-syntax">Supported SELECT syntax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#semicolons-in-other-hana-ml-tools">Semicolons in other hana-ml tools</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html">create_hana_sql_toolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html#hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_toolkit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -78,6 +84,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#legacy-rag-memory">Legacy RAG memory</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.tools.html">hana_ai.tools</a><ul>
@@ -116,12 +123,12 @@
 <li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html">CAPArtifactsTool</a><ul>
@@ -288,6 +295,11 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.tools.html#mcp-clients">MCP clients</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.client.mcp_client.HTTPMCPClient"><code class="docutils literal notranslate"><span class="pre">HTTPMCPClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.client.mcp_client.StdioMCPClient"><code class="docutils literal notranslate"><span class="pre">StdioMCPClient</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
@@ -391,6 +403,38 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<p><strong>Version 1.1.26103000</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">Security</span> <span class="pre">/</span> <span class="pre">API</span> <span class="pre">Changes</span></code></dt><dd><ul class="simple">
+<li><p>Python execution remains disabled by default, including toolkit refreshes and <code class="docutils literal notranslate"><span class="pre">used_tools='all'</span></code>. Enabling <code class="docutils literal notranslate"><span class="pre">PythonHanaMLExecTool</span></code> requires host-side <code class="docutils literal notranslate"><span class="pre">allow_dangerous_code=True</span></code> and custom-tool registration. Dataframe agents also require explicit tools by default and no longer insert table rows into the initial prompt. Enabled Python/REPL tools are not sandboxes; use only trusted code and callers.</p></li>
+<li><p>SmartDataFrame and dataframe/query-to-table tools validate a single read-only SELECT before execution. Protected hana-ml SQL paths reject embedded semicolons, including quoted values, because the dependency splits raw SQL text; SELECT inputs may retain one trailing terminator, which is removed before execution. Query-to-table tools still write their destination tables.</p></li>
+<li><p>SQL agents require <code class="docutils literal notranslate"><span class="pre">schema</span></code> or <code class="docutils literal notranslate"><span class="pre">include_tables</span></code> and enforce read-only object access across nested queries, CTEs and joins. Unsupported functions, sequences and comma joins are rejected; optimizer hints must end the outer SELECT. These checks apply to SQL-agent queries, not dedicated model-training, storage or deletion tools, which still require appropriate write/execute permissions. See <a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html"><span class="doc">create_hana_sql_agent</span></a> for supported syntax.</p></li>
+<li><p>Hardened SQL values and identifiers in vector search, retrieval, infrastructure provisioning, memory export, dataset splitting and forecasting. Retrieval schema/procedure names preserve HANA naming rules: unquoted names resolve as uppercase, while explicitly quoted names retain case. Invalid identifiers, unsupported distance/increment options and unsafe values now fail before execution; vector result limits are bounded.</p></li>
+<li><p>MCP connection administration requires <code class="docutils literal notranslate"><span class="pre">HANA_ALLOW_RUNTIME_CONN_UPDATE=true</span></code>; HTTP administration also requires authentication. Non-loopback HTTP servers require a token; SSE is loopback-only without administration. Reload uses the trusted server environment; client-selected file reload is removed. TLS downgrades require explicit acknowledgement.</p></li>
+<li><p>Environment-built HANA connections default to encryption and certificate validation. MCP HTTP clients disable redirects and reject remote plaintext HTTP unless explicitly overridden. Remote deployments must provide authenticated HTTPS and trusted certificates.</p></li>
+<li><p>Stdio MCP startup requires trusted executable/argument profiles in <code class="docutils literal notranslate"><span class="pre">HANA_MCP_STDIO_ALLOWED_PROFILES</span></code>. Shells, inline code and Windows batch/PowerShell scripts are rejected; approved absolute paths remain supported.</p></li>
+<li><p>RAG storage defaults to <code class="docutils literal notranslate"><span class="pre">HANA_AI_DATA_DIR</span></code> or <code class="docutils literal notranslate"><span class="pre">~/.hana_ai</span></code>. FAISS reload verifies a local integrity manifest; legacy indexes need migration or explicit trust, and incomplete stores are not overwritten. Keep both indexes and manifests in host-protected storage; integrity checks do not make untrusted pickle safe.</p></li>
+<li><p>Memory operations, including cleanup and deletion, require tenant/session scope supplied by the application. Mem0 chat administration defaults off (<code class="docutils literal notranslate"><span class="pre">HANA_MEM0_ALLOW_ADMIN_COMMANDS</span></code>). Identity lookup uses structured connection information or the database user, not connection string representations; applications remain responsible for authentication.</p></li>
+<li><p>ContextAgent session directories use bounded, hashed names to prevent traversal and collisions; existing sessions may need migration. Generated artifacts use unique temporary directories and sanitized names: use returned paths and copy files needed after process exit. Certificate/private-key temporary files are cleaned up on error paths.</p></li>
+<li><p>Automatic raw HTML rendering is disabled in notebooks and reports. <code class="docutils literal notranslate"><span class="pre">HANA_ALLOW_RAW_HTML_RENDER=true</span></code> is only for trusted content; artifact generation remains available, and no HTML sandbox is provided.</p></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">Bug</span> <span class="pre">Fixes</span></code></dt><dd><ul class="simple">
+<li><p>Grouped outlier detection now maps date/timestamp keys through integer indexes and database joins, preserving original dates and group values without unsafe value interpolation. This toolkit workaround does not modify the hana-ml dependency.</p></li>
+<li><p>Grouped AutoML reports failure without saving when no model is produced. Partial success preserves usable models and returns group errors instead of silently reporting complete success.</p></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">Installation</span> <span class="pre">/</span> <span class="pre">Maintenance</span></code></dt><dd><ul class="simple">
+<li><p>Aligned API examples and docstrings with security defaults, memory scope and supported tool behavior. Documentation builds preserve SQL guidance and existing API URLs; added the SQL toolkit and MCP client reference entries.</p></li>
+<li><p>Removed import-time package installation; install required dependencies explicitly, including <code class="docutils literal notranslate"><span class="pre">hana_ai[nlp]</span></code> or <code class="docutils literal notranslate"><span class="pre">hana_ai[graph]</span></code> for optional features. Python 3.10+ is required. Runtime dependencies use compatible ranges; development/build versions and CI action revisions are pinned, with hash-checked Python 3.11/Linux CI locks.</p></li>
+<li><p>Expanded security, SQL, memory, MCP/audit and ContextAgent regression coverage, including environment-based connection reload and artifact/database-backed business assertions. Public comments and test names now use functional descriptions.</p></li>
+</ul>
+</dd>
+</dl>
+<p>This version includes intentional compatibility restrictions. Upgrade to
+<code class="docutils literal notranslate"><span class="pre">hana_ai==1.1.26103000</span></code> and redeploy to apply these fixes; configure least-privilege
+HANA roles appropriate to each tool and review the applicable migration notes above.
+Application checks do not replace database authorization or host isolation.</p>
 <p><strong>Version 1.1.26081400</strong></p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">API</span> <span class="pre">Changes</span></code></dt><dd><ul class="simple">
@@ -737,18 +781,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-    <!-- Theme Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-XXXXXXX-1', {
-          'anonymize_ip': false,
-      });
-    </script> 
+  </script> 
 
 </body>
 </html>

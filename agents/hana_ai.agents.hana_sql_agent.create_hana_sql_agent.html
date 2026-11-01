@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>create_hana_sql_agent &mdash; hana.ai 1.1.26081400 documentation</title>
+  <title>create_hana_sql_agent &mdash; hana.ai 1.1.26103000 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,13 +15,13 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=19210906"></script>
+      <script src="../_static/documentation_options.js?v=398e29b9"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ContextAgent" href="hana_ai.agents.context_agent.ContextAgent.html" />
+    <link rel="next" title="create_hana_sql_toolkit" href="hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html" />
     <link rel="prev" title="create_hana_dataframe_agent" href="hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html" /> 
 </head>
 
@@ -51,7 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-hana-dataframe-agent-and-retrieve-templates">Create HANA Dataframe Agent and Retrieve Templates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
 </ul>
 </li>
@@ -67,6 +67,12 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../hana_ai.agents.html#hana-sql-agent">hana_sql_agent</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">create_hana_sql_agent</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#supported-select-syntax">Supported SELECT syntax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semicolons-in-other-hana-ml-tools">Semicolons in other hana-ml tools</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html">create_hana_sql_toolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html#hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_toolkit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -78,6 +84,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#legacy-rag-memory">Legacy RAG memory</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../hana_ai.tools.html">hana_ai.tools</a><ul>
@@ -116,12 +123,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html">CAPArtifactsTool</a><ul>
@@ -288,6 +295,11 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#mcp-clients">MCP clients</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.tools.html#hana_ai.client.mcp_client.HTTPMCPClient"><code class="docutils literal notranslate"><span class="pre">HTTPMCPClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.tools.html#hana_ai.client.mcp_client.StdioMCPClient"><code class="docutils literal notranslate"><span class="pre">StdioMCPClient</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
@@ -383,7 +395,7 @@
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="hana_ai.agents.hana_dataframe_agent.create_hana_dataframe_agent.html" class="btn btn-neutral float-left" title="create_hana_dataframe_agent" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="hana_ai.agents.context_agent.ContextAgent.html" class="btn btn-neutral float-right" title="ContextAgent" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html" class="btn btn-neutral float-right" title="create_hana_sql_toolkit" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
@@ -394,14 +406,19 @@
 <h1>create_hana_sql_agent<a class="headerlink" href="#create-hana-sql-agent" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="hana_ai.agents.hana_sql_agent.create_hana_sql_agent">
-<span class="sig-prename descclassname"><span class="pre">hana_ai.agents.hana_sql_agent.</span></span><span class="sig-name descname"><span class="pre">create_hana_sql_agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">llm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConnectionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseTool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'openai-tools'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tool-calling'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseCallbackManager</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_execution_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">early_stopping_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'force'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_executor_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_tools</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseTool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BasePromptTemplate</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.agents.hana_sql_agent.create_hana_sql_agent" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hana_ai.agents.hana_sql_agent.</span></span><span class="sig-name descname"><span class="pre">create_hana_sql_agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">llm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConnectionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseTool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'openai-tools'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tool-calling'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseCallbackManager</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_execution_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">early_stopping_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'force'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_executor_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_tools</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseTool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BasePromptTemplate</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.agents.hana_sql_agent.create_hana_sql_agent" title="Link to this definition"></a></dt>
 <dd><p>Create a HANA SQL agent.</p>
+<p>SQL queries are limited to one read-only SELECT within the configured object
+scope, including nested queries, CTEs and joins. Use a dedicated HANA account
+with only the necessary SELECT privileges; parser checks do not replace
+database authorization. These checks do not constrain separately supplied
+custom tools or HANAMLToolkit model-training/storage tools.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>llm: any</strong></dt><dd><p>The language model to use.</p>
 </dd>
-<dt><strong>tools: BaseTool</strong></dt><dd><p>The tools to use.</p>
+<dt><strong>tools: List[BaseTool], optional</strong></dt><dd><p>Additional tools to include in the SQL toolkit.</p>
 </dd>
 <dt><strong>agent_type: Union[AgentType, Literal[&quot;openai-tools&quot;, &quot;tool-calling&quot;]], optional</strong></dt><dd><p>The type of agent to create.</p>
 </dd>
@@ -429,11 +446,13 @@
 </dd>
 <dt><strong>extra_tools: Sequence[BaseTool]</strong></dt><dd><p>The extra tools to use.</p>
 </dd>
-<dt><strong>db: SQLDatabase, optional</strong></dt><dd><p>The database to use.</p>
-</dd>
 <dt><strong>connection_context: ConnectionContext</strong></dt><dd><p>The connection context to use.</p>
 </dd>
 <dt><strong>prompt: BasePromptTemplate, optional</strong></dt><dd><p>The prompt to use.</p>
+</dd>
+<dt><strong>schema: str, optional</strong></dt><dd><p>The only schema the agent may query. Queries must qualify table names with it.</p>
+</dd>
+<dt><strong>include_tables: Sequence[str], optional</strong></dt><dd><p>Explicit table allowlist. At least one of schema or include_tables is required.</p>
 </dd>
 <dt><strong>kwargs: Any</strong></dt><dd><p>The kwargs to use.</p>
 </dd>
@@ -441,23 +460,57 @@
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>Assume cc is a connection to a SAP HANA instance:</p>
+<p>Assume cc is a read-only connection to a SAP HANA instance and llm is configured:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hana_sql_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_hana_sql_agent</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.code_template_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetCodeTemplateFromVectorDB</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.vectorstore.hana_vector_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLinVectorEngine</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span> <span class="o">=</span> <span class="n">HANAMLinVectorEngine</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;hana_vec_hana_ml_sql_knowledge&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hana_vec</span><span class="o">.</span><span class="n">create_knowledge</span><span class="p">(</span><span class="n">option</span><span class="o">=</span><span class="s1">&#39;sql&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span> <span class="o">=</span> <span class="n">GetCodeTemplateFromVectorDB</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">code_tool</span><span class="o">.</span><span class="n">set_vectordb</span><span class="p">(</span><span class="n">vectordb</span><span class="o">=</span><span class="n">hana_vec</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">agent_executor</span> <span class="o">=</span> <span class="n">create_hana_sql_agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">code_tool</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">agent_executor</span> <span class="o">=</span> <span class="n">create_hana_sql_agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">include_tables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;IRIS_DATA_FULL_TBL&quot;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">agent_executor</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;show me the min and max value of sepalwidthcm in the table iris_data_full_tbl?&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
 
+<section id="supported-select-syntax">
+<h2>Supported SELECT syntax<a class="headerlink" href="#supported-select-syntax" title="Link to this heading"></a></h2>
+<p>The SQL agent checks every table reference against the configured <code class="docutils literal notranslate"><span class="pre">schema</span></code> and/or
+<code class="docutils literal notranslate"><span class="pre">include_tables</span></code>. It supports explicit joins, parenthesized table expressions,
+subqueries, scoped CTEs, built-in scalar/aggregate functions, and the following HANA
+constructs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CAST(expression</span> <span class="pre">AS</span> <span class="pre">type)</span></code> with built-in HANA types, including numeric precision
+and string length parameters, and <code class="docutils literal notranslate"><span class="pre">TO_VARCHAR(expression)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ANY</span></code>, <code class="docutils literal notranslate"><span class="pre">SOME</span></code> and <code class="docutils literal notranslate"><span class="pre">ALL</span></code> subquery comparisons.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WITH</span> <span class="pre">HINT</span> <span class="pre">(NO_INLINE,</span> <span class="pre">CS_JOIN)</span></code> and hint names with flat literal/name arguments,
+at the end of the outer SELECT statement (including the final SELECT of a CTE
+or UNION query).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">table</span> <span class="pre">PARTITION</span> <span class="pre">(1,</span> <span class="pre">2)</span> <span class="pre">AS</span> <span class="pre">alias</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">table</span> <span class="pre">AS</span> <span class="pre">alias</span> <span class="pre">TABLESAMPLE</span> <span class="pre">SYSTEM</span> <span class="pre">(50)</span></code> or <code class="docutils literal notranslate"><span class="pre">TABLESAMPLE</span> <span class="pre">BERNOULLI</span> <span class="pre">(50)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CROSS</span> <span class="pre">JOIN</span> <span class="pre">LATERAL</span> <span class="pre">(SELECT</span> <span class="pre">...)</span> <span class="pre">AS</span> <span class="pre">alias</span></code>, including correlated subqueries
+and CTEs inside the lateral query.</p></li>
+</ul>
+<p>CAST operands and all nested queries retain the same object checks as the outer
+query. Type/partition/sample parameters accept numeric literals; they cannot hide
+function calls or SQL expressions. Hint arguments cannot contain nested SQL.
+Hints inside subqueries/CTE bodies, repeated hint clauses, and any SQL following a
+hint are rejected before execution. Put joins, filters, ordering and set operations
+before the final hint; one trailing statement terminator remains supported.</p>
+<p>Use explicit <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> syntax. Comma joins, arbitrary scalar/table UDFs, sequence
+access and three-part table names remain unsupported and are rejected before query
+execution. A read-only HANA account with restricted object permissions remains
+necessary; these checks do not replace database authorization.</p>
+</section>
+<section id="semicolons-in-other-hana-ml-tools">
+<h2>Semicolons in other hana-ml tools<a class="headerlink" href="#semicolons-in-other-hana-ml-tools" title="Link to this heading"></a></h2>
+<p>The SQL agent executes through SQLAlchemy and preserves semicolons inside string
+literals. Tools that construct SQL for <code class="docutils literal notranslate"><span class="pre">ConnectionContext.sql()</span></code> or
+<code class="docutils literal notranslate"><span class="pre">execute_sql()</span></code> reject semicolons in values and identifiers because hana-ml splits
+the raw text before the database parses SQL quotes. This includes vector query
+text/model versions, forecasting group values and split/future-table identifiers.
+The rejection is intentional; SQL quoting alone cannot make these inputs safe at
+those execution APIs. The read-only SELECT tools accept one trailing statement
+terminator and remove it before calling hana-ml.</p>
 <div class="clearer"></div></section>
+</section>
 
 
            </div>
@@ -484,18 +537,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-    <!-- Theme Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-XXXXXXX-1', {
-          'anonymize_ip': false,
-      });
-    </script> 
+  </script> 
 
 </body>
 </html>

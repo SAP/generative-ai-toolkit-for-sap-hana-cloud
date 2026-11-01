@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>hana_ai.tools &mdash; hana.ai 1.1.26081400 documentation</title>
+  <title>hana_ai.tools &mdash; hana.ai 1.1.26103000 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=19210906"></script>
+      <script src="_static/documentation_options.js?v=398e29b9"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -51,7 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-hana-dataframe-agent-and-retrieve-templates">Create HANA Dataframe Agent and Retrieve Templates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
 </ul>
 </li>
@@ -67,6 +67,12 @@
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#hana-sql-agent">hana_sql_agent</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#supported-select-syntax">Supported SELECT syntax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#semicolons-in-other-hana-ml-tools">Semicolons in other hana-ml tools</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html">create_hana_sql_toolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html#hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_toolkit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -78,6 +84,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#legacy-rag-memory">Legacy RAG memory</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">hana_ai.tools</a><ul>
@@ -116,12 +123,12 @@
 <li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html">CAPArtifactsTool</a><ul>
@@ -288,6 +295,11 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#mcp-clients">MCP clients</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.client.mcp_client.HTTPMCPClient"><code class="docutils literal notranslate"><span class="pre">HTTPMCPClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hana_ai.client.mcp_client.StdioMCPClient"><code class="docutils literal notranslate"><span class="pre">StdioMCPClient</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
@@ -392,6 +404,15 @@
   <section id="hana-ai-tools">
 <h1>hana_ai.tools<a class="headerlink" href="#hana-ai-tools" title="Link to this heading"></a></h1>
 <p>hana.ai tools is a set of tools that can be used to perform various tasks like forecasting, time series analysis, etc.</p>
+<p>Dataframe and query-to-table tools validate a single read-only SELECT/WITH query
+before handing it to hana-ml. Embedded semicolons are rejected even inside quoted
+values; one trailing terminator is removed. This does not make every tool
+read-only: query-to-table, training, storage and deletion tools retain their
+documented write operations and need appropriate HANA privileges.</p>
+<p>Generated reports use unique temporary directories when no persistent output
+location is supplied. Use returned paths and copy artifacts needed after process
+exit. Raw HTML is not rendered automatically; <code class="docutils literal notranslate"><span class="pre">HANA_ALLOW_RAW_HTML_RENDER=true</span></code>
+is only for trusted content and provides no HTML sandbox.</p>
 <span class="target" id="module-hana_ai.tools"></span><section id="agent-as-a-tool">
 <span id="agent-as-a-tool-label"></span><h2>agent_as_a_tool<a class="headerlink" href="#agent-as-a-tool" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
@@ -431,10 +452,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave" title="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave</span></code></a>(...)</p></td>
 <td><p>This tool fits a time series model and saves it in the model storage.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict" title="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict" title="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict</span></code></a>(...)</p></td>
 <td><p>This tool load model from model storage and do the prediction.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore" title="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore" title="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore</span></code></a>(...)</p></td>
 <td><p>This tool load model from model storage and do the scoring.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html#hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool" title="hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool</span></code></a>(...)</p></td>
@@ -553,7 +574,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit" title="hana_ai.tools.toolkit.HANAMLToolkit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolkit.HANAMLToolkit</span></code></a>(connection_context[, ...])</p></td>
-<td><p>Toolkit for interacting with HANA SQL.</p></td>
+<td><p>Toolkit for HANA data analysis and model workflows.</p></td>
 </tr>
 </tbody>
 </table>
@@ -611,8 +632,10 @@ keys:</p>
 </dd>
 <dt><strong>skip_admin_tools</strong><span class="classifier">bool, default True</span></dt><dd><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, tools whose name starts with <code class="docutils literal notranslate"><span class="pre">admin_</span></code> (e.g.
 <code class="docutils literal notranslate"><span class="pre">admin_update_connection_context</span></code>) are excluded from the returned
-list. Set to <code class="docutils literal notranslate"><span class="pre">False</span></code> if the agent needs to manage the server's
-connection context at runtime.</p>
+list. <code class="docutils literal notranslate"><span class="pre">False</span></code> only retains admin tools already exposed by the server;
+it neither enables administration nor grants permission. The HANA
+toolkit server must opt in with HANA_ALLOW_RUNTIME_CONN_UPDATE=true
+and authenticate HTTP administration requests.</p>
 </dd>
 </dl>
 </dd>
@@ -635,9 +658,16 @@ session and its MCP session id.</p>
 </dd>
 </dl>
 </div>
+<p class="rubric">Notes</p>
+<p>This convenience helper does not accept authentication headers and initializes
+the connection before returning. For authenticated servers, use a client with
+explicit authentication-header support, such as
+<a class="reference internal" href="#hana_ai.client.mcp_client.HTTPMCPClient" title="hana_ai.client.mcp_client.HTTPMCPClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">HTTPMCPClient</span></code></a>. The client_name and
+client_metadata values are audit labels, not authentication credentials.</p>
 <p class="rubric">Examples</p>
-<p>Launch the MCP server on one process, then wire it into a
-<code class="docutils literal notranslate"><span class="pre">ContextAgent</span></code> from another:</p>
+<p>For a loopback HTTP server with runtime administration disabled and no
+authentication required, build tools to pass to ContextAgent. Admin tools
+remain excluded by default:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.hana_ml_tools.utility</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_context_agent_mcp_tools</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tools</span><span class="p">,</span> <span class="n">client</span> <span class="o">=</span> <span class="n">build_context_agent_mcp_tools</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s2">&quot;http://127.0.0.1:8001/mcp&quot;</span><span class="p">,</span>
@@ -859,6 +889,40 @@ errors defaults to 'strict'.</p>
 </ul>
 </div>
 </section>
+<section id="mcp-clients">
+<h2>MCP clients<a class="headerlink" href="#mcp-clients" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="hana_ai.client.mcp_client.HTTPMCPClient">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.client.mcp_client.</span></span><span class="sig-name descname"><span class="pre">HTTPMCPClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'http://localhost:8000/mcp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hana-ml-tools'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_headers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_insecure_http</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.client.mcp_client.HTTPMCPClient" title="Link to this definition"></a></dt>
+<dd><p>MCP client using HTTP transport.</p>
+<p>Use HTTPS for non-loopback servers and pass authentication through
+extra_headers (for example, an Authorization bearer header), not URL
+credentials. Redirects and environment-derived proxy settings are disabled.
+Plain HTTP is allowed on loopback; the explicit Boolean
+allow_insecure_http=True permits it elsewhere only for trusted isolated
+networks. Strings such as &quot;false&quot; do not enable that override.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hana_ai.client.mcp_client.StdioMCPClient">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.client.mcp_client.</span></span><span class="sig-name descname"><span class="pre">StdioMCPClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hana-ml-tools'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.client.mcp_client.StdioMCPClient" title="Link to this definition"></a></dt>
+<dd><p>MCP client using stdio transport.</p>
+<p>Process startup requires the host-controlled HANA_MCP_STDIO_ALLOWED_PROFILES
+environment variable: a JSON list with a command and non-empty args_prefix
+for each trusted server. The resolved executable and full argument list must
+match; trailing arguments require the profile's explicit Boolean
+allow_additional_args=true. For example (replace paths for your deployment):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;/opt/hana-ai/venv/bin/python&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;args_prefix&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;/opt/hana-ai/mcp_server.py&quot;</span><span class="p">]}]</span>
+</pre></div>
+</div>
+<p>Shell interpreters, inline-code switches and Windows batch/PowerShell scripts
+are rejected even if profiled. Keep executables, scripts, their directories
+and the inherited environment under trusted host control. No process is
+started merely by constructing this client.</p>
+</dd></dl>
+
+</section>
 </section>
 
 
@@ -886,18 +950,7 @@ errors defaults to 'strict'.</p>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-    <!-- Theme Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-XXXXXXX-1', {
-          'anonymize_ip': false,
-      });
-    </script> 
+  </script> 
 
 </body>
 </html>

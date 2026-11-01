@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CAPArtifactsTool &mdash; hana.ai 1.1.26081400 documentation</title>
+  <title>CAPArtifactsTool &mdash; hana.ai 1.1.26103000 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,14 +15,14 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=19210906"></script>
+      <script src="../_static/documentation_options.js?v=398e29b9"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="GetPALPipelineInfo" href="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetPALPipelineInfo.html" />
-    <link rel="prev" title="AutomaticTimeSeriesLoadModelAndScore" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html" /> 
+    <link rel="prev" title="AutomaticTimeSeriesLoadModelAndScore" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,7 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-hana-dataframe-agent-and-retrieve-templates">Create HANA Dataframe Agent and Retrieve Templates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
 </ul>
 </li>
@@ -67,6 +67,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hana-sql-agent">hana_sql_agent</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#supported-select-syntax">Supported SELECT syntax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#semicolons-in-other-hana-ml-tools">Semicolons in other hana-ml tools</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html">create_hana_sql_toolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html#hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_toolkit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -78,6 +84,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#legacy-rag-memory">Legacy RAG memory</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../hana_ai.tools.html">hana_ai.tools</a><ul class="current">
@@ -116,12 +123,12 @@
 <li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">CAPArtifactsTool</a><ul>
@@ -288,6 +295,11 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#mcp-clients">MCP clients</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.tools.html#hana_ai.client.mcp_client.HTTPMCPClient"><code class="docutils literal notranslate"><span class="pre">HTTPMCPClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.tools.html#hana_ai.client.mcp_client.StdioMCPClient"><code class="docutils literal notranslate"><span class="pre">StdioMCPClient</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
@@ -382,7 +394,7 @@
             <a href="../_sources/tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html" class="btn btn-neutral float-left" title="AutomaticTimeSeriesLoadModelAndScore" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html" class="btn btn-neutral float-left" title="AutomaticTimeSeriesLoadModelAndScore" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="hana_ai.tools.hana_ml_tools.config_dict_validator_tools.GetPALPipelineInfo.html" class="btn btn-neutral float-right" title="GetPALPipelineInfo" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
@@ -513,18 +525,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-    <!-- Theme Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-XXXXXXX-1', {
-          'anonymize_ip': false,
-      });
-    </script> 
+  </script> 
 
 </body>
 </html>

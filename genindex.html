@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; hana.ai 1.1.26081400 documentation</title>
+  <title>Index &mdash; hana.ai 1.1.26103000 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=19210906"></script>
+      <script src="_static/documentation_options.js?v=398e29b9"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -48,7 +48,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.html#create-hana-dataframe-agent-and-retrieve-templates">Create HANA Dataframe Agent and Retrieve Templates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
 </ul>
 </li>
@@ -64,6 +64,12 @@
 <li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#hana-sql-agent">hana_sql_agent</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#supported-select-syntax">Supported SELECT syntax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#semicolons-in-other-hana-ml-tools">Semicolons in other hana-ml tools</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html">create_hana_sql_toolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html#hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_toolkit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -75,6 +81,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.agents.html#legacy-rag-memory">Legacy RAG memory</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.tools.html">hana_ai.tools</a><ul>
@@ -113,12 +120,12 @@
 <li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html">CAPArtifactsTool</a><ul>
@@ -285,6 +292,11 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="hana_ai.tools.html#mcp-clients">MCP clients</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.client.mcp_client.HTTPMCPClient"><code class="docutils literal notranslate"><span class="pre">HTTPMCPClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.html#hana_ai.client.mcp_client.StdioMCPClient"><code class="docutils literal notranslate"><span class="pre">StdioMCPClient</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
@@ -438,13 +450,13 @@
       <li><a href="tools/hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict">AutomaticTimeSeriesLoadModelAndPredict (class in hana_ai.tools.df_tools.automatic_timeseries_tools)</a>
 
       <ul>
-        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict">(class in hana_ai.tools.hana_ml_tools.automatic_timeseries_tools)</a>
+        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict">(class in hana_ai.tools.hana_ml_tools.automatic_timeseries_tools)</a>
 </li>
       </ul></li>
       <li><a href="tools/hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.df_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore">AutomaticTimeSeriesLoadModelAndScore (class in hana_ai.tools.df_tools.automatic_timeseries_tools)</a>
 
       <ul>
-        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore">(class in hana_ai.tools.hana_ml_tools.automatic_timeseries_tools)</a>
+        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore">(class in hana_ai.tools.hana_ml_tools.automatic_timeseries_tools)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -512,9 +524,9 @@
 </li>
         <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.connection_context">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave attribute)</a>
 </li>
-        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.connection_context">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict attribute)</a>
+        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.connection_context">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict attribute)</a>
 </li>
-        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.connection_context">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore attribute)</a>
+        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.connection_context">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore attribute)</a>
 </li>
         <li><a href="tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html#hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.connection_context">(hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool attribute)</a>
 </li>
@@ -565,6 +577,8 @@
 </li>
       <li><a href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent">create_hana_sql_agent() (in module hana_ai.agents.hana_sql_agent)</a>
 </li>
+      <li><a href="agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html#hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit">create_hana_sql_toolkit() (in module hana_ai.agents.hana_sql_agent)</a>
+</li>
       <li><a href="vectorstore/hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.html#hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine.create_knowledge">create_knowledge() (hana_ai.vectorstore.hana_vector_engine.HANAMLinVectorEngine method)</a>
 </li>
   </ul></td>
@@ -608,9 +622,9 @@
 </li>
         <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.description">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave attribute)</a>
 </li>
-        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.description">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict attribute)</a>
+        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.description">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict attribute)</a>
 </li>
-        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.description">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore attribute)</a>
+        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.description">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore attribute)</a>
 </li>
         <li><a href="tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html#hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.description">(hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool attribute)</a>
 </li>
@@ -794,6 +808,8 @@
 </li>
       <li><a href="tools/hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool.html#hana_ai.tools.hana_ml_tools.hdi_artifacts_tools.HDIArtifactsTool">HDIArtifactsTool (class in hana_ai.tools.hana_ml_tools.hdi_artifacts_tools)</a>
 </li>
+      <li><a href="hana_ai.tools.html#hana_ai.client.mcp_client.HTTPMCPClient">HTTPMCPClient (class in hana_ai.client.mcp_client)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -880,9 +896,9 @@
 </li>
         <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.name">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave attribute)</a>
 </li>
-        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.name">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict attribute)</a>
+        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.name">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict attribute)</a>
 </li>
-        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.name">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore attribute)</a>
+        <li><a href="tools/hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.name">(hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore attribute)</a>
 </li>
         <li><a href="tools/hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html#hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.name">(hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool attribute)</a>
 </li>
@@ -1029,6 +1045,8 @@
 </li>
       <li><a href="tools/hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest.html#hana_ai.tools.hana_ml_tools.ts_check_tools.StationarityTest">StationarityTest (class in hana_ai.tools.hana_ml_tools.ts_check_tools)</a>
 </li>
+      <li><a href="hana_ai.tools.html#hana_ai.client.mcp_client.StdioMCPClient">StdioMCPClient (class in hana_ai.client.mcp_client)</a>
+</li>
       <li><a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit.stop_all_mcp_servers">stop_all_mcp_servers() (hana_ai.tools.toolkit.HANAMLToolkit method)</a>
 </li>
       <li><a href="tools/hana_ai.tools.toolkit.HANAMLToolkit.html#hana_ai.tools.toolkit.HANAMLToolkit.stop_mcp_server">stop_mcp_server() (hana_ai.tools.toolkit.HANAMLToolkit method)</a>
@@ -1110,18 +1128,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-    <!-- Theme Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-XXXXXXX-1', {
-          'anonymize_ip': false,
-      });
-    </script> 
+  </script> 
 
 </body>
 </html>

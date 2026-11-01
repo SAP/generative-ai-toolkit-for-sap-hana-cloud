@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HANAMLToolkit &mdash; hana.ai 1.1.26081400 documentation</title>
+  <title>HANAMLToolkit &mdash; hana.ai 1.1.26103000 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=19210906"></script>
+      <script src="../_static/documentation_options.js?v=398e29b9"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -51,7 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#contextagent-with-hanaml-toolkit">ContextAgent with HANAML Toolkit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#hana-vector-store-and-knowledge-base-api">HANA Vector Store and Knowledge Base API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-code-template-tool-and-add-knowledge-bases-to-it">Create Code Template Tool and Add Knowledge Bases to It</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-hana-dataframe-agent-and-execute-task">Create HANA Dataframe Agent and Execute Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#create-hana-dataframe-agent-and-retrieve-templates">Create HANA Dataframe Agent and Retrieve Templates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.html#smart-dataframe">Smart DataFrame</a></li>
 </ul>
 </li>
@@ -67,6 +67,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#hana-sql-agent">hana_sql_agent</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html">create_hana_sql_agent</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#hana_ai.agents.hana_sql_agent.create_hana_sql_agent"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_agent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#supported-select-syntax">Supported SELECT syntax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_agent.html#semicolons-in-other-hana-ml-tools">Semicolons in other hana-ml tools</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html">create_hana_sql_toolkit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../agents/hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit.html#hana_ai.agents.hana_sql_agent.create_hana_sql_toolkit"><code class="docutils literal notranslate"><span class="pre">create_hana_sql_toolkit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -78,6 +84,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.agents.html#legacy-rag-memory">Legacy RAG memory</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../hana_ai.tools.html">hana_ai.tools</a><ul class="current">
@@ -116,12 +123,12 @@
 <li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesFitAndSave"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesFitAndSave</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html">AutomaticTimeSeriesLoadModelAndPredict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndPredict.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndPredict"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndPredict</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html">AutomaticTimeSeriesLoadModelAndScore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeseriesLoadModelAndScore.html#hana_ai.tools.hana_ml_tools.automatic_timeseries_tools.AutomaticTimeSeriesLoadModelAndScore"><code class="docutils literal notranslate"><span class="pre">AutomaticTimeSeriesLoadModelAndScore</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="hana_ai.tools.hana_ml_tools.cap_artifacts_tools.CAPArtifactsTool.html">CAPArtifactsTool</a><ul>
@@ -288,6 +295,11 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../hana_ai.tools.html#mcp-clients">MCP clients</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.tools.html#hana_ai.client.mcp_client.HTTPMCPClient"><code class="docutils literal notranslate"><span class="pre">HTTPMCPClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hana_ai.tools.html#hana_ai.client.mcp_client.StdioMCPClient"><code class="docutils literal notranslate"><span class="pre">StdioMCPClient</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../hana_ai.retrieval.html">hana_ai.retrieval</a><ul>
@@ -395,13 +407,19 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="hana_ai.tools.toolkit.HANAMLToolkit">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hana_ai.tools.toolkit.</span></span><span class="sig-name descname"><span class="pre">HANAMLToolkit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">used_tools</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audit_enabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audit_log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audit_service_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hana-ai-mcp-service'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audit_environment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'local'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trust_proxy_headers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trusted_proxy_cidrs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hana_ai.tools.toolkit.HANAMLToolkit" title="Link to this definition"></a></dt>
-<dd><p>Toolkit for interacting with HANA SQL.</p>
+<dd><p>Toolkit for HANA data analysis and model workflows.</p>
+<p>The separate SQL agent/toolkit is not included automatically. Its read-only
+checks do not apply to these tools: training, model storage and deletion may
+require write/execute privileges. Select tools and database roles accordingly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>connection_context</strong><span class="classifier">ConnectionContext</span></dt><dd><p>Connection context to the HANA database.</p>
 </dd>
-<dt><strong>used_tools</strong><span class="classifier">list, optional</span></dt><dd><p>List of tools to use. If None or 'all', all tools are used. Default to None.</p>
+<dt><strong>used_tools</strong><span class="classifier">list, optional</span></dt><dd><p>List of tools to use. If None or 'all', all default tools are used.
+Default to None. Python execution is never included automatically;
+it requires a separately constructed, explicitly enabled trusted-code
+tool registered with add_custom_tool.</p>
 </dd>
 </dl>
 </dd>
@@ -409,11 +427,11 @@
 <p class="rubric">Examples</p>
 <p>Assume cc is a connection to a SAP HANA instance:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.tools.toolkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLToolkit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.hanaml_agent_with_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">HANAMLAgentWithMemory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">hana_ai.agents.context_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextAgent</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tools</span> <span class="o">=</span> <span class="n">HANAMLToolkit</span><span class="p">(</span><span class="n">connection_context</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">used_tools</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_tools</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chatbot</span> <span class="o">=</span> <span class="n">HANAMLAgentWithMemory</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">toos</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;hana_ai_test&#39;</span><span class="p">,</span> <span class="n">n_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chatbot</span> <span class="o">=</span> <span class="n">ContextAgent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">storage_dir</span><span class="o">=</span><span class="s1">&#39;.context_agent&#39;</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="s1">&#39;toolkit_example&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py method">
@@ -501,13 +519,18 @@ If the specified port is occupied, it will try the next port up to <cite>max_ret
 <dd class="field-odd"><dl class="simple">
 <dt><strong>server_name</strong><span class="classifier">str</span></dt><dd><p>Name of the server. Default is &quot;HANATools&quot;.</p>
 </dd>
-<dt><strong>host</strong><span class="classifier">str</span></dt><dd><p>Host address for the server.</p>
+<dt><strong>host</strong><span class="classifier">str</span></dt><dd><p>Host address; defaults to 127.0.0.1. Non-loopback HTTP requires
+auth_token. SSE is restricted to loopback, even with a token.</p>
 </dd>
 <dt><strong>transport</strong><span class="classifier">{&quot;stdio&quot;, &quot;sse&quot;, &quot;http&quot;}</span></dt><dd><p>Transport protocol to use. Default is &quot;stdio&quot;. Can be &quot;sse&quot; for Server-Sent Events.</p>
 </dd>
 <dt><strong>port</strong><span class="classifier">int</span></dt><dd><p>Network port to use for server transports that require a port (SSE/HTTP). Default is 8001. Ignored for stdio.</p>
 </dd>
-<dt><strong>auth_token</strong><span class="classifier">str, optional</span></dt><dd><p>Authentication token for the server. If provided, the server will require this token for access.</p>
+<dt><strong>auth_token</strong><span class="classifier">str, optional</span></dt><dd><p>Bearer token for HTTP transport, required outside loopback and for
+HTTP connection administration. SSE rejects tokens and administration;
+stdio relies on the host process boundary. This
+launcher does not terminate TLS: remote deployments need an HTTPS
+reverse proxy and must prevent direct plaintext access.</p>
 </dd>
 <dt><strong>max_retries</strong><span class="classifier">int</span></dt><dd><p>Maximum number of retries to find an available port. Default is 5.</p>
 </dd>
@@ -523,6 +546,13 @@ Default is False (stateful — unchanged legacy behavior).</p>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>Connection administration is registered only when the server environment
+sets HANA_ALLOW_RUNTIME_CONN_UPDATE=true. HTTP administration also requires
+auth_token, including on loopback. Environment reload reads the trusted
+server environment; client-selected file reload is not supported.
+Connection updates default to TLS encryption and certificate validation;
+disabling either requires the Boolean allow_tls_downgrade=True.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -572,18 +602,7 @@ Default is False (stateful — unchanged legacy behavior).</p>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-    <!-- Theme Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-XXXXXXX-1', {
-          'anonymize_ip': false,
-      });
-    </script> 
+  </script> 
 
 </body>
 </html>
