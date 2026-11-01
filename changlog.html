@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; hana.ai 1.1.26103000 documentation</title>
+  <title>Changelog &mdash; hana.ai 1.1.26110100 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=398e29b9"></script>
+      <script src="_static/documentation_options.js?v=82611888"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -403,7 +403,7 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
-<p><strong>Version 1.1.26103000</strong></p>
+<p><strong>Version 1.1.26110100</strong></p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">Security</span> <span class="pre">/</span> <span class="pre">API</span> <span class="pre">Changes</span></code></dt><dd><ul class="simple">
 <li><p>Python execution remains disabled by default, including toolkit refreshes and <code class="docutils literal notranslate"><span class="pre">used_tools='all'</span></code>. Enabling <code class="docutils literal notranslate"><span class="pre">PythonHanaMLExecTool</span></code> requires host-side <code class="docutils literal notranslate"><span class="pre">allow_dangerous_code=True</span></code> and custom-tool registration. Dataframe agents also require explicit tools by default and no longer insert table rows into the initial prompt. Enabled Python/REPL tools are not sandboxes; use only trusted code and callers.</p></li>
@@ -426,13 +426,14 @@
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">Installation</span> <span class="pre">/</span> <span class="pre">Maintenance</span></code></dt><dd><ul class="simple">
 <li><p>Aligned API examples and docstrings with security defaults, memory scope and supported tool behavior. Documentation builds preserve SQL guidance and existing API URLs; added the SQL toolkit and MCP client reference entries.</p></li>
-<li><p>Removed import-time package installation; install required dependencies explicitly, including <code class="docutils literal notranslate"><span class="pre">hana_ai[nlp]</span></code> or <code class="docutils literal notranslate"><span class="pre">hana_ai[graph]</span></code> for optional features. Python 3.10+ is required. Runtime dependencies use compatible ranges; development/build versions and CI action revisions are pinned, with hash-checked Python 3.11/Linux CI locks.</p></li>
+<li><p>Removed import-time package installation; install required dependencies explicitly, including <code class="docutils literal notranslate"><span class="pre">hana_ai[nlp]</span></code> or <code class="docutils literal notranslate"><span class="pre">hana_ai[graph]</span></code> for optional features. Python 3.10+ is required. Runtime dependencies use compatible ranges; development dependencies and build backend versions are pinned. Lint CI retains pinned action revisions and a hash-checked Python 3.11/Linux lock.</p></li>
+<li><p>Restored the release workflow to upstream action tags and branches, with standard isolated builds. Release-time build-tool installation is no longer hash-locked.</p></li>
 <li><p>Expanded security, SQL, memory, MCP/audit and ContextAgent regression coverage, including environment-based connection reload and artifact/database-backed business assertions. Public comments and test names now use functional descriptions.</p></li>
 </ul>
 </dd>
 </dl>
 <p>This version includes intentional compatibility restrictions. Upgrade to
-<code class="docutils literal notranslate"><span class="pre">hana_ai==1.1.26103000</span></code> and redeploy to apply these fixes; configure least-privilege
+<code class="docutils literal notranslate"><span class="pre">hana_ai==1.1.26110100</span></code> and redeploy to apply these fixes; configure least-privilege
 HANA roles appropriate to each tool and review the applicable migration notes above.
 Application checks do not replace database authorization or host isolation.</p>
 <p><strong>Version 1.1.26081400</strong></p>

@@ -1,7 +1,7 @@
 Changelog
 =========
 
-**Version 1.1.26103000**
+**Version 1.1.26110100**
 
 ``Security / API Changes``
     - Python execution remains disabled by default, including toolkit refreshes and ``used_tools='all'``. Enabling ``PythonHanaMLExecTool`` requires host-side ``allow_dangerous_code=True`` and custom-tool registration. Dataframe agents also require explicit tools by default and no longer insert table rows into the initial prompt. Enabled Python/REPL tools are not sandboxes; use only trusted code and callers.
@@ -22,11 +22,12 @@ Changelog
 
 ``Installation / Maintenance``
     - Aligned API examples and docstrings with security defaults, memory scope and supported tool behavior. Documentation builds preserve SQL guidance and existing API URLs; added the SQL toolkit and MCP client reference entries.
-    - Removed import-time package installation; install required dependencies explicitly, including ``hana_ai[nlp]`` or ``hana_ai[graph]`` for optional features. Python 3.10+ is required. Runtime dependencies use compatible ranges; development/build versions and CI action revisions are pinned, with hash-checked Python 3.11/Linux CI locks.
+    - Removed import-time package installation; install required dependencies explicitly, including ``hana_ai[nlp]`` or ``hana_ai[graph]`` for optional features. Python 3.10+ is required. Runtime dependencies use compatible ranges; development dependencies and build backend versions are pinned. Lint CI retains pinned action revisions and a hash-checked Python 3.11/Linux lock.
+    - Restored the release workflow to upstream action tags and branches, with standard isolated builds. Release-time build-tool installation is no longer hash-locked.
     - Expanded security, SQL, memory, MCP/audit and ContextAgent regression coverage, including environment-based connection reload and artifact/database-backed business assertions. Public comments and test names now use functional descriptions.
 
 This version includes intentional compatibility restrictions. Upgrade to
-``hana_ai==1.1.26103000`` and redeploy to apply these fixes; configure least-privilege
+``hana_ai==1.1.26110100`` and redeploy to apply these fixes; configure least-privilege
 HANA roles appropriate to each tool and review the applicable migration notes above.
 Application checks do not replace database authorization or host isolation.
 
