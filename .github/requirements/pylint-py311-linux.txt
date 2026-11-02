@@ -632,9 +632,9 @@ fakeredis==2.34.1 \
     --hash=sha256:0107ec99d48913e7eec2a5e3e2403d1bd5f8aa6489d1a634571b975289c48f12 \
     --hash=sha256:4ff55606982972eecce3ab410e03d746c11fe5deda6381d913641fbd8865ea9b
     # via fastmcp
-fastmcp==2.14.7 \
-    --hash=sha256:0d2e83b9d1c5fe0af32036979de3bb99a38f05dc1476d60f1b3259168e139cd0 \
-    --hash=sha256:e081a5222a6d302a148871d89fd714b13130cee6594f53a3e1afd7518f0096c0
+fastmcp==3.4.10 \
+    --hash=sha256:68f422db0a7c6228142663f17d9f79a5a12a509e1408a8ac207b3e442e166e38 \
+    --hash=sha256:c6474855d6230cce4feb7084d654ba518578b25856c6ef26a2ff2d806ef68969
     # via -r .github/requirements/../../requirements.txt
 frozenlist==1.8.0 \
     --hash=sha256:0325024fe97f94c41c08872db482cf8ac4800d80e79222c6b0b7b162d5b13686 \
@@ -883,19 +883,19 @@ keyring==25.7.0 \
     --hash=sha256:be4a0b195f149690c166e850609a477c532ddbfbaed96a404d4e43f8d5e2689f \
     --hash=sha256:fe01bd85eb3f8fb3dd0405defdeac9a5b4f6f0439edbb3149577f244a2e8245b
     # via py-key-value-aio
-langchain==0.3.30 \
-    --hash=sha256:06599ec90fb550e0118b0ceab737667d2c0891fcc62ffce2058d21c945844448 \
-    --hash=sha256:37e6fcce92faf70cc7bac23739d13d6c3b9a3282da4dbcc06cb7e78330ed406a
+langchain==1.3.9 \
+    --hash=sha256:4af49ad1095799e4408b489fb79d4b8b49292453618b202d8a697fca59bb6871 \
+    --hash=sha256:9b14ef0db9ef314299ded858b22ca2a40b8f1b05c8c9cb6b82d53a53075fef00
     # via
     #   langchain-community
     #   langchain-hana
-langchain-community==0.3.18 \
-    --hash=sha256:0d4a70144a1750045c4f726f9a43379ed2484178f76e4b8295bcef3a7fdf41d5 \
-    --hash=sha256:fa2889a8f0b2d22b5c306fd1b070c0970e1f11b604bf55fad2f4a1d0bf68a077
+langchain-community==0.3.27 \
+    --hash=sha256:581f97b795f9633da738ea95da9cb78f8879b538090c9b7a68c0aed49c828f0d \
+    --hash=sha256:e1037c3b9da0c6d10bf06e838b034eb741e016515c79ef8f3f16e53ead33d882
     # via -r .github/requirements/../../requirements.txt
-langchain-core==0.3.86 \
-    --hash=sha256:671cbc96a325fe47f7dbab421236ada2d437bc4bfad0038102264885d0b462e2 \
-    --hash=sha256:7d2a1c50d2d2a139dbc6465cd339f32d14aa43db5ac9bd232e5b567a238709e8
+langchain-core==1.3.3 \
+    --hash=sha256:18aae8506f37da7f74398492279a7d6efcee4f8e23c4c41c7af080eeb7ef7bd1 \
+    --hash=sha256:fa510a5db8efdc0c6ff41c0939fb5c00a0183c11f6b84233e892e3227ff69182
     # via
     #   langchain
     #   langchain-community
@@ -905,15 +905,15 @@ langchain-hana==0.3.4 \
     --hash=sha256:40b75fa4455d82c9641383b4761dc6a27ec780b32ca3896e56b4b825ff8e78a4 \
     --hash=sha256:d728e6442f8a8ff7df71eab0a989810fdf336a55d507107b7b0e5932dad04075
     # via -r .github/requirements/../../requirements.txt
-langchain-text-splitters==0.3.11 \
-    --hash=sha256:7a50a04ada9a133bbabb80731df7f6ddac51bc9f1b9cab7fa09304d71d38a6cc \
-    --hash=sha256:cf079131166a487f1372c8ab5d0bfaa6c0a4291733d9c43a34a16ac9bcd6a393
+langchain-text-splitters==1.1.2 \
+    --hash=sha256:782a723db0a4746ac91e251c7c1d57fd23636e4f38ed733074e28d7a86f41627 \
+    --hash=sha256:a2de0d799ff31886429fd6e2e0032df275b60ec817c19059a7b46181cc1c2f10
     # via
     #   -r .github/requirements/../../requirements.txt
     #   langchain
-langsmith==0.3.45 \
-    --hash=sha256:1df3c6820c73ed210b2c7bc5cdb7bfa19ddc9126cd03fdf0da54e2e171e6094d \
-    --hash=sha256:5b55f0518601fa65f3bb6b1a3100379a96aa7b3ed5e9380581615ba9c65ed8ed
+langsmith==0.8.18 \
+    --hash=sha256:32dde9c0e67e053e0fb738921fc8ced768af7b8fa83d7a0e3fd63597cf8776dd \
+    --hash=sha256:3940183349993faef48e6c7d08e4822ee9cefd906b362d0e3c2d650314d2f282
     # via
     #   langchain
     #   langchain-community
