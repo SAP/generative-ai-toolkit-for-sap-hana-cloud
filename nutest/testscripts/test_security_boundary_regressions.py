@@ -87,7 +87,8 @@ def test_launcher_auth_rejects_unauthenticated_admin_calls(admin_server):
     from starlette.testclient import TestClient
 
     mcp, connection_factory = admin_server
-    app = mcp.http_app(path="/mcp", stateless_http=True)
+    # This fixture bypasses run(), where the launcher selects JSON responses.
+    app = mcp.http_app(path="/mcp", stateless_http=True, json_response=True)
     payload = {
         "jsonrpc": "2.0", "id": 1, "method": "tools/call",
         "params": {"name": "admin_update_connection_context",

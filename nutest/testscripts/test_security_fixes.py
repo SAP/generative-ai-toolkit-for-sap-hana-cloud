@@ -957,13 +957,23 @@ def test_static_token_verifier_enforces_http_requests():
     token = "secret-token-xyz"
     verifier = StaticTokenVerifier({token: {"client_id": "hana-ai-admin", "scopes": []}})
     mcp = FastMCP("HANATools", auth=verifier)
-    app = mcp.http_app(path="/mcp", stateless_http=True)
+    app = mcp.http_app(path="/mcp", stateless_http=True, json_response=True)
+    payload = {
+        "jsonrpc": "2.0", "id": 1, "method": "initialize",
+        "params": {"protocolVersion": "2025-06-18", "capabilities": {},
+                   "clientInfo": {"name": "auth-regression", "version": "1"}},
+    }
     with TestClient(app) as client:
-        assert client.get("/mcp").status_code == 401
-        assert client.get("/mcp", headers={"Authorization": "Bearer wrong"}).status_code == 401
-        # GET is not a valid MCP request, so 406 here proves authentication passed and the
-        # request reached the MCP transport layer.
-        assert client.get("/mcp", headers={"Authorization": f"Bearer {token}"}).status_code == 406
+        headers = {"Accept": "application/json, text/event-stream"}
+        # Exercise an actual MCP operation: stateless FastMCP 3 rejects GET
+        # with 405 before authentication because it has no GET endpoint.
+        assert client.post("/mcp", json=payload, headers=headers).status_code == 401
+        headers["Authorization"] = "Bearer wrong"
+        assert client.post("/mcp", json=payload, headers=headers).status_code == 401
+        headers["Authorization"] = f"Bearer {token}"
+        response = client.post("/mcp", json=payload, headers=headers)
+        assert response.status_code == 200
+        assert "result" in response.json()
 
 
 def test_runtime_http_admin_requires_token(monkeypatch):
