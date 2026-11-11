@@ -89,7 +89,10 @@ except Exception:
     try:
         from langchain_community.memory import ConversationBufferWindowMemory
     except Exception:
-        ConversationBufferWindowMemory = None
+        try:
+            from langchain_classic.memory import ConversationBufferWindowMemory
+        except ImportError:
+            ConversationBufferWindowMemory = None
 
 try:
     from langchain.callbacks.base import BaseCallbackHandler
@@ -107,7 +110,10 @@ except Exception:
     try:
         from langchain.agents import ZeroShotAgent
     except Exception:
-        ZeroShotAgent = None
+        try:
+            from langchain_classic.agents import ZeroShotAgent
+        except ImportError:
+            ZeroShotAgent = None
 
 try:
     from langchain.chains.llm import LLMChain
@@ -115,7 +121,10 @@ except Exception:
     try:
         from langchain.chains import LLMChain
     except Exception:
-        LLMChain = None
+        try:
+            from langchain_classic.chains import LLMChain
+        except ImportError:
+            LLMChain = None
 
 try:
     from langchain.output_parsers.openai_tools import PydanticToolsParser
@@ -131,7 +140,10 @@ except Exception:
         try:
             from langchain.agents.agent_executor import AgentExecutor
         except Exception:
-            AgentExecutor = None
+            try:
+                from langchain_classic.agents import AgentExecutor
+            except ImportError:
+                AgentExecutor = None
 
 try:
     from langchain.agents import create_openai_functions_agent
@@ -139,7 +151,10 @@ except Exception:
     try:
         from langchain.agents.openai_functions_agent import create_openai_functions_agent
     except Exception:
-        create_openai_functions_agent = None
+        try:
+            from langchain_classic.agents import create_openai_functions_agent
+        except ImportError:
+            create_openai_functions_agent = None
 
 try:
     from langchain.agents import create_agent as create_graph_agent
@@ -149,7 +164,10 @@ except Exception:
 try:
     from langchain.agents import initialize_agent
 except Exception:
-    initialize_agent = None
+    try:
+        from langchain_classic.agents import initialize_agent
+    except ImportError:
+        initialize_agent = None
 
 try:
     from langchain.agents import AgentType
@@ -157,7 +175,10 @@ except Exception:
     try:
         from langchain.agents.agent_types import AgentType
     except Exception:
-        AgentType = None
+        try:
+            from langchain_classic.agents import AgentType
+        except ImportError:
+            AgentType = None
 
 try:
     from langchain_core.callbacks.manager import CallbackManagerForChainRun
