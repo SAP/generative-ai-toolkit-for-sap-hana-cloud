@@ -3,6 +3,8 @@ name: Dependency Review
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -17,9 +19,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        revision: [base, head]
+        revision: ${{ fromJSON(github.event_name == 'pull_request' && '["base", "head"]' || '["head"]') }}
     steps:
       - name: Require a branch in this repository
+        if: github.event_name == 'pull_request'
         env:
           PR_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
@@ -31,14 +34,14 @@ jobs:
       - name: Check out the workflow helper
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           path: automation
           persist-credentials: false
 
       - name: Check out the dependency source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: ${{ matrix.revision == 'base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha }}
+          ref: ${{ matrix.revision == 'base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha || github.sha }}
           path: source
           persist-credentials: false
 
@@ -55,14 +58,15 @@ jobs:
       - name: Resolve manifests and submit the snapshot
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          SNAPSHOT_SHA: ${{ matrix.revision == 'base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha }}
-          SNAPSHOT_REF: ${{ matrix.revision == 'base' && format('refs/heads/{0}', github.event.pull_request.base.ref) || format('refs/heads/{0}', github.event.pull_request.head.ref) }}
+          SNAPSHOT_SHA: ${{ matrix.revision == 'base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha || github.sha }}
+          SNAPSHOT_REF: ${{ github.event_name == 'push' && github.ref || (matrix.revision == 'base' && format('refs/heads/{0}', github.event.pull_request.base.ref) || format('refs/heads/{0}', github.event.pull_request.head.ref)) }}
         run: >-
           python automation/.github/scripts/dependency_review.py submit
           --source source --output "$RUNNER_TEMP/dependency-snapshot"
 
   review:
     name: Official Dependency Review
+    if: github.event_name == 'pull_request'
     needs: snapshots
     runs-on: ubuntu-latest
     timeout-minutes: 10
