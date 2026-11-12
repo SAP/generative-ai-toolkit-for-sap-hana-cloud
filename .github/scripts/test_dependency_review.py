@@ -136,15 +136,22 @@ class DependencyReviewTests(unittest.TestCase):
             report_path = Path(command[command.index("--report") + 1])
             report_path.write_text(json.dumps(pip_report()), encoding="utf-8")
 
-        with patch.object(review.subprocess, "check_output", side_effect=["b" * 40, b""]), \
-                patch.object(review.subprocess, "run", side_effect=resolve) as pip, \
-                patch.object(review, "github_request", return_value=({"result": "SUCCESS", "id": 1}, {})) as api:
-            review.submit_snapshot(source, self.output / "reports")
-        self.assertEqual(pip.call_count, 4)
-        snapshot = api.call_args.args[1]
-        self.assertEqual(set(snapshot["manifests"]), set(review.MANIFESTS))
-        self.assertEqual(snapshot["sha"], "b" * 40)
-        api.assert_called_once()
+        for result in ("SUCCESS", "ACCEPTED", "INVALID", "UNKNOWN"):
+            with self.subTest(result=result), \
+                    patch.object(review.subprocess, "check_output", side_effect=["b" * 40, b""]), \
+                    patch.object(review.subprocess, "run", side_effect=resolve) as pip, \
+                    patch.object(review, "github_request", return_value=({"result": result, "id": 1}, {})) as api:
+                if result in {"SUCCESS", "ACCEPTED"}:
+                    review.submit_snapshot(source, self.output / "reports")
+                else:
+                    with self.assertRaisesRegex(RuntimeError, "did not accept"):
+                        review.submit_snapshot(source, self.output / "reports")
+            self.assertEqual(pip.call_count, 4)
+            snapshot = api.call_args.args[1]
+            self.assertEqual(set(snapshot["manifests"]), set(review.MANIFESTS))
+            self.assertEqual(snapshot["sha"], "b" * 40)
+            self.assertTrue(snapshot["job"]["id"].endswith("b" * 40))
+            api.assert_called_once()
 
 
 if __name__ == "__main__":

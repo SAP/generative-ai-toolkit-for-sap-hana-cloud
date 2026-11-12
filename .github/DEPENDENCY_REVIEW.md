@@ -54,6 +54,11 @@ missing files, an empty report, or a rejected submission fails the job.
 Inventories retain original manifest paths and direct/indirect package
 relationships; they do not reconstruct dependency edges.
 
+The submission API returns SUCCESS when it also updates the repository graph,
+or ACCEPTED when it creates a snapshot without updating that graph (for example,
+for a PR branch). Both are successful submissions; INVALID and unknown results
+fail the job. The separate comparison step waits for GitHub to index snapshots.
+
 The helper submits inventories through GitHub's official dependency submission
 API. It does not decide whether a package is vulnerable; GitHub does that.
 Both revisions use the same detector name and correlator so they can be compared.

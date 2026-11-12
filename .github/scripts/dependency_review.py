@@ -111,7 +111,7 @@ def submit_snapshot(source, output):
         "sha": sha,
         "ref": os.environ["SNAPSHOT_REF"],
         "job": {
-            "id": run_id,
+            "id": f"{run_id}-{os.environ.get('GITHUB_RUN_ATTEMPT', '1')}-{sha}",
             # Keep this identical for base/head and across subsequent runs.
             "correlator": "hana-ai-python311-linux-dependencies",
             "html_url": f"{os.environ.get('GITHUB_SERVER_URL', 'https://github.com')}/{repository}/actions/runs/{run_id}",
@@ -122,9 +122,13 @@ def submit_snapshot(source, output):
     }
     (output / "snapshot.json").write_text(json.dumps(snapshot, indent=2), encoding="utf-8")
     response, _ = github_request(f"/repos/{repository}/dependency-graph/snapshots", snapshot)
-    if response.get("result") != "SUCCESS":
-        raise RuntimeError("GitHub did not accept the dependency snapshot")
-    print(f"GitHub accepted snapshot {response.get('id')} for {sha}", flush=True)
+    (output / "submission-response.json").write_text(json.dumps(response, indent=2), encoding="utf-8")
+    # ACCEPTED creates a snapshot without updating the default branch graph,
+    # which is expected when submitting a PR branch for dependency review.
+    if response.get("result") not in {"SUCCESS", "ACCEPTED"}:
+        raise RuntimeError(f"GitHub did not accept the dependency snapshot: {response!r}")
+    print(f"GitHub accepted snapshot {response.get('id')} for {sha}: "
+          f"{response['result']} ({response.get('message', '')})", flush=True)
 
 
 def require_complete_comparison(output, timeout=180):
