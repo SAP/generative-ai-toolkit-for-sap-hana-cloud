@@ -1,0 +1,101 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  snapshots:
+    name: Dependency snapshot (${{ matrix.revision }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # Required by GitHub's dependency submission API.
+    strategy:
+      fail-fast: false
+      matrix:
+        revision: [base, head]
+    steps:
+      - name: Require a branch in this repository
+        env:
+          PR_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          if [ "$PR_REPOSITORY" != "$GITHUB_REPOSITORY" ]; then
+            echo "::error::Dependency submission needs a branch in this repository; fork PR tokens cannot submit snapshots."
+            exit 1
+          fi
+
+      - name: Check out the workflow helper
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: automation
+          persist-credentials: false
+
+      - name: Check out the dependency source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ matrix.revision == 'base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha }}
+          path: source
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+
+      - name: Test snapshot completeness checks
+        run: >-
+          python -m unittest discover -s automation/.github/scripts
+          -p test_dependency_review.py -v
+
+      - name: Resolve manifests and submit the snapshot
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SNAPSHOT_SHA: ${{ matrix.revision == 'base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha }}
+          SNAPSHOT_REF: ${{ matrix.revision == 'base' && format('refs/heads/{0}', github.event.pull_request.base.ref) || format('refs/heads/{0}', github.event.pull_request.head.ref) }}
+        run: >-
+          python automation/.github/scripts/dependency_review.py submit
+          --source source --output "$RUNNER_TEMP/dependency-snapshot"
+
+  review:
+    name: Official Dependency Review
+    needs: snapshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the workflow helper
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+
+      - name: Require complete dependency snapshots
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: >-
+          python .github/scripts/dependency_review.py check
+          --output "$RUNNER_TEMP/dependency-review"
+
+      - name: Check vulnerabilities using GitHub Dependency Review
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          base-ref: ${{ github.event.pull_request.base.sha }}
+          head-ref: ${{ github.event.pull_request.head.sha }}
+          fail-on-severity: low
+          fail-on-scopes: runtime, development, unknown
+          license-check: false
+          show-openssf-scorecard: false
+          comment-summary-in-pr: never
