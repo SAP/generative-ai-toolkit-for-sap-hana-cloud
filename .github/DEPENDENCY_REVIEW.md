@@ -3,6 +3,9 @@
 The [workflow](workflows/dependency-review.yml) submits dependency inventories for
 the base and head commits of a pull request, waits for GitHub to index them,
 and runs GitHub's official actions/dependency-review-action.
+After a merge or push to main, it submits the new main commit's inventory with
+the same detector and correlator, so the default branch does not retain the
+older base snapshot. The comparison action runs only for pull requests.
 
 ## Enable it for PR #167
 
@@ -19,7 +22,7 @@ permissions and the official review action.
 
 The workflow supports branches in this repository, including PR #167.
 It fails explicitly for fork PRs, whose tokens cannot submit these snapshots.
-It uses the pull_request event, never pull_request_target.
+PR checks use the pull_request event, never pull_request_target.
 
 ## What to check in GitHub
 
@@ -64,6 +67,9 @@ API. It does not decide whether a package is vulnerable; GitHub does that.
 Both revisions use the same detector name and correlator so they can be compared.
 The base snapshot is associated with the base branch and commit and can refresh
 the dependency inventory for that commit.
+This can reveal additional alerts for previously unreported transitive
+dependencies on the base branch. The main push trigger updates that inventory
+after merging the dependency fixes.
 
 The generic Component Detection action was not selected because its current
 PipReport detector automatically looks for setup.py and requirements.txt;
