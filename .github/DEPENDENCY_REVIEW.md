@@ -47,8 +47,9 @@ On Ubuntu with Python 3.11, the helper explicitly resolves:
 - .github/requirements/release-build-py311-linux.txt
 
 It uses pip's dry-run, ignore-installed, and report options to capture all
-resolved package versions without installing them. It requires binary
-distributions and verifies hashes for the two lock files. Resolution failure,
+resolved package versions without installing them. Pip may build metadata for
+source-only dependencies such as pydotplus. It verifies hashes for the two lock
+files. Resolution failure,
 missing files, an empty report, or a rejected submission fails the job.
 Inventories retain original manifest paths and direct/indirect package
 relationships; they do not reconstruct dependency edges.

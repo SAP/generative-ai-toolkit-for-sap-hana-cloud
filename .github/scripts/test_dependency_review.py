@@ -1,6 +1,8 @@
 """Checks for incomplete snapshots and pip-report inventory conversion."""
 
 import base64
+from contextlib import redirect_stdout
+import io
 import json
 import os
 from pathlib import Path
@@ -21,6 +23,9 @@ def pip_report():
 
 class DependencyReviewTests(unittest.TestCase):
     def setUp(self):
+        output_capture = redirect_stdout(io.StringIO())
+        output_capture.__enter__()
+        self.addCleanup(output_capture.__exit__, None, None, None)
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
         self.output = Path(directory.name)
@@ -58,6 +63,16 @@ class DependencyReviewTests(unittest.TestCase):
         report["install"][0]["is_direct"] = True
         with self.assertRaises(ValueError):
             review.manifest_from_report("requirements.txt", report)
+
+    def test_source_distribution_is_included_in_inventory(self):
+        report = {"version": "1", "install": [{
+            "metadata": {"name": "pydotplus", "version": "2.0.2"},
+            "requested": False, "is_direct": False,
+            "download_info": {"url": "https://files.pythonhosted.org/packages/pydotplus-2.0.2.tar.gz"},
+        }]}
+        manifest = review.manifest_from_report("requirements.txt", report)
+        self.assertEqual(manifest["resolved"]["pydotplus"]["package_url"], "pkg:pypi/pydotplus@2.0.2")
+        self.assertEqual(manifest["resolved"]["pydotplus"]["relationship"], "indirect")
 
     def test_incomplete_comparison_fails_instead_of_passing(self):
         warning = base64.b64encode(b"No snapshots were found for the head SHA").decode()
