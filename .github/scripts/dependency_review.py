@@ -90,11 +90,11 @@ def submit_snapshot(source, output):
         if not (source / path).is_file():
             raise FileNotFoundError(f"Expected dependency manifest is missing: {path}")
         report_path = (output / f"pip-report-{index}.json").resolve()
-        # --ignore-installed prevents packages on the runner from disappearing
-        # from the report. Binary-only resolution avoids running package builds.
+        # Include packages already installed on the runner. Allow source releases
+        # too: hana-ml depends on pydotplus, which does not publish wheels.
         command = [
             sys.executable, "-m", "pip", "install",
-            "--dry-run", "--ignore-installed", "--only-binary=:all:",
+            "--dry-run", "--ignore-installed",
             "--disable-pip-version-check", "--report", str(report_path),
             "-r", path,
         ]
