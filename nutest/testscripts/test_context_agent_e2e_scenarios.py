@@ -532,6 +532,8 @@ class TestContextAgentE2EScenarios(unittest.TestCase):
 
         rendered = []
         fake_ipython = ModuleType("IPython")
+        # Plotly probes this API even when only display hooks are simulated.
+        fake_ipython.get_ipython = lambda: None
         fake_display_module = ModuleType("IPython.display")
 
         class FakeHTML:

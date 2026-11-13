@@ -13,6 +13,7 @@ import json
 import hashlib
 import ipaddress
 import re
+import asyncio
 from contextlib import closing
 import logging
 import threading
@@ -315,6 +316,9 @@ class HANAMLToolkit(BaseToolkit):
         self.audit_environment = audit_environment
         self.mcp_session_metadata: dict[str, dict[str, Any]] = {}
         self._audit_lock = threading.RLock()
+        # HTTP servers started from this toolkit share its mutable connection.
+        # A threading lock also coordinates servers running on different loops.
+        self._mcp_request_lock = threading.Lock()
         self.default_tools = [
             AccuracyMeasure(connection_context=self.connection_context),
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),
@@ -919,13 +923,21 @@ class HANAMLToolkit(BaseToolkit):
         })
         return metadata
 
-    def _store_session_metadata(self, session_id: str, metadata: dict[str, Any]) -> None:
+    def _store_session_metadata(
+        self, session_id: str, metadata: dict[str, Any], *, replace_identity: bool = False,
+    ) -> None:
         if not session_id:
             return
         with self._audit_lock:
             existing = self.mcp_session_metadata.get(session_id, {}).copy()
             if not existing:
                 existing["created_at"] = self._utc_now_iso()
+            if replace_identity:
+                # Stateless requests share a bookkeeping ID, not a client.
+                # Missing headers must not inherit the preceding caller's identity.
+                for key in tuple(existing):
+                    if key.startswith("client_declared_"):
+                        existing.pop(key)
             existing.update({key: value for key, value in metadata.items() if value is not None})
             existing["mcp_session_id"] = session_id
             existing["last_seen_at"] = self._utc_now_iso()
@@ -1338,7 +1350,7 @@ class HANAMLToolkit(BaseToolkit):
         values = {
             "APPLICATION": session_metadata.get("client_declared_name") or self.audit_service_name,
             "APPLICATIONVERSION": session_metadata.get("client_declared_version") or self.audit_environment,
-            "APPLICATIONUSER": declared_end_user,
+            "APPLICATIONUSER": declared_end_user or "",
             "APPLICATIONSOURCE": appsource_pack or None,
             "APPLICATIONCOMPONENT": tool_name,
             "APPLICATIONCOMPONENTTYPE": "HANA AI Toolkit MCP Server",
@@ -1804,6 +1816,30 @@ class HANAMLToolkit(BaseToolkit):
 
         return metadata
 
+    async def _run_mcp_request(self, handler, context):
+        """Keep connection attribution, tool execution and completion together.
+
+        Never block an event loop while waiting for another server to release
+        the toolkit. Cancellation of an HTTP request must not release the
+        connection while FastMCP's synchronous worker is still using it.
+        """
+        while not self._mcp_request_lock.acquire(blocking=False):
+            await asyncio.sleep(0.01)
+        try:
+            task = asyncio.create_task(handler(context))
+            try:
+                return await asyncio.shield(task)
+            except asyncio.CancelledError:
+                completion = asyncio.gather(task, return_exceptions=True)
+                while not completion.done():
+                    try:
+                        await asyncio.shield(completion)
+                    except asyncio.CancelledError:
+                        pass
+                raise
+        finally:
+            self._mcp_request_lock.release()
+
     def launch_mcp_server(
         self,
         server_name: str = "HANATools",
@@ -1974,6 +2010,15 @@ class HANAMLToolkit(BaseToolkit):
                     """
                     if stateless_http:
                         return stable_session_id
+                    if get_http_request is not None:
+                        try:
+                            # The initial handshake has no transport ID yet.
+                            # FastMCP 3's ctx.session_id would invent a different
+                            # UUID here. Bootstrap on the first tool call instead,
+                            # using its real, transport-validated session header.
+                            return get_http_request().headers.get("mcp-session-id")
+                        except RuntimeError:
+                            pass
                     return toolkit._resolve_context_session_id(ctx, transport=transport)
 
                 def _maybe_emit_session_started(
@@ -2008,8 +2053,19 @@ class HANAMLToolkit(BaseToolkit):
                 class MCPAuditMiddleware(Middleware):
                     """FastMCP middleware that hooks initialize and call_tool events to emit MCP audit context."""
 
+                    async def on_request(self, context, call_next):
+                        # Includes initialize and admin connection reloads, not
+                        # just business tools. Metadata must remain stable until
+                        # the matching completion event has been written.
+                        return await toolkit._run_mcp_request(call_next, context)
+
                     async def on_initialize(self, context, call_next):
                         result = await call_next(context)
+                        if not stateless_http:
+                            # No real HTTP session header exists during the
+                            # handshake. client_params retains initialization
+                            # identity for the first tool call's bootstrap.
+                            return result
                         session_id = _effective_session_id(
                             getattr(context, "fastmcp_context", None),
                         )
@@ -2040,7 +2096,9 @@ class HANAMLToolkit(BaseToolkit):
                                 current_host,
                                 current_port,
                             )
-                            toolkit._store_session_metadata(session_id, metadata)
+                            toolkit._store_session_metadata(
+                                session_id, metadata, replace_identity=stateless_http,
+                            )
 
                         invocation_id = toolkit._generate_invocation_id()
                         hana_correlation_id = toolkit._generate_hana_correlation_id()

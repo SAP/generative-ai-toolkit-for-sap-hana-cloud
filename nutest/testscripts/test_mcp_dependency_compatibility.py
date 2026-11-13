@@ -28,14 +28,17 @@ class EchoTool(BaseTool):
         return json.dumps({"value": value})
 
 
-def launch_http_app(monkeypatch, toolkit, **options):
+def launch_http_app(monkeypatch, toolkit, *, runtime_update=False, **options):
     """Use the real launcher; replace only the background network listener."""
     launched = []
 
     def capture_run(server, **settings):
         launched.append((server, settings))
 
-    monkeypatch.delenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", raising=False)
+    if runtime_update:
+        monkeypatch.setenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", "true")
+    else:
+        monkeypatch.delenv("HANA_ALLOW_RUNTIME_CONN_UPDATE", raising=False)
     monkeypatch.setattr(toolkit_module.HANAMLToolkit, "_global_mcp_servers", {})
     monkeypatch.setattr(toolkit_module.HANAMLToolkit, "is_port_available", lambda *_: True)
     with monkeypatch.context() as startup:
@@ -123,6 +126,14 @@ def test_http_tool_calls_preserve_auth_schema_sessions_and_audit(monkeypatch, mo
     ]
     for start, end in zip(invocations[::2], invocations[1::2]):
         assert start["correlation"]["invocation_id"] == end["correlation"]["invocation_id"]
+    sessions = [event for event in events if event["event_type"] == "mcp.session.started"]
+    assert len(sessions) == 1, "initialize must not create a phantom session"
+    audit_session = sessions[0]["session"]["mcp_session_id"]
+    assert all(event["session"]["mcp_session_id"] == audit_session for event in invocations)
+    if mode is not True:
+        assert audit_session == session_id, "audit must use the transport-issued ID"
+        assert all(event["session"]["client_declared_name"] == "dependency-regression"
+                   for event in invocations), "retain clientInfo from the handshake"
 
 
 @pytest.mark.skipif(not os.environ.get("HANA_USERKEY"), reason="HANA_USERKEY is required for the live HANA check")

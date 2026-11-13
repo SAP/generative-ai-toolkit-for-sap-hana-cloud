@@ -11,6 +11,34 @@ an auditor with ``SELECT`` on ``M_SQL_PLAN_CACHE`` — or, with an audit
 policy enabled, ``AUDIT_LOG`` — has the full picture.
 
 
+Concurrent HTTP requests and session identity
+---------------------------------------------
+
+HTTP servers launched from the same ``HANAMLToolkit`` share its HANA
+connection. Requests are serialized across those servers, including
+initialization and runtime connection reloads. Each tool call retains the
+connection from the initial attribution write through tool execution and
+the completion audit. This is required when FastMCP runs synchronous tools
+in worker threads: another request must not overwrite the active call's
+session variables or client info. Concurrent callers therefore queue; use
+separate toolkits with separate connections when parallel execution is needed.
+Direct use of the connection outside the HTTP server is not covered by this guard.
+
+If a request is cancelled after execution starts, the guard waits for its
+handler and completion audit before letting the next request use the
+connection. Cancellation does not forcibly stop database work already running.
+
+Stateful HTTP auditing uses the transport-issued ``mcp-session-id``. The
+``mcp.session.started`` event is emitted on the session's first tool call,
+using identity retained from initialization; an initialize-only session has
+no audit start event. This avoids recording a second, unrelated identifier
+during the handshake. Stateless HTTP uses one server-lifetime bookkeeping
+session ID, but identity is taken from each request's headers. Missing
+identity fields are cleared, including ``APPLICATIONUSER``, so they cannot
+inherit the preceding caller's identity. Client-declared identity remains
+advisory and is distinct from the database-authenticated user.
+
+
 What lands on the HANA side automatically
 -----------------------------------------
 
