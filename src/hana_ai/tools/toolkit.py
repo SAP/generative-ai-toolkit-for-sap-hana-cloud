@@ -13,6 +13,7 @@ import json
 import hashlib
 import ipaddress
 import re
+import asyncio
 from contextlib import closing
 import logging
 import threading
@@ -42,13 +43,12 @@ except ImportError as e:  # pragma: no cover
 # For HTTP transport support via fastmcp (separate package)
 try:
     from fastmcp import FastMCP as FastMCPHTTP, Context as FastMCPContext
-    from fastmcp.server.dependencies import get_http_request, get_context as get_fastmcp_context
+    from fastmcp.server.dependencies import get_http_request
     from fastmcp.server.middleware.middleware import Middleware
 except ImportError:
     FastMCPHTTP = None
     FastMCPContext = None
     get_http_request = None
-    get_fastmcp_context = None
     Middleware = None
 
 from hana_ml import ConnectionContext
@@ -316,6 +316,9 @@ class HANAMLToolkit(BaseToolkit):
         self.audit_environment = audit_environment
         self.mcp_session_metadata: dict[str, dict[str, Any]] = {}
         self._audit_lock = threading.RLock()
+        # HTTP servers started from this toolkit share its mutable connection.
+        # A threading lock also coordinates servers running on different loops.
+        self._mcp_request_lock = threading.Lock()
         self.default_tools = [
             AccuracyMeasure(connection_context=self.connection_context),
             AdditiveModelForecastFitAndSave(connection_context=self.connection_context),
@@ -920,13 +923,21 @@ class HANAMLToolkit(BaseToolkit):
         })
         return metadata
 
-    def _store_session_metadata(self, session_id: str, metadata: dict[str, Any]) -> None:
+    def _store_session_metadata(
+        self, session_id: str, metadata: dict[str, Any], *, replace_identity: bool = False,
+    ) -> None:
         if not session_id:
             return
         with self._audit_lock:
             existing = self.mcp_session_metadata.get(session_id, {}).copy()
             if not existing:
                 existing["created_at"] = self._utc_now_iso()
+            if replace_identity:
+                # Stateless requests share a bookkeeping ID, not a client.
+                # Missing headers must not inherit the preceding caller's identity.
+                for key in tuple(existing):
+                    if key.startswith("client_declared_"):
+                        existing.pop(key)
             existing.update({key: value for key, value in metadata.items() if value is not None})
             existing["mcp_session_id"] = session_id
             existing["last_seen_at"] = self._utc_now_iso()
@@ -1339,7 +1350,7 @@ class HANAMLToolkit(BaseToolkit):
         values = {
             "APPLICATION": session_metadata.get("client_declared_name") or self.audit_service_name,
             "APPLICATIONVERSION": session_metadata.get("client_declared_version") or self.audit_environment,
-            "APPLICATIONUSER": declared_end_user,
+            "APPLICATIONUSER": declared_end_user or "",
             "APPLICATIONSOURCE": appsource_pack or None,
             "APPLICATIONCOMPONENT": tool_name,
             "APPLICATIONCOMPONENTTYPE": "HANA AI Toolkit MCP Server",
@@ -1805,6 +1816,30 @@ class HANAMLToolkit(BaseToolkit):
 
         return metadata
 
+    async def _run_mcp_request(self, handler, context):
+        """Keep connection attribution, tool execution and completion together.
+
+        Never block an event loop while waiting for another server to release
+        the toolkit. Cancellation of an HTTP request must not release the
+        connection while FastMCP's synchronous worker is still using it.
+        """
+        while not self._mcp_request_lock.acquire(blocking=False):
+            await asyncio.sleep(0.01)
+        try:
+            task = asyncio.create_task(handler(context))
+            try:
+                return await asyncio.shield(task)
+            except asyncio.CancelledError:
+                completion = asyncio.gather(task, return_exceptions=True)
+                while not completion.done():
+                    try:
+                        await asyncio.shield(completion)
+                    except asyncio.CancelledError:
+                        pass
+                raise
+        finally:
+            self._mcp_request_lock.release()
+
     def launch_mcp_server(
         self,
         server_name: str = "HANATools",
@@ -1926,10 +1961,8 @@ class HANAMLToolkit(BaseToolkit):
                 # HTTP transport relies on the wrapped function signature for schema inference.
                 # Register each tool exactly once to avoid FastMCP duplicate-tool warnings.
                 #
-                # ``stateless_http`` is forwarded to fastmcp so the Streamable HTTP layer
-                # stops issuing / enforcing per-client ``mcp-session-id`` values. This is
-                # opt-in (default False) — legacy stateful behavior is unchanged.
-                # Wire the auth_token into the FastMCP auth provider. fastmcp 2.x enforces
+                # FastMCP 3 takes HTTP transport settings in run(), below.
+                # Wire the auth_token into the FastMCP auth provider. FastMCP enforces
                 # auth at construction time (not on .run()), so an HTTP endpoint launched with a
                 # token must build a verifier here or it runs UNAUTHENTICATED.
                 http_auth = None
@@ -1938,11 +1971,6 @@ class HANAMLToolkit(BaseToolkit):
                     http_auth = StaticTokenVerifier({auth_token: {"client_id": "hana-ai-admin", "scopes": []}})
                 mcp = FastMCPHTTP(
                     server_settings.get("name", "HANATools"),
-                    host=server_settings.get("host", "127.0.0.1"),
-                    port=port,
-                    streamable_http_path="/mcp",
-                    json_response=True,
-                    stateless_http=stateless_http,
                     auth=http_auth,
                 )
                 # 检查端口可用性
@@ -1982,6 +2010,15 @@ class HANAMLToolkit(BaseToolkit):
                     """
                     if stateless_http:
                         return stable_session_id
+                    if get_http_request is not None:
+                        try:
+                            # The initial handshake has no transport ID yet.
+                            # FastMCP 3's ctx.session_id would invent a different
+                            # UUID here. Bootstrap on the first tool call instead,
+                            # using its real, transport-validated session header.
+                            return get_http_request().headers.get("mcp-session-id")
+                        except RuntimeError:
+                            pass
                     return toolkit._resolve_context_session_id(ctx, transport=transport)
 
                 def _maybe_emit_session_started(
@@ -2016,8 +2053,19 @@ class HANAMLToolkit(BaseToolkit):
                 class MCPAuditMiddleware(Middleware):
                     """FastMCP middleware that hooks initialize and call_tool events to emit MCP audit context."""
 
+                    async def on_request(self, context, call_next):
+                        # Includes initialize and admin connection reloads, not
+                        # just business tools. Metadata must remain stable until
+                        # the matching completion event has been written.
+                        return await toolkit._run_mcp_request(call_next, context)
+
                     async def on_initialize(self, context, call_next):
                         result = await call_next(context)
+                        if not stateless_http:
+                            # No real HTTP session header exists during the
+                            # handshake. client_params retains initialization
+                            # identity for the first tool call's bootstrap.
+                            return result
                         session_id = _effective_session_id(
                             getattr(context, "fastmcp_context", None),
                         )
@@ -2028,25 +2076,11 @@ class HANAMLToolkit(BaseToolkit):
                         return result
 
                     async def on_call_tool(self, context, call_next):
-                        session_id = _effective_session_id(
-                            getattr(context, "fastmcp_context", None),
-                        )
-                        if session_id:
-                            metadata = toolkit._extract_request_identity_metadata(
-                                transport,
-                                current_host,
-                                current_port,
-                            )
-                            toolkit._store_session_metadata(session_id, metadata)
-                        return await call_next(context)
-
-                mcp.add_middleware(MCPAuditMiddleware())
-
-                if hasattr(mcp, "_call_tool_middleware"):
-                    original_call_tool_middleware = mcp._call_tool_middleware
-
-                    async def audited_call_tool_middleware(key: str, arguments: dict[str, Any]) -> Any:
-                        ctx = get_fastmcp_context() if get_fastmcp_context is not None else None
+                        # Use FastMCP's public middleware boundary. Its former
+                        # private _call_tool_middleware hook was removed in v3.
+                        ctx = getattr(context, "fastmcp_context", None)
+                        key = context.message.name
+                        arguments = context.message.arguments or {}
                         session_id = _effective_session_id(ctx)
                         current_metadata = toolkit._get_session_metadata(session_id)
                         if not current_metadata and session_id:
@@ -2056,6 +2090,15 @@ class HANAMLToolkit(BaseToolkit):
                             # server that boots via a first tool call still emits
                             # session.started exactly once.
                             _maybe_emit_session_started(session_id, ctx=ctx)
+                        if session_id:
+                            metadata = toolkit._extract_request_identity_metadata(
+                                transport,
+                                current_host,
+                                current_port,
+                            )
+                            toolkit._store_session_metadata(
+                                session_id, metadata, replace_identity=stateless_http,
+                            )
 
                         invocation_id = toolkit._generate_invocation_id()
                         hana_correlation_id = toolkit._generate_hana_correlation_id()
@@ -2090,7 +2133,7 @@ class HANAMLToolkit(BaseToolkit):
                                 started_event=started_event,
                             )
                             toolkit._emit_audit_event(started_event)
-                            result = await original_call_tool_middleware(key, arguments)
+                            result = await call_next(context)
                         except Exception as exc:
                             duration_ms = int((time.time() - started_at) * 1000)
                             failure_payload = {
@@ -2144,7 +2187,7 @@ class HANAMLToolkit(BaseToolkit):
                         toolkit._emit_audit_event(success_event)
                         return result
 
-                    mcp._call_tool_middleware = audited_call_tool_middleware
+                mcp.add_middleware(MCPAuditMiddleware())
 
             # --- Admin tool: update connection context at runtime ---
             # This is intentionally registered before business tools, and is transport-agnostic.
@@ -2494,6 +2537,13 @@ class HANAMLToolkit(BaseToolkit):
                         )
                     )
                 if parameters:
+                    # FastMCP reads the explicit Signature when deriving its
+                    # schema and injecting Context; __annotations__ alone does
+                    # not supply the annotations missing from that Signature.
+                    parameters = [
+                        parameter.replace(annotation=annotations.get(parameter.name, Any))
+                        for parameter in parameters
+                    ]
                     sig = inspect.Signature(parameters=parameters)
                     try:
                         tool_wrapper.__signature__ = sig
@@ -2562,6 +2612,8 @@ class HANAMLToolkit(BaseToolkit):
                             port=port,
                             path="/mcp",
                             json_response=True,
+                            stateless_http=stateless_http,
+                            show_banner=False,
                         )
                     else:
                         mcp_instance.run(**server_args)
